@@ -1,4 +1,5 @@
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
+import { normalizeRenderWireResponse } from "../../core/dist/wire/normalize-render-wire-response.js";
 import {
   buildDocxRenderProjectionFromStore,
   type DocxLayoutEngine,
@@ -50,6 +51,8 @@ export class ViewerController {
   private lastResponse: RenderWireResponse | null = null;
   private pageWidthPt = 612;
   private pageHeightPt = 792;
+  private pdfRenderMutex: Promise<void> = Promise.resolve();
+  private repaintInFlight: Promise<void> | null = null;
 
   constructor(private readonly options: ViewerControllerOptions) {
     this.pmSlice = openDocxProsemirrorDemoSessionSlice(
@@ -83,6 +86,17 @@ export class ViewerController {
 
   /** Re-paint the current document (e.g. after container resize). */
   async repaint(): Promise<void> {
+    if (this.repaintInFlight) {
+      await this.repaintInFlight;
+      return;
+    }
+    this.repaintInFlight = this.repaintInner().finally(() => {
+      this.repaintInFlight = null;
+    });
+    await this.repaintInFlight;
+  }
+
+  private async repaintInner(): Promise<void> {
     if (this.kind === "pdf" && this.pdfBytes) {
       await this.renderPdf(0);
       return;
@@ -193,9 +207,9 @@ export class ViewerController {
     }
     this.pageWidthPt = projection.pages[0]?.widthPt ?? 612;
     this.pageHeightPt = projection.pages[0]?.heightPt ?? 792;
-    const response = JSON.parse(
-      engine.render_projection_json(JSON.stringify(projection)),
-    ) as RenderWireResponse;
+    const response = normalizeRenderWireResponse(
+      JSON.parse(engine.render_projection_json(JSON.stringify(projection))) as RenderWireResponse,
+    );
     if ((response.paint?.items?.length ?? 0) === 0) {
       throw new Error("render-wire-empty-paint");
     }
@@ -209,18 +223,29 @@ export class ViewerController {
 
   async renderPdf(pageIndex = 0): Promise<void> {
     if (!this.pdfBytes) return;
-    const cssWidth = this.viewerCanvasTargetWidth();
-    await this.options.loadFormatModule?.("pdf-display", 0);
-    const paint = this.options.loadPdfPreview;
-    if (!paint) throw new Error("pdf-preview-not-configured");
-    const painted = await paint(this.options.shell.canvas, this.pdfBytes, pageIndex, cssWidth);
-    this.lastResponse = null;
-    document.body.dataset.paintItems = String(painted.pixelCount);
-    document.body.dataset.pdfJsRender = "true";
-    document.body.dataset.g1PdfiumBrowserRender = "false";
-    document.body.dataset.f01RenderError = "";
-    this.recordCanvasPaintMetrics();
-    this.options.shell.statusText.textContent = `PDF — page ${pageIndex + 1} (${painted.width}×${painted.height}px).`;
+    let release!: () => void;
+    const slot = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const waitTurn = this.pdfRenderMutex;
+    this.pdfRenderMutex = waitTurn.then(() => slot);
+    await waitTurn;
+    try {
+      const cssWidth = this.viewerCanvasTargetWidth();
+      await this.options.loadFormatModule?.("pdf-display", 0);
+      const paint = this.options.loadPdfPreview;
+      if (!paint) throw new Error("pdf-preview-not-configured");
+      const painted = await paint(this.options.shell.canvas, this.pdfBytes, pageIndex, cssWidth);
+      this.lastResponse = null;
+      document.body.dataset.paintItems = String(painted.pixelCount);
+      document.body.dataset.pdfJsRender = "true";
+      document.body.dataset.g1PdfiumBrowserRender = "false";
+      document.body.dataset.f01RenderError = "";
+      this.recordCanvasPaintMetrics();
+      this.options.shell.statusText.textContent = `PDF — page ${pageIndex + 1} (${painted.width}×${painted.height}px).`;
+    } finally {
+      release();
+    }
   }
 
   paintResponse(response: RenderWireResponse): void {

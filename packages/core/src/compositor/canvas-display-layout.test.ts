@@ -1,14 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { applyViewerCanvasCssLayout } from "./canvas-display-layout.js";
+import { applyViewerCanvasCssLayout, paintViewerEmptyPlaceholder } from "./canvas-display-layout.js";
 
 describe("applyViewerCanvasCssLayout", () => {
-  it("sets explicit width, height, and aspect ratio on the canvas element", () => {
+  it("uses intrinsic bitmap sizing with width 100% and height auto", () => {
     if (typeof document === "undefined") return;
     const canvas = document.createElement("canvas");
-    applyViewerCanvasCssLayout(canvas, { cssWidthPx: 640, cssHeightPx: 826 });
-    expect(canvas.style.width).toBe("640px");
-    expect(canvas.style.height).toBe("826px");
+    canvas.width = 640;
+    canvas.height = 826;
+    applyViewerCanvasCssLayout(canvas);
+    expect(canvas.style.width).toBe("100%");
+    expect(canvas.style.height).toBe("auto");
     expect(canvas.style.maxWidth).toBe("100%");
-    expect(canvas.style.aspectRatio).toBe("640 / 826");
+    expect(canvas.style.aspectRatio).toBe("");
+  });
+});
+
+describe("paintViewerEmptyPlaceholder", () => {
+  it("draws a non-empty placeholder bitmap", () => {
+    if (typeof document === "undefined") return;
+    const canvas = document.createElement("canvas");
+    paintViewerEmptyPlaceholder(canvas);
+    expect(canvas.width).toBeGreaterThan(0);
+    expect(canvas.height).toBeGreaterThan(0);
   });
 });

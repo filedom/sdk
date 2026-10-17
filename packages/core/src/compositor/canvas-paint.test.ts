@@ -26,13 +26,11 @@ describe("canvas paint", () => {
         items: [
           {
             kind: "fillRect",
-            pageIndex: 0,
             rect: { id: "p", xPt: 0, yPt: 0, widthPt: 612, heightPt: 792 },
             colorRgba: [1, 1, 1, 1],
           },
           {
             kind: "glyphRun",
-            pageIndex: 0,
             runId: "run-a",
             glyphs: [{ char: "A", xPt: 72, yPt: 720, advancePt: 6 }],
           },

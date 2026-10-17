@@ -19,6 +19,8 @@ import {
 import { buildAfBrowserPostEditGateGradeEvidence } from "../../core/dist/components/fragmentation-af-browser-post-edit-gate-grade.js";
 import { createWasmShapedLayoutHook } from "../../core/dist/layout/wasm-shaped-layout-hook.js";
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
+import { normalizeRenderWireResponse } from "../../core/dist/wire/normalize-render-wire-response.js";
+import { paintViewerEmptyPlaceholder } from "../../core/dist/compositor/canvas-display-layout.js";
 import { dispatchM2ToolbarCommand } from "../../core/dist/session/m2-toolbar-command-stub.js";
 import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar-command-registry.js";
 import { createDocumentSession } from "../../core/dist/session/document-session.js";
@@ -124,8 +126,13 @@ async function boot(): Promise<void> {
     sessionStub,
   });
 
+  let resizeRepaintTimer: ReturnType<typeof setTimeout> | null = null;
   const resizeObserver = new ResizeObserver(() => {
-    void viewer.repaint();
+    if (resizeRepaintTimer !== null) clearTimeout(resizeRepaintTimer);
+    resizeRepaintTimer = setTimeout(() => {
+      resizeRepaintTimer = null;
+      void viewer.repaint();
+    }, 120);
   });
   resizeObserver.observe(shell.dropZone);
 
@@ -518,6 +525,7 @@ async function boot(): Promise<void> {
   if (!eagerEngine || !engine) {
     document.body.dataset.engineReady = "lazy-deferred";
     shell.statusText.textContent = "Open a PDF or DOCX file.";
+    paintViewerEmptyPlaceholder(shell.canvas);
     return;
   }
 
@@ -525,9 +533,10 @@ async function boot(): Promise<void> {
   document.body.dataset.engineReady = "true";
   document.body.dataset.layoutStable = "true";
 
-  const response = JSON.parse(
-    engine.render_projection_json(
-      JSON.stringify({
+  const response = normalizeRenderWireResponse(
+    JSON.parse(
+      engine.render_projection_json(
+        JSON.stringify({
         header: {
           protocolVersion: 1,
           schemaId: "domdoc://render-wire/v1",
@@ -554,9 +563,10 @@ async function boot(): Promise<void> {
               },
             ]
           : [],
-      }),
-    ),
-  ) as RenderWireResponse;
+        }),
+      ),
+    ) as RenderWireResponse,
+  );
 
   let input = createCompositorInputState(response);
   input = pointerDownWithCaret(

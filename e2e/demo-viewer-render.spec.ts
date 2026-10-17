@@ -88,6 +88,20 @@ test("opening PDF paints via PDF.js in the browser", async ({ page }) => {
   await expect(page.locator("#domdoc-status")).toContainText("PDF");
 });
 
+test("switching DOCX to PDF keeps a visible PDF preview", async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto("/");
+  await expect.poll(async () => page.locator("body").getAttribute("data-engine-ready")).toBe("true");
+  await page.locator("#domdoc-open-local").setInputFiles(minimalOpenDocx);
+  await expect.poll(async () => page.locator("body").getAttribute("data-f01-open-ok")).toBe("true");
+  await page.locator("#domdoc-open-local").setInputFiles(samplePdf);
+  await expect
+    .poll(async () => page.locator("body").getAttribute("data-f01-open-ok"), { timeout: 45_000 })
+    .toBe("true");
+  await expect.poll(async () => page.locator("body").getAttribute("data-f01-open-kind")).toBe("pdf");
+  await expectCanvasVisiblePixels(page);
+});
+
 test("lazy shell opening PDF paints visible pixels", async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto("/?eagerEngine=0");

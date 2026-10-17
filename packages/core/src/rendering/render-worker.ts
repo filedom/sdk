@@ -1,5 +1,6 @@
 import { parentPort } from "node:worker_threads";
 import type { RenderWireResponse } from "../wire/generated.js";
+import { normalizeRenderWireResponse } from "../wire/normalize-render-wire-response.js";
 import type { DomdocRenderWireProtocolV1 as RenderProjection } from "../wire/generated-projection.js";
 
 if (!parentPort) {
@@ -18,7 +19,7 @@ parentPort.on(
     try {
       const json = JSON.stringify(msg.projection);
       const out = wasm.render_projection_json(json);
-      const body = JSON.parse(out) as RenderWireResponse;
+      const body = normalizeRenderWireResponse(JSON.parse(out) as RenderWireResponse);
       parentPort?.postMessage({ ok: true, body });
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);

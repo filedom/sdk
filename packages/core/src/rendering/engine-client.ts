@@ -1,4 +1,5 @@
 import type { RenderWireResponse } from "../wire/generated.js";
+import { normalizeRenderWireResponse } from "../wire/normalize-render-wire-response.js";
 import {
   WIRE_PROTOCOL_VERSION,
   WIRE_SCHEMA_ID,
@@ -35,7 +36,7 @@ async function createDirectClient(): Promise<EngineClient> {
       assertProjectionHeader(projection);
       const json = JSON.stringify(projection);
       const out = wasm.render_projection_json(json);
-      return JSON.parse(out) as RenderWireResponse;
+      return normalizeRenderWireResponse(JSON.parse(out) as RenderWireResponse);
     },
     async dispose() {
       /* WASM module lifetime is process-scoped for W0. */

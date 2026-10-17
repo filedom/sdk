@@ -1,4 +1,7 @@
-import { applyViewerCanvasCssLayout } from "../../core/dist/compositor/canvas-display-layout.js";
+import {
+  applyViewerCanvasCssLayout,
+  resetViewerCanvasCssLayout,
+} from "../../core/dist/compositor/canvas-display-layout.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -13,6 +16,7 @@ export async function paintPdfPageToCanvas(
 ): Promise<{ width: number; height: number; pixelCount: number }> {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas-2d-unavailable");
+  resetViewerCanvasCssLayout(canvas);
   const doc = await getDocument({ data: pdfBytes.slice() }).promise;
   const page = await doc.getPage(pageIndex + 1);
   const baseViewport = page.getViewport({ scale: 1 });
@@ -29,10 +33,7 @@ export async function paintPdfPageToCanvas(
   }
   const paintedWidthPx = canvas.width;
   const paintedHeightPx = canvas.height;
-  applyViewerCanvasCssLayout(canvas, {
-    cssWidthPx: paintedWidthPx,
-    cssHeightPx: paintedHeightPx,
-  });
+  applyViewerCanvasCssLayout(canvas);
   return {
     width: paintedWidthPx,
     height: paintedHeightPx,

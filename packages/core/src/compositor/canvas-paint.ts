@@ -1,9 +1,15 @@
 import type { RenderWireResponse } from "../wire/generated-response.js";
+import { normalizeRenderWireResponse } from "../wire/normalize-render-wire-response.js";
 import { applyViewerCanvasCssLayout } from "./canvas-display-layout.js";
 import { resolveViewerCanvasCssWidth } from "./viewer-canvas-width.js";
 import { CSS_PX_PER_INCH, PT_PER_INCH } from "./view-transform.js";
 
-export { applyViewerCanvasCssLayout, waitForViewerCanvasLayout } from "./canvas-display-layout.js";
+export {
+  applyViewerCanvasCssLayout,
+  paintViewerEmptyPlaceholder,
+  resetViewerCanvasCssLayout,
+  waitForViewerCanvasLayout,
+} from "./canvas-display-layout.js";
 export { resolveViewerCanvasCssWidth };
 
 export interface CanvasPaintOptions {
@@ -41,6 +47,7 @@ export function paintRenderWireResponse(
   response: RenderWireResponse,
   options: CanvasPaintOptions,
 ): CanvasPaintMetrics {
+  const wire = normalizeRenderWireResponse(response);
   const pageIndex = options.pageIndex ?? 0;
   const bottomLeft = options.originBottomLeft !== false;
   const metrics = canvasPaintMetrics(options);
@@ -59,8 +66,8 @@ export function paintRenderWireResponse(
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, cssWidthPx, cssHeightPx);
 
-  for (const item of response.paint.items) {
-    if (item.pageIndex !== pageIndex) continue;
+  for (const item of wire.paint.items) {
+    if ((item.pageIndex ?? 0) !== pageIndex) continue;
     if (item.kind === "fillRect") {
       const x = item.rect.xPt * scale;
       const y = ptToCanvasY(
@@ -89,7 +96,7 @@ export function paintRenderWireResponse(
     }
   }
 
-  applyViewerCanvasCssLayout(canvas, metrics);
+  applyViewerCanvasCssLayout(canvas);
   return metrics;
 }
 
@@ -114,5 +121,5 @@ export function paintRgbaBitmapToCanvas(
   offscreen.height = height;
   offscreen.getContext("2d")!.putImageData(imageData, 0, 0);
   ctx.drawImage(offscreen, 0, 0, cssWidthPx, cssHeightPx);
-  applyViewerCanvasCssLayout(canvas, { cssWidthPx, cssHeightPx });
+  applyViewerCanvasCssLayout(canvas);
 }
