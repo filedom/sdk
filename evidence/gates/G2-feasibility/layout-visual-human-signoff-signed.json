@@ -1,17 +1,20 @@
 {
   "templateVersion": 1,
-  "card": "G2-LAYOUT-15",
-  "humanReviewStatus": "human-workflow-acknowledged",
+  "card": "G2-LAYOUT-16",
+  "humanReviewStatus": "coordinator-accepted-workflow",
   "reviewerId": "local-reviewer-stub",
-  "reviewedAt": "2026-10-17T08:46:46.413Z",
+  "reviewedAt": "2026-10-17T08:49:01.591Z",
   "corpusEntryIds": [
     "LV-01",
     "LV-02",
     "LV-03"
   ],
   "checksumSource": "layout-visual-baseline-checksums.json",
-  "signedChecksumSha256": "ac95075d88931e19757c9e5180c186be2858f4e6323cc4660a847bd3353fcda7",
-  "note": "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
+  "signedChecksumSha256": "2e5330553cd827bf5ef789e32ce9033b40e05826559992e289db36ea9d58fc3f",
+  "note": "Coordinator accepted human sign-off workflow packet — NOT visual baseline pass. Gate G2 remains not-run.",
   "signatureKind": "human",
-  "layoutSignoffMode": "human"
+  "layoutSignoffMode": "human",
+  "coordinatorAccepted": true,
+  "coordinatorId": "coord-stub",
+  "coordinatorAcceptedAt": "2026-10-17T08:49:01.592Z"
 }

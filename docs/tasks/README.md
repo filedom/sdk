@@ -80,5 +80,10 @@
 | [G2-LAYOUT-15-human-signoff-mode.md](./G2-LAYOUT-15-human-signoff-mode.md) | W1+++++++++++++ | review |
 | [G3-INPUT-16-demo-synthetic-session-docs.md](./G3-INPUT-16-demo-synthetic-session-docs.md) | W1+++++++++++++ | review |
 | [W2-G4-14-post-edit-sketch-no-fallback.md](./W2-G4-14-post-edit-sketch-no-fallback.md) | W2 | review |
+| [G1-PDF-17-c24-bytes-ci-worker-p01-p05.md](./G1-PDF-17-c24-bytes-ci-worker-p01-p05.md) | W1++++++++++++++ | review |
+| [G2-DOCX-16-d05-word-complete-numbering.md](./G2-DOCX-16-d05-word-complete-numbering.md) | W1++++++++++++++ | review |
+| [G2-LAYOUT-16-coordinator-human-signoff.md](./G2-LAYOUT-16-coordinator-human-signoff.md) | W1++++++++++++++ | review |
+| [G3-INPUT-17-demo-real-log-slots.md](./G3-INPUT-17-demo-real-log-slots.md) | W1++++++++++++++ | review |
+| [W2-G4-15-post-edit-non-legal-incremental.md](./W2-G4-15-post-edit-non-legal-incremental.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

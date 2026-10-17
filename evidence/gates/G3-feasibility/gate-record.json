@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G3-INPUT-16 synthetic demo session docs+validator; full physical-host demo capture not-run; gate not-run",
+  "limitations": "G3-INPUT-17 demo→real slot projection; full physical-host demo capture not-run; gate not-run",
   "evidencePaths": [
     "caret-map.test.ts",
     "composition-stub.test.ts",
@@ -28,6 +28,8 @@
     "docs/platform-log-capture-checklist.md",
     "docs/demo-ime-sr-capture-sessions.md",
     "input-evidence-synthetic-demo-session.test.ts",
+    "input-evidence-demo-real-capture.test.ts",
+    "demo-real-capture-slots.json",
     "logs/ime-demo-macos-synthetic-session.json",
     "logs/sr-demo-voiceover-synthetic-session.json",
     "logs/ime-01-macos-synthetic-example.json",

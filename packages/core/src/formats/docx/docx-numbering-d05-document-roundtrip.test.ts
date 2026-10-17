@@ -210,6 +210,95 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
       },
     ],
   },
+  {
+    id: "D05-DRT-07",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="8"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Outline one</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="1"/><w:numId w:val="8"/></w:numPr>
+      <w:ind w:left="1440" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Sub point</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="2"/><w:numId w:val="8"/></w:numPr>
+      <w:ind w:left="2160" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Roman detail</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="8"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Outline two</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleNumberingXml(8, [
+      {
+        ilvl: 0,
+        numFmt: "decimal",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "lowerLetter",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 2,
+        numFmt: "upperRoman",
+        lvlText: "%3.",
+        start: 1,
+        restartAfterIlvl: 1,
+        leftIndentTwips: 2160,
+        hangingIndentTwips: 360,
+      },
+    ]),
+    paragraphs: [
+      { text: "Outline one", numId: 8, ilvl: 0 },
+      { text: "Sub point", numId: 8, ilvl: 1 },
+      { text: "Roman detail", numId: 8, ilvl: 2 },
+      { text: "Outline two", numId: 8, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 8, ilvl: 0 },
+      { numId: 8, ilvl: 1 },
+      { numId: 8, ilvl: 2 },
+      { numId: 8, ilvl: 0 },
+    ],
+    expectedTexts: ["Outline one", "Sub point", "Roman detail", "Outline two"],
+    seedLevels: [
+      {
+        ilvl: 0,
+        numFmt: "decimal",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "lowerLetter",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 2,
+        numFmt: "upperRoman",
+        lvlText: "%3.",
+        start: 1,
+        restartAfterIlvl: 1,
+        leftIndentTwips: 2160,
+        hangingIndentTwips: 360,
+      },
+    ],
+  },
 ];
 
 const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
@@ -217,7 +306,7 @@ const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
   { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
 ];
 
-describe("G2-DOCX-15 D05 document.xml numbering round-trip", () => {
+describe("G2-DOCX-16 D05 document.xml numbering round-trip", () => {
   it.each(D05_DOCUMENT_ROUNDTRIP.map((row) => [row.id, row] as const))(
     "%s preserves document.xml numPr through OPC export/reopen",
     (_id, row) => {
@@ -244,6 +333,14 @@ describe("G2-DOCX-15 D05 document.xml numbering round-trip", () => {
         const levels = parsed.abstractNums.get(abstractId!);
         expect(levels?.find((l) => l.ilvl === 0)?.leftIndentTwips).toBe(720);
         expect(levels?.find((l) => l.ilvl === 1)?.restartAfterIlvl).toBe(0);
+      }
+      if (row.id === "D05-DRT-07") {
+        const parsed = parseWordNumberingXml(numberingXml);
+        const abstractId = parsed.numToAbstract.get(8);
+        expect(abstractId).toBeDefined();
+        const levels = parsed.abstractNums.get(abstractId!);
+        expect(levels?.find((l) => l.ilvl === 2)?.numFmt).toBe("upperRoman");
+        expect(levels?.find((l) => l.ilvl === 2)?.restartAfterIlvl).toBe(1);
       }
 
       const doc = buildProseMirrorDocFromOoxmlBody(

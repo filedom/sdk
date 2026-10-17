@@ -29,6 +29,8 @@ export interface DomdocPackageMemberStub {
 export interface DomdocM2DemoSessionBindingStub {
   sessionId: string;
   toolbarSessionId?: string;
+  /** G3-INPUT-17: optional real log slot id when demo exports physical capture. */
+  inputCaptureLogSlotId?: "IME-01-real" | "IME-02-real" | "SR-01-real";
 }
 
 export interface DomdocPackageManifestStub {

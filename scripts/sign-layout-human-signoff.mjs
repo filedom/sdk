@@ -34,20 +34,43 @@ if (mode === "human") {
     );
     process.exit(2);
   }
+  const coordinatorAccept =
+    (process.env.LAYOUT_SIGNOFF_COORDINATOR_ACCEPT ?? "").trim() === "1";
+  const coordinatorId = process.env.LAYOUT_SIGNOFF_COORDINATOR_ID?.trim();
+  if (coordinatorAccept && !coordinatorId) {
+    console.error(
+      "[sign-layout-human-signoff] LAYOUT_SIGNOFF_COORDINATOR_ACCEPT=1 requires LAYOUT_SIGNOFF_COORDINATOR_ID.",
+    );
+    process.exit(2);
+  }
+  const humanReviewStatus = coordinatorAccept
+    ? "coordinator-accepted-workflow"
+    : "human-workflow-acknowledged";
   const signed = {
     ...template,
-    card: "G2-LAYOUT-15",
-    humanReviewStatus: "human-workflow-acknowledged",
+    card: coordinatorAccept ? "G2-LAYOUT-16" : "G2-LAYOUT-15",
+    humanReviewStatus,
     reviewerId,
     reviewedAt: new Date().toISOString(),
     checksumSource: "layout-visual-baseline-checksums.json",
     signedChecksumSha256,
     signatureKind: "human",
     layoutSignoffMode: "human",
-    note: "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
+    ...(coordinatorAccept
+      ? {
+          coordinatorAccepted: true,
+          coordinatorId,
+          coordinatorAcceptedAt: new Date().toISOString(),
+        }
+      : {}),
+    note: coordinatorAccept
+      ? "Coordinator accepted human sign-off workflow packet — NOT visual baseline pass. Gate G2 remains not-run."
+      : "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
   };
   writeFileSync(signedPath, `${JSON.stringify(signed, null, 2)}\n`);
-  console.log(`[sign-layout-human-signoff] human workflow wrote ${signedPath}`);
+  console.log(
+    `[sign-layout-human-signoff] human workflow wrote ${signedPath} (${humanReviewStatus})`,
+  );
   process.exit(0);
 }
 

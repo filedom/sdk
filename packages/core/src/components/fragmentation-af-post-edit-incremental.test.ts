@@ -26,6 +26,7 @@ describe("W2-G4-14 AF post-edit safe suffix incremental", () => {
     const evidence = buildAfPostEditIncrementalEvidence(shaped, incremental);
     expect(evidence.gateStatus).toBe("not-run");
     expect(evidence.entries.length).toBe(AF_BROWSER_CORPUS.length);
+    expect(evidence.nonLegalEntries.length).toBe(AF_BROWSER_CORPUS.length);
   });
 
   it.skipIf(!existsSync(flowEntry))(
@@ -47,12 +48,27 @@ describe("W2-G4-14 AF post-edit safe suffix incremental", () => {
         });
         return String(flow.layout_flow_paragraph_incremental_json!(incrementalPayload));
       };
+      const legalBreakCache = new Map<string, Set<number>>();
+      const isLegalBreak = (paragraphPayload: string, breakAfterCharIndex: number) => {
+        let set = legalBreakCache.get(paragraphPayload);
+        if (!set) {
+          const paragraph = JSON.parse(paragraphPayload) as Record<string, unknown>;
+          const legalRaw = String(
+            flow.layout_flow_paragraph_legal_breaks_json!(JSON.stringify(paragraph)),
+          );
+          set = new Set(JSON.parse(legalRaw) as number[]);
+          legalBreakCache.set(paragraphPayload, set);
+        }
+        return set.has(breakAfterCharIndex);
+      };
       const evidence = buildAfPostEditIncrementalEvidence(
         hook.shapedLayoutJson,
         layoutIncrementalWithPreEdit,
+        { isLegalBreak },
       );
       expect(evidence.corpusSize).toBe(AF_BROWSER_CORPUS.length);
       expect(evidence.allPostEditSuffixBreakpointsEquivalent).toBe(true);
+      expect(evidence.postEditNonLegalSketchWithoutFallbackWhenEquivalent).toBe(true);
       mkdirSync(evidenceDir, { recursive: true });
       writeFileSync(
         join(evidenceDir, "af-incremental-post-edit-suffix.json"),

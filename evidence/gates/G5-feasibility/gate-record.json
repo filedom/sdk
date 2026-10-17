@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G5 multi-blob manifest keys + M2 demo session binding stub; no IDB/OPFS; gate not-run",
+  "limitations": "G5 multi-blob manifest keys + M2 demo session binding (optional inputCaptureLogSlotId); no IDB/OPFS; gate not-run",
   "evidencePaths": [
     "domdoc-package-stub.ts",
     "document-session.test.ts",
