@@ -90,6 +90,48 @@ export function createDomdocPackagePersistPlanStub(
 }
 
 /** G5/M1: verify crash-safe ordering — blob verified before manifest commit. */
+export interface DomdocStagedWriteSimulationStep {
+  step: DomdocCrashSafeCommitStep;
+  status: "completed" | "aborted";
+}
+
+export interface DomdocStagedWriteSimulationResult {
+  ok: boolean;
+  steps: readonly DomdocStagedWriteSimulationStep[];
+  committedManifest: boolean;
+  detail?: string;
+}
+
+/** G5: minimal staged write simulation — blob verified before manifest commit. */
+export function simulateDomdocCrashSafeStagedWrite(
+  plan: DomdocPackagePersistPlanStub,
+  blobBytes: Uint8Array,
+  manifestBytes: Uint8Array,
+  options?: { abortAfterStep?: DomdocCrashSafeCommitStep },
+): DomdocStagedWriteSimulationResult {
+  const ordering = validateDomdocCrashSafeCommitPlan(plan);
+  if (!ordering.ok) {
+    return { ok: false, steps: [], committedManifest: false, detail: ordering.detail };
+  }
+  const steps: DomdocStagedWriteSimulationStep[] = [];
+  for (const step of plan.commitSteps) {
+    if (options?.abortAfterStep === step) {
+      steps.push({ step, status: "aborted" });
+      return { ok: false, steps, committedManifest: false, detail: `aborted-at-${step}` };
+    }
+    if (step === "verify-blob-bytes" && blobBytes.length === 0) {
+      steps.push({ step, status: "aborted" });
+      return { ok: false, steps, committedManifest: false, detail: "empty-blob-rejected" };
+    }
+    if (step === "commit-indexeddb-manifest-transaction" && manifestBytes.length === 0) {
+      steps.push({ step, status: "aborted" });
+      return { ok: false, steps, committedManifest: false, detail: "empty-manifest-rejected" };
+    }
+    steps.push({ step, status: "completed" });
+  }
+  return { ok: true, steps, committedManifest: true };
+}
+
 export function validateDomdocCrashSafeCommitPlan(
   plan: DomdocPackagePersistPlanStub,
 ): { ok: true } | { ok: false; detail: string } {

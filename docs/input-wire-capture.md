@@ -24,6 +24,10 @@ Each capture file is JSON with:
 
 `validateRealPlatformInputLog` rejects any entry with `synthetic: true` for real slots.
 
+## Ingestion path (G3-INPUT-12)
+
+Use `ingestRealPlatformInputLog(jsonText)` in `@domdoc/core` to validate file shape and slot rules. Empty `entries` with `synthetic: false` is allowed (slot still **not-run** for gate evidence until non-empty validated logs exist).
+
 ## Example files (synthetic)
 
 - `evidence/gates/G3-feasibility/logs/ime-01-macos-synthetic-example.json`

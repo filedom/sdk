@@ -20,6 +20,7 @@ export {
   type DomdocPackageMemberStub,
   type DomdocPackagePersistPlanStub,
   validateDomdocCrashSafeCommitPlan,
+  simulateDomdocCrashSafeStagedWrite,
 } from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,

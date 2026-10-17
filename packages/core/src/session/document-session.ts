@@ -9,6 +9,11 @@ import {
 } from "../formats/docx/docx-session-list-mutation.js";
 import type { OpcPackage } from "../formats/docx/opc-package.js";
 import { applyListRenumberToOpcPackage } from "../formats/docx/docx-numbering-opc-patch.js";
+import type { ListParagraphMeta } from "../formats/docx/docx-list-numbering-stub.js";
+import {
+  writeNumberingOpcFromSessionListState,
+  type DocxNumberingSessionWriteBackOptions,
+} from "../formats/docx/docx-numbering-session-writeback.js";
 
 /** M1 skeleton — web-owned semantic authority (blueprint §13.1). */
 export class DocumentSession {
@@ -45,6 +50,27 @@ export class DocumentSession {
     return {
       session,
       pkg: applyListRenumberToOpcPackage(pkg, mutation),
+    };
+  }
+
+  /** G2-DOCX-11: OPC numbering write-back from session list paragraph state. */
+  applyDocxNumberingOpcWriteBackFromSession(
+    pkg: OpcPackage,
+    paragraphs: readonly ListParagraphMeta[],
+    options?: DocxNumberingSessionWriteBackOptions,
+  ): { session: DocumentSession; pkg: OpcPackage } {
+    const markers = paragraphs.filter((p) => p.numId > 0);
+    const session =
+      markers.length > 0
+        ? this.commitDocxListRenumberStub({
+            kind: "docx-list-renumber-stub",
+            numId: markers[0]!.numId,
+            markers: markers.map((p) => `${p.numId}:${p.ilvl}`),
+          })
+        : this;
+    return {
+      session,
+      pkg: writeNumberingOpcFromSessionListState(pkg, paragraphs, options),
     };
   }
 }

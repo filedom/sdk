@@ -5,12 +5,14 @@ import type { AfIncrementalEnginePath } from "../components/fragmentation-af-inc
 export interface WasmLayoutEngineExports {
   layout_flow_paragraph_shaped_json: (input: string) => string;
   layout_flow_paragraph_incremental_json?: (input: string) => string;
+  layout_flow_paragraph_legal_breaks_json?: (input: string) => string;
 }
 
 export interface WasmShapedLayoutHook {
   shapedLayoutJson: ShapedLayoutJsonFn;
   incrementalEnginePath: AfIncrementalEnginePath;
   layoutIncrementalAtBreak?: (paragraphPayload: string, breakAfterCharIndex: number) => string;
+  legalBreaksJson?: (paragraphPayload: string) => readonly number[];
 }
 
 export function createWasmShapedLayoutHook(exports: WasmLayoutEngineExports): WasmShapedLayoutHook {
@@ -30,9 +32,18 @@ export function createWasmShapedLayoutHook(exports: WasmLayoutEngineExports): Wa
     return String(exports.layout_flow_paragraph_incremental_json!(incrementalPayload));
   };
 
+  const hasLegalBreaks = typeof exports.layout_flow_paragraph_legal_breaks_json === "function";
+  const legalBreaksJson = hasLegalBreaks
+    ? (paragraphPayload: string) => {
+        const raw = String(exports.layout_flow_paragraph_legal_breaks_json!(paragraphPayload));
+        return JSON.parse(raw) as number[];
+      }
+    : undefined;
+
   return {
     shapedLayoutJson,
-    incrementalEnginePath: "engine-sketch",
+    incrementalEnginePath: hasLegalBreaks ? "break-token" : "engine-sketch",
     layoutIncrementalAtBreak,
+    legalBreaksJson,
   };
 }

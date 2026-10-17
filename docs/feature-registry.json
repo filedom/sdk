@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1pppppppp",
+  "updatedAt": "2026-10-17-w1ppppppppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-11 vendored ingest path; C24 WASM not obtained; native proofs not-run"
+      "limits": "G1-PDF-12 C24 WASM not obtained; native proofs stub-not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "G2-DOCX-10 numbering restart/indents + G2-LAYOUT-10 checksum baselines; gate not-run"
+      "limits": "G2-DOCX-11 session numbering OPC write-back subset; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "G3-INPUT-11 wire capture doc + synthetic examples; real capture not-run"
+      "limits": "G3-INPUT-12 ingestion path; real slots empty; gate not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "G2-LAYOUT-10 checksum-pinned CI baselines (not human review); gate not-run"
+      "limits": "G2-LAYOUT-11 human sign-off documented only; checksum CI baselines; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-09 engine incremental sketch + authoritative oracle; gate not-run"
+      "limits": "W2-G4-10 break-token incremental AF equivalence when pkg built; gate not-run"
     }
   ]
 }

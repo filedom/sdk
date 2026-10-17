@@ -28,13 +28,15 @@ describe("W2-G4-09 AF engine incremental sketch", () => {
     async () => {
       const flow = await import(pathToFileURL(flowEntry).href);
       const hook = createWasmShapedLayoutHook(flow);
-      expect(hook.incrementalEnginePath).toBe("engine-sketch");
+      expect(hook.incrementalEnginePath).toBe("break-token");
       expect(hook.layoutIncrementalAtBreak).toBeDefined();
       const verdicts = evaluateAfEngineIncrementalVsFullEquivalence(
         hook.shapedLayoutJson,
         hook.layoutIncrementalAtBreak!,
+        { legalBreaksJson: hook.legalBreaksJson },
       );
       expect(verdicts.length).toBe(AF_BROWSER_CORPUS.length);
+      expect(verdicts.every((v) => v.equivalent)).toBe(true);
     },
   );
 });

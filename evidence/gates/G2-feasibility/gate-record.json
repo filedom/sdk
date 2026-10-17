@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-10 numbering restart/indents subset; G2-LAYOUT-10 checksum CI baselines (not human review); gate not-run",
+  "limitations": "G2-DOCX-11 session numbering OPC write-back subset; G2-LAYOUT-11 human sign-off doc only (not performed); gate not-run",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
@@ -18,6 +18,8 @@
     "docx-numbering-ooxml-roundtrip.test.ts",
     "docx-numbering-d05-reader-matrix.test.ts",
     "docx-numbering-runtime.test.ts",
+    "docx-numbering-session-writeback.test.ts",
+    "docs/layout-visual-human-signoff.md",
     "layout-shaping-font-visual-corpus.pkg.test.ts",
     "layout-shaped-flow-visual-diff.json",
     "layout-visual-baseline-manifest.json",

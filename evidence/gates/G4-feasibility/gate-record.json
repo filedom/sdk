@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-09 engine incremental sketch exported; equivalence drift expected; G4 gate not-run",
+  "limitations": "W2-G4-10 break-token incremental at legal line boundaries; AF equivalence when WASM pkg built; arbitrary sketch breaks may drift; G4 gate not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
@@ -19,6 +19,7 @@
     "fragmentation-af-incremental-engine.test.ts",
     "wasm-shaped-layout-hook.ts",
     "domdoc-wasm/src/layout/incremental.rs",
+    "layout_flow_paragraph_legal_breaks_json",
     "af-incremental-gate-grade.json",
     "af-incremental-authoritative.json",
     "e2e/fragmentation-layout-stability.spec.ts",

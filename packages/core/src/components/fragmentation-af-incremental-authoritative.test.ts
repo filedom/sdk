@@ -35,6 +35,7 @@ describe("W2-G4-08 AF authoritative incremental layout", () => {
     const evidence = buildAfAuthoritativeIncrementalEvidence(hook.shapedLayoutJson, {
       incrementalEnginePath: hook.incrementalEnginePath,
       layoutIncrementalAtBreak: hook.layoutIncrementalAtBreak,
+      legalBreaksJson: hook.legalBreaksJson,
     });
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(

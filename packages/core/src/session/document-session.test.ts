@@ -8,6 +8,7 @@ import {
   parseDomdocPackageManifestStub,
   serializeDomdocPackageManifestStub,
   validateDomdocCrashSafeCommitPlan,
+  simulateDomdocCrashSafeStagedWrite,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -75,6 +76,19 @@ describe("M1 DocumentSession skeleton", () => {
     const bytes = serializeDomdocPackageManifestStub(base);
     const manifest = parseDomdocPackageManifestStub(bytes);
     expect(manifest.nativeCheckpointRevision).toBe(base.revisions.materializedRevision);
+  });
+
+  it("G5 simulates staged blob-then-manifest commit", () => {
+    const plan = createDomdocPackagePersistPlanStub(base);
+    const manifestBytes = serializeDomdocPackageManifestStub(base);
+    const blobBytes = new TextEncoder().encode("native-checkpoint-stub");
+    const sim = simulateDomdocCrashSafeStagedWrite(plan, blobBytes, manifestBytes);
+    expect(sim.ok).toBe(true);
+    expect(sim.committedManifest).toBe(true);
+    const verifyIdx = sim.steps.findIndex((s) => s.step === "verify-blob-bytes");
+    const commitIdx = sim.steps.findIndex((s) => s.step === "commit-indexeddb-manifest-transaction");
+    expect(verifyIdx).toBeGreaterThan(-1);
+    expect(commitIdx).toBeGreaterThan(verifyIdx);
   });
 
   it("patches numbering.xml when committing list renumber", () => {
