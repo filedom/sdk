@@ -9,6 +9,13 @@ import {
 } from "./input-evidence-log-templates.js";
 import { INPUT_EVIDENCE_FORMAT_VERSION } from "./input-evidence-scaffold.js";
 
+/** G3-INPUT-13: on-disk real log paths (empty placeholder files until capture). */
+export const REAL_PLATFORM_LOG_RELATIVE_PATHS = {
+  "IME-01-real": "evidence/gates/G3-feasibility/logs/ime-01-real-empty.json",
+  "IME-02-real": "evidence/gates/G3-feasibility/logs/ime-02-real-empty.json",
+  "SR-01-real": "evidence/gates/G3-feasibility/logs/sr-01-real-empty.json",
+} as const;
+
 export const REAL_INPUT_LOG_SLOT_VERSION = 1 as const;
 
 export interface RealInputLogSlot {
@@ -16,7 +23,11 @@ export interface RealInputLogSlot {
   templateId: "IME-01" | "IME-02" | "SR-01";
   platform: string;
   logPath: string | null;
-  captureStatus: "empty" | "synthetic-only" | "real-captured-not-run" | "real-validated";
+  captureStatus:
+    | "empty"
+    | "synthetic-only"
+    | "real-captured-not-run"
+    | "real-validated";
   requiredEventTypes: readonly string[];
 }
 
@@ -25,24 +36,24 @@ export const REAL_INPUT_LOG_SLOTS: readonly RealInputLogSlot[] = [
     slotId: "IME-01-real",
     templateId: "IME-01",
     platform: "macos",
-    logPath: null,
-    captureStatus: "empty",
+    logPath: REAL_PLATFORM_LOG_RELATIVE_PATHS["IME-01-real"],
+    captureStatus: "real-captured-not-run",
     requiredEventTypes: IME_LOG_CAPTURE_TEMPLATES[0]!.requiredEventTypes,
   },
   {
     slotId: "IME-02-real",
     templateId: "IME-02",
     platform: "windows",
-    logPath: null,
-    captureStatus: "empty",
+    logPath: REAL_PLATFORM_LOG_RELATIVE_PATHS["IME-02-real"],
+    captureStatus: "real-captured-not-run",
     requiredEventTypes: IME_LOG_CAPTURE_TEMPLATES[1]!.requiredEventTypes,
   },
   {
     slotId: "SR-01-real",
     templateId: "SR-01",
     platform: "voiceover",
-    logPath: null,
-    captureStatus: "empty",
+    logPath: REAL_PLATFORM_LOG_RELATIVE_PATHS["SR-01-real"],
+    captureStatus: "real-captured-not-run",
     requiredEventTypes: SR_LOG_CAPTURE_TEMPLATES[0]!.requiredEventTypes,
   },
 ];
@@ -91,6 +102,6 @@ export function buildRealInputLogSlotManifest(): {
     recordedAt: new Date().toISOString(),
     gateStatus: "not-run",
     slots: REAL_INPUT_LOG_SLOTS,
-    note: "G3-INPUT-10 real log slots empty; capture steps in docs/ime-sr-platform-capture.md",
+    note: "G3-INPUT-13 real log paths populated; on-disk files empty-validated; gate not-run until filled logs pass ingestion",
   };
 }

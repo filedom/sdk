@@ -9,6 +9,7 @@ import {
   serializeDomdocPackageManifestStub,
   validateDomdocCrashSafeCommitPlan,
   simulateDomdocCrashSafeStagedWrite,
+  MemoryDomdocBlobStoreStub,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -76,6 +77,17 @@ describe("M1 DocumentSession skeleton", () => {
     const bytes = serializeDomdocPackageManifestStub(base);
     const manifest = parseDomdocPackageManifestStub(bytes);
     expect(manifest.nativeCheckpointRevision).toBe(base.revisions.materializedRevision);
+  });
+
+  it("G5 memory blob store applies staged write after simulation passes", () => {
+    const plan = createDomdocPackagePersistPlanStub(base);
+    const manifestBytes = serializeDomdocPackageManifestStub(base);
+    const blobBytes = new TextEncoder().encode("native-checkpoint-stub");
+    const store = new MemoryDomdocBlobStoreStub();
+    const sim = store.applyStagedWrite("source/native-checkpoint.bin", plan, blobBytes, manifestBytes);
+    expect(sim.ok).toBe(true);
+    expect(store.readBlob("source/native-checkpoint.bin")).toEqual(blobBytes);
+    expect(store.readCommittedManifest()).toEqual(manifestBytes);
   });
 
   it("G5 simulates staged blob-then-manifest commit", () => {

@@ -102,6 +102,35 @@ export interface DomdocStagedWriteSimulationResult {
   detail?: string;
 }
 
+/** G5: in-memory blob + manifest store for staged commit simulation (no IDB/OPFS). */
+export class MemoryDomdocBlobStoreStub {
+  readonly blobs = new Map<string, Uint8Array>();
+  manifestBytes: Uint8Array | null = null;
+
+  readBlob(key: string): Uint8Array | undefined {
+    return this.blobs.get(key);
+  }
+
+  readCommittedManifest(): Uint8Array | null {
+    return this.manifestBytes;
+  }
+
+  applyStagedWrite(
+    blobKey: string,
+    plan: DomdocPackagePersistPlanStub,
+    blobBytes: Uint8Array,
+    manifestBytes: Uint8Array,
+    options?: { abortAfterStep?: DomdocCrashSafeCommitStep },
+  ): DomdocStagedWriteSimulationResult {
+    const sim = simulateDomdocCrashSafeStagedWrite(plan, blobBytes, manifestBytes, options);
+    if (sim.ok) {
+      this.blobs.set(blobKey, blobBytes.slice());
+      this.manifestBytes = manifestBytes.slice();
+    }
+    return sim;
+  }
+}
+
 /** G5: minimal staged write simulation — blob verified before manifest commit. */
 export function simulateDomdocCrashSafeStagedWrite(
   plan: DomdocPackagePersistPlanStub,

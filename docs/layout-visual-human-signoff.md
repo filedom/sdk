@@ -11,3 +11,14 @@ When a human reviewer is available:
 3. Re-run `pnpm approve:layout-visual-baselines` only after manifest update; do not claim G2 gate pass without full gate evidence.
 
 **Status:** No human reviewer available in local integration; checksum CI path remains authoritative for automation. Gate **G2 not-run**.
+
+## G2-LAYOUT-12 — absent reviewer hook
+
+When no human is available, use the signed-checksum template at  
+`evidence/gates/G2-feasibility/layout-visual-human-signoff-template.json` (`humanReviewStatus: "pending-human-signoff"`).
+
+When a reviewer returns:
+
+1. Fill `reviewerId`, `reviewedAt`, and `signedChecksumSha256` (SHA-256 of pinned `layout-visual-baseline-checksums.json` bytes).
+2. Set `humanReviewStatus` to `"approved-by-human"` in the template (or copy fields into `layout-visual-baseline-manifest.json`).
+3. Re-run `pnpm approve:layout-visual-baselines` only after manifest reflects human approval; gate **G2** remains **not-run** until full gate evidence exists.

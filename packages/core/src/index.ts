@@ -21,6 +21,7 @@ export {
   type DomdocPackagePersistPlanStub,
   validateDomdocCrashSafeCommitPlan,
   simulateDomdocCrashSafeStagedWrite,
+  MemoryDomdocBlobStoreStub,
 } from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,
@@ -156,6 +157,11 @@ export {
   evaluateAfEngineIncrementalVsFullEquivalence,
 } from "./components/fragmentation-af-incremental-engine.js";
 export {
+  buildAfEditBreakpointEvidence,
+  evaluateAfEngineIncrementalAtEditBreakpoints,
+  type AfEditBreakpointEvidence,
+} from "./components/fragmentation-af-incremental-breakpoints.js";
+export {
   createWasmShapedLayoutHook,
   type WasmShapedLayoutHook,
 } from "./layout/wasm-shaped-layout-hook.js";
@@ -165,6 +171,17 @@ export {
 } from "./formats/docx/docx-numbering-runtime.js";
 export {
   REAL_INPUT_LOG_SLOTS,
+  REAL_PLATFORM_LOG_RELATIVE_PATHS,
   buildRealInputLogSlotManifest,
   validateRealPlatformInputLog,
 } from "./input/input-evidence-real-log-slots.js";
+export {
+  validateRealPlatformLogPaths,
+} from "./input/input-platform-log-paths.js";
+export {
+  ingestRealPlatformInputLog,
+} from "./input/input-platform-log-ingestion.js";
+export {
+  applyDocxNumberingWriteBackFromSession,
+  writeBodyNumPrFromSessionListState,
+} from "./formats/docx/docx-numbering-body-writeback.js";

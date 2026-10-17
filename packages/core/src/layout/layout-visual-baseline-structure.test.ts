@@ -30,4 +30,15 @@ describe("G2-LAYOUT-09 visual baseline structure", () => {
     expect(["pending", "checksum-approved-ci-simulated"]).toContain(manifest.humanReviewStatus);
     expect(readFileSync(mdPath, "utf8")).toContain("LV-01");
   });
+
+  it("G2-LAYOUT-12 human sign-off template exists when reviewer absent", () => {
+    const templatePath = join(evidenceDir, "layout-visual-human-signoff-template.json");
+    expect(existsSync(templatePath)).toBe(true);
+    const template = JSON.parse(readFileSync(templatePath, "utf8")) as {
+      humanReviewStatus: string;
+      signedChecksumSha256: string | null;
+    };
+    expect(template.humanReviewStatus).toBe("pending-human-signoff");
+    expect(template.signedChecksumSha256).toBeNull();
+  });
 });

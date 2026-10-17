@@ -1,15 +1,15 @@
 {
   "formatVersion": 1,
   "slotVersion": 1,
-  "recordedAt": "2026-10-17T08:36:48.664Z",
+  "recordedAt": "2026-10-17T08:39:09.117Z",
   "gateStatus": "not-run",
   "slots": [
     {
       "slotId": "IME-01-real",
       "templateId": "IME-01",
       "platform": "macos",
-      "logPath": null,
-      "captureStatus": "empty",
+      "logPath": "evidence/gates/G3-feasibility/logs/ime-01-real-empty.json",
+      "captureStatus": "real-captured-not-run",
       "requiredEventTypes": [
         "compositionstart",
         "compositionupdate",
@@ -20,8 +20,8 @@
       "slotId": "IME-02-real",
       "templateId": "IME-02",
       "platform": "windows",
-      "logPath": null,
-      "captureStatus": "empty",
+      "logPath": "evidence/gates/G3-feasibility/logs/ime-02-real-empty.json",
+      "captureStatus": "real-captured-not-run",
       "requiredEventTypes": [
         "compositionstart",
         "compositionupdate",
@@ -33,8 +33,8 @@
       "slotId": "SR-01-real",
       "templateId": "SR-01",
       "platform": "voiceover",
-      "logPath": null,
-      "captureStatus": "empty",
+      "logPath": "evidence/gates/G3-feasibility/logs/sr-01-real-empty.json",
+      "captureStatus": "real-captured-not-run",
       "requiredEventTypes": [
         "focusin",
         "aria-live",
@@ -42,5 +42,5 @@
       ]
     }
   ],
-  "note": "G3-INPUT-10 real log slots empty; capture steps in docs/ime-sr-platform-capture.md"
+  "note": "G3-INPUT-13 real log paths populated; on-disk files empty-validated; gate not-run until filled logs pass ingestion"
 }

@@ -125,7 +125,7 @@ function writeDiscoveryRecord(extra) {
   ];
   const record = {
     recordedAt: new Date().toISOString(),
-    card: "G1-PDF-11",
+    card: "G1-PDF-13",
     envVarsChecked: [
       "PDFIUM_WASM_ARTIFACT_DIR",
       "PDFIUM_WASM_ARTIFACT_URL",
@@ -177,6 +177,21 @@ function sha256File(path) {
 let effectiveArtifactDir = artifactDir;
 let ingestNote = null;
 const buildRootAttempts = [];
+const vendoringAttemptPath = join(outDir, "pdfium-wasm-vendoring-attempt.json");
+writeFileSync(
+  vendoringAttemptPath,
+  `${JSON.stringify(
+    {
+      recordedAt: new Date().toISOString(),
+      card: "G1-PDF-13",
+      phase: "pre-ingest",
+      siblingRoots: siblingBuildRoots(),
+      note: "C24 domdoc-pdfium-wasm vendoring attempt; production bytes required for module load.",
+    },
+    null,
+    2,
+  )}\n`,
+);
 writeDiscoveryRecord({ phase: "pre-ingest" });
 
 if (!effectiveArtifactDir) {

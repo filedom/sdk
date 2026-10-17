@@ -63,10 +63,21 @@ export function patchParagraphText(root: OoxmlNode, nodeId: string, newText: str
 }
 
 export function serializeMinimalDocumentXml(body: OoxmlNode): string {
+  return serializeDocumentXmlWithListMeta(body);
+}
+
+/** G2-DOCX-12: emit `w:numPr` when list attrs present on paragraph nodes. */
+export function serializeDocumentXmlWithListMeta(body: OoxmlNode): string {
   const paragraphs =
     body.children?.map((p) => {
       const text = p.children?.find((c) => c.kind === "text")?.text ?? "";
-      return `<w:p><w:r><w:t>${escapeXml(text)}</w:t></w:r></w:p>`;
+      const numId = p.attributes?.listNumId;
+      const ilvl = p.attributes?.listIlvl ?? "0";
+      const pPr =
+        numId != null && numId !== "0"
+          ? `<w:pPr><w:numPr><w:ilvl w:val="${ilvl}"/><w:numId w:val="${numId}"/></w:numPr></w:pPr>`
+          : "";
+      return `<w:p>${pPr}<w:r><w:t>${escapeXml(text)}</w:t></w:r></w:p>`;
     }).join("") ?? "";
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">

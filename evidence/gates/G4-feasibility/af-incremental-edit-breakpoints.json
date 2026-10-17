@@ -1,0 +1,129 @@
+{
+  "recordedAt": "2026-10-17T08:39:18.298Z",
+  "corpusSize": 3,
+  "gateStatus": "not-run",
+  "allLegalBreakpointsEquivalent": true,
+  "arbitraryBreakpointsRecorded": 3,
+  "entries": [
+    {
+      "entryId": "AF-01",
+      "breakAfterCharIndex": 0,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-01",
+      "breakAfterCharIndex": 24,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-01",
+      "breakAfterCharIndex": 29,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-01",
+      "breakAfterCharIndex": 9,
+      "breakpointKind": "arbitrary",
+      "incrementalEquivalent": false,
+      "detail": "arbitrary breakpoint drift vs full layout"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 0,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 16,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 35,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 53,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 59,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 19,
+      "breakpointKind": "arbitrary",
+      "incrementalEquivalent": false,
+      "detail": "arbitrary breakpoint drift vs full layout"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 0,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 10,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 25,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 37,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 55,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 59,
+      "breakpointKind": "legal",
+      "incrementalEquivalent": true,
+      "detail": "legal breakpoint matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 19,
+      "breakpointKind": "arbitrary",
+      "incrementalEquivalent": false,
+      "detail": "arbitrary breakpoint drift vs full layout"
+    }
+  ],
+  "note": "W2-G4-11 edit-breakpoint matrix on AF corpus; arbitrary mid-edit may drift; G4 gate not-run."
+}

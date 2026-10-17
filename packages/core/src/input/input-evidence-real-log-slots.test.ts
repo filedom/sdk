@@ -10,7 +10,7 @@ import {
 const evidenceDir = join(import.meta.dirname, "../../../../evidence/gates/G3-feasibility");
 
 describe("G3-INPUT-10 real IME/SR log slots", () => {
-  it("defines empty real capture slots", () => {
+  it("defines real capture slots with evidence log paths", () => {
     expect(REAL_INPUT_LOG_SLOTS.map((s) => s.slotId)).toEqual([
       "IME-01-real",
       "IME-02-real",
@@ -18,7 +18,8 @@ describe("G3-INPUT-10 real IME/SR log slots", () => {
     ]);
     const manifest = buildRealInputLogSlotManifest();
     expect(manifest.gateStatus).toBe("not-run");
-    expect(manifest.slots.every((s) => s.captureStatus === "empty")).toBe(true);
+    expect(manifest.slots.every((s) => s.logPath != null)).toBe(true);
+    expect(manifest.slots.every((s) => s.captureStatus === "real-captured-not-run")).toBe(true);
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(
       join(evidenceDir, "ime-sr-real-log-slots.json"),

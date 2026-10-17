@@ -1,0 +1,7 @@
+{
+  "recordedAt": "2026-10-17T08:39:12.147Z",
+  "card": "G1-PDF-13",
+  "phase": "pre-ingest",
+  "siblingRoots": [],
+  "note": "C24 domdoc-pdfium-wasm vendoring attempt; production bytes required for module load."
+}
