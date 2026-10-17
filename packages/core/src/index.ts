@@ -7,6 +7,11 @@ export {
 export type { DocumentSessionStub, SessionRevisions } from "./wire/domain-owned.js";
 export { DocumentSession, createDocumentSession } from "./session/document-session.js";
 export {
+  applyDocumentSessionRemoteAcknowledgementReceiptStub,
+  recordRemoteAcknowledgementReceiptStub,
+  type DocumentSessionRemoteAcknowledgementReceiptStub,
+} from "./session/document-session-remote-acknowledgement-receipt-stub.js";
+export {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
   createDomdocPackagePersistPlanStub,
@@ -58,6 +63,12 @@ export {
   DOCX_IMPORT_MINIMAL_VIEW_TRANSFORM_FEATURE_ID,
   type DocxImportMinimalResult,
 } from "./formats/docx/docx-import-minimal.js";
+export {
+  buildDocxExternalReferenceRenderOracleStub,
+  DOCX_EXTERNAL_REFERENCE_RENDER_ORACLE_FEATURE_ID,
+  type DocxExternalReferenceRenderOracleJsonDiffPlaceholder,
+  type DocxExternalReferenceRenderOracleStubResult,
+} from "./formats/docx/docx-external-reference-render-oracle-stub.js";
 export {
   LAZY_FEATURE_MANIFEST_STUB,
   LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION,
@@ -199,6 +210,12 @@ export {
   readPdfiumLibProbeManifestNode,
   type PdfiumLibProbePageBitmapResult,
 } from "./formats/pdf/pdfium-lib-probe-render-node.js";
+export {
+  PDFIUM_LIB_PROBE_BROWSER_BASE,
+  describePdfiumLibProbeLayoutBrowser,
+  tryLoadPdfiumLibProbeRenderBrowser,
+  tryRenderPdfiumLibProbePageBitmapBrowser,
+} from "./formats/pdf/pdfium-lib-probe-render-browser.js";
 export {
   loadPdfiumLibProbeViaWorker,
   renderPdfiumLibProbePageViaWorker,

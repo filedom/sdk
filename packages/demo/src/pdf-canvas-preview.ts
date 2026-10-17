@@ -1,3 +1,4 @@
+import { applyViewerCanvasCssLayout } from "../../core/dist/compositor/canvas-display-layout.js";
 import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
@@ -26,9 +27,15 @@ export async function paintPdfPageToCanvas(
   if (typeof doc.destroy === "function") {
     await doc.destroy();
   }
+  const paintedWidthPx = canvas.width;
+  const paintedHeightPx = canvas.height;
+  applyViewerCanvasCssLayout(canvas, {
+    cssWidthPx: paintedWidthPx,
+    cssHeightPx: paintedHeightPx,
+  });
   return {
-    width: canvas.width,
-    height: canvas.height,
-    pixelCount: canvas.width * canvas.height,
+    width: paintedWidthPx,
+    height: paintedHeightPx,
+    pixelCount: paintedWidthPx * paintedHeightPx,
   };
 }

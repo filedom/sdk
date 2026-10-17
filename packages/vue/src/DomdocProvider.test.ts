@@ -6,6 +6,11 @@ import {
   domdocVueAdapterDemoSurface,
   useDomdocSession,
 } from "./DomdocProvider.js";
+import {
+  domdocVueLazyFeatureManifestStub,
+  domdocVueLazyFeatureManifestSchemaVersion,
+  listDomdocVueLazyFeatureHostExamples,
+} from "./lazy-feature-manifest.js";
 
 const SessionLabel = defineComponent({
   setup() {
@@ -26,5 +31,11 @@ describe("@domdoc/vue framework adapter stub (M5)", () => {
   it("exposes demo surface metadata for vanilla shell", () => {
     const surface = domdocVueAdapterDemoSurface("demo-sess");
     expect(surface.surface).toBe("framework-adapter-stub");
+  });
+
+  it("re-exports lazy feature manifest stub for host parity (M5/G5)", () => {
+    expect(domdocVueLazyFeatureManifestSchemaVersion).toBe(1);
+    expect(domdocVueLazyFeatureManifestStub.gateStatus).toBe("not-run");
+    expect(listDomdocVueLazyFeatureHostExamples()).toContain("vue");
   });
 });

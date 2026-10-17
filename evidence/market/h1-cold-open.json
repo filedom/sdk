@@ -22,7 +22,7 @@
     "coldLoadStudyRuns": 0,
     "methodology": "not-applicable-stub"
   },
-  "webCommit": "62f1b9f0df25185b2305b819bbe45a45c4225f6d",
+  "webCommit": "4d851dcda312bb4d7ab9a6f02a848b300cb89270",
   "wasmCommit": "4bafbf80de320cde791095271e30f82d5c22940a",
   "limitations": "Blueprint §12.8 / §13.8: record exists so qa:market can validate presence; no fabricated p95 or H1 ratio."
 }

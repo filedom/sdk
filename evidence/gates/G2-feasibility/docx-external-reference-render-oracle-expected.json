@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "oracleKind": "external-reference-render-placeholder",
+  "gateStatus": "not-run",
+  "note": "Expected render snapshot slot — populate when independent oracle runs."
+}

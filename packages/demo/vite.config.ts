@@ -19,6 +19,7 @@ const enginePkgDir = path.join(
       : "pkg-node",
 );
 const pdfiumVendor = path.join(webRoot, "vendor/domdoc-pdfium-wasm");
+const pdfiumLibProbeVendor = path.join(webRoot, "vendor/pdfium-lib-probe");
 const hasProductionPdfium = existsSync(path.join(pdfiumVendor, "domdoc_pdfium.js"));
 const pdfiumGlueBasename =
   process.env.DOMDOC_DEMO_PDFIUM_STUB === "1" &&
@@ -36,25 +37,32 @@ export default defineConfig({
     {
       name: "domdoc-pdfium-static",
       configureServer(server) {
-        server.middlewares.use("/pdfium", (req, res, next) => {
-          const rel = (req.url ?? "/").split("?")[0]!.replace(/^\//, "");
-          if (!rel || rel.includes("..")) {
-            next();
-            return;
-          }
-          const file = path.join(pdfiumVendor, rel);
-          if (!file.startsWith(pdfiumVendor) || !existsSync(file)) {
-            next();
-            return;
-          }
-          const type = rel.endsWith(".wasm")
-            ? "application/wasm"
-            : rel.endsWith(".js")
-              ? "application/javascript"
-              : "application/octet-stream";
-          res.setHeader("Content-Type", type);
-          createReadStream(file).pipe(res);
-        });
+        const serveVendorDir = (
+          mount: string,
+          vendorDir: string,
+        ): void => {
+          server.middlewares.use(mount, (req, res, next) => {
+            const rel = (req.url ?? "/").split("?")[0]!.replace(/^\//, "");
+            if (!rel || rel.includes("..")) {
+              next();
+              return;
+            }
+            const file = path.join(vendorDir, rel);
+            if (!file.startsWith(vendorDir) || !existsSync(file)) {
+              next();
+              return;
+            }
+            const type = rel.endsWith(".wasm")
+              ? "application/wasm"
+              : rel.endsWith(".js") || rel.endsWith(".mjs")
+                ? "application/javascript"
+                : "application/octet-stream";
+            res.setHeader("Content-Type", type);
+            createReadStream(file).pipe(res);
+          });
+        };
+        serveVendorDir("/pdfium", pdfiumVendor);
+        serveVendorDir("/pdfium-lib-probe", pdfiumLibProbeVendor);
       },
     },
   ],
@@ -73,7 +81,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     fs: {
-      allow: [demoRoot, wasmPkgRoot, webRoot, pdfiumVendor],
+      allow: [demoRoot, wasmPkgRoot, webRoot, pdfiumVendor, pdfiumLibProbeVendor],
     },
   },
   optimizeDeps: {

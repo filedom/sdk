@@ -33,6 +33,12 @@ export function describePdfiumLibProbeLayout(): PdfiumLibProbeLayout {
 }
 
 export async function tryLoadPdfiumLibProbeRender(): Promise<PdfiumLibProbeRenderStatus> {
+  if (typeof globalThis !== "undefined" && "window" in globalThis) {
+    const { tryLoadPdfiumLibProbeRenderBrowser } = await import(
+      "./pdfium-lib-probe-render-browser.js"
+    );
+    return tryLoadPdfiumLibProbeRenderBrowser();
+  }
   return {
     featureId: PDFIUM_LIB_PROBE_RENDER_FEATURE_ID,
     renderOnly: true,

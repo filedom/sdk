@@ -9,7 +9,8 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   webServer: {
-    command: "DOMDOC_DEMO_EAGER=1 pnpm --filter @domdoc/demo run dev",
+    command:
+      "pnpm --filter @domdoc/core build && DOMDOC_DEMO_EAGER=1 pnpm --filter @domdoc/demo run dev",
     port: 5173,
     reuseExistingServer: !process.env.CI,
   },

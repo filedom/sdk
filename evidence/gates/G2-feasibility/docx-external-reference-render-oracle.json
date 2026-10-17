@@ -1,0 +1,15 @@
+{
+  "card": "G2-DOCX-EXTERNAL-REF-RENDER",
+  "gateId": "G2",
+  "status": "not-run",
+  "oracleKind": "external-reference-render",
+  "jsonDiff": {
+    "status": "not-run",
+    "diffEngine": "json-diff-placeholder",
+    "referenceOracleId": null,
+    "expectedSnapshotPath": "docx-external-reference-render-oracle-expected.json",
+    "actualSnapshotPath": null,
+    "diffSummary": null
+  },
+  "limitations": "External Word/LibreOffice layout oracle and JSON diff not executed; placeholder only."
+}

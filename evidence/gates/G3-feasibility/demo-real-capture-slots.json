@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "recordedAt": "2026-10-17T14:46:28.635Z",
+  "recordedAt": "2026-10-17T14:51:05.193Z",
   "gateStatus": "not-run",
   "demoCapturePaths": {
     "ime-demo-macos": "evidence/gates/G3-feasibility/logs/ime-demo-macos-real-capture-pending.json",

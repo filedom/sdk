@@ -12,6 +12,8 @@ export interface SessionRevisions {
   materializedRevision: number;
   exportedRevision: number;
   sharedRevision: number | null;
+  /** Optional remote provider acknowledgement watermark (§13.1 stub). */
+  remoteAcknowledgementRevision?: number | null;
   renderedRevision: number;
 }
 

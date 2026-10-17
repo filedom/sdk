@@ -101,7 +101,8 @@ export function mountDomdocShell(rootId = "domdoc-root"): DomdocShellElements {
 
   const canvas = document.createElement("canvas");
   canvas.id = "domdoc-canvas";
-  canvas.className = "mx-auto block w-full max-w-full rounded-md bg-white shadow-md ring-1 ring-border";
+  canvas.className =
+    "mx-auto block max-w-full rounded-md bg-white shadow-md ring-1 ring-border [height:auto]";
   canvas.setAttribute("role", "img");
   canvas.setAttribute("aria-label", "domdoc rendered page preview");
   dropZone.appendChild(canvas);

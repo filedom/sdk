@@ -251,7 +251,11 @@ async function boot(): Promise<void> {
       })
       .catch((error) => {
         document.body.dataset.g1PdfiumBrowserRender = "false";
-        document.body.dataset.f01OpenError = error instanceof Error ? error.message : String(error);
+        document.body.dataset.f01OpenOk = "false";
+        const message = error instanceof Error ? error.message : String(error);
+        document.body.dataset.f01OpenError = message;
+        document.body.dataset.f01RenderError = message;
+        shell.statusText.textContent = `Could not open file: ${message}`;
       });
   };
 
@@ -388,16 +392,28 @@ async function boot(): Promise<void> {
   void (loadG1PdfiumProbes
     ? Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()])
     : Promise.resolve([{ moduleLoaded: false, probePresent: false }, { moduleLoaded: false, writerExportsReady: false } as const])
-  ).then(
-    ([probe, readPath]) => {
+  ).then(async ([probe, readPath]) => {
       document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
       document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
       document.body.dataset.g1PdfiumReadPathLoaded = readPath.moduleLoaded ? "true" : "false";
       document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady
         ? "true"
         : "false";
-      document.body.dataset.g1PdfiumProbePageBitmapBytes = probe.moduleLoaded ? "4" : "0";
-      document.body.dataset.g1PdfiumProbePageBitmapSynthetic = probe.moduleLoaded ? "true" : "false";
+      let pageBitmapBytes = 0;
+      let pageBitmapSynthetic = "true";
+      if (params.get("g1PdfiumProbePageRender") === "1" && probe.moduleLoaded) {
+        const { tryRenderPdfiumLibProbePageBitmapBrowser } = await import(
+          "../../core/dist/formats/pdf/pdfium-lib-probe-render-browser.js"
+        );
+        const bitmap = await tryRenderPdfiumLibProbePageBitmapBrowser();
+        pageBitmapBytes = bitmap.byteLength;
+        pageBitmapSynthetic = bitmap.synthetic ? "true" : "false";
+        document.body.dataset.g1PdfiumProbePageRenderOk = bitmap.available ? "true" : "false";
+      } else {
+        document.body.dataset.g1PdfiumProbePageRenderOk = "false";
+      }
+      document.body.dataset.g1PdfiumProbePageBitmapBytes = String(pageBitmapBytes);
+      document.body.dataset.g1PdfiumProbePageBitmapSynthetic = pageBitmapSynthetic;
     },
   );
 

@@ -47,6 +47,10 @@
     "layout-shaping.test.ts",
     "layout-shaping-parley.pkg.test.ts",
     "layout-shaping-flow-parley-diff.pkg.test.ts",
-    "domdoc-wasm/docs/parley-dual-build.md"
+    "domdoc-wasm/docs/parley-dual-build.md",
+    "docx-external-reference-render-oracle.json",
+    "docx-external-reference-render-oracle-expected.json",
+    "docx-external-reference-render-oracle-stub.ts",
+    "document-session-remote-acknowledgement-receipt-stub.ts"
   ]
 }

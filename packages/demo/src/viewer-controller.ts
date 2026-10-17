@@ -8,6 +8,7 @@ import { searchDocumentParagraphs } from "../../core/dist/formats/text/document-
 import {
   paintRenderWireResponse,
   resolveViewerCanvasCssWidth,
+  waitForViewerCanvasLayout,
 } from "../../core/dist/compositor/canvas-paint.js";
 import type { FormatModuleId } from "../../core/dist/loading/format-descriptor.js";
 import { importLegacyDocStub } from "../../core/dist/formats/doc/legacy-doc-import-stub.js";
@@ -102,6 +103,7 @@ export class ViewerController {
   }
 
   private async openBytesInner(bytes: Uint8Array, filename?: string): Promise<void> {
+    await waitForViewerCanvasLayout();
     const detection = detectDocumentKind(bytes, { filename });
     document.body.dataset.f02DetectedKind = detection.kind;
     this.options.shell.formatBadge.textContent = detection.kind;
@@ -143,6 +145,7 @@ export class ViewerController {
       this.options.shell.prosemirrorInput.disabled = true;
       await this.renderPdf(0);
       document.body.dataset.f01OpenOk = "true";
+      document.body.dataset.engineReady = "true";
       return;
     }
 
@@ -162,6 +165,11 @@ export class ViewerController {
     this.syncProsemirrorInput();
     await this.renderDocx();
     document.body.dataset.f01OpenOk = "true";
+    document.body.dataset.engineReady = "true";
+    await waitForViewerCanvasLayout();
+    if (this.lastResponse) {
+      this.paintResponse(this.lastResponse);
+    }
   }
 
   syncProsemirrorInput(): void {

@@ -1,7 +1,9 @@
 import type { RenderWireResponse } from "../wire/generated-response.js";
+import { applyViewerCanvasCssLayout } from "./canvas-display-layout.js";
 import { resolveViewerCanvasCssWidth } from "./viewer-canvas-width.js";
 import { CSS_PX_PER_INCH, PT_PER_INCH } from "./view-transform.js";
 
+export { applyViewerCanvasCssLayout, waitForViewerCanvasLayout } from "./canvas-display-layout.js";
 export { resolveViewerCanvasCssWidth };
 
 export interface CanvasPaintOptions {
@@ -87,6 +89,7 @@ export function paintRenderWireResponse(
     }
   }
 
+  applyViewerCanvasCssLayout(canvas, metrics);
   return metrics;
 }
 
@@ -111,4 +114,5 @@ export function paintRgbaBitmapToCanvas(
   offscreen.height = height;
   offscreen.getContext("2d")!.putImageData(imageData, 0, 0);
   ctx.drawImage(offscreen, 0, 0, cssWidthPx, cssHeightPx);
+  applyViewerCanvasCssLayout(canvas, { cssWidthPx, cssHeightPx });
 }
