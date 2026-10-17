@@ -1,0 +1,14 @@
+{
+  "features": [
+    {
+      "id": "F165",
+      "description": "Legacy binary DOC import",
+      "milestone": "M1",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["AR"],
+      "gateIds": ["G2"],
+      "limits": "Positive Word 97–2003 import path declared; rwml/parser evaluation not-run; preserves original bytes and import report; no DOCX bytes under .doc filename."
+    }
+  ]
+}

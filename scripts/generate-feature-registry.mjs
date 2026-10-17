@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -81,9 +81,19 @@ const features = parsed.map((item) => {
   };
 });
 
+const appendPath = join(webRoot, "docs", "feature-registry-append.json");
+const append = existsSync(appendPath)
+  ? JSON.parse(readFileSync(appendPath, "utf8")).features ?? []
+  : [];
+for (const extra of append) {
+  if (!features.some((f) => f.id === extra.id)) {
+    features.push(extra);
+  }
+}
+
 const out = {
   schemaVersion: 1,
-  updatedAt: "2026-10-17-f01-f164-registry",
+  updatedAt: "2026-10-17-f01-f165-registry",
   contractHash: existing.contractHash,
   features,
 };

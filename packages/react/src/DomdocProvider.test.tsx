@@ -5,6 +5,11 @@ import {
   domdocReactAdapterDemoSurface,
   useDomdocSession,
 } from "./DomdocProvider.js";
+import {
+  domdocReactLazyFeatureManifestStub,
+  domdocReactLazyFeatureManifestSchemaVersion,
+  listDomdocReactLazyFeatureHostExamples,
+} from "./lazy-feature-manifest.js";
 
 function SessionLabel() {
   const { sessionId, surface } = useDomdocSession();
@@ -29,5 +34,11 @@ describe("@domdoc/react framework adapter stub (M5)", () => {
     const surface = domdocReactAdapterDemoSurface("demo-sess");
     expect(surface.surface).toBe("framework-adapter-stub");
     expect(surface.sessionId).toBe("demo-sess");
+  });
+
+  it("re-exports lazy feature manifest stub for host parity (M5/G5)", () => {
+    expect(domdocReactLazyFeatureManifestSchemaVersion).toBe(1);
+    expect(domdocReactLazyFeatureManifestStub.gateStatus).toBe("not-run");
+    expect(listDomdocReactLazyFeatureHostExamples()).toContain("react");
   });
 });

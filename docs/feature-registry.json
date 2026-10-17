@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-f01-f164-registry",
+  "updatedAt": "2026-10-17-f01-f165-registry",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -1694,6 +1694,20 @@
       "acceptanceIds": [],
       "gateIds": [],
       "limits": "schema validation, dry-run conversion, compatibility reports, test fixtures and rollback-safe document upgrades."
+    },
+    {
+      "id": "F165",
+      "description": "Legacy binary DOC import",
+      "milestone": "M1",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": [
+        "AR"
+      ],
+      "gateIds": [
+        "G2"
+      ],
+      "limits": "Positive Word 97–2003 import path declared; rwml/parser evaluation not-run; preserves original bytes and import report; no DOCX bytes under .doc filename."
     }
   ]
 }

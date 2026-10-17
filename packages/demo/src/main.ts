@@ -1,6 +1,8 @@
 import "../../shell-ui/src/styles.css";
-import init, * as engine from "@domdoc/demo-engine";
 import { mountDomdocShell } from "@domdoc/shell-ui";
+import { loadDisplayEngineModule, type DisplayEngineModule } from "./display-engine-loader.js";
+import { demoFormatModuleLoader, syncFormatModuleDataset } from "./format-modules.js";
+import { paintPdfPageToCanvas } from "./pdf-canvas-preview.js";
 import {
   createCompositorInputState,
   pointerDownWithCaret,
@@ -71,10 +73,14 @@ import { ViewerController } from "./viewer-controller.js";
 
 const shell = mountDomdocShell("domdoc-root");
 document.body.dataset.compositorMounted = "true";
-shell.statusText.textContent = "Loading layout engine…";
+shell.statusText.textContent = "Open a document…";
 
 async function boot(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
+  const eagerEngine =
+    params.get("eagerEngine") === "1" ||
+    (params.get("eagerEngine") !== "0" && import.meta.env.VITE_DEMO_EAGER === "1");
+  document.body.dataset.aoLazyShell = eagerEngine ? "false" : "true";
   if (params.get("g1PdfiumProbeWorker") === "1") {
     document.body.dataset.g1PdfiumProbeWorkerRequested = "true";
   }
@@ -82,7 +88,17 @@ async function boot(): Promise<void> {
     document.body.dataset.g1PdfiumProbePageRenderRequested = "true";
   }
 
-  await init();
+  let engine: DisplayEngineModule | null = null;
+  const getEngine = async (): Promise<DisplayEngineModule> => {
+    engine = await loadDisplayEngineModule();
+    return engine;
+  };
+
+  if (eagerEngine) {
+    shell.statusText.textContent = "Loading layout engine…";
+    await getEngine();
+    syncFormatModuleDataset();
+  }
 
   const sessionStub = {
     documentId: "demo-sess",
@@ -99,7 +115,12 @@ async function boot(): Promise<void> {
 
   const viewer = new ViewerController({
     shell,
-    engine,
+    getEngine,
+    loadFormatModule: async (id, generation) => {
+      await demoFormatModuleLoader.load(id, generation);
+      syncFormatModuleDataset();
+    },
+    loadPdfPreview: paintPdfPageToCanvas,
     sessionStub,
   });
 
@@ -357,7 +378,17 @@ async function boot(): Promise<void> {
     ? "true"
     : "false";
 
-  void Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()]).then(
+  const loadG1PdfiumProbes =
+    eagerEngine ||
+    params.get("g1PdfiumProbeWorker") === "1" ||
+    params.get("g1PdfiumProbePageRender") === "1";
+  if (!loadG1PdfiumProbes) {
+    document.body.dataset.g1PdfiumProbeRender = "deferred";
+  }
+  void (loadG1PdfiumProbes
+    ? Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()])
+    : Promise.resolve([{ moduleLoaded: false, probePresent: false }, { moduleLoaded: false, writerExportsReady: false } as const])
+  ).then(
     ([probe, readPath]) => {
       document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
       document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
@@ -467,6 +498,12 @@ async function boot(): Promise<void> {
     }
     syncM4TrackChangesExportFromSession();
   });
+
+  if (!eagerEngine || !engine) {
+    document.body.dataset.engineReady = "lazy-deferred";
+    shell.statusText.textContent = "Open a PDF or DOCX file.";
+    return;
+  }
 
   await viewer.renderDocx();
   document.body.dataset.engineReady = "true";

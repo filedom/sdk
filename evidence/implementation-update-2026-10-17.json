@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-17",
+  "prompt": "Domdoc_Cursor_Implementation_Update.md BEGIN PROMPT",
+  "repositories": {
+    "domdoc-web": "local workspace",
+    "domdoc-wasm": "local workspace (unchanged ownership)"
+  },
+  "implementedSlice": [
+    "FormatModuleLoader + descriptors + asset manifest stub",
+    "F02 OLE legacy-doc vs encrypted-ooxml vs unsupported",
+    "F165 legacy DOC import stub with provenance",
+    "Demo lazy shell (eagerEngine=1 for regression e2e)",
+    "Format modules loaded on DOCX/PDF/legacy-doc open",
+    "ADR-2026-10-17-implementation-update.md"
+  ],
+  "assetsByScenario": {
+    "emptyLazyShell": ["common-shell", "shell-ui CSS"],
+    "openDocx": ["docx-adapter (display WASM)", "no pdf-display until PDF open"],
+    "openPdf": ["pdf-display (pdfjs-dist chunk)", "no docx-adapter until DOCX path"],
+    "openLegacyDoc": ["legacy-doc-importer stub module only"],
+    "firstPdfNativeMutation": "pdf-writer deferred (not-run in this slice)"
+  },
+  "journeys": {
+    "AO": "partial — e2e/lazy-format-loading.spec.ts",
+    "AP": "partial — FormatModuleLoader unit tests",
+    "AQ": "not-run",
+    "AR": "not-run (F165 stub only)",
+    "AS": "not-run",
+    "AT": "not-run",
+    "AU": "not-run",
+    "AV": "not-run"
+  },
+  "gates": {
+    "G1": "not-run",
+    "G2": "not-run",
+    "G3": "not-run",
+    "G4": "not-run",
+    "G5": "not-run",
+    "G6": "not-run"
+  },
+  "verificationCommands": {
+    "coreBuild": "pnpm --filter @domdoc/core build",
+    "coreTest": "pnpm --filter @domdoc/core test",
+    "e2eLazy": "pnpm exec playwright test e2e/lazy-format-loading.spec.ts",
+    "e2eRegression": "pnpm exec playwright test e2e/demo-shell.spec.ts e2e/demo-viewer-render.spec.ts"
+  }
+}

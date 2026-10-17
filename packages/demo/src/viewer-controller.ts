@@ -9,7 +9,8 @@ import {
   paintRenderWireResponse,
   resolveViewerCanvasCssWidth,
 } from "../../core/dist/compositor/canvas-paint.js";
-import { paintPdfPageToCanvas } from "./pdf-canvas-preview.js";
+import type { FormatModuleId } from "../../core/dist/loading/format-descriptor.js";
+import { importLegacyDocStub } from "../../core/dist/formats/doc/legacy-doc-import-stub.js";
 import {
   openDocxProsemirrorDemoSessionSlice,
   buildDemoDocxZipBytes,
@@ -20,11 +21,20 @@ import type { DomdocShellElements } from "../../shell-ui/src/shell-layout.js";
 
 export type ViewerDocumentKind = "docx" | "pdf" | "none";
 
+export type DisplayEngineLike = DocxLayoutEngine & {
+  render_projection_json(input: string): string;
+};
+
 export interface ViewerControllerOptions {
   shell: DomdocShellElements;
-  engine: DocxLayoutEngine & {
-    render_projection_json(input: string): string;
-  };
+  getEngine: () => Promise<DisplayEngineLike>;
+  loadFormatModule?: (id: FormatModuleId, sessionGeneration: number) => Promise<unknown>;
+  loadPdfPreview?: (
+    canvas: HTMLCanvasElement,
+    pdfBytes: Uint8Array,
+    pageIndex: number,
+    cssWidthPx: number,
+  ) => Promise<{ width: number; height: number; pixelCount: number }>;
   sessionStub: {
     documentId: string;
     kind: "flow" | "fixed";
@@ -72,14 +82,12 @@ export class ViewerController {
 
   /** Re-paint the current document (e.g. after container resize). */
   async repaint(): Promise<void> {
-    if (this.kind === "pdf") {
+    if (this.kind === "pdf" && this.pdfBytes) {
       await this.renderPdf(0);
       return;
     }
     if (this.lastResponse) {
       this.paintResponse(this.lastResponse);
-    } else {
-      await this.renderDocx();
     }
   }
 
@@ -98,15 +106,32 @@ export class ViewerController {
     document.body.dataset.f02DetectedKind = detection.kind;
     this.options.shell.formatBadge.textContent = detection.kind;
 
-    if (detection.kind === "encrypted-unsupported") {
-      const legacyDoc = filename?.toLowerCase().endsWith(".doc");
+    if (detection.kind === "encrypted-ooxml") {
       document.body.dataset.f01OpenOk = "false";
-      document.body.dataset.f01OpenError = legacyDoc
-        ? "legacy-doc-unsupported"
-        : `encrypted:${detection.diagnostics.join(",")}`;
-      this.options.shell.statusText.textContent = legacyDoc
-        ? "Legacy .doc (binary) is not supported yet. Save as .docx or export to PDF."
-        : "This file needs a password or uses an unsupported container.";
+      document.body.dataset.f01OpenError = "encrypted-ooxml";
+      this.options.shell.statusText.textContent =
+        "Password-protected Office document. Decryption is not implemented in this build.";
+      return;
+    }
+
+    if (detection.kind === "encrypted-unsupported") {
+      document.body.dataset.f01OpenOk = "false";
+      document.body.dataset.f01OpenError = `encrypted:${detection.diagnostics.join(",")}`;
+      this.options.shell.statusText.textContent =
+        "This file uses an unsupported encrypted or compound container.";
+      return;
+    }
+
+    if (detection.kind === "legacy-doc") {
+      await this.options.loadFormatModule?.("legacy-doc-importer", 0);
+      const imported = importLegacyDocStub(bytes);
+      document.body.dataset.f165LegacyDocSupported = imported.supported ? "true" : "false";
+      document.body.dataset.f165LegacyDocParser = imported.parserId;
+      document.body.dataset.f01OpenOk = "false";
+      document.body.dataset.f01OpenError = imported.lossReport[0]?.code ?? "legacy-doc-import-failed";
+      this.options.shell.statusText.textContent = imported.supported
+        ? "Legacy DOC imported (see conversion report)."
+        : "Legacy .doc detected. Full import (F165) is not integrated yet — save as .docx or PDF.";
       return;
     }
 
@@ -146,9 +171,12 @@ export class ViewerController {
   }
 
   async renderDocx(): Promise<void> {
+    const generation = this.pmSlice.session.revisions.committedRevision;
+    await this.options.loadFormatModule?.("docx-adapter", generation);
+    const engine = await this.options.getEngine();
     const projection = buildDocxRenderProjectionFromStore({
       store: this.pmSlice.store,
-      engine: this.options.engine,
+      engine,
       sessionId: this.options.sessionStub.documentId,
       documentGeneration: this.pmSlice.session.revisions.committedRevision,
     });
@@ -158,7 +186,7 @@ export class ViewerController {
     this.pageWidthPt = projection.pages[0]?.widthPt ?? 612;
     this.pageHeightPt = projection.pages[0]?.heightPt ?? 792;
     const response = JSON.parse(
-      this.options.engine.render_projection_json(JSON.stringify(projection)),
+      engine.render_projection_json(JSON.stringify(projection)),
     ) as RenderWireResponse;
     if ((response.paint?.items?.length ?? 0) === 0) {
       throw new Error("render-wire-empty-paint");
@@ -174,12 +202,10 @@ export class ViewerController {
   async renderPdf(pageIndex = 0): Promise<void> {
     if (!this.pdfBytes) return;
     const cssWidth = this.viewerCanvasTargetWidth();
-    const painted = await paintPdfPageToCanvas(
-      this.options.shell.canvas,
-      this.pdfBytes,
-      pageIndex,
-      cssWidth,
-    );
+    await this.options.loadFormatModule?.("pdf-display", 0);
+    const paint = this.options.loadPdfPreview;
+    if (!paint) throw new Error("pdf-preview-not-configured");
+    const painted = await paint(this.options.shell.canvas, this.pdfBytes, pageIndex, cssWidth);
     this.lastResponse = null;
     document.body.dataset.paintItems = String(painted.pixelCount);
     document.body.dataset.pdfJsRender = "true";

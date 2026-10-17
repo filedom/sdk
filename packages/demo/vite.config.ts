@@ -60,6 +60,7 @@ export default defineConfig({
   ],
   define: {
     __DEMO_PDFIUM_GLUE_BASENAME__: JSON.stringify(pdfiumGlueBasename),
+    "import.meta.env.VITE_DEMO_EAGER": JSON.stringify(process.env.DOMDOC_DEMO_EAGER ?? "0"),
   },
   resolve: {
     alias: {

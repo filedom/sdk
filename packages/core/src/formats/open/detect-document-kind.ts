@@ -4,12 +4,14 @@ export type DetectedDocumentKind =
   | "docx"
   | "pdf"
   | "domdoc"
+  | "legacy-doc"
+  | "encrypted-ooxml"
   | "encrypted-unsupported"
   | "unknown";
 
 export interface DocumentKindDetection {
   kind: DetectedDocumentKind;
-  adapter: "docx" | "pdf" | "package" | "none";
+  adapter: "docx" | "pdf" | "package" | "legacy-doc" | "none";
   confidence: "magic" | "hint" | "none";
   diagnostics: readonly string[];
 }
@@ -36,11 +38,27 @@ function looksLikeDocxZip(bytes: Uint8Array): boolean {
   return ascii.includes("[Content_Types].xml") || ascii.includes("word/document.xml");
 }
 
+function scanCfbAscii(bytes: Uint8Array): string {
+  return new TextDecoder("latin1").decode(bytes.subarray(0, Math.min(bytes.byteLength, 65536)));
+}
+
+/** Distinguish encrypted OOXML (CFB + EncryptionInfo) from legacy Word binary (F02/F165). */
+function classifyOleCompound(bytes: Uint8Array): DetectedDocumentKind {
+  const ascii = scanCfbAscii(bytes);
+  if (ascii.includes("EncryptedPackage") || ascii.includes("EncryptionInfo")) {
+    return "encrypted-ooxml";
+  }
+  if (ascii.includes("WordDocument")) {
+    return "legacy-doc";
+  }
+  return "encrypted-unsupported";
+}
+
 function filenameKind(filename?: string): DetectedDocumentKind | undefined {
   if (!filename) return undefined;
   const lower = filename.toLowerCase();
   if (lower.endsWith(".docx")) return "docx";
-  if (lower.endsWith(".doc")) return "encrypted-unsupported";
+  if (lower.endsWith(".doc")) return "legacy-doc";
   if (lower.endsWith(".pdf")) return "pdf";
   if (lower.endsWith(".domdoc")) return "domdoc";
   return undefined;
@@ -61,11 +79,18 @@ export function detectDocumentKind(
 ): DocumentKindDetection {
   const diagnostics: string[] = [];
   if (startsWith(bytes, CFB_MAGIC)) {
+    const kind = classifyOleCompound(bytes);
     return {
-      kind: "encrypted-unsupported",
-      adapter: "none",
+      kind,
+      adapter: kind === "legacy-doc" ? "legacy-doc" : "none",
       confidence: "magic",
-      diagnostics: ["ole-compound-file (likely encrypted legacy/docx)"],
+      diagnostics: [
+        kind === "legacy-doc"
+          ? "ole-worddocument"
+          : kind === "encrypted-ooxml"
+            ? "ole-encrypted-ooxml"
+            : "ole-compound-unknown",
+      ],
     };
   }
   if (startsWith(bytes, PDF_MAGIC)) {
@@ -95,7 +120,14 @@ export function detectDocumentKind(
     diagnostics.push("hint-only-detection");
     return {
       kind: hinted,
-      adapter: hinted === "docx" ? "docx" : hinted === "pdf" ? "pdf" : "package",
+      adapter:
+        hinted === "docx"
+          ? "docx"
+          : hinted === "pdf"
+            ? "pdf"
+            : hinted === "legacy-doc"
+              ? "legacy-doc"
+              : "package",
       confidence: "hint",
       diagnostics,
     };

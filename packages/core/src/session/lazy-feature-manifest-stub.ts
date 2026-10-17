@@ -1,10 +1,17 @@
 /** Blueprint §12.5 — shared lazy feature manifest stub for full host examples (gate not-run). */
 export const LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION = 1 as const;
 
+export type LazyFeatureManifestLoadPolicy =
+  | "on-demand"
+  | "on-open-docx"
+  | "on-open-pdf"
+  | "on-first-native-pdf-mutation"
+  | "on-open-doc";
+
 export interface LazyFeatureManifestLazyModuleStub {
   id: string;
   label: string;
-  loadPolicy: "on-demand";
+  loadPolicy: LazyFeatureManifestLoadPolicy;
 }
 
 export interface LazyFeatureManifestStub {
@@ -25,6 +32,10 @@ export const LAZY_FEATURE_MANIFEST_STUB: LazyFeatureManifestStub = {
     "Blueprint §12.5 / master prompt: one manifest enables implemented features across host examples; optional modules stay lazy.",
   coreFeaturesEnabled: ["F01", "F13", "F20", "F21", "F25", "F34", "F39"],
   lazyModules: [
+    { id: "docx-adapter", label: "DOCX adapter + display WASM", loadPolicy: "on-open-docx" },
+    { id: "pdf-display", label: "PDF display (PDF.js in demo)", loadPolicy: "on-open-pdf" },
+    { id: "pdf-writer", label: "PDF writer worker", loadPolicy: "on-first-native-pdf-mutation" },
+    { id: "legacy-doc-importer", label: "Legacy DOC import", loadPolicy: "on-open-doc" },
     { id: "F50", label: "collaboration-ordered-stub", loadPolicy: "on-demand" },
     { id: "F74", label: "language-packs", loadPolicy: "on-demand" },
     { id: "ocr", label: "tesseract-worker", loadPolicy: "on-demand" },

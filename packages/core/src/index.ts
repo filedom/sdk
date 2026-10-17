@@ -53,6 +53,19 @@ export {
   type DocxExportStubResult,
 } from "./formats/docx/docx-export-stub.js";
 export {
+  importDocxStoreFromExportedBytes,
+  DOCX_IMPORT_MINIMAL_DETECTION_FEATURE_ID,
+  DOCX_IMPORT_MINIMAL_VIEW_TRANSFORM_FEATURE_ID,
+  type DocxImportMinimalResult,
+} from "./formats/docx/docx-import-minimal.js";
+export {
+  LAZY_FEATURE_MANIFEST_STUB,
+  LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION,
+  listLazyFeatureManifestHostExamples,
+  type LazyFeatureManifestLazyModuleStub,
+  type LazyFeatureManifestStub,
+} from "./session/lazy-feature-manifest-stub.js";
+export {
   exportDocxTrackChangesFromSessionAfterAcceptStub,
   exportDocxTrackChangesFromStoreStub,
   readDocxTrackChangesMarkerSnapshot,
@@ -301,6 +314,28 @@ export {
   type DetectedDocumentKind,
   type DocumentKindDetection,
 } from "./formats/open/detect-document-kind.js";
+export {
+  FORMAT_MODULE_DESCRIPTORS,
+  type FormatAdapterKind,
+  type FormatModuleDescriptor,
+  type FormatModuleId,
+} from "./loading/format-descriptor.js";
+export {
+  FormatModuleLoader,
+  type FormatModuleImporter,
+  type FormatModuleLoadRecord,
+  type FormatModuleLoadStatus,
+} from "./loading/format-module-loader.js";
+export {
+  DOMDOC_ASSET_MANIFEST_STUB,
+  type DomdocAssetManifestEntryStub,
+  type DomdocAssetManifestStub,
+} from "./loading/asset-manifest-stub.js";
+export {
+  importLegacyDocStub,
+  type LegacyDocImportLossItem,
+  type LegacyDocImportResult,
+} from "./formats/doc/legacy-doc-import-stub.js";
 export {
   openDocumentFromBlob,
   openDocumentFromBytes,
