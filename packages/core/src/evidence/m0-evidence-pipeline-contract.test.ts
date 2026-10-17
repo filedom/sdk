@@ -17,7 +17,10 @@ describe("M0 evidence pipeline contract", () => {
       readFileSync(join(webRoot, "docs/feature-registry.json"), "utf8"),
     ) as { contractHash: string; features: unknown[] };
     expect(registry.contractHash).toMatch(/^[a-f0-9]{64}$/);
-    expect(registry.features.length).toBeGreaterThan(0);
+    expect(registry.features.length).toBe(164);
+    const ids = registry.features.map((f: { id: string }) => f.id);
+    expect(ids[0]).toBe("F01");
+    expect(ids[163]).toBe("F164");
   });
 
   it("feasibility gate records stay not-run until native proofs; G1 may pass M0 subset", () => {

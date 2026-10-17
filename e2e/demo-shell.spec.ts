@@ -1,4 +1,11 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { test, expect } from "@playwright/test";
+
+const minimalOpenDocx = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "fixtures/minimal-open.docx",
+);
 
 /** G3-INPUT-05: demo shell loads compositor + browser WASM paint path. */
 test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
@@ -39,6 +46,13 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   expect(await page.locator("body").getAttribute("data-m5-svelte-adapter")).toBe(
     "framework-adapter-stub",
   );
+  expect(await page.locator("body").getAttribute("data-m5-next-host-adapter")).toBe(
+    "framework-adapter-stub",
+  );
+  expect(await page.locator("body").getAttribute("data-m1-export-policy")).toBe("domdoc-package");
+  expect(await page.locator("body").getAttribute("data-m1-export-uses-package-envelope")).toBe(
+    "true",
+  );
   expect(await page.locator("body").getAttribute("data-m5-preact-adapter")).toBe(
     "framework-adapter-stub",
   );
@@ -47,7 +61,7 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   );
   expect(Number(await page.locator("body").getAttribute("data-m5-comments-wire-count"))).toBe(2);
   await expect(page.locator("#domdoc-comments-list li")).toHaveCount(1);
-  await page.locator("#domdoc-open-local").setInputFiles("fixtures/minimal-open.docx");
+  await page.locator("#domdoc-open-local").setInputFiles(minimalOpenDocx);
   await expect.poll(async () => page.locator("body").getAttribute("data-f01-open-ok")).toBe("true");
   await expect.poll(async () => page.locator("body").getAttribute("data-m1-prosemirror-paragraph")).toBe(
     "opened-local",

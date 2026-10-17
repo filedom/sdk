@@ -28,6 +28,8 @@ describe("F34 review accept OPC atomic round-trip bytes", () => {
     expect(afterBytes.byteLength).toBeGreaterThan(beforeBytes.byteLength);
     const reopened = readOpcPackage(afterBytes);
     const xml = new TextDecoder().decode(reopened.members.get("word/document.xml")!);
+    expect(xml).toContain("world");
+    expect(xml).not.toContain("<w:ins");
     expect(xml).toContain('domdoc:review-decision id="10" decision="accept"');
     const roundTripAgain = writeOpcPackage(reopened);
     expect(unzipSync(roundTripAgain)["word/document.xml"]).toEqual(

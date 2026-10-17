@@ -1,5 +1,7 @@
 import type { OoxmlNode } from "./ooxml-tree.js";
 import type { RenderProjection } from "../../rendering/engine-client.js";
+import { listMetaFromParagraph } from "./docx-list-numbering-stub.js";
+import { computeListMarkersFromNumberingXml } from "./docx-numbering-runtime.js";
 
 export interface FlowLineWire {
   line_index: number;
@@ -23,6 +25,7 @@ export interface DocxFlowLayoutOptions {
     max_width_pt: number;
     font_size_pt: number;
   }) => FlowLineWire[];
+  numberingXml?: string;
 }
 
 function paragraphText(paragraph: OoxmlNode): string {
@@ -49,12 +52,16 @@ export function buildRenderProjectionFromDocxFlow(
   const maxTextWidthPt = options.maxTextWidthPt ?? pageWidthPt - marginPt * 2;
   const fontSizePt = options.fontSizePt ?? 12;
   const paragraphs = listParagraphNodes(body);
+  const markers = computeListMarkersFromNumberingXml(
+    paragraphs.map(listMetaFromParagraph),
+    options.numberingXml,
+  );
 
   const runs: RenderProjection["pages"][0]["runs"] = [];
   let yCursor = pageHeightPt - marginPt;
 
-  for (const paragraph of paragraphs) {
-    const text = paragraphText(paragraph);
+  for (const [index, paragraph] of paragraphs.entries()) {
+    const text = `${markers[index] ?? ""}${paragraphText(paragraph)}`;
     const lines = options.layoutParagraph({
       paragraph_id: paragraph.id,
       text,

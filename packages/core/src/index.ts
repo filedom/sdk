@@ -266,3 +266,40 @@ export {
   applyDocxNumberingWriteBackFromSession,
   writeBodyNumPrFromSessionListState,
 } from "./formats/docx/docx-numbering-body-writeback.js";
+export {
+  detectDocumentKind,
+  type DetectedDocumentKind,
+  type DocumentKindDetection,
+} from "./formats/open/detect-document-kind.js";
+export {
+  openDocumentFromBlob,
+  openDocumentFromBytes,
+  openDocumentFromUrl,
+  type OpenDocumentResult,
+} from "./formats/open/open-document-bytes.js";
+export {
+  nextSearchHit,
+  previousSearchHit,
+  searchDocumentParagraphs,
+  type DocumentSearchHit,
+} from "./formats/text/document-search.js";
+export { replaceDocumentParagraphs } from "./formats/text/document-find-replace.js";
+export {
+  contentWidthPt,
+  paginateSemanticTable,
+  percentContentWidthPt,
+  placeAtomicCard,
+} from "./components/fragmentation-c01-c04-feasibility.js";
+export {
+  cssPxToPt,
+  fitPageZoom,
+  fitWidthZoom,
+  mapPagePointToCss,
+  ptToCssPx,
+} from "./compositor/view-transform.js";
+export { parseCommentRangesFromDocumentXml } from "./formats/docx/comment-range-stub.js";
+export {
+  attachMultiBlobMemberKeysToManifestStub,
+  sha256Hex,
+} from "./persistence/domdoc-package-stub.js";
+export type { IncrementalLayoutHooks } from "./components/fragmentation-af-incremental-equivalence.js";

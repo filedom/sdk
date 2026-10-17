@@ -10,18 +10,39 @@ import {
 
 export const DOCX_DOCUMENT_PART = "word/document.xml" as const;
 
-/** G2/M2: deterministic document.xml annotation after accept/reject (full OOXML unwrap TBD). */
+function unwrapRevisionMarkup(
+  xml: string,
+  suggestionId: string,
+  decision: ReviewSuggestionDecision,
+): string {
+  const marks = parseReviewSuggestionMarksFromDocumentXml(xml);
+  const target = marks.find((m) => m.suggestionId === suggestionId);
+  if (!target) return xml;
+  const keepInner =
+    (decision === "accept" && target.kind === "insert") ||
+    (decision === "reject" && target.kind === "delete");
+  const tag = target.kind === "insert" ? "ins" : "del";
+  const re = new RegExp(`<w:${tag}\\b([^>]*)>([\\s\\S]*?)<\\/w:${tag}>`, "g");
+  return xml.replace(re, (full, attrs: string, inner: string) => {
+    const id = /(?:w:)?id="([^"]+)"/.exec(attrs)?.[1];
+    if (id !== suggestionId) return full;
+    return keepInner ? inner : "";
+  });
+}
+
+/** G2/D03: unwrap w:ins/w:del for the decided id, then stamp a review marker. */
 export function patchDocumentXmlForReviewSuggestionDecision(
   xml: string,
   suggestionId: string,
   decision: ReviewSuggestionDecision,
 ): string {
+  const unwrapped = unwrapRevisionMarkup(xml, suggestionId, decision);
   const escapedId = suggestionId.replace(/"/g, "&quot;");
   const marker = `<!-- domdoc:review-decision id="${escapedId}" decision="${decision}" -->`;
-  if (xml.includes("</w:body>")) {
-    return xml.replace("</w:body>", `  ${marker}\n</w:body>`);
+  if (unwrapped.includes("</w:body>")) {
+    return unwrapped.replace("</w:body>", `  ${marker}\n</w:body>`);
   }
-  return `${xml.trim()}\n${marker}\n`;
+  return `${unwrapped.trim()}\n${marker}\n`;
 }
 
 export interface ReviewSuggestionOpcPatchResult {

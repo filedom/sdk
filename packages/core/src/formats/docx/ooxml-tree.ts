@@ -24,8 +24,9 @@ export function parseDocumentBodyXml(xml: string): OoxmlNode {
   const paragraphs = [...inner.matchAll(/<w:p\b[^>]*>([\s\S]*?)<\/w:p>/g)];
   const children: OoxmlNode[] = paragraphs.map((match) => {
     const pInner = match[1] ?? "";
-    const textMatch = pInner.match(/<w:t[^>]*>([^<]*)<\/w:t>/);
-    const text = textMatch?.[1] ?? "";
+    const text = [...pInner.matchAll(/<w:t[^>]*>([^<]*)<\/w:t>/g)]
+      .map((m) => m[1] ?? "")
+      .join("");
     const ilvl = pInner.match(/<w:ilvl[^>]*w:val="(\d+)"/)?.[1];
     const numId = pInner.match(/<w:numId[^>]*w:val="(\d+)"/)?.[1];
     const attributes: Record<string, string> = {};

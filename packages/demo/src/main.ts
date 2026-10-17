@@ -21,6 +21,7 @@ import {
   createDocumentSession,
 } from "../../core/dist/session/document-session.js";
 import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
+import { describeDomdocDemoExportPath } from "../../core/dist/persistence/domdoc-export-path-selection.js";
 import { exportDocxFromStoreStub } from "../../core/dist/formats/docx/docx-export-stub.js";
 import { exportDocxTrackChangesFromStoreStub } from "../../core/dist/formats/docx/docx-track-changes-export-stub.js";
 import { buildReviewMinimalTrackedDocxZipBytes } from "../../core/dist/formats/docx/review-minimal-docx-fixture.js";
@@ -41,6 +42,8 @@ import {
   saveProsemirrorDemoDomdocPackageStub,
 } from "../../core/dist/session/docx-prosemirror-domdoc-package-stub.js";
 import { tryLoadPdfiumLibProbeRender } from "../../core/dist/formats/pdf/pdfium-lib-probe-render-stub.js";
+import { detectDocumentKind } from "../../core/dist/formats/open/detect-document-kind.js";
+import { searchDocumentParagraphs } from "../../core/dist/formats/text/document-search.js";
 import {
   buildAnnotationsWireStubFromOpcMembers,
   listAnnotationWireStubLabels,
@@ -52,6 +55,7 @@ import { domdocAngularAdapterDemoSurface } from "@domdoc/angular";
 import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
 import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
 import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
+import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
 
 const sampleProjection = () => ({
   header: {
@@ -175,6 +179,22 @@ async function boot(): Promise<void> {
 
   pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
   syncProsemirrorDemoDataset();
+  const openLocalBytes = (bytes: Uint8Array, filename?: string) => {
+    const detection = detectDocumentKind(bytes, { filename });
+    document.body.dataset.f02DetectedKind = detection.kind;
+    if (detection.kind !== "docx") {
+      document.body.dataset.f01OpenOk = "false";
+      document.body.dataset.f01OpenError = `unsupported-kind:${detection.kind}`;
+      return;
+    }
+    pmSlice = openDocxProsemirrorDemoSessionSlice(bytes, sessionStub);
+    pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
+    syncProsemirrorDemoDataset();
+    syncToolbarStackDataset();
+    document.body.dataset.f01OpenOk = "true";
+    document.body.dataset.f01OpenKind = "docx";
+    document.body.dataset.f01OpenBytes = String(bytes.byteLength);
+  };
   const openInput = document.getElementById("domdoc-open-local");
   if (openInput instanceof HTMLInputElement) {
     openInput.addEventListener("change", () => {
@@ -182,14 +202,7 @@ async function boot(): Promise<void> {
       if (!file) return;
       void file.arrayBuffer().then((buffer) => {
         try {
-          const bytes = new Uint8Array(buffer);
-          pmSlice = openDocxProsemirrorDemoSessionSlice(bytes, sessionStub);
-          pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
-          syncProsemirrorDemoDataset();
-          syncToolbarStackDataset();
-          document.body.dataset.f01OpenOk = "true";
-          document.body.dataset.f01OpenKind = "docx";
-          document.body.dataset.f01OpenBytes = String(bytes.byteLength);
+          openLocalBytes(new Uint8Array(buffer), file.name);
         } catch (error) {
           document.body.dataset.f01OpenOk = "false";
           document.body.dataset.f01OpenError = String(error);
@@ -197,11 +210,50 @@ async function boot(): Promise<void> {
       });
     });
   }
+  document.body.addEventListener("dragover", (event) => {
+    event.preventDefault();
+  });
+  document.body.addEventListener("drop", (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    void file.arrayBuffer().then((buffer) => {
+      try {
+        openLocalBytes(new Uint8Array(buffer), file.name);
+        document.body.dataset.f01OpenSource = "drop";
+      } catch (error) {
+        document.body.dataset.f01OpenOk = "false";
+        document.body.dataset.f01OpenError = String(error);
+      }
+    });
+  });
+  const searchInput = document.getElementById("domdoc-search");
+  if (searchInput instanceof HTMLInputElement) {
+    searchInput.addEventListener("input", () => {
+      const hits = searchDocumentParagraphs(
+        { paragraphTexts: proseMirrorParagraphTexts(pmSlice.doc) },
+        searchInput.value,
+      );
+      document.body.dataset.f11HitCount = String(hits.length);
+    });
+  }
+  const exportPath = describeDomdocDemoExportPath(params.get("m1ExportPolicy"));
+  document.body.dataset.m1ExportPolicy = exportPath.policy;
+  document.body.dataset.m1ExportImplemented = exportPath.implemented ? "true" : "false";
+  document.body.dataset.m1ExportUsesPackageEnvelope = exportPath.usesDomdocPackageEnvelope
+    ? "true"
+    : "false";
   const domdocStore = new MemoryDomdocBlobStoreStub();
-  const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
-  document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
-  const domdocReopened = loadProsemirrorDemoDomdocPackageStub(domdocSaved.packageZipBytes);
-  document.body.dataset.m1DomdocPackageRoundTripOk = domdocReopened ? "true" : "false";
+  if (exportPath.usesDomdocPackageEnvelope) {
+    const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
+    document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
+    const domdocReopened = loadProsemirrorDemoDomdocPackageStub(domdocSaved.packageZipBytes);
+    document.body.dataset.m1DomdocPackageRoundTripOk = domdocReopened ? "true" : "false";
+  } else {
+    document.body.dataset.m1DomdocPackageSaveOk = "skipped";
+    document.body.dataset.m1DomdocPackageRoundTripOk = "skipped";
+    document.body.dataset.m1EnhancedNativeExportStub = "true";
+  }
   void Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()]).then(
     ([probe, readPath]) => {
       document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
@@ -235,6 +287,10 @@ async function boot(): Promise<void> {
   const svelteSurface = domdocSvelteAdapterDemoSurface("demo-sess");
   document.body.dataset.m5SvelteAdapter = svelteSurface.surface;
   document.body.dataset.m5SvelteSessionId = svelteSurface.sessionId;
+  const nextHostSurface = domdocNextHostAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5NextHostAdapter = nextHostSurface.surface;
+  document.body.dataset.m5NextHostSessionId = nextHostSurface.sessionId;
+  document.body.dataset.m5NextHostBoundary = nextHostSurface.host;
   if (params.get("m5Extended") !== "0") {
     const preactSurface = domdocPreactAdapterDemoSurface("demo-sess");
     document.body.dataset.m5PreactAdapter = preactSurface.surface;

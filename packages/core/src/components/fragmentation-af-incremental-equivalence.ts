@@ -14,6 +14,11 @@ export interface AfIncrementalEquivalenceVerdict {
   detail: string;
 }
 
+export interface IncrementalLayoutHooks {
+  legalBreaksJson?: ShapedLayoutJsonFn;
+  incrementalLayoutJson?: (inputJson: string) => string;
+}
+
 function layoutLines(entry: AfBrowserCorpusEntry, text: string, shapedLayoutJson: ShapedLayoutJsonFn) {
   const payload = JSON.stringify({
     paragraph_id: entry.id,
@@ -42,9 +47,9 @@ function linesToFragments(entry: AfBrowserCorpusEntry, lines: Array<{ text: stri
         {
           runId: `${entry.id}-line-${index}`,
           xPt: 0,
-          yPt: index * line.height_pt,
+          yPt: index * (line.height_pt || 14),
           widthPt: line.width_pt,
-          heightPt: line.height_pt,
+          heightPt: line.height_pt || 14,
         },
       ],
     );
@@ -53,14 +58,46 @@ function linesToFragments(entry: AfBrowserCorpusEntry, lines: Array<{ text: stri
   });
 }
 
-/** Compare full-text layout fragments to concatenated half-layout fragments (oracle hook). */
+function lineTextSignature(lines: Array<{ text: string }>): string {
+  return lines.map((l) => l.text).join("\u241E");
+}
+
+/** Compare full layout to WASM incremental continuation at a legal line break. */
 export function evaluateAfIncrementalVsFullEquivalence(
   shapedLayoutJson: ShapedLayoutJsonFn,
+  hooks?: IncrementalLayoutHooks,
 ): readonly AfIncrementalEquivalenceVerdict[] {
   return AF_BROWSER_CORPUS.map((entry) => {
     const fullLines = layoutLines(entry, entry.paragraphText, shapedLayoutJson);
-    const fullFragments = linesToFragments(entry, fullLines);
+    const paragraphPayload = JSON.stringify({
+      paragraph_id: entry.id,
+      text: entry.paragraphText,
+      max_width_pt: entry.maxWidthPt,
+      font_size_pt: entry.fontSizePt,
+    });
 
+    if (hooks?.legalBreaksJson && hooks.incrementalLayoutJson) {
+      const legal = JSON.parse(hooks.legalBreaksJson(paragraphPayload)) as number[];
+      const breakAt =
+        legal.find((i) => i > 0 && i < entry.paragraphText.length) ?? 0;
+      const incRaw = hooks.incrementalLayoutJson(
+        JSON.stringify({
+          paragraph: JSON.parse(paragraphPayload),
+          breakAfterCharIndex: breakAt,
+        }),
+      );
+      const incLines = JSON.parse(incRaw) as Array<{ text: string }>;
+      const equivalent = lineTextSignature(fullLines) === lineTextSignature(incLines);
+      return {
+        entryId: entry.id,
+        equivalent,
+        detail: equivalent
+          ? `incremental legal-break ${breakAt} matches full line texts`
+          : `incremental legal-break ${breakAt} drifted vs full layout`,
+      };
+    }
+
+    const fullFragments = linesToFragments(entry, fullLines);
     const mid = Math.ceil(entry.paragraphText.length / 2);
     const first = entry.paragraphText.slice(0, mid);
     const second = entry.paragraphText.slice(mid);
@@ -69,14 +106,13 @@ export function evaluateAfIncrementalVsFullEquivalence(
       ...layoutLines(entry, second, shapedLayoutJson),
     ];
     const incFragments = linesToFragments(entry, incLines);
-
     const equivalent = fragmentsEquivalent(incFragments, fullFragments);
     return {
       entryId: entry.id,
       equivalent,
       detail: equivalent
         ? "incremental split layout matches full layout fragments"
-        : "incremental split layout drift vs full layout (expected until true incremental engine path)",
+        : "mid-string split layout drift vs full (use legal-break WASM hooks)",
     };
   });
 }

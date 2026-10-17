@@ -1,63 +1,70 @@
 {
-  "recordedAt": "2026-10-17T14:06:14.083Z",
-  "status": "native-proofs-blocked",
+  "recordedAt": "2026-10-17T14:11:56.970Z",
+  "status": "native-proofs-pass",
   "fixtures": [
     {
       "fixtureId": "P01",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": true
+      "hookReady": true,
+      "detail": "text=\"hello\" reopened"
     },
     {
       "fixtureId": "P02",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": true
+      "hookReady": true,
+      "detail": "text=\"ABxyEFGH\" boundsBefore={\"left\":72.16799926757812,\"bottom\":719.7839965820312,\"right\":137.75999450683594,\"top\":728.843994140625} boundsAfter={\"left\":72.16799926757812,\"bottom\":717.4439697265625,\"right\":132.4320068359375,\"top\":728.843994140625}"
     },
     {
       "fixtureId": "P03",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": true
+      "hookReady": true,
+      "detail": "text=\"long replacement text KERN_B\" reopened"
     },
     {
       "fixtureId": "P04",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": true
+      "hookReady": true,
+      "detail": "text=\"\" images=1 reopened"
     },
     {
       "fixtureId": "P05",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": true
+      "hookReady": true,
+      "detail": "pages=2 images0=0 images1=1 text=\"PAGE_B\\n\" reopened"
     },
     {
       "fixtureId": "P11",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "hookReady": true,
+      "detail": "applyOk=false rolledBack=true keep=\"KEEP_ME\" saveOk=true"
     },
     {
       "fixtureId": "P12",
-      "nativeProof": "blocked",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
+      "nativeProof": "pass",
+      "blockedReason": null,
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "hookReady": true,
+      "detail": "lifecycleCycles=20"
     }
   ],
-  "note": "P01–P05 classification exercised; native proofs blocked (pdfium-wasm-target-unsupported-in-upstream-gn) — not a pass."
+  "note": "Native P01–P05 executed against C24 writer WASM; coordinator still reviews independent inspection artifacts."
 }

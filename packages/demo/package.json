@@ -12,6 +12,7 @@
   "dependencies": {
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
+    "@domdoc/next-host": "workspace:*",
     "@domdoc/preact": "workspace:*",
     "@domdoc/react": "workspace:*",
     "@domdoc/solid": "workspace:*",

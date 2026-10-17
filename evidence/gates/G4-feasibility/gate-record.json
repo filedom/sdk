@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-19 coordinator authoritativeGatePath hook (default not-run); G4 gate not-run",
+  "limitations": "AF legal-break incremental line texts + C01–C04 web measurement contract (logical widths, atomic move-once, oversize policy, 300-row table). Component pagination not proved in browser/worker; gate not-run.",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
@@ -14,6 +14,7 @@
     "fragmentation-equivalence-oracle.test.ts",
     "fragmentation-af-browser-corpus.test.ts",
     "fragmentation-af-incremental-equivalence.test.ts",
+    "fragmentation-c01-c04-feasibility.test.ts",
     "fragmentation-af-incremental-gate-grade.test.ts",
     "fragmentation-af-incremental-authoritative.test.ts",
     "fragmentation-af-incremental-engine.test.ts",

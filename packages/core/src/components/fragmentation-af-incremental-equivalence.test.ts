@@ -28,11 +28,12 @@ describe("W2-G4-06 AF incremental vs full equivalence", () => {
       const flow = await import(pathToFileURL(flowEntry).href);
       const shaped = (payload: string) =>
         String(flow.layout_flow_paragraph_shaped_json(payload));
-      const verdicts = evaluateAfIncrementalVsFullEquivalence(shaped);
+      const verdicts = evaluateAfIncrementalVsFullEquivalence(shaped, {
+        legalBreaksJson: (payload) => String(flow.layout_flow_paragraph_legal_breaks_json(payload)),
+        incrementalLayoutJson: (payload) => String(flow.layout_flow_paragraph_incremental_json(payload)),
+      });
       expect(verdicts.length).toBe(AF_BROWSER_CORPUS.length);
-      for (const v of verdicts) {
-        expect(v.detail.length).toBeGreaterThan(0);
-      }
+      expect(verdicts.every((v) => v.equivalent)).toBe(true);
     },
   );
 });

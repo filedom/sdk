@@ -104,8 +104,15 @@ describe("M1 DocumentSession skeleton", () => {
       "state/semantic-journal.jsonl",
     ]);
     const manifest = parseDomdocPackageManifestStub(manifestBytes);
-    const withKeys = attachMultiBlobMemberKeysToManifestStub(manifest, store.lastCommittedBlobKeys);
-    expect(withKeys.memberHashes["source/native-checkpoint.bin"]).toBe("not-computed");
+    const withKeys = attachMultiBlobMemberKeysToManifestStub(
+      manifest,
+      store.lastCommittedBlobKeys,
+      {
+        "source/native-checkpoint.bin": store.readBlob("source/native-checkpoint.bin")!,
+        "state/semantic-journal.jsonl": store.readBlob("state/semantic-journal.jsonl")!,
+      },
+    );
+    expect(withKeys.memberHashes["source/native-checkpoint.bin"]).toMatch(/^[a-f0-9]{64}$/);
   });
 
   it("G5/M2 attaches demo session binding to manifest stub", () => {
@@ -148,6 +155,30 @@ describe("M1 DocumentSession skeleton", () => {
     const commitIdx = sim.steps.findIndex((s) => s.step === "commit-indexeddb-manifest-transaction");
     expect(verifyIdx).toBeGreaterThan(-1);
     expect(commitIdx).toBeGreaterThan(verifyIdx);
+  });
+
+  it("M1/F42 fenced tab writer rejects stale tab and stale fence on save", () => {
+    const session = createDocumentSession(base);
+    const store = new MemoryDomdocBlobStoreStub();
+    const tabA = session.tryAcquireTabWriterLease("tab-a");
+    expect(tabA.ok).toBe(true);
+    if (!tabA.ok) return;
+    const blocked = session.saveDomdocPackageStubToStore(store, {
+      writerTabId: "tab-b",
+      writerFenceGeneration: tabA.fenceGeneration,
+    });
+    expect(blocked.simulation.ok).toBe(false);
+    expect(blocked.simulation.detail).toBe("fenced-tab-writer-other-tab-active");
+    const ok = session.saveDomdocPackageStubToStore(store, {
+      writerTabId: "tab-a",
+      writerFenceGeneration: tabA.fenceGeneration,
+    });
+    expect(ok.simulation.ok).toBe(true);
+    const staleGen = session.saveDomdocPackageStubToStore(store, {
+      writerTabId: "tab-a",
+      writerFenceGeneration: tabA.fenceGeneration - 1,
+    });
+    expect(staleGen.simulation.detail).toBe("fenced-tab-writer-stale-fence-generation");
   });
 
   it("M1 round-trips open/save domdoc package stub via DocumentSession hooks", () => {

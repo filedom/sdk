@@ -1,35 +1,35 @@
 {
-  "recordedAt": "2026-10-17T14:02:02.962Z",
+  "recordedAt": "2026-10-17T14:11:33.670Z",
   "corpusSize": 3,
   "gateStatus": "not-run",
   "entries": [
     {
       "entryId": "AF-01",
       "fullLayoutIdempotent": true,
-      "incrementalEquivalent": false,
+      "incrementalEquivalent": true,
       "fullLineSignature": "fragmentation stability␞short",
-      "incrementalLineSignature": "fragmentation s␟tability short",
-      "gateGradeStatus": "incremental-drift-recorded",
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+      "incrementalLineSignature": "incremental legal-break 24 matches full line texts",
+      "gateGradeStatus": "incremental-matches-full",
+      "detail": "incremental legal-break 24 matches full line texts"
     },
     {
       "entryId": "AF-02",
       "fullLayoutIdempotent": true,
-      "incrementalEquivalent": false,
+      "incrementalEquivalent": true,
       "fullLineSignature": "repeated layout␞pass must converge␞on identical line␞breaks",
-      "incrementalLineSignature": "repeated layout␞pass must conv␟erge on identical␞line breaks",
-      "gateGradeStatus": "incremental-drift-recorded",
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+      "incrementalLineSignature": "incremental legal-break 16 matches full line texts",
+      "gateGradeStatus": "incremental-matches-full",
+      "detail": "incremental legal-break 16 matches full line texts"
     },
     {
       "entryId": "AF-03",
       "fullLayoutIdempotent": true,
-      "incrementalEquivalent": false,
+      "incrementalEquivalent": true,
       "fullLineSignature": "component␞boundary probe␞with longer␞wrapped paragraph␞text",
-      "incrementalLineSignature": "component␞boundary probe␞with␟longer wrapped␞paragraph text",
-      "gateGradeStatus": "incremental-drift-recorded",
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+      "incrementalLineSignature": "incremental legal-break 10 matches full line texts",
+      "gateGradeStatus": "incremental-matches-full",
+      "detail": "incremental legal-break 10 matches full line texts"
     }
   ],
-  "note": "Incremental drift recorded on AF corpus; G4 gate proof not-run."
+  "note": "Legal-break incremental line texts match full layout on some AF entries; G4 still not-run (C01–C04 component pagination not proved)."
 }

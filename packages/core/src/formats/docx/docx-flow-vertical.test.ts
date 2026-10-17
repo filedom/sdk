@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { createEngineClient } from "../../rendering/engine-client.js";
 import { buildRenderProjectionFromDocxFlow } from "./docx-flow-projection.js";
 import { DocxStore } from "./docx-store.js";
+import { buildWordCompatibleNumberingXml } from "./docx-numbering-ooxml-roundtrip.js";
 
 function buildMinimalDocx(paragraphText: string): Uint8Array {
   const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -66,5 +67,53 @@ describe("G2 vertical: docx store → flow layout → render", () => {
     );
     expect(response.paint.items.length).toBeGreaterThan(0);
     await client.dispose();
+  });
+
+  it("D05 numbered paragraph prefixes list marker into WASM flow lines", async () => {
+    const wasm = await import("domdoc-wasm");
+    const numberingXml = buildWordCompatibleNumberingXml(2, [
+      { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+    ]);
+    const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="2"/></w:numPr></w:pPr>
+      <w:r><w:t>one two three four five six seven eight nine ten</w:t></w:r></w:p>
+  </w:body>
+</w:document>`;
+    const zip = zipSync(
+      {
+        "[Content_Types].xml": new TextEncoder().encode(
+          `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>`,
+        ),
+        "_rels/.rels": new TextEncoder().encode(
+          `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`,
+        ),
+        "word/document.xml": new TextEncoder().encode(documentXml),
+        "word/numbering.xml": new TextEncoder().encode(numberingXml),
+      },
+      { level: 0 },
+    );
+    const store = DocxStore.open(zip);
+    const projection = buildRenderProjectionFromDocxFlow(store.getBody(), {
+      requestId: "g2-d05-vertical",
+      sessionId: "sess-g2-d05",
+      documentGeneration: 1,
+      maxTextWidthPt: 72,
+      fontSizePt: 10,
+      numberingXml,
+      layoutParagraph(input) {
+        const json = wasm.layout_flow_paragraph_json(JSON.stringify(input));
+        if (typeof json !== "string") throw new Error(String(json));
+        return JSON.parse(json) as {
+          line_index: number;
+          text: string;
+          width_pt: number;
+          baseline_y_pt: number;
+        }[];
+      },
+    });
+    const texts = projection.pages[0]?.runs.map((r) => r.text).join(" ") ?? "";
+    expect(texts).toMatch(/1\./);
   });
 });

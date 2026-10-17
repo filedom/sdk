@@ -1,4 +1,9 @@
+import { createHash } from "node:crypto";
 import type { DocumentKind, DocumentSessionStub } from "../wire/domain-owned.js";
+
+export function sha256Hex(bytes: Uint8Array): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
 
 /** Internal v1 `.domdoc` ZIP manifest stub (blueprint §13.3). */
 export const DOMDOC_PACKAGE_SCHEMA_VERSION = 1 as const;
@@ -21,8 +26,8 @@ export type DomdocPackageMemberRole =
 export interface DomdocPackageMemberStub {
   path: string;
   role: DomdocPackageMemberRole;
-  /** Placeholder until content-addressing is wired (RFC 8785 hashes). */
-  contentHash: "not-computed";
+  /** SHA-256 hex when bytes are supplied; otherwise not-computed. */
+  contentHash: string;
 }
 
 /** M2 demo shell session ids (optional manifest annotation — not authoritative session state). */
@@ -170,14 +175,16 @@ export class MemoryDomdocBlobStoreStub {
   }
 }
 
-/** G5: annotate manifest stub with committed member blob keys (hashes still not-computed). */
+/** G5: annotate manifest stub with committed member blob keys (SHA-256 when bytes given). */
 export function attachMultiBlobMemberKeysToManifestStub(
   manifest: DomdocPackageManifestStub,
   blobKeys: readonly string[],
+  blobs?: Readonly<Record<string, Uint8Array>>,
 ): DomdocPackageManifestStub {
   const memberHashes = { ...manifest.memberHashes };
   for (const key of blobKeys) {
-    memberHashes[key] = "not-computed";
+    const bytes = blobs?.[key];
+    memberHashes[key] = bytes ? sha256Hex(bytes) : "not-computed";
   }
   return { ...manifest, memberHashes };
 }

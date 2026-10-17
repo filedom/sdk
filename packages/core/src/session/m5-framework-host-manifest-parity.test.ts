@@ -6,6 +6,7 @@ import { domdocAngularAdapterDemoSurface } from "@domdoc/angular";
 import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
 import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
 import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
+import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
 
 export const M5_FRAMEWORK_ADAPTER_STUB_SURFACE = "framework-adapter-stub" as const;
 
@@ -16,17 +17,28 @@ export interface M5FrameworkHostManifest {
 }
 
 describe("M5 framework host manifest parity", () => {
-  const adapters = [
+  /** Primary six host shells (blueprint M5 slice). */
+  const coreSix = [
     ["react", domdocReactAdapterDemoSurface],
     ["vue", domdocVueAdapterDemoSurface],
     ["lit", domdocLitAdapterDemoSurface],
     ["angular", domdocAngularAdapterDemoSurface],
     ["svelte", domdocSvelteAdapterDemoSurface],
+    ["next-host", domdocNextHostAdapterDemoSurface],
+  ] as const;
+
+  const extended = [
     ["preact", domdocPreactAdapterDemoSurface],
     ["solid", domdocSolidAdapterDemoSurface],
   ] as const;
 
-  it.each(adapters)("@domdoc/%s demo surface matches shared manifest", (_label, demoSurface) => {
+  it.each(coreSix)("@domdoc/%s demo surface matches shared manifest (core six)", (_label, demoSurface) => {
+    const manifest: M5FrameworkHostManifest = demoSurface("demo-sess");
+    expect(manifest.sessionId).toBe("demo-sess");
+    expect(manifest.surface).toBe(M5_FRAMEWORK_ADAPTER_STUB_SURFACE);
+  });
+
+  it.each(extended)("@domdoc/%s demo surface matches shared manifest (extended)", (_label, demoSurface) => {
     const manifest: M5FrameworkHostManifest = demoSurface("demo-sess");
     expect(manifest.sessionId).toBe("demo-sess");
     expect(manifest.surface).toBe(M5_FRAMEWORK_ADAPTER_STUB_SURFACE);

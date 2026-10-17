@@ -24,9 +24,15 @@ import {
   serializeDomdocPackageManifestStub,
   type DomdocStagedWriteSimulationResult,
 } from "../persistence/domdoc-package-stub.js";
+import {
+  FencedTabWriterOwnershipStub,
+  type FencedTabWriterAcquireResult,
+} from "./fenced-tab-writer-stub.js";
 
 /** M1 skeleton — web-owned semantic authority (blueprint §13.1). */
 export class DocumentSession {
+  private tabWriterOwnership: FencedTabWriterOwnershipStub | null = null;
+
   constructor(readonly stub: DocumentSessionStub) {}
 
   get documentId(): string {
@@ -81,11 +87,45 @@ export class DocumentSession {
     });
   }
 
+  /** §13.2 fenced tab writer stub — one active persist lease per document in this session shell. */
+  fencedTabWriterOwnership(): FencedTabWriterOwnershipStub {
+    if (!this.tabWriterOwnership) {
+      this.tabWriterOwnership = new FencedTabWriterOwnershipStub(this.documentId);
+    }
+    return this.tabWriterOwnership;
+  }
+
+  tryAcquireTabWriterLease(tabId: string): FencedTabWriterAcquireResult {
+    return this.fencedTabWriterOwnership().tryAcquire(tabId);
+  }
+
   /** M1/G5: crash-safe multi-blob save hook into in-memory store stub (host persist adapter TBD). */
   saveDomdocPackageStubToStore(
     store: MemoryDomdocBlobStoreStub,
-    options?: { journalBytes?: Uint8Array; checkpointBytes?: Uint8Array },
+    options?: {
+      journalBytes?: Uint8Array;
+      checkpointBytes?: Uint8Array;
+      writerTabId?: string;
+      writerFenceGeneration?: number;
+    },
   ): { manifestBytes: Uint8Array; simulation: DomdocStagedWriteSimulationResult } {
+    if (options?.writerTabId !== undefined && options.writerFenceGeneration !== undefined) {
+      const fence = this.fencedTabWriterOwnership().assertWriterFence(
+        options.writerTabId,
+        options.writerFenceGeneration,
+      );
+      if (!fence.ok) {
+        return {
+          manifestBytes: new Uint8Array(),
+          simulation: {
+            ok: false,
+            steps: [],
+            committedManifest: false,
+            detail: `fenced-tab-writer-${fence.reason}`,
+          },
+        };
+      }
+    }
     const plan = createDomdocPackagePersistPlanStub(this.stub);
     const manifestBytes = serializeDomdocPackageManifestStub(this.stub);
     const journalBytes =

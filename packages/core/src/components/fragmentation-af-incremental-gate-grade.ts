@@ -6,6 +6,7 @@ import {
 import {
   evaluateAfIncrementalVsFullEquivalence,
   type AfIncrementalEquivalenceVerdict,
+  type IncrementalLayoutHooks,
 } from "./fragmentation-af-incremental-equivalence.js";
 
 /** W2-G4-07: gate-grade incremental≡full evidence (oracle expanded beyond stub). */
@@ -38,24 +39,18 @@ function lineSignature(entry: AfBrowserCorpusEntry, text: string, shapedLayoutJs
   return lines.map((l) => l.text).join("\u241E");
 }
 
-/** Full layout twice must match; incremental split compared to full (testable oracle). */
+/** Full layout twice must match; incremental compared to full (testable oracle). */
 export function evaluateAfIncrementalGateGrade(
   shapedLayoutJson: ShapedLayoutJsonFn,
+  hooks?: IncrementalLayoutHooks,
 ): readonly AfIncrementalGateGradeEntry[] {
-  const incrementalVerdicts = evaluateAfIncrementalVsFullEquivalence(shapedLayoutJson);
+  const incrementalVerdicts = evaluateAfIncrementalVsFullEquivalence(shapedLayoutJson, hooks);
   const byId = new Map(incrementalVerdicts.map((v) => [v.entryId, v]));
 
   return AF_BROWSER_CORPUS.map((entry) => {
     const fullA = lineSignature(entry, entry.paragraphText, shapedLayoutJson);
     const fullB = lineSignature(entry, entry.paragraphText, shapedLayoutJson);
     const fullLayoutIdempotent = fullA === fullB;
-
-    const mid = Math.ceil(entry.paragraphText.length / 2);
-    const incSig = [
-      lineSignature(entry, entry.paragraphText.slice(0, mid), shapedLayoutJson),
-      lineSignature(entry, entry.paragraphText.slice(mid), shapedLayoutJson),
-    ].join("\u241F");
-
     const incVerdict: AfIncrementalEquivalenceVerdict | undefined = byId.get(entry.id);
     const incrementalEquivalent = incVerdict?.equivalent === true;
 
@@ -71,7 +66,7 @@ export function evaluateAfIncrementalGateGrade(
       fullLayoutIdempotent,
       incrementalEquivalent,
       fullLineSignature: fullA,
-      incrementalLineSignature: incSig,
+      incrementalLineSignature: incVerdict?.detail ?? "",
       gateGradeStatus,
       detail: incVerdict?.detail ?? "missing incremental verdict",
     };
@@ -80,8 +75,9 @@ export function evaluateAfIncrementalGateGrade(
 
 export function buildAfIncrementalGateGradeEvidence(
   shapedLayoutJson: ShapedLayoutJsonFn,
+  hooks?: IncrementalLayoutHooks,
 ): AfIncrementalGateGradeEvidence {
-  const entries = evaluateAfIncrementalGateGrade(shapedLayoutJson);
+  const entries = evaluateAfIncrementalGateGrade(shapedLayoutJson, hooks);
   const anyMatch = entries.some((e) => e.gateGradeStatus === "incremental-matches-full");
   return {
     recordedAt: new Date().toISOString(),
@@ -89,7 +85,7 @@ export function buildAfIncrementalGateGradeEvidence(
     gateStatus: "not-run",
     entries,
     note: anyMatch
-      ? "Some corpus entries match incremental≡full; G4 gate proof still not-run until engine incremental path is authoritative."
+      ? "Legal-break incremental line texts match full layout on some AF entries; G4 still not-run (C01–C04 component pagination not proved)."
       : "Incremental drift recorded on AF corpus; G4 gate proof not-run.",
   };
 }

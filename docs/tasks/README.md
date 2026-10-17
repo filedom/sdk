@@ -105,5 +105,8 @@
 | [G2-LAYOUT-20-packet-reconciliation.md](./G2-LAYOUT-20-packet-reconciliation.md) | W1++++++++++++++++++ | review |
 | [G3-INPUT-21-gate-grade-ingest-validation.md](./G3-INPUT-21-gate-grade-ingest-validation.md) | W1++++++++++++++++++ | review |
 | [W2-G4-19-authoritative-gate-coordinator-hook.md](./W2-G4-19-authoritative-gate-coordinator-hook.md) | W2 | review |
+| [G2-DOCX-21-d03-unwrap-d05-wasm-vertical.md](./G2-DOCX-21-d03-unwrap-d05-wasm-vertical.md) | W1+++++++++++++++++++ | review |
+| [W2-G4-20-legal-break-incremental-line-texts.md](./W2-G4-20-legal-break-incremental-line-texts.md) | W2 | review |
+| [F01-OPEN-01-local-docx-picker.md](./F01-OPEN-01-local-docx-picker.md) | M1 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

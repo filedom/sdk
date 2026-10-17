@@ -30,7 +30,10 @@ describe("W2-G4-07 AF incremental gate-grade oracle", () => {
   it.skipIf(!existsSync(flowEntry))("writes WASM flow gate-grade JSON artifact", async () => {
     const flow = await import(pathToFileURL(flowEntry).href);
     const shaped = (payload: string) => String(flow.layout_flow_paragraph_shaped_json(payload));
-    const evidence = buildAfIncrementalGateGradeEvidence(shaped);
+    const evidence = buildAfIncrementalGateGradeEvidence(shaped, {
+      legalBreaksJson: (payload) => String(flow.layout_flow_paragraph_legal_breaks_json(payload)),
+      incrementalLayoutJson: (payload) => String(flow.layout_flow_paragraph_incremental_json(payload)),
+    });
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(
       join(evidenceDir, "af-incremental-gate-grade.json"),

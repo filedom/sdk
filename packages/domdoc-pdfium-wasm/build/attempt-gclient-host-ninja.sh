@@ -7,8 +7,13 @@ WEB_ROOT="$(cd "$ROOT/../.." && pwd)"
 EVIDENCE="$WEB_ROOT/evidence/gates/G1-feasibility/g1-emscripten-gclient-host-ninja-attempt.json"
 TREE="${PDFIUM_GCLIENT_TREE:-}"
 TIMEOUT_SEC="${PDFIUM_GCLIENT_NINJA_TIMEOUT_SEC:-120}"
+LOCAL_DEPOT_TOOLS="$WEB_ROOT/tools/depot_tools"
 
 mkdir -p "$(dirname "$EVIDENCE")"
+
+if [[ -d "$LOCAL_DEPOT_TOOLS" ]]; then
+  export PATH="$LOCAL_DEPOT_TOOLS:$PATH"
+fi
 
 write_evidence() {
   node -e '
@@ -56,9 +61,12 @@ PRIMARY_LIB=""
 
 if command -v gn >/dev/null 2>&1; then
   set +e
-  GN_LOG="$(gn gen "$OUT" --args="$GN_ARGS" 2>&1)"
+  GN_LOG="$(cd "$TREE" && gn gen "$OUT" --args="$GN_ARGS" 2>&1)"
   GN_EXIT=$?
   set -e
+else
+  GN_LOG="gn not found on PATH (expected domdoc-web/tools/depot_tools or system install)"
+  GN_EXIT=127
 fi
 
 if [[ $GN_EXIT -eq 0 ]] && command -v ninja >/dev/null 2>&1; then
@@ -77,7 +85,9 @@ while IFS= read -r line; do
   if [[ -z "$PRIMARY_LIB" ]]; then
     PRIMARY_LIB="$line"
   fi
-done < <(find "$TREE" -type f \( -name 'libpdfium.a' -o -name 'libpdfium.so' -o -name 'libpdfium.dylib' \) 2>/dev/null | head -20)
+done < <(
+  find "$TREE/out" "$TREE" -type f \( -name 'libpdfium.a' -o -name 'libpdfium.so' -o -name 'libpdfium.dylib' \) 2>/dev/null | head -20
+)
 
 if [[ $NINJA_EXIT -eq 0 ]]; then
   DOMDOC_NINJA_STATUS="host-ninja-pdfium-ok"

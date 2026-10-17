@@ -6,9 +6,10 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-20 foreign numbering merge; G2-LAYOUT-20 packet reconciliation (not gate pass); gate not-run",
+  "limitations": "D01 custom part round-trip, D02 split-run join, D03 ins/del unwrap, D04 comment ranges, D05 WASM list prefix, D10 unicode flow, D13 oversized reject, D16 save/reopen stubs exist. Independent Word/LibreOffice inspect not-run; gate not-run.",
   "evidencePaths": [
-    "docx-flow-vertical-test",
+    "docx-flow-vertical.test.ts",
+    "docx-store.test.ts",
     "docx-store-d02.test.ts",
     "docx-prosemirror-projection.test.ts",
     "docx-prosemirror-transaction-boundary.test.ts",
