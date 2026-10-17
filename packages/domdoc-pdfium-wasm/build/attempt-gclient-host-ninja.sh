@@ -29,6 +29,10 @@ const payload = {
   ninjaTimeoutSec: Number(process.env.DOMDOC_NINJA_TIMEOUT ?? "120"),
   hostStaticLibs: (process.env.DOMDOC_HOST_LIBS ?? "").split("\n").filter(Boolean),
   primaryHostStaticLib: process.env.DOMDOC_PRIMARY_LIB || null,
+  hostPdfiumLinkableFound: process.env.DOMDOC_HOST_PDFIUM_LINKABLE === "true",
+  hostArchiveSearchRoots: (process.env.DOMDOC_HOST_SEARCH_ROOTS ?? "").split("\n").filter(Boolean),
+  hostDependencyArchiveSample: (process.env.DOMDOC_HOST_DEP_SAMPLE ?? "").split("\n").filter(Boolean),
+  hostDependencyArchiveCount: Number(process.env.DOMDOC_HOST_DEP_COUNT ?? "0"),
   gnLogTail: process.env.DOMDOC_GN_LOG ?? null,
   ninjaLogTail: process.env.DOMDOC_NINJA_LOG ?? null,
   reason: process.env.DOMDOC_NINJA_SKIP_REASON ?? null,
@@ -80,13 +84,35 @@ if [[ $GN_EXIT -eq 0 ]] && command -v ninja >/dev/null 2>&1; then
   set -e
 fi
 
+SEARCH_ROOTS=("$TREE/out")
+if [[ -d "$OUT" ]]; then
+  SEARCH_ROOTS=("$OUT" "$TREE/out")
+fi
+HOST_DEP_COUNT=0
+HOST_DEP_SAMPLE=""
+while IFS= read -r line; do
+  HOST_DEP_COUNT=$((HOST_DEP_COUNT + 1))
+  if [[ $HOST_DEP_COUNT -le 8 ]]; then
+    HOST_DEP_SAMPLE="${HOST_DEP_SAMPLE}${line}"$'\n'
+  fi
+done < <(
+  for root in "${SEARCH_ROOTS[@]}"; do
+    find "$root" -type f \( -name '*.a' -o -name '*.dylib' -o -name '*.so' \) 2>/dev/null
+  done | sort -u
+)
+
 while IFS= read -r line; do
   HOST_LIBS="${HOST_LIBS}${line}"$'\n'
   if [[ -z "$PRIMARY_LIB" ]]; then
     PRIMARY_LIB="$line"
   fi
 done < <(
-  find "$TREE/out" "$TREE" -type f \( -name 'libpdfium.a' -o -name 'libpdfium.so' -o -name 'libpdfium.dylib' \) 2>/dev/null | head -20
+  for root in "${SEARCH_ROOTS[@]}"; do
+    find "$root" -type f \( \
+      -name 'libpdfium.a' -o -name 'libpdfium.so' -o -name 'libpdfium.dylib' -o \
+      -path '*/obj/libpdfium.a' -o -path '*/Release/obj/libpdfium.a' \
+    \) 2>/dev/null
+  done | sort -u | head -20
 )
 
 if [[ $NINJA_EXIT -eq 0 ]]; then
@@ -104,6 +130,10 @@ export DOMDOC_NINJA_EXIT="$NINJA_EXIT"
 export DOMDOC_NINJA_TIMEOUT="$TIMEOUT_SEC"
 export DOMDOC_HOST_LIBS="$HOST_LIBS"
 export DOMDOC_PRIMARY_LIB="${PRIMARY_LIB:-}"
+export DOMDOC_HOST_PDFIUM_LINKABLE="$([[ -n "${PRIMARY_LIB:-}" ]] && echo true || echo false)"
+export DOMDOC_HOST_SEARCH_ROOTS="$(printf '%s\n' "${SEARCH_ROOTS[@]}")"
+export DOMDOC_HOST_DEP_SAMPLE="$HOST_DEP_SAMPLE"
+export DOMDOC_HOST_DEP_COUNT="$HOST_DEP_COUNT"
 export DOMDOC_GN_LOG="${GN_LOG: -800}"
 export DOMDOC_NINJA_LOG="${NINJA_LOG: -800}"
 export DOMDOC_NINJA_STATUS="$DOMDOC_NINJA_STATUS"

@@ -1,13 +1,29 @@
 {
-  "recordedAt": "2026-10-17T14:12:19.060Z",
+  "recordedAt": "2026-10-17T14:14:16.135Z",
   "status": "host-ninja-pdfium-ok",
   "pdfiumGclientTree": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
   "outDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release",
   "gnExit": 0,
   "ninjaExit": 0,
-  "ninjaTimeoutSec": 120,
+  "ninjaTimeoutSec": 180,
   "hostStaticLibs": [],
   "primaryHostStaticLib": null,
+  "hostPdfiumLinkableFound": false,
+  "hostArchiveSearchRoots": [
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out"
+  ],
+  "hostDependencyArchiveSample": [
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/base/allocator/partition_allocator/src/partition_alloc/liballocator_base.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/base/allocator/partition_allocator/src/partition_alloc/liballocator_core.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/base/allocator/partition_allocator/src/partition_alloc/liballocator_shim.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/base/allocator/partition_allocator/src/partition_alloc/libraw_ptr.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/harfbuzz/libharfbuzz.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/icu/libicuuc.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/libjpeg_turbo/libjpeg.a",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/libjpeg_turbo/libjpeg12.a"
+  ],
+  "hostDependencyArchiveCount": 14,
   "gnLogTail": "",
   "ninjaLogTail": "",
   "reason": null,

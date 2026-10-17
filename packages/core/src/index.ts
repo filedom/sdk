@@ -299,6 +299,12 @@ export {
 } from "./compositor/view-transform.js";
 export { parseCommentRangesFromDocumentXml } from "./formats/docx/comment-range-stub.js";
 export {
+  COMMENT_PANEL_ACCEPT_ACTION_FEATURE_ID,
+  dispatchCommentPanelAcceptAction,
+  type CommentPanelAcceptActionKind,
+  type CommentPanelAcceptActionResult,
+} from "./formats/docx/comment-panel-accept-action-stub.js";
+export {
   attachMultiBlobMemberKeysToManifestStub,
   sha256Hex,
 } from "./persistence/domdoc-package-stub.js";

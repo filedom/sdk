@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -10,6 +11,7 @@ const enginePkgDir = path.join(wasmPkgRoot, useParleyEngine ? "pkg-parley" : "pk
 
 export default defineConfig({
   root: demoRoot,
+  plugins: [nodePolyfills({ include: ["crypto"] })],
   resolve: {
     alias: {
       "@domdoc/demo-engine": path.join(enginePkgDir, "domdoc_engine.js"),

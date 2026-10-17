@@ -78,13 +78,23 @@ const fs=require('fs');
 const path=require('path');
 const out=path.join(process.argv[1],'dist','emcc-link-record.json');
 const vendorProbe=process.argv[5]==='true';
+const linkMode=process.argv[2];
+const partialExportsDetected=
+  linkMode.startsWith('partial-') || (vendorProbe && linkMode.includes('stub'));
+const note = vendorProbe
+  ? 'vendorWriterExportsProbe true is not production c24WriterExports; G1 remains not-run until P01–P05 on production drop.'
+  : partialExportsDetected
+    ? 'Partial em++ fpdf_edit link only; c24WriterExports remains false.'
+    : 'No production writer exports; contract stub only.';
 fs.writeFileSync(out, JSON.stringify({
   recordedAt: new Date().toISOString(),
-  linkMode: process.argv[2],
+  linkMode,
   staticLib: process.argv[3] || null,
   includeDir: process.argv[4] || null,
   c24WriterExports: false,
   vendorWriterExportsProbe: vendorProbe,
+  partialExportsDetected,
+  note,
 }, null, 2)+'\n');
 " "$ROOT" "$LINK_MODE" "${STATIC_LIB:-}" "${INCLUDE_DIR:-}" "$VENDOR_PROBE"
 

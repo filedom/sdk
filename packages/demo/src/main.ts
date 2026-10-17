@@ -48,6 +48,7 @@ import {
   buildAnnotationsWireStubFromOpcMembers,
   listAnnotationWireStubLabels,
 } from "../../core/dist/formats/docx/annotations-wire-stub.js";
+import { dispatchCommentPanelAcceptAction } from "../../core/dist/formats/docx/comment-panel-accept-action-stub.js";
 import { domdocReactAdapterDemoSurface } from "@domdoc/react";
 import { domdocVueAdapterDemoSurface } from "@domdoc/vue";
 import { domdocLitAdapterDemoSurface } from "@domdoc/lit";
@@ -318,6 +319,15 @@ async function boot(): Promise<void> {
   }
   document.body.dataset.m5CommentsWireCount = String(annotationsWire.comments.commentCount);
   document.body.dataset.m5CommentsThreadCount = String(annotationsWire.reviewThreads.length);
+  const acceptCommentBtn = document.getElementById("domdoc-comments-accept-stub");
+  acceptCommentBtn?.addEventListener("click", () => {
+    const firstThread = annotationsWire.reviewThreads[0];
+    const commentId = firstThread?.commentIds[0] ?? "0";
+    const acceptResult = dispatchCommentPanelAcceptAction(commentId);
+    document.body.dataset.m2CommentAcceptApplied = acceptResult.applied ? "true" : "false";
+    document.body.dataset.m2CommentAcceptDetail = acceptResult.detail;
+    document.body.dataset.m2CommentAcceptId = acceptResult.commentId;
+  });
 
   const trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
   const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, pmSlice.session);

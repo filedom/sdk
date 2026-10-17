@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-17T14:11:56.970Z",
+  "recordedAt": "2026-10-17T14:15:46.752Z",
   "status": "native-proofs-pass",
   "fixtures": [
     {
@@ -66,5 +66,18 @@
       "detail": "lifecycleCycles=20"
     }
   ],
-  "note": "Native P01–P05 executed against C24 writer WASM; coordinator still reviews independent inspection artifacts."
+  "contractPackageEmccLink": {
+    "path": "packages/domdoc-pdfium-wasm/dist/emcc-link-record.json",
+    "c24WriterExports": false,
+    "partialExportsDetected": true,
+    "vendorWriterExportsProbe": true,
+    "linkMode": "partial-link-failed-stub-fallback"
+  },
+  "hostNinjaDiscovery": {
+    "path": "evidence/gates/G1-feasibility/g1-emscripten-gclient-host-ninja-attempt.json",
+    "hostPdfiumLinkableFound": false,
+    "hostDependencyArchiveCount": 14
+  },
+  "coordinatorGateStatus": "not-run",
+  "note": "Vendor WASM may pass P01–P05 locally; in-repo contract package keeps c24WriterExports=false (partial em++ link / probe only). Host gclient tree has no libpdfium.a|.dylib. Coordinator G1 remains not-run until independent inspection."
 }
