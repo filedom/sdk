@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "domdoc://render-wire-response/v1",
+  "title": "RenderWireResponse",
+  "type": "object",
+  "required": ["header", "geometry", "paint"],
+  "additionalProperties": false,
+  "properties": {
+    "header": {
+      "type": "object",
+      "required": [
+        "protocolVersion",
+        "schemaId",
+        "requestId",
+        "documentGeneration",
+        "engineBuild"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "protocolVersion": { "const": 1 },
+        "schemaId": { "const": "domdoc://render-wire/v1" },
+        "requestId": { "type": "string" },
+        "documentGeneration": { "type": "integer", "minimum": 0 },
+        "engineBuild": { "type": "string" }
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "required": ["pages"],
+      "additionalProperties": false,
+      "properties": {
+        "pages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["pageIndex", "runBounds"],
+            "additionalProperties": false,
+            "properties": {
+              "pageIndex": { "type": "integer", "minimum": 0 },
+              "runBounds": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/RectPt" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "paint": {
+      "type": "object",
+      "required": ["items"],
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/PaintItem" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "RectPt": {
+      "type": "object",
+      "required": ["id", "xPt", "yPt", "widthPt", "heightPt"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "xPt": { "type": "number" },
+        "yPt": { "type": "number" },
+        "widthPt": { "type": "number", "minimum": 0 },
+        "heightPt": { "type": "number", "minimum": 0 }
+      }
+    },
+    "PaintItem": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind", "pageIndex", "rect", "colorRgba"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "fillRect" },
+            "pageIndex": { "type": "integer", "minimum": 0 },
+            "rect": { "$ref": "#/$defs/RectPt" },
+            "colorRgba": {
+              "type": "array",
+              "minItems": 4,
+              "maxItems": 4,
+              "items": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "pageIndex", "runId", "glyphs"],
+          "additionalProperties": false,
+          "properties": {
+            "kind": { "const": "glyphRun" },
+            "pageIndex": { "type": "integer", "minimum": 0 },
+            "runId": { "type": "string" },
+            "glyphs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["char", "xPt", "yPt", "advancePt"],
+                "additionalProperties": false,
+                "properties": {
+                  "char": { "type": "string" },
+                  "xPt": { "type": "number" },
+                  "yPt": { "type": "number" },
+                  "advancePt": { "type": "number", "minimum": 0 }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

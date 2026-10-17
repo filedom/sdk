@@ -1,0 +1,14 @@
+{
+  "name": "domdoc-web",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "generate:wire-types": "pnpm --filter @domdoc/core run generate:wire-types"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
