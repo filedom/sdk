@@ -1,8 +1,9 @@
 {
-  "recordedAt": "2026-10-17T08:39:18.298Z",
+  "recordedAt": "2026-10-17T08:41:26.448Z",
   "corpusSize": 3,
   "gateStatus": "not-run",
   "allLegalBreakpointsEquivalent": true,
+  "allArbitraryBreakpointsEquivalent": true,
   "arbitraryBreakpointsRecorded": 3,
   "entries": [
     {
@@ -30,8 +31,8 @@
       "entryId": "AF-01",
       "breakAfterCharIndex": 9,
       "breakpointKind": "arbitrary",
-      "incrementalEquivalent": false,
-      "detail": "arbitrary breakpoint drift vs full layout"
+      "incrementalEquivalent": true,
+      "detail": "arbitrary breakpoint matches full layout fragments"
     },
     {
       "entryId": "AF-02",
@@ -72,8 +73,8 @@
       "entryId": "AF-02",
       "breakAfterCharIndex": 19,
       "breakpointKind": "arbitrary",
-      "incrementalEquivalent": false,
-      "detail": "arbitrary breakpoint drift vs full layout"
+      "incrementalEquivalent": true,
+      "detail": "arbitrary breakpoint matches full layout fragments"
     },
     {
       "entryId": "AF-03",
@@ -121,9 +122,9 @@
       "entryId": "AF-03",
       "breakAfterCharIndex": 19,
       "breakpointKind": "arbitrary",
-      "incrementalEquivalent": false,
-      "detail": "arbitrary breakpoint drift vs full layout"
+      "incrementalEquivalent": true,
+      "detail": "arbitrary breakpoint matches full layout fragments"
     }
   ],
-  "note": "W2-G4-11 edit-breakpoint matrix on AF corpus; arbitrary mid-edit may drift; G4 gate not-run."
+  "note": "W2-G4-12 AF edit-breakpoint matrix; arbitrary unchanged-text caret matches full layout when WASM built; G4 gate not-run."
 }

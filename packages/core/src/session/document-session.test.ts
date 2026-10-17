@@ -79,6 +79,24 @@ describe("M1 DocumentSession skeleton", () => {
     expect(manifest.nativeCheckpointRevision).toBe(base.revisions.materializedRevision);
   });
 
+  it("G5 memory blob store applies multi-blob manifest commit simulation", () => {
+    const plan = createDomdocPackagePersistPlanStub(base);
+    const manifestBytes = serializeDomdocPackageManifestStub(base);
+    const store = new MemoryDomdocBlobStoreStub();
+    const sim = store.applyMultiBlobStagedWrite(
+      {
+        "source/native-checkpoint.bin": new TextEncoder().encode("checkpoint"),
+        "state/semantic-journal.jsonl": new TextEncoder().encode('{"rev":1}\n'),
+      },
+      plan,
+      manifestBytes,
+    );
+    expect(sim.ok).toBe(true);
+    expect(store.readBlob("source/native-checkpoint.bin")).toBeDefined();
+    expect(store.readBlob("state/semantic-journal.jsonl")).toBeDefined();
+    expect(store.readCommittedManifest()).toEqual(manifestBytes);
+  });
+
   it("G5 memory blob store applies staged write after simulation passes", () => {
     const plan = createDomdocPackagePersistPlanStub(base);
     const manifestBytes = serializeDomdocPackageManifestStub(base);

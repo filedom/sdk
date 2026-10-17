@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-17T08:39:12.804Z",
+  "generatedAt": "2026-10-17T08:41:31.249Z",
   "status": "generated-awaiting-review",
   "sourceArtifact": "layout-shaped-flow-visual-diff.json",
   "baselineMarkdown": "layout-visual-baselines.md",
@@ -31,5 +31,5 @@
   "approvalWorkflow": "G2-LAYOUT-10-checksum-pinned",
   "checksumSource": "layout-visual-baseline-checksums.json",
   "checksumMismatches": [],
-  "approvedAt": "2026-10-17T08:39:13.044Z"
+  "approvedAt": "2026-10-17T08:41:31.481Z"
 }

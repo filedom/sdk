@@ -1,0 +1,7 @@
+{
+  "recordedAt": "2026-10-17T08:41:29.955Z",
+  "card": "G1-PDF-14",
+  "phase": "pre-ingest",
+  "productionWasmObtained": false,
+  "note": "C24 domdoc-pdfium-wasm bytes ingest attempt; updated post-fetch outcome."
+}

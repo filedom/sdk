@@ -65,5 +65,10 @@
 | [G2-LAYOUT-12-human-signoff-template.md](./G2-LAYOUT-12-human-signoff-template.md) | W1++++++++++ | review |
 | [G3-INPUT-13-platform-log-paths.md](./G3-INPUT-13-platform-log-paths.md) | W1++++++++++ | review |
 | [W2-G4-11-af-edit-breakpoint-incremental.md](./W2-G4-11-af-edit-breakpoint-incremental.md) | W2 | review |
+| [G1-PDF-14-c24-pdfium-wasm-bytes-ci.md](./G1-PDF-14-c24-pdfium-wasm-bytes-ci.md) | W1+++++++++++ | review |
+| [G2-DOCX-13-d05-document-roundtrip.md](./G2-DOCX-13-d05-document-roundtrip.md) | W1+++++++++++ | review |
+| [G2-LAYOUT-13-human-signoff-signed.md](./G2-LAYOUT-13-human-signoff-signed.md) | W1+++++++++++ | review |
+| [G3-INPUT-14-platform-log-capture.md](./G3-INPUT-14-platform-log-capture.md) | W1+++++++++++ | review |
+| [W2-G4-12-arbitrary-break-incremental.md](./W2-G4-12-arbitrary-break-incremental.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

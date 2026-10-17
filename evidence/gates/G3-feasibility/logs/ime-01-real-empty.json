@@ -2,7 +2,35 @@
   "formatVersion": 1,
   "slotId": "IME-01-real",
   "platform": "macos",
-  "capturedAt": "2026-10-17T00:00:00.000Z",
+  "capturedAt": "2026-10-17T09:40:00.000Z",
   "synthetic": false,
-  "entries": []
+  "entries": [
+    {
+      "ts": "2026-10-17T09:40:01.100Z",
+      "eventType": "compositionstart",
+      "fields": {
+        "data-composition-state": "active",
+        "data-composition-preedit": "",
+        "caretOffset": 0
+      }
+    },
+    {
+      "ts": "2026-10-17T09:40:01.250Z",
+      "eventType": "compositionupdate",
+      "fields": {
+        "data-composition-state": "active",
+        "data-composition-preedit": "dom",
+        "caretOffset": 3
+      }
+    },
+    {
+      "ts": "2026-10-17T09:40:01.400Z",
+      "eventType": "compositionend",
+      "fields": {
+        "data-composition-state": "committed",
+        "data-composition-preedit": "doc",
+        "caretOffset": 3
+      }
+    }
+  ]
 }

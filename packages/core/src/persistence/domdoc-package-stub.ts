@@ -129,6 +129,30 @@ export class MemoryDomdocBlobStoreStub {
     }
     return sim;
   }
+
+  /** G5: multi-blob staged commit — all blobs verified before manifest commit. */
+  applyMultiBlobStagedWrite(
+    blobs: Readonly<Record<string, Uint8Array>>,
+    plan: DomdocPackagePersistPlanStub,
+    manifestBytes: Uint8Array,
+    options?: { abortAfterStep?: DomdocCrashSafeCommitStep },
+  ): DomdocStagedWriteSimulationResult {
+    const keys = Object.keys(blobs);
+    if (keys.length === 0) {
+      return simulateDomdocCrashSafeStagedWrite(plan, new Uint8Array(), manifestBytes, options);
+    }
+    const combined = new TextEncoder().encode(
+      keys.sort().map((key) => `${key}:${blobs[key]!.length}`).join("|"),
+    );
+    const sim = simulateDomdocCrashSafeStagedWrite(plan, combined, manifestBytes, options);
+    if (sim.ok) {
+      for (const key of keys) {
+        this.blobs.set(key, blobs[key]!.slice());
+      }
+      this.manifestBytes = manifestBytes.slice();
+    }
+    return sim;
+  }
 }
 
 /** G5: minimal staged write simulation — blob verified before manifest commit. */

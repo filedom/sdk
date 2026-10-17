@@ -125,7 +125,7 @@ function writeDiscoveryRecord(extra) {
   ];
   const record = {
     recordedAt: new Date().toISOString(),
-    card: "G1-PDF-13",
+    card: "G1-PDF-14",
     envVarsChecked: [
       "PDFIUM_WASM_ARTIFACT_DIR",
       "PDFIUM_WASM_ARTIFACT_URL",
@@ -193,6 +193,20 @@ writeFileSync(
   )}\n`,
 );
 writeDiscoveryRecord({ phase: "pre-ingest" });
+writeFileSync(
+  join(outDir, "pdfium-wasm-bytes-attempt.json"),
+  `${JSON.stringify(
+    {
+      recordedAt: new Date().toISOString(),
+      card: "G1-PDF-14",
+      phase: "pre-ingest",
+      productionWasmObtained: false,
+      note: "C24 domdoc-pdfium-wasm bytes ingest attempt; updated post-fetch outcome.",
+    },
+    null,
+    2,
+  )}\n`,
+);
 
 if (!effectiveArtifactDir) {
   for (const buildRoot of discoverSiblingBuildRoots()) {

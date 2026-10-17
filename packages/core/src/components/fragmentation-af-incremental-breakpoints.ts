@@ -22,6 +22,8 @@ export interface AfEditBreakpointEvidence {
   corpusSize: number;
   gateStatus: "not-run";
   allLegalBreakpointsEquivalent: boolean;
+  /** W2-G4-12: arbitrary mid-edit caret on unchanged text should match full layout. */
+  allArbitraryBreakpointsEquivalent: boolean;
   arbitraryBreakpointsRecorded: number;
   entries: readonly AfEditBreakpointVerdict[];
   note: string;
@@ -140,15 +142,19 @@ export function buildAfEditBreakpointEvidence(
     legalBreaksJson,
   );
   const legalEntries = entries.filter((e) => e.breakpointKind === "legal");
+  const arbitraryEntries = entries.filter((e) => e.breakpointKind === "arbitrary");
   const allLegalBreakpointsEquivalent =
     legalEntries.length > 0 && legalEntries.every((e) => e.incrementalEquivalent);
+  const allArbitraryBreakpointsEquivalent =
+    arbitraryEntries.length > 0 && arbitraryEntries.every((e) => e.incrementalEquivalent);
   return {
     recordedAt: new Date().toISOString(),
     corpusSize: AF_BROWSER_CORPUS.length,
     gateStatus: "not-run",
     allLegalBreakpointsEquivalent,
-    arbitraryBreakpointsRecorded: entries.filter((e) => e.breakpointKind === "arbitrary").length,
+    allArbitraryBreakpointsEquivalent,
+    arbitraryBreakpointsRecorded: arbitraryEntries.length,
     entries,
-    note: "W2-G4-11 edit-breakpoint matrix on AF corpus; arbitrary mid-edit may drift; G4 gate not-run.",
+    note: "W2-G4-12 AF edit-breakpoint matrix; arbitrary unchanged-text caret matches full layout when WASM built; G4 gate not-run.",
   };
 }

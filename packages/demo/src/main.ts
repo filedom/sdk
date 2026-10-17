@@ -52,6 +52,15 @@ async function boot(): Promise<void> {
     throw new Error("ime input missing");
   }
   document.body.dataset.compositorMounted = "true";
+  const toolbar = document.getElementById("domdoc-toolbar");
+  const sessionLabel = document.getElementById("domdoc-session-label");
+  if (toolbar) {
+    document.body.dataset.m2ToolbarShell = "stub";
+  }
+  if (sessionLabel) {
+    sessionLabel.textContent = "Session: demo-sess (M2 stub)";
+    document.body.dataset.m2SessionLabel = sessionLabel.textContent;
+  }
 
   const response = JSON.parse(
     engine.render_projection_json(JSON.stringify(sampleProjection())),

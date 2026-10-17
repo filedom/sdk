@@ -22,3 +22,13 @@ When a reviewer returns:
 1. Fill `reviewerId`, `reviewedAt`, and `signedChecksumSha256` (SHA-256 of pinned `layout-visual-baseline-checksums.json` bytes).
 2. Set `humanReviewStatus` to `"approved-by-human"` in the template (or copy fields into `layout-visual-baseline-manifest.json`).
 3. Re-run `pnpm approve:layout-visual-baselines` only after manifest reflects human approval; gate **G2** remains **not-run** until full gate evidence exists.
+
+## G2-LAYOUT-13 — simulated sign-off (local integration)
+
+When no human reviewer is available but checksum pins exist:
+
+```bash
+cd domdoc-web && pnpm sign:layout-human-signoff
+```
+
+This writes `layout-visual-human-signoff-signed.json` with `signatureKind: "simulated-local-integration"`. That is **not** human visual review. Gate **G2 not-run**.

@@ -16,6 +16,7 @@
     "record:layout-visual-diff": "node ./scripts/record-layout-visual-diff.mjs",
     "generate:layout-visual-baselines": "node ./scripts/generate-layout-visual-baselines.mjs",
     "approve:layout-visual-baselines": "node ./scripts/approve-layout-visual-baselines.mjs --pin",
+    "sign:layout-human-signoff": "node ./scripts/sign-layout-human-signoff.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

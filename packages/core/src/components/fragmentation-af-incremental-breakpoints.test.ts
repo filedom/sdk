@@ -16,7 +16,7 @@ const evidenceDir = join(
   "../../../../evidence/gates/G4-feasibility",
 );
 
-describe("W2-G4-11 AF incremental edit breakpoints", () => {
+describe("W2-G4-12 AF incremental edit breakpoints", () => {
   it("records stub breakpoint drift for deterministic single-line layout", () => {
     const shaped = (payload: string) => {
       const input = JSON.parse(payload) as { text: string };
@@ -43,6 +43,7 @@ describe("W2-G4-11 AF incremental edit breakpoints", () => {
       );
       expect(evidence.corpusSize).toBe(AF_BROWSER_CORPUS.length);
       expect(evidence.allLegalBreakpointsEquivalent).toBe(true);
+      expect(evidence.allArbitraryBreakpointsEquivalent).toBe(true);
       mkdirSync(evidenceDir, { recursive: true });
       writeFileSync(
         join(evidenceDir, "af-incremental-edit-breakpoints.json"),

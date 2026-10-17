@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-11 edit-breakpoint matrix; legal breaks ≡ full when WASM built; arbitrary mid-edit may drift; G4 gate not-run",
+  "limitations": "W2-G4-12 edit-breakpoint matrix; legal + arbitrary unchanged-text caret ≡ full when WASM built; G4 gate not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",

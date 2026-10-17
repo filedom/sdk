@@ -102,6 +102,6 @@ export function buildRealInputLogSlotManifest(): {
     recordedAt: new Date().toISOString(),
     gateStatus: "not-run",
     slots: REAL_INPUT_LOG_SLOTS,
-    note: "G3-INPUT-13 real log paths populated; on-disk files empty-validated; gate not-run until filled logs pass ingestion",
+    note: "G3-INPUT-14 IME-01 partial fill; IME-02/SR-01 empty-validated; see platform-log-capture-checklist.md; gate not-run",
   };
 }
