@@ -71,7 +71,9 @@ export {
 } from "./formats/docx/docx-external-reference-render-oracle-stub.js";
 export {
   LAZY_FEATURE_MANIFEST_STUB,
+  LAZY_FEATURE_MANIFEST_STUB_ID,
   LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION,
+  computeLazyFeatureManifestStubContentHash,
   listLazyFeatureManifestHostExamples,
   type LazyFeatureManifestLazyModuleStub,
   type LazyFeatureManifestStub,

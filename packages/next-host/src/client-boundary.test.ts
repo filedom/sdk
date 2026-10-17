@@ -3,6 +3,11 @@ import {
   domdocNextHostAdapterDemoSurface,
   resolveDomdocNextHostClientBoundary,
 } from "./client-boundary.js";
+import {
+  domdocNextHostLazyFeatureManifestStub,
+  domdocNextHostLazyFeatureManifestSchemaVersion,
+  listDomdocNextHostLazyFeatureHostExamples,
+} from "./lazy-feature-manifest.js";
 
 describe("@domdoc/next-host client boundary stub (M5)", () => {
   it("exposes demo surface metadata aligned with other adapters", () => {
@@ -16,5 +21,11 @@ describe("@domdoc/next-host client boundary stub (M5)", () => {
     const boundary = resolveDomdocNextHostClientBoundary("demo-sess");
     expect(boundary.clientModuleHint).toBe("@domdoc/next-host/client-boundary");
     expect(boundary.sessionContext.sessionId).toBe("demo-sess");
+  });
+
+  it("re-exports lazy feature manifest stub for host parity (M5/G5)", () => {
+    expect(domdocNextHostLazyFeatureManifestSchemaVersion).toBe(1);
+    expect(domdocNextHostLazyFeatureManifestStub.gateStatus).toBe("not-run");
+    expect(listDomdocNextHostLazyFeatureHostExamples()).toContain("next-host");
   });
 });

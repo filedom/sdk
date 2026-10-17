@@ -1,0 +1,12 @@
+import lazyManifest from "../../../docs/lazy-feature-manifest.stub.json" with { type: "json" };
+
+/** M5/G5: Astro host re-exports the shared lazy feature manifest stub (gate not-run). */
+export const domdocAstroHostLazyFeatureManifestSchemaVersion = lazyManifest.schemaVersion as 1;
+
+export type DomdocAstroHostLazyFeatureManifestStub = typeof lazyManifest;
+
+export const domdocAstroHostLazyFeatureManifestStub: DomdocAstroHostLazyFeatureManifestStub = lazyManifest;
+
+export function listDomdocAstroHostLazyFeatureHostExamples(): readonly string[] {
+  return lazyManifest.hostExamples;
+}

@@ -76,3 +76,34 @@ export function buildSyntheticGateGradeCaptureLog(
     note: "Synthetic gate-grade log shape for CI only; G3 gate remains not-run until physical host capture (synthetic: false).",
   };
 }
+
+/** G3-INPUT-23: CI ingest validation — requires synthetic:true (not physical-host ingest). */
+export function validateSyntheticGateGradeIngestPayload(
+  payload: unknown,
+): { ok: true; payload: SyntheticGateGradeCaptureLog } | { ok: false; detail: string } {
+  if (payload == null || typeof payload !== "object") {
+    return { ok: false, detail: "payload-not-object" };
+  }
+  const record = payload as Record<string, unknown>;
+  if (record.synthetic !== true) {
+    return { ok: false, detail: "synthetic-required" };
+  }
+  if (record.validated !== true) {
+    return { ok: false, detail: "validated-flag-required" };
+  }
+  if (record.gateStatus !== "not-run") {
+    return { ok: false, detail: "gate-status-not-run-required" };
+  }
+  if (typeof record.logKind !== "string") {
+    return { ok: false, detail: "missing-logKind" };
+  }
+  const entries = (record.entries ?? []) as CapturedInputLogEntry[];
+  if (entries.some((e) => e.synthetic !== true)) {
+    return { ok: false, detail: "entry-must-be-synthetic" };
+  }
+  const shape = validateSyntheticGateGradeEventShape(record.logKind as PhysicalHostGateGradeLogKind, entries);
+  if (!shape.ok) {
+    return shape;
+  }
+  return { ok: true, payload: payload as SyntheticGateGradeCaptureLog };
+}

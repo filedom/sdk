@@ -164,7 +164,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": [],
       "gateIds": [],
-      "limits": "React/Vue/Lit/Angular/Svelte/Preact/Solid + Next/Nuxt/SvelteKit/Astro host stubs"
+      "limits": "All blueprint host stubs re-export shared lazy manifest (id/hash parity test); demo surfaces unchanged"
     },
     {
       "id": "F15",
@@ -435,7 +435,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": [],
       "gateIds": [],
-      "limits": "docx-export-stub + track-changes export after session accept (w:ins/w:del snapshot)"
+      "limits": "docx-export-stub + track-changes export after accept; demo accept→reject e2e keeps export attrs (gate not-run)"
     },
     {
       "id": "F40",

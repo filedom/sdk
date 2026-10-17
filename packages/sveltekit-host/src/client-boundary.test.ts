@@ -3,6 +3,11 @@ import {
   domdocSvelteKitHostAdapterDemoSurface,
   resolveDomdocSvelteKitHostClientBoundary,
 } from "./client-boundary.js";
+import {
+  domdocSvelteKitHostLazyFeatureManifestStub,
+  domdocSvelteKitHostLazyFeatureManifestSchemaVersion,
+  listDomdocSvelteKitHostLazyFeatureHostExamples,
+} from "./lazy-feature-manifest.js";
 
 describe("@domdoc/sveltekit-host client boundary stub (M5)", () => {
   it("exposes framework-adapter-stub surface", () => {
@@ -16,5 +21,11 @@ describe("@domdoc/sveltekit-host client boundary stub (M5)", () => {
     const boundary = resolveDomdocSvelteKitHostClientBoundary("demo-sess");
     expect(boundary.clientModuleHint).toBe("@domdoc/sveltekit-host/client-boundary");
     expect(boundary.sessionContext.sessionId).toBe("demo-sess");
+  });
+
+  it("re-exports lazy feature manifest stub for host parity (M5/G5)", () => {
+    expect(domdocSvelteKitHostLazyFeatureManifestSchemaVersion).toBe(1);
+    expect(domdocSvelteKitHostLazyFeatureManifestStub.gateStatus).toBe("not-run");
+    expect(listDomdocSvelteKitHostLazyFeatureHostExamples()).toContain("sveltekit-host");
   });
 });

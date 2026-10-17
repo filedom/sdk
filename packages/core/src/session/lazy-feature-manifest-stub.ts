@@ -1,5 +1,10 @@
+import { createHash } from "node:crypto";
+
 /** Blueprint §12.5 — shared lazy feature manifest stub for full host examples (gate not-run). */
 export const LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION = 1 as const;
+
+/** Stable manifest id (manifestKind) shared by every host re-export. */
+export const LAZY_FEATURE_MANIFEST_STUB_ID = "domdoc-lazy-feature-manifest-stub" as const;
 
 export type LazyFeatureManifestLoadPolicy =
   | "on-demand"
@@ -59,4 +64,19 @@ export const LAZY_FEATURE_MANIFEST_STUB: LazyFeatureManifestStub = {
 
 export function listLazyFeatureManifestHostExamples(): readonly string[] {
   return LAZY_FEATURE_MANIFEST_STUB.hostExamples;
+}
+
+/** Deterministic content hash for lazy manifest parity across host packages (gate not-run). */
+export function computeLazyFeatureManifestStubContentHash(
+  manifest: LazyFeatureManifestStub = LAZY_FEATURE_MANIFEST_STUB,
+): string {
+  const canonical = JSON.stringify({
+    schemaVersion: manifest.schemaVersion,
+    manifestKind: manifest.manifestKind,
+    description: manifest.description,
+    coreFeaturesEnabled: manifest.coreFeaturesEnabled,
+    lazyModules: manifest.lazyModules,
+    hostExamples: manifest.hostExamples,
+  });
+  return createHash("sha256").update(canonical, "utf8").digest("hex");
 }
