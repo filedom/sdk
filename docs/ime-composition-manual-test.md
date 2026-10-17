@@ -1,6 +1,11 @@
-# IME / composition manual test plan (G3-INPUT-06)
+# IME / composition manual test plan (G3-INPUT-06 / G3-INPUT-07)
 
 Automated Playwright cannot drive real OS IME in CI. Use this checklist with `@domdoc/demo` before claiming G3 pass.
+
+Evidence scaffolds (honest **not-run** until logs exist):
+
+- `evidence/gates/G3-feasibility/ime-01-02-fixtures.json`
+- `evidence/gates/G3-feasibility/sr-evidence-scaffold.json`
 
 ## Setup
 

@@ -7,9 +7,13 @@ export {
 export type { DocumentSessionStub, SessionRevisions } from "./wire/domain-owned.js";
 export { DocumentSession, createDocumentSession } from "./session/document-session.js";
 export {
+  createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
   DOMDOC_PACKAGE_SCHEMA_VERSION,
+  DOMDOC_REQUIRED_MEMBER_PREFIXES,
+  type DomdocPackageBlobIndexStub,
   type DomdocPackageManifestStub,
+  type DomdocPackageMemberStub,
 } from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,
@@ -89,3 +93,19 @@ export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,
 } from "./formats/pdf/pdfium-proof-hooks.js";
+export {
+  collectP01P05VendorProofEvidence,
+  P01_P05_FIXTURE_ORDER,
+  type P01P05VendorProofEvidence,
+} from "./formats/pdf/pdfium-p01-p05-runner.js";
+export {
+  applyListRenumberToOpcPackage,
+  DOCX_NUMBERING_PART,
+  patchNumberingXmlForListRenumber,
+} from "./formats/docx/docx-numbering-opc-patch.js";
+export {
+  AF_BROWSER_CORPUS,
+  afCorpusAllConverged,
+  evaluateAfBrowserCorpus,
+  type AfBrowserCorpusEntry,
+} from "./components/fragmentation-af-browser-corpus.js";

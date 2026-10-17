@@ -1,4 +1,4 @@
-import init, * as engine from "../../../../domdoc-wasm/pkg/domdoc_engine.js";
+import init, * as engine from "@domdoc/demo-engine";
 import {
   createCompositorInputState,
   pointerDownWithCaret,
@@ -8,6 +8,10 @@ import {
   commitComposition,
   updateCompositionPreedit,
 } from "../../core/dist/editing/composition-stub.js";
+import {
+  afCorpusAllConverged,
+  evaluateAfBrowserCorpus,
+} from "../../core/dist/components/fragmentation-af-browser-corpus.js";
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
 
 const sampleProjection = () => ({
@@ -71,6 +75,12 @@ async function boot(): Promise<void> {
   const passB = engine.layout_flow_paragraph_shaped_json(JSON.stringify(layoutInput));
   document.body.dataset.layoutStable = passA === passB ? "true" : "false";
   document.body.dataset.shapingBackend = engine.layout_shaping_backend_id();
+
+  const afVerdicts = evaluateAfBrowserCorpus((payload) =>
+    engine.layout_flow_paragraph_shaped_json(payload),
+  );
+  document.body.dataset.afCorpusCount = String(afVerdicts.length);
+  document.body.dataset.afCorpusConverged = afCorpusAllConverged(afVerdicts) ? "true" : "false";
 
   let composition = input.active
     ? beginComposition(input.active, "")

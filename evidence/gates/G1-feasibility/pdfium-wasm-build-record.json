@@ -1,6 +1,8 @@
 {
-  "builtAt": "2026-10-17T08:20:21.896Z",
+  "builtAt": "2026-10-17T08:24:46.393Z",
   "status": "not-configured",
   "buildRoot": null,
-  "note": "Set PDFIUM_WASM_BUILD_ROOT to a domdoc-pdfium-wasm checkout, then run its Emscripten build. Ingest output via PDFIUM_WASM_ARTIFACT_DIR + pnpm fetch:pdfium-wasm."
+  "discoveredScript": null,
+  "runBuildRequested": false,
+  "note": "Set PDFIUM_WASM_BUILD_ROOT to a domdoc-pdfium-wasm checkout. Optional PDFIUM_WASM_RUN_BUILD=1 runs discovered script. Ingest output via PDFIUM_WASM_ARTIFACT_DIR + pnpm fetch:pdfium-wasm."
 }

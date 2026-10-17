@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "pnpm -r run build",
+    "build": "pnpm --filter @domdoc/core build && pnpm -r run build",
     "test": "pnpm -r run test",
     "generate:wire-types": "pnpm --filter @domdoc/core run generate:wire-types",
     "qa:gates": "node ./scripts/qa-gates.mjs",
@@ -12,10 +12,12 @@
     "fetch:pdfium-wasm-stub": "node ./scripts/fetch-pdfium-wasm-stub.mjs",
     "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",
     "build:pdfium-wasm": "node ./scripts/build-pdfium-wasm.mjs",
+    "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "^1.51.0"
+    "@playwright/test": "^1.51.0",
+    "tsx": "^4.19.2"
   },
   "engines": {
     "node": ">=20"

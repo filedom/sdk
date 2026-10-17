@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1ppp",
+  "updatedAt": "2026-10-17-w1pppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-06 vendor resolve + manual artifact path; P01–P05 not-run"
+      "limits": "G1-PDF-07 P01–P05 worker hook runner; C24 WASM not vendored; native proofs not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "List numbering stub + DocumentSession slice; D05 partial; gate not-run"
+      "limits": "G2-DOCX-06 numbering.xml OPC patch stub; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "Caret/composition demo + Playwright subset; OS IME not-run"
+      "limits": "IME-01/02 + SR evidence scaffold not-run; Playwright wiring only"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "Dual-build parley pkg optional; default pkg-node flow-fallback; gate not-run"
+      "limits": "G2-LAYOUT-06 parley≠flow pkg CI + optional demo parley job; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-04 equivalence oracle stub + layout-stable probe; gate not-run"
+      "limits": "W2-G4-05 AF browser corpus + live layout e2e; gate not-run"
     }
   ]
 }

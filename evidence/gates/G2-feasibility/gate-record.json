@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-05 list stub + DocumentSession slice; D05 lists partial; pkg-node flow-fallback; parley dual-build optional",
+  "limitations": "G2-DOCX-06 numbering.xml OPC patch stub; G2-LAYOUT-06 parley≠flow pkg test; gate not-run",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
@@ -14,9 +14,11 @@
     "docx-prosemirror-transaction-boundary.test.ts",
     "docx-prosemirror-d05-corpus.test.ts",
     "docx-list-numbering-stub.test.ts",
+    "docx-numbering-opc-patch.test.ts",
     "document-session.test.ts",
     "layout-shaping.test.ts",
     "layout-shaping-parley.pkg.test.ts",
+    "layout-shaping-flow-parley-diff.pkg.test.ts",
     "domdoc-wasm/docs/parley-dual-build.md"
   ]
 }

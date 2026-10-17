@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { createDocumentSession } from "./document-session.js";
-import { createDomdocPackageManifestStub } from "../persistence/domdoc-package-stub.js";
+import {
+  createDomdocPackageBlobIndexStub,
+  createDomdocPackageManifestStub,
+} from "../persistence/domdoc-package-stub.js";
+import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
+import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
 
 describe("M1 DocumentSession skeleton", () => {
   const base = {
@@ -31,5 +36,24 @@ describe("M1 DocumentSession skeleton", () => {
     const manifest = createDomdocPackageManifestStub(base);
     expect(manifest.schemaVersion).toBe(1);
     expect(manifest.documentId).toBe("doc-1");
+    expect(manifest.requiredMembers).toContain("state/");
+  });
+
+  it("builds domdoc blob index stub", () => {
+    const index = createDomdocPackageBlobIndexStub(base);
+    expect(index.members.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("patches numbering.xml when committing list renumber", () => {
+    const session = createDocumentSession(base);
+    const pkg = readOpcPackage(writeOpcPackage({ members: new Map() }));
+    const { session: next, pkg: patched } = session.applyDocxListRenumberOpcPatch(pkg, {
+      kind: "docx-list-renumber-stub",
+      numId: 2,
+      markers: ["1. "],
+    });
+    expect(next.revisions.committedRevision).toBe(2);
+    const xml = new TextDecoder().decode(patched.members.get(DOCX_NUMBERING_PART)!);
+    expect(xml).toContain("domdoc:list-renumber");
   });
 });

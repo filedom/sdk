@@ -7,6 +7,8 @@ import {
   applyDocxListRenumberStub,
   type DocxListRenumberMutation,
 } from "../formats/docx/docx-session-list-mutation.js";
+import type { OpcPackage } from "../formats/docx/opc-package.js";
+import { applyListRenumberToOpcPackage } from "../formats/docx/docx-numbering-opc-patch.js";
 
 /** M1 skeleton — web-owned semantic authority (blueprint §13.1). */
 export class DocumentSession {
@@ -32,6 +34,18 @@ export class DocumentSession {
       ...this.stub,
       revisions: applyDocxListRenumberStub(this.stub.revisions, mutation),
     });
+  }
+
+  /** G2-DOCX-06: apply list renumber session slice to OPC numbering.xml (stub marker). */
+  applyDocxListRenumberOpcPatch(
+    pkg: OpcPackage,
+    mutation: DocxListRenumberMutation,
+  ): { session: DocumentSession; pkg: OpcPackage } {
+    const session = this.commitDocxListRenumberStub(mutation);
+    return {
+      session,
+      pkg: applyListRenumberToOpcPackage(pkg, mutation),
+    };
   }
 }
 

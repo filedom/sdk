@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-17T08:24:54.861Z",
+  "status": "stub-not-run",
+  "resolutionSource": "npm-placeholder",
+  "moduleLoaded": false,
+  "fixtures": [
+    {
+      "fixtureId": "P01",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "replace whole text run"
+    },
+    {
+      "fixtureId": "P02",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "partial run insert/delete"
+    },
+    {
+      "fixtureId": "P03",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "multi-run kerning replace"
+    },
+    {
+      "fixtureId": "P04",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "delete native text object"
+    },
+    {
+      "fixtureId": "P05",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "image replace and page reorder"
+    }
+  ]
+}

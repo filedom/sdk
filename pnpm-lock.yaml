@@ -11,6 +11,9 @@ importers:
       '@playwright/test':
         specifier: ^1.51.0
         version: 1.64.1
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.15
 
   packages/core:
     dependencies:
@@ -44,6 +47,10 @@ importers:
         version: 2.1.9(@types/node@22.20.5)(happy-dom@15.11.7)
 
   packages/demo:
+    dependencies:
+      '@domdoc/core':
+        specifier: workspace:*
+        version: link:../core
     devDependencies:
       typescript:
         specifier: ^5.7.2

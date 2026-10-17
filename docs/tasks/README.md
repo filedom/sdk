@@ -30,5 +30,10 @@
 | [G2-LAYOUT-05-parley-dual-build.md](./G2-LAYOUT-05-parley-dual-build.md) | W1+++ | review |
 | [G3-INPUT-06-ime-caret-demo.md](./G3-INPUT-06-ime-caret-demo.md) | W1+++ | review |
 | [W2-G4-04-fragmentation-oracle.md](./W2-G4-04-fragmentation-oracle.md) | W2 | review |
+| [G1-PDF-07-pdfium-ci-worker-proofs.md](./G1-PDF-07-pdfium-ci-worker-proofs.md) | W1++++ | review |
+| [G2-DOCX-06-numbering-opc-patch.md](./G2-DOCX-06-numbering-opc-patch.md) | W1++++ | review |
+| [G2-LAYOUT-06-shaped-flow-ci-parley-demo.md](./G2-LAYOUT-06-shaped-flow-ci-parley-demo.md) | W1++++ | review |
+| [G3-INPUT-07-ime-sr-evidence.md](./G3-INPUT-07-ime-sr-evidence.md) | W1++++ | review |
+| [W2-G4-05-af-browser-corpus.md](./W2-G4-05-af-browser-corpus.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

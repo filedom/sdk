@@ -61,6 +61,7 @@ if (artifactDir && existsSync(artifactDir) && hasWasmArtifact(artifactDir)) {
   };
   writeFileSync(join(outDir, "p01-p05-vendor-hooks.json"), `${JSON.stringify(hooks, null, 2)}\n`);
   console.log("[fetch-pdfium-wasm] copied artifact into vendor/domdoc-pdfium-wasm");
+  console.log("[fetch-pdfium-wasm] run: PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05");
   process.exit(0);
 }
 

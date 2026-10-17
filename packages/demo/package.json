@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:parley": "DOMDOC_DEMO_PARLEY=1 vite",
     "build": "vite build",
+    "build:parley": "DOMDOC_DEMO_PARLEY=1 vite build",
     "preview": "vite preview --port 5173"
   },
   "devDependencies": {
