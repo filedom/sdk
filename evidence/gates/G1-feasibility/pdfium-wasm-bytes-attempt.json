@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-10-17T08:48:54.461Z",
-  "card": "G1-PDF-17",
-  "phase": "pre-ingest",
+  "recordedAt": "2026-10-17T08:51:05.037Z",
+  "card": "G1-PDF-18",
+  "phase": "post-proof-stub",
   "productionWasmObtained": false,
   "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   "ciWorkerGreenCriteria": "moduleLoaded=true and P01–P05 nativeProof=pass",
@@ -12,5 +12,43 @@
     "P04",
     "P05"
   ],
-  "note": "G1-PDF-17 C24 domdoc-pdfium-wasm bytes ingest attempt; green worker proofs pending production WASM."
+  "ciWorkerProofStepResults": [
+    {
+      "step": "P01",
+      "moduleLoaded": false,
+      "nativeProof": "not-run",
+      "workerCiPath": "skipped",
+      "hookReady": false
+    },
+    {
+      "step": "P02",
+      "moduleLoaded": false,
+      "nativeProof": "not-run",
+      "workerCiPath": "skipped",
+      "hookReady": false
+    },
+    {
+      "step": "P03",
+      "moduleLoaded": false,
+      "nativeProof": "not-run",
+      "workerCiPath": "skipped",
+      "hookReady": false
+    },
+    {
+      "step": "P04",
+      "moduleLoaded": false,
+      "nativeProof": "not-run",
+      "workerCiPath": "skipped",
+      "hookReady": false
+    },
+    {
+      "step": "P05",
+      "moduleLoaded": false,
+      "nativeProof": "not-run",
+      "workerCiPath": "skipped",
+      "hookReady": false
+    }
+  ],
+  "ciWorkerGreen": false,
+  "note": "G1-PDF-18 proof recorded with moduleLoaded=false; obtain C24 production WASM for green CI worker."
 }

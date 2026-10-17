@@ -95,7 +95,7 @@ function pickNonLegalPostEditBreakpoint(text: string): number {
   return Math.min(text.length - 1, candidate);
 }
 
-function evaluatePostEditAtBreakpoint(
+export function evaluatePostEditAtBreakpoint(
   entry: AfBrowserCorpusEntry,
   pre: string,
   breakAt: number,

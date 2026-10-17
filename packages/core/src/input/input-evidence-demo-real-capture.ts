@@ -10,6 +10,13 @@ import {
 } from "./input-evidence-real-log-slots.js";
 import type { PlatformInputLogFile } from "./input-platform-log-ingestion.js";
 
+/** G3-INPUT-18: validated physical demo capture written into real slot files. */
+export interface ValidatedPhysicalDemoCaptureFile extends PlatformInputLogFile {
+  validated: true;
+  physicalCaptureCard: "G3-INPUT-18";
+  demoSessionId: string;
+}
+
 /** Demo shell export targets (non-synthetic files written after physical capture). */
 export const DEMO_PHYSICAL_CAPTURE_LOG_PATHS = {
   "ime-demo-macos": "evidence/gates/G3-feasibility/logs/ime-demo-macos-real-capture-pending.json",
@@ -100,11 +107,35 @@ export function validatePhysicalDemoCaptureForRealSlot(
   };
 }
 
+/** Build validated real-slot file after format checks (does not imply physical-host gate pass). */
+export function buildValidatedPhysicalDemoCaptureFile(
+  payload: PhysicalDemoCapturePayload,
+): ValidatedPhysicalDemoCaptureFile | { ok: false; detail: string } {
+  const verdict = validatePhysicalDemoCaptureForRealSlot(payload);
+  if (!verdict.ok) {
+    return {
+      ok: false,
+      detail: "detail" in verdict ? verdict.detail : verdict.kind,
+    };
+  }
+  const projected = projectPhysicalDemoCaptureToRealSlotFile(payload);
+  if ("ok" in projected) {
+    return projected;
+  }
+  return {
+    ...projected,
+    validated: true,
+    physicalCaptureCard: "G3-INPUT-18",
+    demoSessionId: payload.demoSessionId,
+  };
+}
+
 export function buildDemoRealCaptureSlotManifest(): {
   formatVersion: typeof INPUT_EVIDENCE_FORMAT_VERSION;
   recordedAt: string;
   gateStatus: "not-run";
   demoCapturePaths: typeof DEMO_PHYSICAL_CAPTURE_LOG_PATHS;
+  realSlotPaths: typeof REAL_PLATFORM_LOG_RELATIVE_PATHS;
   note: string;
 } {
   return {
@@ -112,6 +143,7 @@ export function buildDemoRealCaptureSlotManifest(): {
     recordedAt: new Date().toISOString(),
     gateStatus: "not-run",
     demoCapturePaths: DEMO_PHYSICAL_CAPTURE_LOG_PATHS,
-    note: "G3-INPUT-17 demo → real slot projection; physical-host capture still not-run; gate not-run",
+    realSlotPaths: REAL_PLATFORM_LOG_RELATIVE_PATHS,
+    note: "G3-INPUT-18 physical demo captures in real slots with validated:true; host capture still not-run; gate not-run",
   };
 }

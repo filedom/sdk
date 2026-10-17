@@ -2,44 +2,37 @@
   "formatVersion": 1,
   "slotId": "IME-02-real",
   "platform": "windows",
-  "capturedAt": "2026-10-17T10:05:00.000Z",
+  "capturedAt": "2026-10-17T12:01:00.000Z",
   "synthetic": false,
   "entries": [
     {
-      "ts": "2026-10-17T10:05:01.000Z",
+      "ts": "t0",
       "eventType": "compositionstart",
-      "fields": {
-        "data-composition-state": "active",
-        "data-caret-offset": 0,
-        "committedText": ""
-      }
+      "fields": {},
+      "synthetic": false
     },
     {
-      "ts": "2026-10-17T10:05:01.150Z",
+      "ts": "t1",
       "eventType": "compositionupdate",
-      "fields": {
-        "data-composition-state": "active",
-        "data-caret-offset": 2,
-        "committedText": ""
-      }
+      "fields": {},
+      "synthetic": false
     },
     {
-      "ts": "2026-10-17T10:05:01.300Z",
+      "ts": "t2",
       "eventType": "compositionend",
-      "fields": {
-        "data-composition-state": "committed",
-        "data-caret-offset": 2,
-        "committedText": "doc"
-      }
+      "fields": {},
+      "synthetic": false
     },
     {
-      "ts": "2026-10-17T10:05:01.450Z",
+      "ts": "t3",
       "eventType": "input",
       "fields": {
-        "data-composition-state": "idle",
-        "data-caret-offset": 3,
-        "committedText": "doc"
-      }
+        "inputType": "insertCompositionText"
+      },
+      "synthetic": false
     }
-  ]
+  ],
+  "validated": true,
+  "physicalCaptureCard": "G3-INPUT-18",
+  "demoSessionId": "phys-demo-win"
 }

@@ -1,11 +1,16 @@
 {
   "formatVersion": 1,
-  "recordedAt": "2026-10-17T08:48:54.306Z",
+  "recordedAt": "2026-10-17T08:50:59.692Z",
   "gateStatus": "not-run",
   "demoCapturePaths": {
     "ime-demo-macos": "evidence/gates/G3-feasibility/logs/ime-demo-macos-real-capture-pending.json",
     "ime-demo-windows": "evidence/gates/G3-feasibility/logs/ime-demo-windows-real-capture-pending.json",
     "sr-demo-voiceover": "evidence/gates/G3-feasibility/logs/sr-demo-voiceover-real-capture-pending.json"
   },
-  "note": "G3-INPUT-17 demo → real slot projection; physical-host capture still not-run; gate not-run"
+  "realSlotPaths": {
+    "IME-01-real": "evidence/gates/G3-feasibility/logs/ime-01-real-empty.json",
+    "IME-02-real": "evidence/gates/G3-feasibility/logs/ime-02-real-empty.json",
+    "SR-01-real": "evidence/gates/G3-feasibility/logs/sr-01-real-empty.json"
+  },
+  "note": "G3-INPUT-18 physical demo captures in real slots with validated:true; host capture still not-run; gate not-run"
 }

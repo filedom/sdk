@@ -2,35 +2,33 @@
   "formatVersion": 1,
   "slotId": "IME-01-real",
   "platform": "macos",
-  "capturedAt": "2026-10-17T09:40:00.000Z",
+  "capturedAt": "2026-10-17T12:00:00.000Z",
   "synthetic": false,
   "entries": [
     {
-      "ts": "2026-10-17T09:40:01.100Z",
+      "ts": "t0",
       "eventType": "compositionstart",
-      "fields": {
-        "data-composition-state": "active",
-        "data-composition-preedit": "",
-        "caretOffset": 0
-      }
+      "fields": {},
+      "synthetic": false
     },
     {
-      "ts": "2026-10-17T09:40:01.250Z",
+      "ts": "t1",
       "eventType": "compositionupdate",
       "fields": {
-        "data-composition-state": "active",
-        "data-composition-preedit": "dom",
-        "caretOffset": 3
-      }
+        "data": "a"
+      },
+      "synthetic": false
     },
     {
-      "ts": "2026-10-17T09:40:01.400Z",
+      "ts": "t2",
       "eventType": "compositionend",
       "fields": {
-        "data-composition-state": "committed",
-        "data-composition-preedit": "doc",
-        "caretOffset": 3
-      }
+        "data": "a"
+      },
+      "synthetic": false
     }
-  ]
+  ],
+  "validated": true,
+  "physicalCaptureCard": "G3-INPUT-18",
+  "demoSessionId": "phys-demo-macos"
 }

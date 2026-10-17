@@ -34,6 +34,8 @@ if (mode === "human") {
     );
     process.exit(2);
   }
+  const visualReviewComplete =
+    (process.env.LAYOUT_SIGNOFF_VISUAL_REVIEW_COMPLETE ?? "").trim() === "1";
   const coordinatorAccept =
     (process.env.LAYOUT_SIGNOFF_COORDINATOR_ACCEPT ?? "").trim() === "1";
   const coordinatorId = process.env.LAYOUT_SIGNOFF_COORDINATOR_ID?.trim();
@@ -43,12 +45,25 @@ if (mode === "human") {
     );
     process.exit(2);
   }
-  const humanReviewStatus = coordinatorAccept
-    ? "coordinator-accepted-workflow"
-    : "human-workflow-acknowledged";
+  if (visualReviewComplete && coordinatorAccept) {
+    console.error(
+      "[sign-layout-human-signoff] refuse combined visual attestation + coordinator accept in one run — run visual attestation first.",
+    );
+    process.exit(2);
+  }
+  const humanReviewStatus = visualReviewComplete
+    ? "human-visual-review-attested"
+    : coordinatorAccept
+      ? "coordinator-accepted-workflow"
+      : "human-workflow-acknowledged";
+  const card = visualReviewComplete
+    ? "G2-LAYOUT-17"
+    : coordinatorAccept
+      ? "G2-LAYOUT-16"
+      : "G2-LAYOUT-15";
   const signed = {
     ...template,
-    card: coordinatorAccept ? "G2-LAYOUT-16" : "G2-LAYOUT-15",
+    card,
     humanReviewStatus,
     reviewerId,
     reviewedAt: new Date().toISOString(),
@@ -56,6 +71,12 @@ if (mode === "human") {
     signedChecksumSha256,
     signatureKind: "human",
     layoutSignoffMode: "human",
+    ...(visualReviewComplete
+      ? {
+          visualReviewAttested: true,
+          visualReviewAttestation: "reviewer-self-attest-pinned-baseline-pngs",
+        }
+      : {}),
     ...(coordinatorAccept
       ? {
           coordinatorAccepted: true,
@@ -63,9 +84,11 @@ if (mode === "human") {
           coordinatorAcceptedAt: new Date().toISOString(),
         }
       : {}),
-    note: coordinatorAccept
-      ? "Coordinator accepted human sign-off workflow packet — NOT visual baseline pass. Gate G2 remains not-run."
-      : "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
+    note: visualReviewComplete
+      ? "G2-LAYOUT-17 reviewer self-attestation only — NOT automated visual diff pass; gate G2 remains not-run without independent verification."
+      : coordinatorAccept
+        ? "Coordinator accepted human sign-off workflow packet — NOT visual baseline pass. Gate G2 remains not-run."
+        : "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
   };
   writeFileSync(signedPath, `${JSON.stringify(signed, null, 2)}\n`);
   console.log(

@@ -299,6 +299,95 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
       },
     ],
   },
+  {
+    id: "D05-DRT-08",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="9"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Roman section</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="1"/><w:numId w:val="9"/></w:numPr>
+      <w:ind w:left="1440" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Decimal child</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="2"/><w:numId w:val="9"/></w:numPr>
+      <w:ind w:left="2160" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Bullet leaf</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="9"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Second section</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleNumberingXml(9, [
+      {
+        ilvl: 0,
+        numFmt: "upperRoman",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "decimal",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 2,
+        numFmt: "bullet",
+        lvlText: "•",
+        start: 1,
+        restartAfterIlvl: 1,
+        leftIndentTwips: 2160,
+        hangingIndentTwips: 360,
+      },
+    ]),
+    paragraphs: [
+      { text: "Roman section", numId: 9, ilvl: 0 },
+      { text: "Decimal child", numId: 9, ilvl: 1 },
+      { text: "Bullet leaf", numId: 9, ilvl: 2 },
+      { text: "Second section", numId: 9, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 9, ilvl: 0 },
+      { numId: 9, ilvl: 1 },
+      { numId: 9, ilvl: 2 },
+      { numId: 9, ilvl: 0 },
+    ],
+    expectedTexts: ["Roman section", "Decimal child", "Bullet leaf", "Second section"],
+    seedLevels: [
+      {
+        ilvl: 0,
+        numFmt: "upperRoman",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "decimal",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 2,
+        numFmt: "bullet",
+        lvlText: "•",
+        start: 1,
+        restartAfterIlvl: 1,
+        leftIndentTwips: 2160,
+        hangingIndentTwips: 360,
+      },
+    ],
+  },
 ];
 
 const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
@@ -306,7 +395,7 @@ const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
   { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
 ];
 
-describe("G2-DOCX-16 D05 document.xml numbering round-trip", () => {
+describe("G2-DOCX-17 D05 document.xml numbering round-trip", () => {
   it.each(D05_DOCUMENT_ROUNDTRIP.map((row) => [row.id, row] as const))(
     "%s preserves document.xml numPr through OPC export/reopen",
     (_id, row) => {
@@ -340,6 +429,15 @@ describe("G2-DOCX-16 D05 document.xml numbering round-trip", () => {
         expect(abstractId).toBeDefined();
         const levels = parsed.abstractNums.get(abstractId!);
         expect(levels?.find((l) => l.ilvl === 2)?.numFmt).toBe("upperRoman");
+        expect(levels?.find((l) => l.ilvl === 2)?.restartAfterIlvl).toBe(1);
+      }
+      if (row.id === "D05-DRT-08") {
+        const parsed = parseWordNumberingXml(numberingXml);
+        const abstractId = parsed.numToAbstract.get(9);
+        expect(abstractId).toBeDefined();
+        const levels = parsed.abstractNums.get(abstractId!);
+        expect(levels?.find((l) => l.ilvl === 0)?.numFmt).toBe("upperRoman");
+        expect(levels?.find((l) => l.ilvl === 2)?.numFmt).toBe("bullet");
         expect(levels?.find((l) => l.ilvl === 2)?.restartAfterIlvl).toBe(1);
       }
 

@@ -115,6 +115,15 @@ describe("M1 DocumentSession skeleton", () => {
     expect(withBinding.m2DemoSessionBinding?.sessionId).toBe("demo-sess");
   });
 
+  it("M1/M2 binds input capture log slot id on manifest stub (G3-INPUT-18)", () => {
+    const manifest = createDomdocPackageManifestStub(base);
+    const withBinding = attachM2DemoSessionBindingToManifestStub(manifest, {
+      sessionId: "demo-sess",
+      inputCaptureLogSlotId: "IME-01-real",
+    });
+    expect(withBinding.m2DemoSessionBinding?.inputCaptureLogSlotId).toBe("IME-01-real");
+  });
+
   it("G5 memory blob store applies staged write after simulation passes", () => {
     const plan = createDomdocPackagePersistPlanStub(base);
     const manifestBytes = serializeDomdocPackageManifestStub(base);

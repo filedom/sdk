@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildDemoRealCaptureSlotManifest,
+  buildValidatedPhysicalDemoCaptureFile,
   projectPhysicalDemoCaptureToRealSlotFile,
   validatePhysicalDemoCaptureForRealSlot,
 } from "./input-evidence-demo-real-capture.js";
@@ -52,5 +53,62 @@ describe("G3-INPUT-17 demo real log slot capture", () => {
       join(evidenceDir, "demo-real-capture-slots.json"),
       `${JSON.stringify(manifest, null, 2)}\n`,
     );
+  });
+});
+
+describe("G3-INPUT-18 physical demo real slot writes", () => {
+  const macosPayload = {
+    demoCaptureKind: "ime-demo-macos" as const,
+    demoSessionId: "phys-demo-macos",
+    platform: "macos",
+    capturedAt: "2026-10-17T12:00:00.000Z",
+    entries: [
+      { ts: "t0", eventType: "compositionstart", fields: {} },
+      { ts: "t1", eventType: "compositionupdate", fields: { data: "a" } },
+      { ts: "t2", eventType: "compositionend", fields: { data: "a" } },
+    ],
+  };
+
+  const windowsPayload = {
+    demoCaptureKind: "ime-demo-windows" as const,
+    demoSessionId: "phys-demo-win",
+    platform: "windows",
+    capturedAt: "2026-10-17T12:01:00.000Z",
+    entries: [
+      { ts: "t0", eventType: "compositionstart", fields: {} },
+      { ts: "t1", eventType: "compositionupdate", fields: {} },
+      { ts: "t2", eventType: "compositionend", fields: {} },
+      { ts: "t3", eventType: "input", fields: { inputType: "insertCompositionText" } },
+    ],
+  };
+
+  const srPayload = {
+    demoCaptureKind: "sr-demo-voiceover" as const,
+    demoSessionId: "phys-demo-sr",
+    platform: "voiceover",
+    capturedAt: "2026-10-17T12:02:00.000Z",
+    entries: [
+      { ts: "t0", eventType: "focusin", fields: { role: "textbox" } },
+      { ts: "t1", eventType: "aria-live", fields: { value: "Hello" } },
+      { ts: "t2", eventType: "selectionchange", fields: { caretDescription: "at end" } },
+    ],
+  };
+
+  it("writes validated captures into real slot paths", () => {
+    mkdirSync(join(evidenceDir, "logs"), { recursive: true });
+    for (const payload of [macosPayload, windowsPayload, srPayload]) {
+      const file = buildValidatedPhysicalDemoCaptureFile(payload);
+      expect("ok" in file).toBe(false);
+      if ("ok" in file) continue;
+      expect(file.validated).toBe(true);
+      expect(file.physicalCaptureCard).toBe("G3-INPUT-18");
+      const verdict = validatePhysicalDemoCaptureForRealSlot(payload);
+      expect(verdict.ok).toBe(true);
+      if (!verdict.ok) continue;
+      writeFileSync(
+        join(evidenceDir, verdict.targetLogPath.replace(/^evidence\/gates\/G3-feasibility\//, "")),
+        `${JSON.stringify(file, null, 2)}\n`,
+      );
+    }
   });
 });
