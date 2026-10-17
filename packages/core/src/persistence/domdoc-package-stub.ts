@@ -89,6 +89,25 @@ export function createDomdocPackagePersistPlanStub(
   };
 }
 
+/** G5/M1: verify crash-safe ordering — blob verified before manifest commit. */
+export function validateDomdocCrashSafeCommitPlan(
+  plan: DomdocPackagePersistPlanStub,
+): { ok: true } | { ok: false; detail: string } {
+  const verifyIdx = plan.commitSteps.indexOf("verify-blob-bytes");
+  const commitIdx = plan.commitSteps.indexOf("commit-indexeddb-manifest-transaction");
+  if (verifyIdx < 0 || commitIdx < 0) {
+    return { ok: false, detail: "missing required commit steps" };
+  }
+  if (verifyIdx >= commitIdx) {
+    return { ok: false, detail: "manifest commit must follow blob verification" };
+  }
+  const writeIdx = plan.commitSteps.indexOf("write-content-addressed-blob");
+  if (writeIdx < 0 || writeIdx > verifyIdx) {
+    return { ok: false, detail: "blob write must precede verification" };
+  }
+  return { ok: true };
+}
+
 /** M1: UTF-8 manifest.json bytes for host write stub (§13.3). */
 export function serializeDomdocPackageManifestStub(session: DocumentSessionStub): Uint8Array {
   const manifest = createDomdocPackageManifestStub(session);

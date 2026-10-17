@@ -10,6 +10,9 @@ export interface ParsedNumberingLevel {
   lvlText: string;
   start: number;
   restartAfterIlvl?: number;
+  /** w:ind w:left (twips) — G2-DOCX-10 subset. */
+  leftIndentTwips?: number;
+  hangingIndentTwips?: number;
 }
 
 export interface ParsedWordNumbering {
@@ -28,12 +31,16 @@ function parseLevelsFromAbstractBlock(block: string): ParsedNumberingLevel[] {
     const lvlText = inner.match(/<w:lvlText[^>]*\sw:val="([^"]*)"/)?.[1] ?? "%1.";
     const start = Number(inner.match(/<w:start[^>]*\sw:val="(\d+)"/)?.[1] ?? "1");
     const restartRaw = inner.match(/<w:lvlRestart[^>]*\sw:val="(\d+)"/)?.[1];
+    const leftRaw = inner.match(/<w:ind[^>]*\sw:left="(\d+)"/)?.[1];
+    const hangingRaw = inner.match(/<w:ind[^>]*\sw:hanging="(\d+)"/)?.[1];
     levels.push({
       ilvl,
       numFmt,
       lvlText: lvlText.replace(/&quot;/g, '"'),
       start,
       restartAfterIlvl: restartRaw !== undefined ? Number(restartRaw) : undefined,
+      leftIndentTwips: leftRaw !== undefined ? Number(leftRaw) : undefined,
+      hangingIndentTwips: hangingRaw !== undefined ? Number(hangingRaw) : undefined,
     });
   }
   return levels.sort((a, b) => a.ilvl - b.ilvl);
@@ -124,6 +131,23 @@ function markerSuffix(lvlText: string): string {
   return lvlText.endsWith(" ") ? "" : lvlText.match(/[.)]$/) ? " " : " ";
 }
 
+/** Approximate left indent as em-space steps (720 twips ≈ one step). */
+export function indentPrefixFromTwips(leftIndentTwips: number | undefined): string {
+  if (!leftIndentTwips || leftIndentTwips <= 0) return "";
+  const steps = Math.min(8, Math.floor(leftIndentTwips / 720));
+  return "\u2003".repeat(steps);
+}
+
+function resetCountersFromIlvl(
+  counters: number[],
+  levels: readonly ParsedNumberingLevel[],
+  fromIlvl: number,
+): void {
+  for (let i = fromIlvl + 1; i < counters.length; i++) {
+    counters[i] = (levels[i]?.start ?? 1) - 1;
+  }
+}
+
 /** Compute display markers using numbering.xml defs when numId is set. */
 export function computeListMarkersFromNumberingXml(
   paragraphs: readonly ListParagraphMeta[],
@@ -150,19 +174,19 @@ export function computeListMarkersFromNumberingXml(
 
     const prevIlvl = lastIlvlByNum.get(p.numId);
     if (prevIlvl !== undefined && p.ilvl < prevIlvl) {
-      for (let i = p.ilvl + 1; i < counters.length; i++) {
-        counters[i] = (levels[i]?.start ?? 1) - 1;
-      }
+      resetCountersFromIlvl(counters, levels, p.ilvl);
     }
     lastIlvlByNum.set(p.numId, p.ilvl);
 
     const levelDef = levels.find((l) => l.ilvl === p.ilvl) ?? levels[0]!;
     counters[p.ilvl] = (counters[p.ilvl] ?? levelDef.start - 1) + 1;
+    resetCountersFromIlvl(counters, levels, p.ilvl);
 
     const rendered = renderLvlText(levelDef.lvlText, counters, levels);
+    const indent = indentPrefixFromTwips(levelDef.leftIndentTwips);
     if (levelDef.numFmt === "bullet" && !levelDef.lvlText.includes("%")) {
-      return `${levelDef.lvlText.trim()} `;
+      return `${indent}${levelDef.lvlText.trim()} `;
     }
-    return rendered + markerSuffix(rendered);
+    return `${indent}${rendered}${markerSuffix(rendered)}`;
   });
 }

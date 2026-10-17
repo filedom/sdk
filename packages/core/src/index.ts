@@ -19,6 +19,7 @@ export {
   type DomdocPackageManifestStub,
   type DomdocPackageMemberStub,
   type DomdocPackagePersistPlanStub,
+  validateDomdocCrashSafeCommitPlan,
 } from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,
@@ -148,7 +149,15 @@ export {
   buildAfAuthoritativeIncrementalEvidence,
   evaluateAfAuthoritativeIncrementalLayout,
   type AfAuthoritativeIncrementalEvidence,
+  type AfAuthoritativeIncrementalOptions,
 } from "./components/fragmentation-af-incremental-authoritative.js";
+export {
+  evaluateAfEngineIncrementalVsFullEquivalence,
+} from "./components/fragmentation-af-incremental-engine.js";
+export {
+  createWasmShapedLayoutHook,
+  type WasmShapedLayoutHook,
+} from "./layout/wasm-shaped-layout-hook.js";
 export {
   computeListMarkersFromNumberingXml,
   parseWordNumberingXml,

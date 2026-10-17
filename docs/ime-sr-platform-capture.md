@@ -2,6 +2,8 @@
 
 Real input evidence slots are defined in `packages/core/src/input/input-evidence-real-log-slots.ts` and recorded in `evidence/gates/G3-feasibility/ime-sr-real-log-slots.json`. Gate **G3** stays **not-run** until non-synthetic logs validate.
 
+Wire capture record shape and synthetic examples: [input-wire-capture.md](./input-wire-capture.md) (G3-INPUT-11).
+
 ## IME-01 (macOS)
 
 1. Open `packages/demo` dev shell with composition logging enabled (see [ime-composition-manual-test.md](./ime-composition-manual-test.md)).

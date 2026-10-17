@@ -1,34 +1,34 @@
 {
-  "recordedAt": "2026-10-17T08:31:29.088Z",
+  "recordedAt": "2026-10-17T08:34:11.054Z",
   "corpusSize": 3,
-  "incrementalEnginePath": "unavailable",
+  "incrementalEnginePath": "engine-sketch",
   "allIncrementalEquivalent": false,
   "gateStatus": "not-run",
   "entries": [
     {
       "entryId": "AF-01",
       "fullLayoutAuthoritative": true,
-      "incrementalPath": "oracle-split",
+      "incrementalPath": "engine-sketch",
       "incrementalEquivalent": false,
       "equivalenceTestable": true,
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+      "detail": "engine incremental sketch drift vs full layout (expected until true break-token incremental) (engine-sketch via layout_flow_paragraph_incremental_json)"
     },
     {
       "entryId": "AF-02",
       "fullLayoutAuthoritative": true,
-      "incrementalPath": "oracle-split",
+      "incrementalPath": "engine-sketch",
       "incrementalEquivalent": false,
       "equivalenceTestable": true,
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+      "detail": "engine incremental sketch drift vs full layout (expected until true break-token incremental) (engine-sketch via layout_flow_paragraph_incremental_json)"
     },
     {
       "entryId": "AF-03",
       "fullLayoutAuthoritative": true,
-      "incrementalPath": "oracle-split",
+      "incrementalPath": "engine-sketch",
       "incrementalEquivalent": false,
       "equivalenceTestable": true,
-      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+      "detail": "engine incremental sketch drift vs full layout (expected until true break-token incremental) (engine-sketch via layout_flow_paragraph_incremental_json)"
     }
   ],
-  "note": "Authoritative layout is full shaped pass; incremental≡full tested via oracle-split only. G4 gate not-run."
+  "note": "W2-G4-09 engine incremental sketch exported; equivalence recorded; G4 gate not-run."
 }

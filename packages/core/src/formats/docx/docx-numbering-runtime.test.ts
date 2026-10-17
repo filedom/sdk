@@ -32,4 +32,34 @@ describe("G2-DOCX-09 numbering.xml runtime markers", () => {
     const nestedParas: ListParagraphMeta[] = [{ text: "y", numId: 4, ilvl: 1 }];
     expect(computeListMarkersFromNumberingXml(nestedParas, nestedXml)).toEqual(["a. "]);
   });
+
+  it("G2-DOCX-10 multi-paragraph chain and nested restart", () => {
+    const xml = buildWordCompatibleNumberingXml(5, [
+      { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+      { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+    ]);
+    const chain: ListParagraphMeta[] = [
+      { text: "a", numId: 5, ilvl: 0 },
+      { text: "b", numId: 5, ilvl: 1 },
+      { text: "c", numId: 5, ilvl: 0 },
+    ];
+    expect(computeListMarkersFromNumberingXml(chain, xml)).toEqual(["1. ", "a. ", "2. "]);
+  });
+
+  it("G2-DOCX-10 applies left indent prefix from w:ind", () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:abstractNum w:abstractNumId="1">
+    <w:lvl w:ilvl="0">
+      <w:start w:val="1"/>
+      <w:numFmt w:val="decimal"/>
+      <w:lvlText w:val="%1."/>
+      <w:ind w:left="1440" w:hanging="360"/>
+    </w:lvl>
+  </w:abstractNum>
+  <w:num w:numId="3"><w:abstractNumId w:val="1"/></w:num>
+</w:numbering>`;
+    const paras: ListParagraphMeta[] = [{ text: "x", numId: 3, ilvl: 0 }];
+    expect(computeListMarkersFromNumberingXml(paras, xml)[0]?.startsWith("\u2003\u2003")).toBe(true);
+  });
 });

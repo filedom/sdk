@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-10-17T08:31:28.203Z",
+  "generatedAt": "2026-10-17T08:34:05.451Z",
   "status": "generated-awaiting-review",
   "sourceArtifact": "layout-shaped-flow-visual-diff.json",
   "baselineMarkdown": "layout-visual-baselines.md",
-  "humanReviewStatus": "pending",
+  "humanReviewStatus": "checksum-approved-ci-simulated",
   "entries": [
     {
       "corpusId": "LV-01",
@@ -27,5 +27,9 @@
       "parleyLineCount": 5
     }
   ],
-  "note": "G2-LAYOUT-09 review baselines; gate G2 not-run until humanReviewStatus=approved."
+  "note": "Structural baselines match pinned checksums for CI; gate G2 still not-run (no human sign-off).",
+  "approvalWorkflow": "G2-LAYOUT-10-checksum-pinned",
+  "checksumSource": "layout-visual-baseline-checksums.json",
+  "checksumMismatches": [],
+  "approvedAt": "2026-10-17T08:34:05.772Z"
 }

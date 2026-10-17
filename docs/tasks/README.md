@@ -50,5 +50,10 @@
 | [G2-LAYOUT-09-visual-baseline-review.md](./G2-LAYOUT-09-visual-baseline-review.md) | W1+++++++ | review |
 | [G3-INPUT-10-real-log-slots.md](./G3-INPUT-10-real-log-slots.md) | W1+++++++ | review |
 | [W2-G4-08-af-incremental-authoritative.md](./W2-G4-08-af-incremental-authoritative.md) | W2 | review |
+| [G1-PDF-11-vendored-c24-pdfium-wasm.md](./G1-PDF-11-vendored-c24-pdfium-wasm.md) | W1++++++++ | review |
+| [G2-DOCX-10-word-numbering-restart-indents.md](./G2-DOCX-10-word-numbering-restart-indents.md) | W1++++++++ | review |
+| [G2-LAYOUT-10-baseline-approval-checksums.md](./G2-LAYOUT-10-baseline-approval-checksums.md) | W1++++++++ | review |
+| [G3-INPUT-11-wire-capture-synthetic-logs.md](./G3-INPUT-11-wire-capture-synthetic-logs.md) | W1++++++++ | review |
+| [W2-G4-09-engine-incremental-layout-sketch.md](./W2-G4-09-engine-incremental-layout-sketch.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

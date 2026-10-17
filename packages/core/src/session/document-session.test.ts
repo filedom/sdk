@@ -7,6 +7,7 @@ import {
   DOMDOC_CRASH_SAFE_COMMIT_STEPS,
   parseDomdocPackageManifestStub,
   serializeDomdocPackageManifestStub,
+  validateDomdocCrashSafeCommitPlan,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -66,6 +67,14 @@ describe("M1 DocumentSession skeleton", () => {
     const plan = createDomdocPackagePersistPlanStub(base);
     expect(plan.commitSteps).toEqual([...DOMDOC_CRASH_SAFE_COMMIT_STEPS]);
     expect(plan.recoveryPolicy).toBe("committed-manifest-only");
+  });
+
+  it("G5 validates crash-safe commit step ordering (M1 round-trip slice)", () => {
+    const plan = createDomdocPackagePersistPlanStub(base);
+    expect(validateDomdocCrashSafeCommitPlan(plan)).toEqual({ ok: true });
+    const bytes = serializeDomdocPackageManifestStub(base);
+    const manifest = parseDomdocPackageManifestStub(bytes);
+    expect(manifest.nativeCheckpointRevision).toBe(base.revisions.materializedRevision);
   });
 
   it("patches numbering.xml when committing list renumber", () => {

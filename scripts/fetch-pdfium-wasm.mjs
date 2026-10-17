@@ -125,7 +125,7 @@ function writeDiscoveryRecord(extra) {
   ];
   const record = {
     recordedAt: new Date().toISOString(),
-    card: "G1-PDF-10",
+    card: "G1-PDF-11",
     envVarsChecked: [
       "PDFIUM_WASM_ARTIFACT_DIR",
       "PDFIUM_WASM_ARTIFACT_URL",

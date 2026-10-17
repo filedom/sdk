@@ -15,6 +15,7 @@
     "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
     "record:layout-visual-diff": "node ./scripts/record-layout-visual-diff.mjs",
     "generate:layout-visual-baselines": "node ./scripts/generate-layout-visual-baselines.mjs",
+    "approve:layout-visual-baselines": "node ./scripts/approve-layout-visual-baselines.mjs --pin",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

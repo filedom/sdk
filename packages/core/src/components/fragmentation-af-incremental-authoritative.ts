@@ -6,9 +6,10 @@ import {
   evaluateAfIncrementalVsFullEquivalence,
   afIncrementalAllEquivalent,
 } from "./fragmentation-af-incremental-equivalence.js";
+import { evaluateAfEngineIncrementalVsFullEquivalence } from "./fragmentation-af-incremental-engine.js";
 
-/** W2-G4-08: authoritative full layout vs incremental oracle (engine path not exposed yet). */
-export type AfIncrementalEnginePath = "unavailable" | "oracle-split";
+/** W2-G4-08/09: authoritative full layout vs incremental oracle or engine sketch. */
+export type AfIncrementalEnginePath = "unavailable" | "oracle-split" | "engine-sketch";
 
 export interface AfAuthoritativeIncrementalEntry {
   entryId: string;
@@ -29,21 +30,35 @@ export interface AfAuthoritativeIncrementalEvidence {
   note: string;
 }
 
+export interface AfAuthoritativeIncrementalOptions {
+  incrementalEnginePath?: AfIncrementalEnginePath;
+  layoutIncrementalAtBreak?: (paragraphPayload: string, breakAfterCharIndex: number) => string;
+}
+
 export function detectAfIncrementalEnginePath(
-  _shapedLayoutJson: ShapedLayoutJsonFn,
+  options?: AfAuthoritativeIncrementalOptions,
 ): AfIncrementalEnginePath {
-  return "unavailable";
+  return options?.incrementalEnginePath ?? "unavailable";
 }
 
 export function evaluateAfAuthoritativeIncrementalLayout(
   shapedLayoutJson: ShapedLayoutJsonFn,
+  options?: AfAuthoritativeIncrementalOptions,
 ): readonly AfAuthoritativeIncrementalEntry[] {
-  const enginePath = detectAfIncrementalEnginePath(shapedLayoutJson);
-  const verdicts = evaluateAfIncrementalVsFullEquivalence(shapedLayoutJson);
+  const enginePath = detectAfIncrementalEnginePath(options);
+  const useEngine =
+    enginePath === "engine-sketch" &&
+    typeof options?.layoutIncrementalAtBreak === "function";
+  const verdicts = useEngine
+    ? evaluateAfEngineIncrementalVsFullEquivalence(
+        shapedLayoutJson,
+        options!.layoutIncrementalAtBreak!,
+      )
+    : evaluateAfIncrementalVsFullEquivalence(shapedLayoutJson);
   return verdicts.map((v) => {
     const incrementalPath: AfIncrementalEnginePath =
       enginePath === "unavailable" ? "oracle-split" : enginePath;
-    const equivalenceTestable = incrementalPath === "oracle-split";
+    const equivalenceTestable = true;
     return {
       entryId: v.entryId,
       fullLayoutAuthoritative: true as const,
@@ -53,16 +68,19 @@ export function evaluateAfAuthoritativeIncrementalLayout(
       detail:
         enginePath === "unavailable"
           ? `${v.detail} (oracle-split; WASM incremental API unavailable)`
-          : v.detail,
+          : enginePath === "engine-sketch"
+            ? `${v.detail} (engine-sketch via layout_flow_paragraph_incremental_json)`
+            : v.detail,
     };
   });
 }
 
 export function buildAfAuthoritativeIncrementalEvidence(
   shapedLayoutJson: ShapedLayoutJsonFn,
+  options?: AfAuthoritativeIncrementalOptions,
 ): AfAuthoritativeIncrementalEvidence {
-  const entries = evaluateAfAuthoritativeIncrementalLayout(shapedLayoutJson);
-  const incrementalEnginePath = detectAfIncrementalEnginePath(shapedLayoutJson);
+  const entries = evaluateAfAuthoritativeIncrementalLayout(shapedLayoutJson, options);
+  const incrementalEnginePath = detectAfIncrementalEnginePath(options);
   const allIncrementalEquivalent = afIncrementalAllEquivalent(
     entries.map((e) => ({
       entryId: e.entryId,
@@ -80,6 +98,8 @@ export function buildAfAuthoritativeIncrementalEvidence(
     note:
       incrementalEnginePath === "unavailable"
         ? "Authoritative layout is full shaped pass; incremental≡full tested via oracle-split only. G4 gate not-run."
-        : "Engine incremental path present; gate proof still not-run until CI evidence.",
+        : incrementalEnginePath === "engine-sketch"
+          ? "W2-G4-09 engine incremental sketch exported; equivalence recorded; G4 gate not-run."
+          : "Engine incremental path present; gate proof still not-run until CI evidence.",
   };
 }
