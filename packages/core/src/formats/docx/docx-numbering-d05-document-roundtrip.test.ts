@@ -12,6 +12,8 @@ import {
 import {
   buildWordCompatibleMultiNumNumberingXml,
   buildWordCompatibleNumberingXml,
+  buildWordCompatibleSharedAbstractNumberingXml,
+  parseNumberingAbstractNumIds,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
 import { parseWordNumberingXml } from "./docx-numbering-runtime.js";
@@ -51,6 +53,7 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
   expectedNumPr: Array<{ numId: number; ilvl: number }>;
   expectedTexts: string[];
   seedLevels?: readonly WordNumberingLevelDef[];
+  numIdAbstractRemap?: Readonly<Record<number, number>>;
 }[] = [
   {
     id: "D05-DRT-01",
@@ -436,6 +439,61 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
       { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
     ],
   },
+  {
+    id: "D05-DRT-10",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="12"/></w:numPr></w:pPr>
+      <w:r><w:t>Shared A</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="13"/></w:numPr></w:pPr>
+      <w:r><w:t>Shared B</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleSharedAbstractNumberingXml(
+      3,
+      [{ ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 }],
+      [12, 13],
+    ),
+    paragraphs: [
+      { text: "Shared A", numId: 12, ilvl: 0 },
+      { text: "Shared B", numId: 13, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 12, ilvl: 0 },
+      { numId: 13, ilvl: 0 },
+    ],
+    expectedTexts: ["Shared A", "Shared B"],
+    seedLevels: [{ ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 }],
+  },
+  {
+    id: "D05-DRT-11",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="20"/></w:numPr></w:pPr>
+      <w:r><w:t>Remap one</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="21"/></w:numPr></w:pPr>
+      <w:r><w:t>Remap two</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleSharedAbstractNumberingXml(
+      50,
+      [{ ilvl: 0, numFmt: "upperRoman", lvlText: "%1.", start: 2 }],
+      [20],
+    ),
+    paragraphs: [
+      { text: "Remap one", numId: 20, ilvl: 0 },
+      { text: "Remap two", numId: 21, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 20, ilvl: 0 },
+      { numId: 21, ilvl: 0 },
+    ],
+    expectedTexts: ["Remap one", "Remap two"],
+    seedLevels: [{ ilvl: 0, numFmt: "upperRoman", lvlText: "%1.", start: 2 }],
+    numIdAbstractRemap: { 21: 50 },
+  },
 ];
 
 const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
@@ -450,6 +508,7 @@ describe("G2-DOCX-18 D05 document.xml numbering round-trip", () => {
       const pkg = readOpcPackage(zipDocx(row.seedDocumentXml, row.seedNumberingXml));
       const patched = applyDocxNumberingWriteBackFromSession(pkg, row.paragraphs, {
         seedLevels: row.seedLevels ?? DEFAULT_D05_SEED_LEVELS,
+        numIdAbstractRemap: "numIdAbstractRemap" in row ? row.numIdAbstractRemap : undefined,
       });
       const documentXmlFirst = getMemberUtf8(patched, "word/document.xml");
       expect(readBodyNumPrFromDocumentXml(documentXmlFirst)).toEqual(row.expectedNumPr);
@@ -495,6 +554,18 @@ describe("G2-DOCX-18 D05 document.xml numbering round-trip", () => {
         const levelsB = parsed.abstractNums.get(parsed.numToAbstract.get(11)!);
         expect(levelsB?.find((l) => l.ilvl === 0)?.start).toBe(5);
         expect(levelsB?.find((l) => l.ilvl === 1)?.restartAfterIlvl).toBe(0);
+      }
+      if (row.id === "D05-DRT-10") {
+        const parsed = parseWordNumberingXml(numberingXml);
+        expect(parsed.numToAbstract.get(12)).toBe(3);
+        expect(parsed.numToAbstract.get(13)).toBe(3);
+        expect(parseNumberingAbstractNumIds(numberingXml)).toEqual([3]);
+      }
+      if (row.id === "D05-DRT-11") {
+        const parsed = parseWordNumberingXml(numberingXml);
+        expect(parsed.numToAbstract.get(20)).toBe(50);
+        expect(parsed.numToAbstract.get(21)).toBe(50);
+        expect(parsed.abstractNums.get(50)?.[0]?.start).toBe(2);
       }
 
       const doc = buildProseMirrorDocFromOoxmlBody(

@@ -95,5 +95,10 @@
 | [G2-LAYOUT-18-independent-human-png-review.md](./G2-LAYOUT-18-independent-human-png-review.md) | W1++++++++++++++++ | review |
 | [G3-INPUT-19-physical-host-gate-grade-logs.md](./G3-INPUT-19-physical-host-gate-grade-logs.md) | W1++++++++++++++++ | review |
 | [W2-G4-17-browser-af-post-edit-gate-path.md](./W2-G4-17-browser-af-post-edit-gate-path.md) | W2 | review |
+| [G1-PDF-20-artifact-drop-auto-proof.md](./G1-PDF-20-artifact-drop-auto-proof.md) | W1+++++++++++++++++ | review |
+| [G2-DOCX-19-abstractnum-numid-remap.md](./G2-DOCX-19-abstractnum-numid-remap.md) | W1+++++++++++++++++ | review |
+| [G2-LAYOUT-19-coordinator-independent-png-accept.md](./G2-LAYOUT-19-coordinator-independent-png-accept.md) | W1+++++++++++++++++ | review |
+| [G3-INPUT-20-physical-host-capture-execution.md](./G3-INPUT-20-physical-host-capture-execution.md) | W1+++++++++++++++++ | review |
+| [W2-G4-18-authoritative-gate-proof-runner.md](./W2-G4-18-authoritative-gate-proof-runner.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

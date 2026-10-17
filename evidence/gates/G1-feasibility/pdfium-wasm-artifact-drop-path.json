@@ -1,0 +1,16 @@
+{
+  "recordedAt": "2026-10-17T08:55:30.625Z",
+  "card": "G1-PDF-20",
+  "artifactDetected": false,
+  "requiredEnvVars": [
+    "PDFIUM_WASM_ARTIFACT_DIR",
+    "PDFIUM_WASM_MODULE_PATH",
+    "PDFIUM_WASM_BUILD_ROOT",
+    "PDFIUM_WASM_SIBLING_SEARCH_PATHS",
+    "PDFIUM_WASM_CI_WORKER",
+    "PDFIUM_WASM_ARTIFACT_DROP"
+  ],
+  "runbook": "docs/g1-pdfium-c24-unblock-runbook.md",
+  "vendorDropPath": "domdoc-web/vendor/domdoc-pdfium-wasm/",
+  "note": "G1-PDF-20 no production WASM detected; drop C24 bytes per runbook or set PDFIUM_WASM_ARTIFACT_DIR."
+}

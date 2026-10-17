@@ -15,6 +15,8 @@ Gate **G1 not-run** until `moduleLoaded=true` and native **P01–P05** pass on t
 cd domdoc-web
 pnpm fetch:pdfium-wasm
 PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05
+# G1-PDF-20 auto-detect (artifact dir, vendor drop, sibling build roots → fetch + proofs):
+pnpm proof:pdfium-artifact-drop
 ```
 
 5. Confirm **`evidence/gates/G1-feasibility/pdfium-wasm-bytes-attempt.json`** reports:

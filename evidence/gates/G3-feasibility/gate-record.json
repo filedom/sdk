@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G3-INPUT-19 gate-grade physical-host log template; physical-host IME/SR capture not-run; gate not-run",
+  "limitations": "G3-INPUT-20 physical-host capture execution helpers; physical-host IME/SR capture not-run; gate not-run",
   "evidencePaths": [
     "caret-map.test.ts",
     "composition-stub.test.ts",
@@ -31,6 +31,9 @@
     "input-evidence-demo-real-capture.test.ts",
     "input-evidence-physical-host-gate-grade.test.ts",
     "physical-host-gate-grade-manifest.json",
+    "scripts/run-physical-host-gate-grade-capture.mjs",
+    "scripts/ingest-physical-host-gate-grade-log.mjs",
+    "physical-host-capture-execution-plan.json",
     "demo-real-capture-slots.json",
     "m0-evidence-pipeline-contract.test.ts",
     "logs/ime-demo-macos-synthetic-session.json",

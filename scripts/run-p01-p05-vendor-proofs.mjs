@@ -56,7 +56,7 @@ const allNativePass =
   evidence.fixtures.every((f) => f.nativeProof === "pass");
 const bytesAttempt = {
   recordedAt: evidence.recordedAt,
-  card: "G1-PDF-19",
+  card: process.env.PDFIUM_WASM_ARTIFACT_DROP === "1" ? "G1-PDF-20" : "G1-PDF-19",
   phase: evidence.moduleLoaded ? "post-proof-worker" : "post-proof-stub",
   productionWasmObtained: evidence.moduleLoaded,
   productionModuleLoaded: evidence.moduleLoaded,

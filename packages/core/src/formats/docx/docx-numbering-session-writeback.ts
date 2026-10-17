@@ -3,6 +3,7 @@ import { getMemberUtf8, setMemberUtf8 } from "./opc-package.js";
 import type { ListParagraphMeta } from "./docx-list-numbering-stub.js";
 import { computeListMarkersFromNumberingXml } from "./docx-numbering-runtime.js";
 import {
+  appendNumInstanceForAbstractNum,
   applyListRenumberWithOoxmlDefinitions,
   buildWordCompatibleNumberingXml,
   type WordNumberingLevelDef,
@@ -14,6 +15,8 @@ import type { DocxListRenumberMutation } from "./docx-session-list-mutation.js";
 export interface DocxNumberingSessionWriteBackOptions {
   /** When numbering.xml missing, seed these level defs per distinct numId. */
   seedLevels?: readonly WordNumberingLevelDef[];
+  /** G2-DOCX-19: bind session numIds to existing abstractNumId (shared-abstract / remap). */
+  numIdAbstractRemap?: Readonly<Record<number, number>>;
 }
 
 function distinctNumIds(paragraphs: readonly ListParagraphMeta[]): number[] {
@@ -56,20 +59,35 @@ export function writeNumberingOpcFromSessionListState(
   let next = applyListRenumberWithOoxmlDefinitions(pkg, mutation);
   const numIds = distinctNumIds(paragraphs);
   for (const numId of numIds.slice(1)) {
+    if (numberingXml?.includes(`numId="${numId}"`)) {
+      continue;
+    }
+    const remapAbstract = options?.numIdAbstractRemap?.[numId];
+    if (remapAbstract !== undefined) {
+      try {
+        const existing = getMemberUtf8(next, DOCX_NUMBERING_PART);
+        setMemberUtf8(
+          next,
+          DOCX_NUMBERING_PART,
+          appendNumInstanceForAbstractNum(existing, numId, remapAbstract),
+        );
+      } catch {
+        /* first numId path already seeded numbering part */
+      }
+      continue;
+    }
     const levels =
       options?.seedLevels ??
       ([
         { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
         { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
       ] satisfies WordNumberingLevelDef[]);
-    if (!numberingXml?.includes(`numId="${numId}"`)) {
-      const seed = buildWordCompatibleNumberingXml(numId, levels);
-      try {
-        const existing = getMemberUtf8(next, DOCX_NUMBERING_PART);
-        setMemberUtf8(next, DOCX_NUMBERING_PART, `${existing.trim()}\n${seed}`);
-      } catch {
-        setMemberUtf8(next, DOCX_NUMBERING_PART, seed);
-      }
+    const seed = buildWordCompatibleNumberingXml(numId, levels);
+    try {
+      const existing = getMemberUtf8(next, DOCX_NUMBERING_PART);
+      setMemberUtf8(next, DOCX_NUMBERING_PART, `${existing.trim()}\n${seed}`);
+    } catch {
+      setMemberUtf8(next, DOCX_NUMBERING_PART, seed);
     }
   }
   return next;

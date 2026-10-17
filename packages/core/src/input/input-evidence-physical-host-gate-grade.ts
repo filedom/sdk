@@ -1,4 +1,4 @@
-/** G3-INPUT-19: gate-grade physical-host IME/SR capture log shape (host capture still not-run). */
+/** G3-INPUT-19/20: gate-grade physical-host IME/SR capture log shape (host capture still not-run). */
 
 import type { CapturedInputLogEntry } from "./input-evidence-log-templates.js";
 import { INPUT_EVIDENCE_FORMAT_VERSION } from "./input-evidence-scaffold.js";
@@ -123,6 +123,44 @@ export function buildPhysicalHostGateGradeManifest(): PhysicalHostGateGradeManif
       "Set hostOs/hostArch/browserChannel on gate-grade log before coordinator ingest",
     ],
     slotPaths: REAL_PLATFORM_LOG_RELATIVE_PATHS,
-    note: "G3-INPUT-19 gate-grade logs; physical host capture not-run",
+    note: "G3-INPUT-20 gate-grade logs; physical host capture not-run",
+  };
+}
+
+export type PhysicalHostCaptureExecutionHost = "macos" | "windows" | "linux-ci" | "unknown";
+
+export interface PhysicalHostCaptureExecutionPlan {
+  card: "G3-INPUT-20";
+  gateStatus: "not-run";
+  host: PhysicalHostCaptureExecutionHost;
+  canExecuteCaptureOnThisHost: boolean;
+  captureScript: "pnpm run:physical-host-gate-grade-capture";
+  ingestScript: "pnpm ingest:physical-host-gate-grade-log";
+  note: string;
+}
+
+/** G3-INPUT-20: honest execution plan — Linux CI cannot run physical IME/SR capture. */
+export function buildPhysicalHostCaptureExecutionPlan(
+  platform: NodeJS.Platform = process.platform,
+): PhysicalHostCaptureExecutionPlan {
+  const host: PhysicalHostCaptureExecutionHost =
+    platform === "darwin"
+      ? "macos"
+      : platform === "win32"
+        ? "windows"
+        : platform === "linux"
+          ? "linux-ci"
+          : "unknown";
+  const canExecuteCaptureOnThisHost = host === "macos" || host === "windows";
+  return {
+    card: "G3-INPUT-20",
+    gateStatus: "not-run",
+    host,
+    canExecuteCaptureOnThisHost,
+    captureScript: "pnpm run:physical-host-gate-grade-capture",
+    ingestScript: "pnpm ingest:physical-host-gate-grade-log",
+    note: canExecuteCaptureOnThisHost
+      ? "G3-INPUT-20 run capture on this physical host, then ingest gate-grade JSON; G3 gate not-run until coordinator review."
+      : "G3-INPUT-20 cannot execute physical IME/SR capture on this host (CI/Linux); use macOS/Windows per manifest.",
   };
 }

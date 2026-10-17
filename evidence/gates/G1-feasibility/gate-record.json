@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G1-PDF-19 unblock runbook + productionModuleLoaded; C24 production WASM not obtained; native P01–P05 proofs not-run",
+  "limitations": "G1-PDF-20 artifact-drop auto-detect; C24 production WASM not obtained; native P01–P05 proofs not-run",
   "evidencePaths": [
     "pdfium-wasm-bytes-attempt.json",
     "pdfium-wasm-eval.json",
@@ -22,6 +22,8 @@
     "pdf-writer-worker.test.ts",
     "docs/pdfium-wasm-worker-isolation.md",
     "docs/pdfium-wasm-manual-artifact.md",
-    "docs/g1-pdfium-c24-unblock-runbook.md"
+    "docs/g1-pdfium-c24-unblock-runbook.md",
+    "scripts/proof-pdfium-artifact-drop.mjs",
+    "pdfium-wasm-artifact-drop-path.json"
   ]
 }

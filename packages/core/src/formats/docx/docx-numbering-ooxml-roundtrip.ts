@@ -55,6 +55,67 @@ ${lvlBlocks}
 </w:numbering>`;
 }
 
+/** G2-DOCX-19: multiple numId instances referencing one abstractNum (Word list reuse). */
+export function buildWordCompatibleSharedAbstractNumberingXml(
+  abstractNumId: number,
+  levels: readonly WordNumberingLevelDef[],
+  numIds: readonly number[],
+): string {
+  const lvlBlocks = levels
+    .map((level) => {
+      const escaped = level.lvlText.replace(/"/g, "&quot;");
+      const start = level.start ?? 1;
+      const restart =
+        level.restartAfterIlvl !== undefined
+          ? `\n      <w:lvlRestart w:val="${level.restartAfterIlvl}"/>`
+          : "";
+      const ind =
+        level.leftIndentTwips !== undefined || level.hangingIndentTwips !== undefined
+          ? `\n      <w:ind w:left="${level.leftIndentTwips ?? 0}" w:hanging="${level.hangingIndentTwips ?? 0}"/>`
+          : "";
+      return `    <w:lvl w:ilvl="${level.ilvl}">
+      <w:start w:val="${start}"/>
+      <w:numFmt w:val="${level.numFmt}"/>
+      <w:lvlText w:val="${escaped}"/>
+      <w:lvlJc w:val="left"/>${ind}${restart}
+    </w:lvl>`;
+    })
+    .join("\n");
+  const numBlocks = numIds
+    .map(
+      (numId) => `  <w:num w:numId="${numId}">
+    <w:abstractNumId w:val="${abstractNumId}"/>
+  </w:num>`,
+    )
+    .join("\n");
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:numbering xmlns:w="${W_NS}">
+  <w:abstractNum w:abstractNumId="${abstractNumId}">
+${lvlBlocks}
+  </w:abstractNum>
+${numBlocks}
+</w:numbering>`;
+}
+
+/** G2-DOCX-19: append a num instance for an existing abstractNumId (numId remap edge). */
+export function appendNumInstanceForAbstractNum(
+  numberingXml: string,
+  numId: number,
+  abstractNumId: number,
+): string {
+  if (numberingXml.includes(`numId="${numId}"`)) {
+    return numberingXml;
+  }
+  const block = `  <w:num w:numId="${numId}">
+    <w:abstractNumId w:val="${abstractNumId}"/>
+  </w:num>`;
+  const closeIdx = numberingXml.lastIndexOf("</w:numbering>");
+  if (closeIdx < 0) {
+    return `${numberingXml.trim()}\n${block}\n`;
+  }
+  return `${numberingXml.slice(0, closeIdx).trimEnd()}\n${block}\n${numberingXml.slice(closeIdx)}`;
+}
+
 /** G2-DOCX-18: merge multiple numId defs into one numbering.xml part. */
 export function buildWordCompatibleMultiNumNumberingXml(
   defs: readonly { numId: number; levels: readonly WordNumberingLevelDef[] }[],

@@ -11,6 +11,7 @@ Gate **G2 not-run** until a **real** human approves baselines (not CI-simulated 
 5. **G2-LAYOUT-16:** Coordinator runs sign-off with `LAYOUT_SIGNOFF_COORDINATOR_ACCEPT=1` and `LAYOUT_SIGNOFF_COORDINATOR_ID` (sets `coordinator-accepted-workflow` — still **not** a visual pass).
 6. **G2-LAYOUT-17:** Reviewer may self-attest pinned PNG review with `LAYOUT_SIGNOFF_VISUAL_REVIEW_COMPLETE=1` (sets `human-visual-review-attested` — **workflow only**, gate **G2 not-run**).
 7. **G2-LAYOUT-18:** Independent human PNG review **outside** CI attestation flags — `LAYOUT_INDEPENDENT_REVIEWER_ID=… pnpm record:layout-independent-png-review` → `layout-visual-independent-human-png-review.json` (still **not** gate pass).
+8. **G2-LAYOUT-19:** Coordinator accepts independent PNG packet — `LAYOUT_INDEPENDENT_COORDINATOR_ACCEPT=1 LAYOUT_INDEPENDENT_COORDINATOR_ID=… pnpm accept:layout-independent-png-review` (distinct from G2-LAYOUT-16; still **not** gate pass).
 
 ## Escalation (if blocked)
 

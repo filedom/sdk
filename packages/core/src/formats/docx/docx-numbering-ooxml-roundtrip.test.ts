@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { readOpcPackage, writeOpcPackage } from "./opc-package.js";
 import {
+  appendNumInstanceForAbstractNum,
   applyListRenumberWithOoxmlDefinitions,
   buildNumberingXmlWithListDef,
   buildWordCompatibleNumberingXml,
+  buildWordCompatibleSharedAbstractNumberingXml,
   parseNumberingAbstractNumIds,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
@@ -19,6 +21,18 @@ describe("G2-DOCX-07 numbering.xml OOXML round-trip", () => {
     expect(parseNumberingAbstractNumIds(xml)).toEqual([8]);
     expect(xml).toContain('w:numFmt w:val="lowerLetter"');
     expect(xml).toContain('w:lvlRestart w:val="0"');
+  });
+
+  it("G2-DOCX-19 shares one abstractNum across numIds", () => {
+    const xml = buildWordCompatibleSharedAbstractNumberingXml(
+      3,
+      [{ ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 }],
+      [12, 13],
+    );
+    expect(parseNumberingAbstractNumIds(xml)).toEqual([3]);
+    expect(parseNumberingNumIds(xml).sort((a, b) => a - b)).toEqual([12, 13]);
+    const appended = appendNumInstanceForAbstractNum(xml, 14, 3);
+    expect(parseNumberingNumIds(appended).sort((a, b) => a - b)).toEqual([12, 13, 14]);
   });
 
   it("builds abstractNum and num for a list id", () => {

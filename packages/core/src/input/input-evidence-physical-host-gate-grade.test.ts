@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  buildPhysicalHostCaptureExecutionPlan,
   buildPhysicalHostGateGradeCaptureLog,
   buildPhysicalHostGateGradeManifest,
   validatePhysicalHostGateGradeEntries,
@@ -49,10 +50,18 @@ describe("G3-INPUT-19 physical host gate-grade logs", () => {
   it("writes gate-grade manifest artifact", () => {
     const manifest = buildPhysicalHostGateGradeManifest();
     expect(manifest.gateStatus).toBe("not-run");
+    expect(manifest.note).toContain("G3-INPUT-20");
     mkdirSync(evidenceDir, { recursive: true });
     writeFileSync(
       join(evidenceDir, "physical-host-gate-grade-manifest.json"),
       `${JSON.stringify(manifest, null, 2)}\n`,
     );
+  });
+
+  it("G3-INPUT-20 marks linux-ci as non-executable for physical capture", () => {
+    const plan = buildPhysicalHostCaptureExecutionPlan("linux");
+    expect(plan.card).toBe("G3-INPUT-20");
+    expect(plan.canExecuteCaptureOnThisHost).toBe(false);
+    expect(plan.host).toBe("linux-ci");
   });
 });
