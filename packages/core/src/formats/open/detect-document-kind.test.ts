@@ -25,6 +25,12 @@ describe("F02 detectDocumentKind", () => {
     expect(detectDocumentKind(new Uint8Array(), { filename: "a.docx" }).kind).toBe("docx");
   });
 
+  it("treats .doc extension as legacy unsupported", () => {
+    expect(detectDocumentKind(new Uint8Array(), { filename: "legacy.doc" }).kind).toBe(
+      "encrypted-unsupported",
+    );
+  });
+
   it("marks OLE compound as encrypted-unsupported (F03)", () => {
     const bytes = new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
     expect(detectDocumentKind(bytes).kind).toBe("encrypted-unsupported");

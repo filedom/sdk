@@ -1,16 +1,18 @@
 {
-  "recordedAt": "2026-10-17T14:14:16.135Z",
-  "status": "host-ninja-pdfium-ok",
+  "recordedAt": "2026-10-17T14:18:19.506Z",
+  "status": "host-ninja-pdfium-failed-or-timed-out",
   "pdfiumGclientTree": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
-  "outDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release",
+  "outDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/ReleaseComplete",
+  "gnArgs": "is_debug=false pdf_is_complete_lib=true v8_enable_sandbox=false pdf_enable_v8=false pdf_enable_xfa=false",
   "gnExit": 0,
-  "ninjaExit": 0,
-  "ninjaTimeoutSec": 180,
+  "ninjaExit": 1,
+  "ninjaFailureHint": "disk-full-on-final-ar",
+  "ninjaTimeoutSec": 60,
   "hostStaticLibs": [],
   "primaryHostStaticLib": null,
   "hostPdfiumLinkableFound": false,
   "hostArchiveSearchRoots": [
-    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/ReleaseComplete",
     "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out"
   ],
   "hostDependencyArchiveSample": [
@@ -23,7 +25,7 @@
     "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/libjpeg_turbo/libjpeg.a",
     "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/Release/obj/third_party/libjpeg_turbo/libjpeg12.a"
   ],
-  "hostDependencyArchiveCount": 14,
+  "hostDependencyArchiveCount": 28,
   "gnLogTail": "",
   "ninjaLogTail": "",
   "reason": null,

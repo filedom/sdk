@@ -3,46 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>domdoc demo shell (G3-INPUT-06)</title>
+    <title>domdoc viewer demo</title>
   </head>
   <body>
-    <header id="domdoc-toolbar" role="toolbar" aria-label="domdoc session shell (M2 stub)">
-      <span id="domdoc-session-label">Session: demo-sess</span>
-      <label for="domdoc-open-local">Open DOCX</label>
-      <input id="domdoc-open-local" type="file" accept=".docx,.pdf,.domdoc,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf" />
-      <label for="domdoc-search">Search</label>
-      <input id="domdoc-search" type="search" autocomplete="off" />
-      <button type="button" id="domdoc-toolbar-save-stub">Save (stub)</button>
-      <button type="button" id="domdoc-toolbar-undo-stub">Undo (stub)</button>
-    </header>
-    <section id="domdoc-comments-panel" aria-label="Comments read-only list (F20 stub)">
-      <h2>Comments (read-only)</h2>
-      <ul id="domdoc-comments-list"></ul>
-      <button type="button" id="domdoc-comments-accept-stub">Accept first comment (stub)</button>
-    </section>
-    <section id="domdoc-prosemirror-demo" aria-label="ProseMirror editable slice (M1 stub)">
-      <label for="domdoc-prosemirror-edit">DOCX paragraph (session-bound)</label>
-      <input
-        id="domdoc-prosemirror-edit"
-        type="text"
-        value="domdoc"
-        aria-label="Edit first paragraph text"
-      />
-    </section>
-    <canvas
-      id="domdoc-canvas"
-      width="400"
-      height="300"
-      role="img"
-      aria-label="domdoc rendered page preview (demo stub)"
-    ></canvas>
-    <input
-      id="domdoc-ime-input"
-      type="text"
-      aria-label="domdoc composition probe"
-      autocomplete="off"
-      style="position: absolute; left: 8px; top: 280px; width: 1px; height: 1px; opacity: 0"
-    />
+    <div id="domdoc-root"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

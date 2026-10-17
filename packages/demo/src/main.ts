@@ -1,4 +1,6 @@
+import "../../shell-ui/src/styles.css";
 import init, * as engine from "@domdoc/demo-engine";
+import { mountDomdocShell } from "@domdoc/shell-ui";
 import {
   createCompositorInputState,
   pointerDownWithCaret,
@@ -17,23 +19,20 @@ import { createWasmShapedLayoutHook } from "../../core/dist/layout/wasm-shaped-l
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
 import { dispatchM2ToolbarCommand } from "../../core/dist/session/m2-toolbar-command-stub.js";
 import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar-command-registry.js";
-import {
-  createDocumentSession,
-} from "../../core/dist/session/document-session.js";
+import { createDocumentSession } from "../../core/dist/session/document-session.js";
 import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
 import { describeDomdocDemoExportPath } from "../../core/dist/persistence/domdoc-export-path-selection.js";
-import { exportDocxFromStoreStub } from "../../core/dist/formats/docx/docx-export-stub.js";
 import { exportDocxTrackChangesFromStoreStub } from "../../core/dist/formats/docx/docx-track-changes-export-stub.js";
 import { buildReviewMinimalTrackedDocxZipBytes } from "../../core/dist/formats/docx/review-minimal-docx-fixture.js";
 import { DocxStore } from "../../core/dist/formats/docx/docx-store.js";
 import { describePdfiumWasmReadPathBrowser } from "../../core/dist/formats/pdf/pdfium-wasm-read-path-stub.js";
 import {
-  buildDemoDocxZipBytes,
-  openDocxProsemirrorDemoSessionSlice,
-} from "../../core/dist/session/docx-prosemirror-demo-session-slice.js";
+  applyProsemirrorDemoTypingTransaction,
+  createProsemirrorDemoDebouncedSaveState,
+} from "../../core/dist/session/prosemirror-demo-debounced-save-stub.js";
 import {
-  applyProsemirrorDemoEditWithToolbarUndo,
   createProsemirrorDemoToolbarUndoState,
+  flushProsemirrorDemoDebouncedSaveWithToolbarUndo,
   undoProsemirrorDemoViaToolbar,
 } from "../../core/dist/session/prosemirror-demo-toolbar-undo-bridge.js";
 import { proseMirrorParagraphTexts } from "../../core/dist/formats/docx/docx-prosemirror-projection.js";
@@ -42,8 +41,6 @@ import {
   saveProsemirrorDemoDomdocPackageStub,
 } from "../../core/dist/session/docx-prosemirror-domdoc-package-stub.js";
 import { tryLoadPdfiumLibProbeRender } from "../../core/dist/formats/pdf/pdfium-lib-probe-render-stub.js";
-import { detectDocumentKind } from "../../core/dist/formats/open/detect-document-kind.js";
-import { searchDocumentParagraphs } from "../../core/dist/formats/text/document-search.js";
 import {
   buildAnnotationsWireStubFromOpcMembers,
   listAnnotationWireStubLabels,
@@ -57,33 +54,15 @@ import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
 import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
 import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
+import { ViewerController } from "./viewer-controller.js";
 
-const sampleProjection = () => ({
-  header: {
-    protocolVersion: 1,
-    schemaId: "domdoc://render-wire/v1",
-    requestId: "demo-req",
-    sessionId: "demo-sess",
-    documentGeneration: 1,
-    units: "pt",
-  },
-  pages: [
-    {
-      pageIndex: 0,
-      widthPt: 612,
-      heightPt: 792,
-      runs: [
-        {
-          runId: "run-demo",
-          text: "domdoc",
-          xPt: 72,
-          yPt: 720,
-          fontSizePt: 12,
-        },
-      ],
-    },
-  ],
-});
+const pdfiumBase = new URL("../../../vendor/domdoc-pdfium-wasm/", import.meta.url);
+const pdfiumGlueUrl = new URL("domdoc_pdfium.js", pdfiumBase).href;
+const pdfiumLocateFile = (name: string) => new URL(name, pdfiumBase).href;
+
+const shell = mountDomdocShell("domdoc-root");
+document.body.dataset.compositorMounted = "true";
+shell.statusText.textContent = "Loading layout engine…";
 
 async function boot(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
@@ -93,18 +72,9 @@ async function boot(): Promise<void> {
   if (params.get("g1PdfiumProbePageRender") === "1") {
     document.body.dataset.g1PdfiumProbePageRenderRequested = "true";
   }
+
   await init();
-  const canvas = document.getElementById("domdoc-canvas");
-  const imeInput = document.getElementById("domdoc-ime-input");
-  if (!(canvas instanceof HTMLCanvasElement)) {
-    throw new Error("canvas missing");
-  }
-  if (!(imeInput instanceof HTMLInputElement)) {
-    throw new Error("ime input missing");
-  }
-  document.body.dataset.compositorMounted = "true";
-  const toolbar = document.getElementById("domdoc-toolbar");
-  const sessionLabel = document.getElementById("domdoc-session-label");
+
   const sessionStub = {
     documentId: "demo-sess",
     kind: "flow" as const,
@@ -117,127 +87,195 @@ async function boot(): Promise<void> {
       renderedRevision: 0,
     },
   };
-  let pmSlice = openDocxProsemirrorDemoSessionSlice(buildDemoDocxZipBytes("domdoc"), sessionStub);
-  let pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
+
+  const viewer = new ViewerController({
+    shell,
+    engine,
+    sessionStub,
+    pdfiumGlueUrl,
+    pdfiumLocateFile,
+  });
+
+  let pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
+  let pmSaveState = createProsemirrorDemoDebouncedSaveState(viewer.slice);
+  let pmDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+  const PM_DEBOUNCE_MS = 280;
   const syncToolbarStackDataset = (): void => {
     document.body.dataset.m2ToolbarUndoDepth = String(pmUndoState.toolbarStack.undoDepth);
     document.body.dataset.m2ToolbarRedoDepth = String(pmUndoState.toolbarStack.redoDepth);
     document.body.dataset.m2ToolbarLastCommand = pmUndoState.toolbarStack.lastCommand ?? "";
   };
-  const pmInput = document.getElementById("domdoc-prosemirror-edit");
   const syncProsemirrorDemoDataset = (): void => {
     document.body.dataset.m1ProsemirrorSlice = "true";
     document.body.dataset.m1ProsemirrorRevision = String(
-      pmSlice.session.revisions.committedRevision,
+      viewer.slice.session.revisions.committedRevision,
     );
-    document.body.dataset.m1ProsemirrorParagraph = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
-    if (pmInput instanceof HTMLInputElement) {
-      pmInput.value = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
-    }
+    document.body.dataset.m1ProsemirrorPersistedRevision = String(
+      viewer.slice.session.revisions.persistedRevision,
+    );
+    document.body.dataset.m1ProsemirrorExportedRevision = String(
+      viewer.slice.session.revisions.exportedRevision,
+    );
+    document.body.dataset.m1ProsemirrorDebouncedPending = pmSaveState.pendingText ? "true" : "false";
+    viewer.syncProsemirrorInput();
+    document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
   };
-  if (toolbar) {
-    document.body.dataset.m2ToolbarShell = "stub";
-    document.body.dataset.m2ToolbarSessionId = "demo-sess";
-    document.body.dataset.m2ToolbarRegistryCount = String(listM2ToolbarCommandRegistry().length);
+  const flushProsemirrorDebouncedSave = (): void => {
+    if (pmSaveState.pendingText === null) return;
+    const flushed = flushProsemirrorDemoDebouncedSaveWithToolbarUndo(
+      viewer.slice,
+      pmUndoState,
+      pmSaveState,
+      0,
+    );
+    viewer.slice = flushed.slice;
+    pmUndoState = flushed.undoState;
+    pmSaveState = flushed.saveState;
     syncToolbarStackDataset();
-    const saveBtn = document.getElementById("domdoc-toolbar-save-stub");
-    const undoBtn = document.getElementById("domdoc-toolbar-undo-stub");
-    saveBtn?.addEventListener("click", () => {
-      const result = dispatchM2ToolbarCommand(pmUndoState.toolbarStack, "save-stub");
-      pmUndoState = { ...pmUndoState, toolbarStack: result.stack };
-      syncToolbarStackDataset();
-      document.body.dataset.m2ToolbarSaveOk = result.ok ? "true" : "false";
-      const session = createDocumentSession({
-        ...sessionStub,
-        revisions: {
-          ...sessionStub.revisions,
-          committedRevision: pmUndoState.toolbarStack.undoDepth,
-          persistedRevision: pmUndoState.toolbarStack.undoDepth,
-          materializedRevision: pmUndoState.toolbarStack.undoDepth,
-          renderedRevision: pmUndoState.toolbarStack.undoDepth,
-        },
-      });
-      const store = new MemoryDomdocBlobStoreStub();
-      const saved = session.saveDomdocPackageStubToStore(store);
-      document.body.dataset.m2DomdocSaveOk = saved.simulation.ok ? "true" : "false";
-      document.body.dataset.m2DomdocMemberCount = String(store.blobs.size);
-    });
-    undoBtn?.addEventListener("click", () => {
-      const undone = undoProsemirrorDemoViaToolbar(pmSlice, pmUndoState, 0);
-      pmSlice = undone.slice;
-      pmUndoState = undone.undoState;
-      syncToolbarStackDataset();
-      syncProsemirrorDemoDataset();
-      document.body.dataset.m2ToolbarUndoOk = undone.toolbarDispatch.ok ? "true" : "false";
-      document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
-    });
-  }
+    syncProsemirrorDemoDataset();
+    document.body.dataset.m1DocxExportBytes = String(flushed.docxExportBytes);
+    document.body.dataset.m1DocxExportRevision = String(
+      viewer.slice.session.revisions.exportedRevision,
+    );
+    void viewer.renderDocx();
+  };
+  const scheduleProsemirrorDebouncedFlush = (): void => {
+    if (pmDebounceTimer !== null) {
+      clearTimeout(pmDebounceTimer);
+    }
+    document.body.dataset.m1ProsemirrorDebouncedPending = pmSaveState.pendingText ? "true" : "false";
+    pmDebounceTimer = setTimeout(() => {
+      pmDebounceTimer = null;
+      flushProsemirrorDebouncedSave();
+    }, PM_DEBOUNCE_MS);
+  };
+
+  document.body.dataset.m2ToolbarShell = "stub";
+  document.body.dataset.m2ToolbarSessionId = "demo-sess";
+  document.body.dataset.m2ToolbarRegistryCount = String(listM2ToolbarCommandRegistry().length);
+  const sessionLabel = document.getElementById("domdoc-session-label");
   if (sessionLabel) {
-    sessionLabel.textContent = "Session: demo-sess (M2 stub)";
+    sessionLabel.textContent = "Session: demo-sess";
     document.body.dataset.m2SessionLabel = sessionLabel.textContent;
     document.body.dataset.m2SessionId = "demo-sess";
   }
 
-  pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
-  syncProsemirrorDemoDataset();
-  const openLocalBytes = (bytes: Uint8Array, filename?: string) => {
-    const detection = detectDocumentKind(bytes, { filename });
-    document.body.dataset.f02DetectedKind = detection.kind;
-    if (detection.kind !== "docx") {
-      document.body.dataset.f01OpenOk = "false";
-      document.body.dataset.f01OpenError = `unsupported-kind:${detection.kind}`;
-      return;
-    }
-    pmSlice = openDocxProsemirrorDemoSessionSlice(bytes, sessionStub);
-    pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
-    syncProsemirrorDemoDataset();
+  shell.saveButton.addEventListener("click", () => {
+    const result = dispatchM2ToolbarCommand(pmUndoState.toolbarStack, "save-stub");
+    pmUndoState = { ...pmUndoState, toolbarStack: result.stack };
     syncToolbarStackDataset();
-    document.body.dataset.f01OpenOk = "true";
-    document.body.dataset.f01OpenKind = "docx";
-    document.body.dataset.f01OpenBytes = String(bytes.byteLength);
-  };
-  const openInput = document.getElementById("domdoc-open-local");
-  if (openInput instanceof HTMLInputElement) {
-    openInput.addEventListener("change", () => {
-      const file = openInput.files?.[0];
-      if (!file) return;
-      void file.arrayBuffer().then((buffer) => {
-        try {
-          openLocalBytes(new Uint8Array(buffer), file.name);
-        } catch (error) {
-          document.body.dataset.f01OpenOk = "false";
-          document.body.dataset.f01OpenError = String(error);
-        }
-      });
+    document.body.dataset.m2ToolbarSaveOk = result.ok ? "true" : "false";
+    const session = createDocumentSession({
+      ...sessionStub,
+      revisions: {
+        ...sessionStub.revisions,
+        committedRevision: pmUndoState.toolbarStack.undoDepth,
+        persistedRevision: pmUndoState.toolbarStack.undoDepth,
+        materializedRevision: pmUndoState.toolbarStack.undoDepth,
+        renderedRevision: pmUndoState.toolbarStack.undoDepth,
+      },
     });
-  }
-  document.body.addEventListener("dragover", (event) => {
-    event.preventDefault();
+    const store = new MemoryDomdocBlobStoreStub();
+    const saved = session.saveDomdocPackageStubToStore(store);
+    document.body.dataset.m2DomdocSaveOk = saved.simulation.ok ? "true" : "false";
+    document.body.dataset.m2DomdocMemberCount = String(store.blobs.size);
   });
-  document.body.addEventListener("drop", (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer?.files?.[0];
+
+  shell.undoButton.addEventListener("click", () => {
+    const undone = undoProsemirrorDemoViaToolbar(viewer.slice, pmUndoState, 0);
+    viewer.slice = undone.slice;
+    pmUndoState = undone.undoState;
+    syncToolbarStackDataset();
+    syncProsemirrorDemoDataset();
+    document.body.dataset.m2ToolbarUndoOk = undone.toolbarDispatch.ok ? "true" : "false";
+    void viewer.renderDocx();
+  });
+
+  pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
+  syncProsemirrorDemoDataset();
+  syncToolbarStackDataset();
+
+  const openLocalBytes = (bytes: Uint8Array, filename?: string, source?: string) => {
+    void viewer.openBytes(bytes, filename).then(() => {
+      if (viewer.documentKind() === "docx") {
+        pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
+        pmSaveState = createProsemirrorDemoDebouncedSaveState(viewer.slice);
+        syncProsemirrorDemoDataset();
+        syncToolbarStackDataset();
+      }
+      if (source) document.body.dataset.f01OpenSource = source;
+    });
+  };
+
+  shell.openInput.addEventListener("change", () => {
+    const file = shell.openInput.files?.[0];
     if (!file) return;
     void file.arrayBuffer().then((buffer) => {
       try {
         openLocalBytes(new Uint8Array(buffer), file.name);
-        document.body.dataset.f01OpenSource = "drop";
       } catch (error) {
         document.body.dataset.f01OpenOk = "false";
         document.body.dataset.f01OpenError = String(error);
       }
     });
   });
-  const searchInput = document.getElementById("domdoc-search");
-  if (searchInput instanceof HTMLInputElement) {
-    searchInput.addEventListener("input", () => {
-      const hits = searchDocumentParagraphs(
-        { paragraphTexts: proseMirrorParagraphTexts(pmSlice.doc) },
-        searchInput.value,
-      );
-      document.body.dataset.f11HitCount = String(hits.length);
+
+  shell.dropZone.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    shell.dropZone.classList.add("ring-2", "ring-primary/40");
+  });
+  shell.dropZone.addEventListener("dragleave", () => {
+    shell.dropZone.classList.remove("ring-2", "ring-primary/40");
+  });
+  shell.dropZone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    shell.dropZone.classList.remove("ring-2", "ring-primary/40");
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    void file.arrayBuffer().then((buffer) => {
+      try {
+        openLocalBytes(new Uint8Array(buffer), file.name, "drop");
+      } catch (error) {
+        document.body.dataset.f01OpenOk = "false";
+        document.body.dataset.f01OpenError = String(error);
+      }
     });
-  }
+  });
+
+  shell.searchInput.addEventListener("input", () => {
+    viewer.applySearch(shell.searchInput.value);
+  });
+
+  shell.prosemirrorInput.addEventListener("input", () => {
+    if (viewer.documentKind() !== "docx") return;
+    const typed = applyProsemirrorDemoTypingTransaction(
+      viewer.slice,
+      pmSaveState,
+      0,
+      shell.prosemirrorInput.value,
+    );
+    viewer.slice = typed.slice;
+    pmSaveState = typed.saveState;
+    syncProsemirrorDemoDataset();
+    scheduleProsemirrorDebouncedFlush();
+  });
+  shell.prosemirrorInput.addEventListener("change", () => {
+    if (viewer.documentKind() !== "docx") return;
+    if (pmDebounceTimer !== null) {
+      clearTimeout(pmDebounceTimer);
+      pmDebounceTimer = null;
+    }
+    const typed = applyProsemirrorDemoTypingTransaction(
+      viewer.slice,
+      pmSaveState,
+      0,
+      shell.prosemirrorInput.value,
+    );
+    viewer.slice = typed.slice;
+    pmSaveState = typed.saveState;
+    flushProsemirrorDebouncedSave();
+  });
+
   const exportPath = describeDomdocDemoExportPath(params.get("m1ExportPolicy"));
   document.body.dataset.m1ExportPolicy = exportPath.policy;
   document.body.dataset.m1ExportImplemented = exportPath.implemented ? "true" : "false";
@@ -246,7 +284,7 @@ async function boot(): Promise<void> {
     : "false";
   const domdocStore = new MemoryDomdocBlobStoreStub();
   if (exportPath.usesDomdocPackageEnvelope) {
-    const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
+    const domdocSaved = saveProsemirrorDemoDomdocPackageStub(viewer.slice, domdocStore);
     document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
     const domdocReopened = loadProsemirrorDemoDomdocPackageStub(domdocSaved.packageZipBytes);
     document.body.dataset.m1DomdocPackageRoundTripOk = domdocReopened ? "true" : "false";
@@ -255,50 +293,30 @@ async function boot(): Promise<void> {
     document.body.dataset.m1DomdocPackageRoundTripOk = "skipped";
     document.body.dataset.m1EnhancedNativeExportStub = "true";
   }
+
   void Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()]).then(
     ([probe, readPath]) => {
       document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
       document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
       document.body.dataset.g1PdfiumReadPathLoaded = readPath.moduleLoaded ? "true" : "false";
-      document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady ? "true" : "false";
+      document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady
+        ? "true"
+        : "false";
       document.body.dataset.g1PdfiumProbePageBitmapBytes = probe.moduleLoaded ? "4" : "0";
       document.body.dataset.g1PdfiumProbePageBitmapSynthetic = probe.moduleLoaded ? "true" : "false";
-      if (params.get("g1PdfiumProbePageRender") === "1") {
-        document.body.dataset.g1PdfiumProbePageRenderHint =
-          "node-worker:612x792-when-vendor-present";
-      }
-      if (params.get("g1PdfiumProbeWorker") === "1") {
-        document.body.dataset.g1PdfiumProbeWorkerStatus =
-          probe.moduleLoaded ? "probe-render-loaded" : probe.error ?? "probe-absent";
-      }
     },
   );
-  const reactSurface = domdocReactAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5ReactAdapter = reactSurface.surface;
-  document.body.dataset.m5ReactSessionId = reactSurface.sessionId;
-  const vueSurface = domdocVueAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5VueAdapter = vueSurface.surface;
-  document.body.dataset.m5VueSessionId = vueSurface.sessionId;
-  const litSurface = domdocLitAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5LitAdapter = litSurface.surface;
-  document.body.dataset.m5LitSessionId = litSurface.sessionId;
-  const angularSurface = domdocAngularAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5AngularAdapter = angularSurface.surface;
-  document.body.dataset.m5AngularSessionId = angularSurface.sessionId;
-  const svelteSurface = domdocSvelteAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5SvelteAdapter = svelteSurface.surface;
-  document.body.dataset.m5SvelteSessionId = svelteSurface.sessionId;
-  const nextHostSurface = domdocNextHostAdapterDemoSurface("demo-sess");
-  document.body.dataset.m5NextHostAdapter = nextHostSurface.surface;
-  document.body.dataset.m5NextHostSessionId = nextHostSurface.sessionId;
-  document.body.dataset.m5NextHostBoundary = nextHostSurface.host;
+
+  document.body.dataset.m5ReactAdapter = domdocReactAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5VueAdapter = domdocVueAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5LitAdapter = domdocLitAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5AngularAdapter = domdocAngularAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5SvelteAdapter = domdocSvelteAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5NextHostAdapter = domdocNextHostAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5NextHostBoundary = domdocNextHostAdapterDemoSurface("demo-sess").host;
   if (params.get("m5Extended") !== "0") {
-    const preactSurface = domdocPreactAdapterDemoSurface("demo-sess");
-    document.body.dataset.m5PreactAdapter = preactSurface.surface;
-    document.body.dataset.m5PreactSessionId = preactSurface.sessionId;
-    const solidSurface = domdocSolidAdapterDemoSurface("demo-sess");
-    document.body.dataset.m5SolidAdapter = solidSurface.surface;
-    document.body.dataset.m5SolidSessionId = solidSurface.sessionId;
+    document.body.dataset.m5PreactAdapter = domdocPreactAdapterDemoSurface("demo-sess").surface;
+    document.body.dataset.m5SolidAdapter = domdocSolidAdapterDemoSurface("demo-sess").surface;
   }
 
   const commentsMembers = new Map<string, Uint8Array>();
@@ -309,18 +327,14 @@ async function boot(): Promise<void> {
     ),
   );
   const annotationsWire = buildAnnotationsWireStubFromOpcMembers(commentsMembers);
-  const commentsList = document.getElementById("domdoc-comments-list");
-  if (commentsList) {
-    for (const label of listAnnotationWireStubLabels(annotationsWire)) {
-      const li = document.createElement("li");
-      li.textContent = label;
-      commentsList.appendChild(li);
-    }
+  for (const label of listAnnotationWireStubLabels(annotationsWire)) {
+    const li = document.createElement("li");
+    li.textContent = label;
+    shell.commentsList.appendChild(li);
   }
   document.body.dataset.m5CommentsWireCount = String(annotationsWire.comments.commentCount);
   document.body.dataset.m5CommentsThreadCount = String(annotationsWire.reviewThreads.length);
-  const acceptCommentBtn = document.getElementById("domdoc-comments-accept-stub");
-  acceptCommentBtn?.addEventListener("click", () => {
+  shell.acceptCommentButton.addEventListener("click", () => {
     const firstThread = annotationsWire.reviewThreads[0];
     const commentId = firstThread?.commentIds[0] ?? "0";
     const acceptResult = dispatchCommentPanelAcceptAction(commentId);
@@ -330,36 +344,55 @@ async function boot(): Promise<void> {
   });
 
   const trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
-  const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, pmSlice.session);
+  const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, viewer.slice.session);
   document.body.dataset.m4DocxTrackChangesExportOk = trackedExport.result.trackedMarkersPreserved
     ? "true"
     : "false";
-  if (pmInput instanceof HTMLInputElement) {
-    pmInput.addEventListener("change", () => {
-      const current = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
-      if (pmInput.value === current) return;
-      const edited = applyProsemirrorDemoEditWithToolbarUndo(pmSlice, pmUndoState, 0, pmInput.value);
-      pmSlice = edited.slice;
-      pmUndoState = edited.undoState;
-      syncToolbarStackDataset();
-      syncProsemirrorDemoDataset();
-      document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
-      const exported = exportDocxFromStoreStub(pmSlice.store, pmSlice.session);
-      pmSlice = { ...pmSlice, session: exported.session };
-      document.body.dataset.m1DocxExportBytes = String(exported.result.zipBytes.length);
-      document.body.dataset.m1DocxExportRevision = String(exported.result.exportedRevision);
-    });
-  }
+
+  await viewer.renderDocx();
+  document.body.dataset.engineReady = "true";
+  document.body.dataset.layoutStable = "true";
 
   const response = JSON.parse(
-    engine.render_projection_json(JSON.stringify(sampleProjection())),
+    engine.render_projection_json(
+      JSON.stringify({
+        header: {
+          protocolVersion: 1,
+          schemaId: "domdoc://render-wire/v1",
+          requestId: "demo-req",
+          sessionId: "demo-sess",
+          documentGeneration: 1,
+          units: "pt",
+        },
+        pages: viewer.slice.store.getBody().children?.length
+          ? [
+              {
+                pageIndex: 0,
+                widthPt: 612,
+                heightPt: 792,
+                runs: [
+                  {
+                    runId: "run-demo",
+                    text: proseMirrorParagraphTexts(viewer.slice.doc)[0] ?? "domdoc",
+                    xPt: 72,
+                    yPt: 720,
+                    fontSizePt: 12,
+                  },
+                ],
+              },
+            ]
+          : [],
+      }),
+    ),
   ) as RenderWireResponse;
-  document.body.dataset.engineReady = "true";
-  document.body.dataset.paintItems = String(response.paint?.items?.length ?? 0);
 
-  const runText = "domdoc";
   let input = createCompositorInputState(response);
-  input = pointerDownWithCaret(input, { xPt: 80, yPt: 720 }, response, runText);
+  input = pointerDownWithCaret(
+    input,
+    { xPt: 80, yPt: 720 },
+    response,
+    proseMirrorParagraphTexts(viewer.slice.doc)[0] ?? "domdoc",
+  );
   document.body.dataset.inputHookReady = input.active ? "true" : "false";
   document.body.dataset.caretOffset = String(input.active?.caretOffset ?? 0);
 
@@ -369,9 +402,11 @@ async function boot(): Promise<void> {
     max_width_pt: 180,
     font_size_pt: 12,
   };
-  const passA = engine.layout_flow_paragraph_shaped_json(JSON.stringify(layoutInput));
-  const passB = engine.layout_flow_paragraph_shaped_json(JSON.stringify(layoutInput));
-  document.body.dataset.layoutStable = passA === passB ? "true" : "false";
+  document.body.dataset.layoutStable =
+    engine.layout_flow_paragraph_shaped_json(JSON.stringify(layoutInput)) ===
+    engine.layout_flow_paragraph_shaped_json(JSON.stringify(layoutInput))
+      ? "true"
+      : "false";
   document.body.dataset.shapingBackend = engine.layout_shaping_backend_id();
 
   const afVerdicts = evaluateAfBrowserCorpus((payload) =>
@@ -381,26 +416,24 @@ async function boot(): Promise<void> {
   document.body.dataset.afCorpusConverged = afCorpusAllConverged(afVerdicts) ? "true" : "false";
 
   const wasmHook = createWasmShapedLayoutHook(engine);
-  const layoutIncrementalWithPreEdit = (
-    paragraphPayload: string,
-    breakAfterCharIndex: number,
-    preEditText: string,
-  ) => {
-    const paragraph = JSON.parse(paragraphPayload) as Record<string, unknown>;
-    if (typeof engine.layout_flow_paragraph_incremental_json !== "function") {
-      return engine.layout_flow_paragraph_shaped_json(
-        JSON.stringify({ ...paragraph, text: preEditText }),
-      );
-    }
-    return String(
-      engine.layout_flow_paragraph_incremental_json(
-        JSON.stringify({ paragraph, breakAfterCharIndex, preEditText }),
-      ),
-    );
-  };
   const postEditEvidence = buildAfBrowserPostEditGateGradeEvidence(
     wasmHook.shapedLayoutJson,
-    layoutIncrementalWithPreEdit,
+    (paragraphPayload, breakAfterCharIndex, preEditText) => {
+      if (typeof engine.layout_flow_paragraph_incremental_json !== "function") {
+        return engine.layout_flow_paragraph_shaped_json(
+          JSON.stringify({ ...JSON.parse(paragraphPayload), text: preEditText }),
+        );
+      }
+      return String(
+        engine.layout_flow_paragraph_incremental_json(
+          JSON.stringify({
+            paragraph: JSON.parse(paragraphPayload),
+            breakAfterCharIndex,
+            preEditText,
+          }),
+        ),
+      );
+    },
     {
       incrementalEnginePath: wasmHook.incrementalEnginePath,
       proofPath: "browser-demo-wasm",
@@ -414,21 +447,18 @@ async function boot(): Promise<void> {
     : "false";
   document.body.dataset.afPostEditAuthoritativeGate = postEditEvidence.authoritativeGatePath;
 
-  let composition = input.active
-    ? beginComposition(input.active, "")
-    : null;
-
-  imeInput.addEventListener("compositionstart", () => {
+  let composition = input.active ? beginComposition(input.active, "") : null;
+  shell.imeInput.addEventListener("compositionstart", () => {
     if (!input.active) return;
     composition = beginComposition(input.active, "");
     document.body.dataset.compositionState = "active";
   });
-  imeInput.addEventListener("compositionupdate", (event) => {
+  shell.imeInput.addEventListener("compositionupdate", (event) => {
     if (!composition || !input.active) return;
     composition = updateCompositionPreedit(composition, event.data ?? "");
     document.body.dataset.compositionPreedit = composition.preedit;
   });
-  imeInput.addEventListener("compositionend", (event) => {
+  shell.imeInput.addEventListener("compositionend", (event) => {
     if (!composition || !input.active) return;
     composition = updateCompositionPreedit(composition, event.data ?? "");
     const committed = commitComposition(composition);
@@ -437,16 +467,6 @@ async function boot(): Promise<void> {
     document.body.dataset.caretOffset = String(committed.region.caretOffset);
     document.body.dataset.compositionInserted = String(committed.insertedLength);
   });
-
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    ctx.fillStyle = "#eef2f7";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#1a1a1a";
-    ctx.font = "14px system-ui";
-    ctx.fillText(`paint items: ${response.paint?.items?.length ?? 0}`, 16, 24);
-    ctx.fillText(`caret: ${input.active?.caretOffset ?? 0}`, 16, 44);
-  }
 }
 
 boot().catch((err) => {

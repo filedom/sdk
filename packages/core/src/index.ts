@@ -80,11 +80,25 @@ export {
 } from "./collaboration/collaboration-provider-ordered-stub.js";
 export {
   applyDemoProsemirrorTextReplace,
+  applyDemoProsemirrorTypingReplace,
   buildDemoDocxZipBytes,
   openDocxProsemirrorDemoSessionSlice,
   PROSEMIRROR_DEMO_SLICE_FEATURE_ID,
   type DocxProsemirrorDemoSessionSlice,
 } from "./session/docx-prosemirror-demo-session-slice.js";
+export {
+  applyProsemirrorDemoTypingTransaction,
+  createProsemirrorDemoDebouncedSaveState,
+  flushProsemirrorDemoDebouncedSave,
+  PROSEMIRROR_DEMO_DEBOUNCED_SAVE_FEATURE_ID,
+  type ProsemirrorDemoDebouncedSaveState,
+} from "./session/prosemirror-demo-debounced-save-stub.js";
+export {
+  recordProsemirrorDemoExportReceiptStub,
+  recordProsemirrorDemoPersistReceiptStub,
+  revisionReceiptsFromSession,
+  type ProsemirrorDemoRevisionReceiptsStub,
+} from "./session/prosemirror-demo-revision-receipts-stub.js";
 export {
   DOMDOC_DEMO_DOCX_BLOB_KEY,
   loadProsemirrorDemoDomdocPackageStub,
@@ -176,6 +190,7 @@ export {
 export {
   applyProsemirrorDemoEditWithToolbarUndo,
   createProsemirrorDemoToolbarUndoState,
+  flushProsemirrorDemoDebouncedSaveWithToolbarUndo,
   undoProsemirrorDemoViaToolbar,
 } from "./session/prosemirror-demo-toolbar-undo-bridge.js";
 export {
@@ -309,3 +324,21 @@ export {
   sha256Hex,
 } from "./persistence/domdoc-package-stub.js";
 export type { IncrementalLayoutHooks } from "./components/fragmentation-af-incremental-equivalence.js";
+export {
+  boundedPaintCacheKeys,
+  visiblePageWindow,
+} from "./compositor/visible-page-priority.js";
+export {
+  canvasPaintMetrics,
+  paintRenderWireResponse,
+  paintRgbaBitmapToCanvas,
+} from "./compositor/canvas-paint.js";
+export {
+  buildDocxRenderProjectionFromStore,
+  type DocxLayoutEngine,
+} from "./viewer/docx-render-projection.js";
+export {
+  renderPdfPageBitmapBrowser,
+  type PdfiumBrowserAssets,
+  type PdfPageBitmap,
+} from "./formats/pdf/pdfium-browser-display.js";

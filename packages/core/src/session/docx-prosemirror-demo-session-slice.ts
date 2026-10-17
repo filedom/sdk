@@ -62,6 +62,26 @@ export function buildDemoDocxZipBytes(initialText: string): Uint8Array {
   );
 }
 
+/** In-memory ProseMirror replace only (typing transaction — no OPC / revision bump). */
+export function applyDemoProsemirrorTypingReplace(
+  slice: DocxProsemirrorDemoSessionSlice,
+  paragraphIndex: number,
+  newText: string,
+): DocxProsemirrorDemoSessionSlice {
+  const paragraph = slice.doc.child(paragraphIndex);
+  if (!paragraph || paragraph.type.name !== "paragraph") {
+    return slice;
+  }
+  const inline = newText ? docxProjectionSchema.text(newText) : undefined;
+  const replaced = docxProjectionSchema.nodes.paragraph.create(paragraph.attrs, inline);
+  const children: ProseMirrorNode[] = [];
+  slice.doc.forEach((node, _offset, index) => {
+    children.push(index === paragraphIndex ? replaced : node);
+  });
+  const doc = docxProjectionSchema.nodes.doc.create(null, children);
+  return { ...slice, doc };
+}
+
 /** Apply text edit using prosemirror-model replace on first paragraph (editable path). */
 export function applyDemoProsemirrorTextReplace(
   slice: DocxProsemirrorDemoSessionSlice,

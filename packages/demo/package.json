@@ -10,6 +10,7 @@
     "preview": "vite preview --port 5173"
   },
   "dependencies": {
+    "@domdoc/shell-ui": "workspace:*",
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
     "@domdoc/next-host": "workspace:*",
@@ -20,6 +21,8 @@
     "@domdoc/vue": "workspace:*"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
     "vite-plugin-node-polyfills": "^0.28.0"

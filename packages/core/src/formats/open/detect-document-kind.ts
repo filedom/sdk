@@ -40,6 +40,7 @@ function filenameKind(filename?: string): DetectedDocumentKind | undefined {
   if (!filename) return undefined;
   const lower = filename.toLowerCase();
   if (lower.endsWith(".docx")) return "docx";
+  if (lower.endsWith(".doc")) return "encrypted-unsupported";
   if (lower.endsWith(".pdf")) return "pdf";
   if (lower.endsWith(".domdoc")) return "domdoc";
   return undefined;

@@ -24,8 +24,10 @@ const payload = {
   status: process.env.DOMDOC_NINJA_STATUS ?? "skipped",
   pdfiumGclientTree: process.env.DOMDOC_GCLIENT_TREE || null,
   outDir: process.env.DOMDOC_GCLIENT_OUT || null,
+  gnArgs: process.env.DOMDOC_GN_ARGS ?? null,
   gnExit: Number(process.env.DOMDOC_GN_EXIT ?? "-1"),
   ninjaExit: Number(process.env.DOMDOC_NINJA_EXIT ?? "-1"),
+  ninjaFailureHint: process.env.DOMDOC_NINJA_FAILURE_HINT ?? null,
   ninjaTimeoutSec: Number(process.env.DOMDOC_NINJA_TIMEOUT ?? "120"),
   hostStaticLibs: (process.env.DOMDOC_HOST_LIBS ?? "").split("\n").filter(Boolean),
   primaryHostStaticLib: process.env.DOMDOC_PRIMARY_LIB || null,
@@ -125,8 +127,17 @@ fi
 
 export DOMDOC_GCLIENT_TREE="$TREE"
 export DOMDOC_GCLIENT_OUT="$OUT"
+export DOMDOC_GN_ARGS="$GN_ARGS"
 export DOMDOC_GN_EXIT="$GN_EXIT"
 export DOMDOC_NINJA_EXIT="$NINJA_EXIT"
+if [[ $NINJA_EXIT -ne 0 && -n "$NINJA_LOG" ]]; then
+  if echo "$NINJA_LOG" | grep -q "No space left on device"; then
+    export DOMDOC_NINJA_FAILURE_HINT="disk-full-on-final-ar"
+  elif echo "$NINJA_LOG" | grep -q "LLVM ERROR"; then
+    export DOMDOC_NINJA_FAILURE_HINT="llvm-ar-or-link-error"
+  fi
+fi
+export DOMDOC_NINJA_FAILURE_HINT="${DOMDOC_NINJA_FAILURE_HINT:-}"
 export DOMDOC_NINJA_TIMEOUT="$TIMEOUT_SEC"
 export DOMDOC_HOST_LIBS="$HOST_LIBS"
 export DOMDOC_PRIMARY_LIB="${PRIMARY_LIB:-}"

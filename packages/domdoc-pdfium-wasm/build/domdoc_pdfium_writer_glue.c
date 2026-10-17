@@ -23,10 +23,12 @@ EMSCRIPTEN_KEEPALIVE int domdoc_pdfium_writer_smoke(void) {
   if (page) {
     FPDF_PAGEOBJECT text = FPDFPageObj_CreateTextObj(doc, NULL, 12.0);
     if (text) {
-      FPDFText_SetText(text, L"domdoc");
+      static const unsigned short domdoc_smoke_text[] = {
+          'd', 'o', 'm', 'd', 'o', 'c', 0,
+      };
+      FPDFText_SetText(text, domdoc_smoke_text);
       FPDFPage_InsertObject(page, text);
-      FPDFPage_GenerateContent(page);
-      ok = FPDFPage_GetObjectCount(page) > 0 ? 1 : 0;
+      ok = FPDFPage_GenerateContent(page) ? 1 : 0;
     }
     FPDFPage_Delete(doc, 0);
   }
