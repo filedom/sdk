@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "pdfium-wasm backend wired; C24/C25 pins documented; P01–P05 not-run without vendored WASM"
+      "limits": "pdfium-wasm dual-path tests + fetch stub; P01–P05 not-run without vendored WASM"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "OPC store + vertical flow→render integration test; ProseMirror not wired"
+      "limits": "OPC rels + preservation bag + comments stub; ProseMirror not wired"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "Geometry hook + happy-dom pointer spike; no browser IME proof"
+      "limits": "Caret map + composition stub; Playwright IME deferred"
     },
     {
       "id": "F13",
@@ -50,7 +50,17 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "Word-wrap stub exported via layout_flow_paragraph_json; Parley not pinned"
+      "limits": "Parley pin + shaping module; flow fallback; feature flag reserved"
+    },
+    {
+      "id": "F18",
+      "description": "Component fragmentation",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["AF"],
+      "gateIds": ["G4"],
+      "limits": "BreakToken types queued (W2-G4-01); no browser measurement proof"
     }
   ]
 }

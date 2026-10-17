@@ -30,5 +30,22 @@ export {
   createCompositorInputState,
   onGeometryUpdated,
   pointerDown,
+  pointerDownWithCaret,
   type CompositorInputState,
 } from "./compositor/input-hook.js";
+export {
+  caretOffsetFromGeometry,
+  findGlyphRun,
+} from "./editing/caret-map.js";
+export {
+  beginComposition,
+  cancelComposition,
+  commitComposition,
+  updateCompositionPreedit,
+  type CompositionTransaction,
+} from "./editing/composition-stub.js";
+export {
+  validateBreakToken,
+  type BreakToken,
+  type FragmentId,
+} from "./components/fragmentation-types.js";

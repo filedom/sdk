@@ -27,6 +27,71 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     expect(load.pdfiumSourceCommit).toBe(PDFIUM_SOURCE_COMMIT);
   });
 
+  it("classifies module-missing vs loaded-not-implemented preflight reasons", async () => {
+    const missing = await PdfiumWasmWriterBackend.create();
+    const missingPreflight = await missing.preflight(MINIMAL_PDF, {
+      revision: 0,
+      sourceSha256: "abc",
+      byteLength: MINIMAL_PDF.byteLength,
+    });
+    expect(missingPreflight.ok).toBe(true);
+    if (missingPreflight.ok) {
+      expect(missingPreflight.capabilities.reason).toBe("backend-not-configured");
+    }
+
+    const loadedBackend = new PdfiumWasmWriterBackend({
+      loaded: true,
+      moduleSpec: PDFIUM_WASM_MODULE_SPEC,
+      pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
+      pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
+    });
+    const loadedPreflight = await loadedBackend.preflight(MINIMAL_PDF, {
+      revision: 0,
+      sourceSha256: "abc",
+      byteLength: MINIMAL_PDF.byteLength,
+    });
+    if (loadedPreflight.ok) {
+      expect(loadedPreflight.capabilities.reason).toBe("partial-run-not-implemented");
+    }
+  });
+
+  it("apply uses backend-not-configured when module missing", async () => {
+    const backend = await PdfiumWasmWriterBackend.create();
+    backend.registerContext("ctx", { revision: 0, sourceSha256: "x", byteLength: 1 });
+    const apply = await backend.apply("ctx", [
+      {
+        kind: "replaceTextRun",
+        pageIndex: 0,
+        objectId: "o",
+        newText: "t",
+        expectedRevision: 0,
+      },
+    ]);
+    expect(apply.ok).toBe(false);
+    if (!apply.ok) expect(apply.code).toBe("backend-not-configured");
+  });
+
+  it("apply uses partial-run-not-implemented when module loaded", async () => {
+    const backend = new PdfiumWasmWriterBackend({
+      loaded: true,
+      moduleSpec: PDFIUM_WASM_MODULE_SPEC,
+      pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
+      pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
+    });
+    backend.registerContext("ctx", { revision: 0, sourceSha256: "x", byteLength: 1 });
+    const apply = await backend.apply("ctx", [
+      {
+        kind: "replaceTextRun",
+        pageIndex: 0,
+        objectId: "o",
+        newText: "t",
+        expectedRevision: 0,
+      },
+    ]);
+    expect(apply.ok).toBe(false);
+    if (!apply.ok) expect(apply.code).toBe("partial-run-not-implemented");
+  });
+
   it("pdfium-wasm backend preflights PDF but native edits stay unsupported", async () => {
     const backend = await PdfiumWasmWriterBackend.create();
     expect(backend.id).toBe("pdfium-wasm");

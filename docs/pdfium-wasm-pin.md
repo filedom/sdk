@@ -13,8 +13,15 @@ Constants: `packages/core/src/formats/pdf/pdfium-pin.ts`.
 
 ## Integration status (W1 → W2)
 
-- **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) resolves an optional module spec; without a vendored artifact it returns `backend-not-configured` (same honesty as stub for native edits).
+- **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) resolves an optional module spec; without a vendored artifact it returns `backend-not-configured`. When a module loads but edit paths are unimplemented, preflight/apply report `partial-run-not-implemented` (tests cover both branches; gate still **not-run**).
 - **Feasibility proofs P01–P05:** remain **not-run** until a pinned WASM binary is loaded in CI; tests assert classification only.
-- **Next:** vendored `domdoc-pdfium-wasm` build from C24 + worker isolation proof; then P01–P05 against production WASM.
+- **CI stub:** `pnpm fetch:pdfium-wasm-stub` writes `evidence/gates/G1-feasibility/pdfium-wasm-fetch-stub.json` without downloading (honest placeholder).
+
+## Fetch / build path (G1-PDF-03, not-run in CI)
+
+1. **Sources:** clone PDFium at C24 (`7c55203e…`) into a sibling build tree (not inside `domdoc-wasm` render crate).
+2. **Emscripten / WASM:** build PDFium with domdoc-specific export list and LTO flags recorded in the future `domdoc-pdfium-wasm` repo README (worker-isolated from `domdoc_engine` heap).
+3. **Bridge:** compile pdfium-render (C25) against the same C24 object files; publish vendored npm spec `domdoc-pdfium-wasm@0.0.0-not-published` → pinned semver once Origin hosting exists.
+4. **Web link:** set `PDFIUM_WASM_MODULE_SPEC` resolution (package dependency or dynamic import path) and re-run P01–P05 fixtures; do **not** claim G1 pass until proofs succeed on the vendored artifact.
 
 Do not mix symbols from one PDFium revision with binaries from another.
