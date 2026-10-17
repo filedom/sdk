@@ -6,6 +6,12 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "D01 + D02–D04 slice + docx→flow layout→render vertical; Parley dep not-run; D05 ProseMirror not-run",
-  "evidencePaths": ["docx-flow-vertical-test", "docx-store-d02.test.ts", "layout-shaping.test.ts"]
+  "limitations": "D01–D04 + docx→flow vertical + D05 ProseMirror synthetic slice; Parley shaping still flow fallback",
+  "evidencePaths": [
+    "docx-flow-vertical-test",
+    "docx-store-d02.test.ts",
+    "docx-prosemirror-projection.test.ts",
+    "layout-shaping.test.ts",
+    "domdoc-wasm layout/font_stack + parley-shaping tests"
+  ]
 }

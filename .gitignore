@@ -3,3 +3,6 @@ dist
 packages/*/dist
 *.log
 .pnpm-store
+test-results
+playwright-report
+vendor/domdoc-pdfium-wasm

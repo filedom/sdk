@@ -3,6 +3,7 @@ import {
   PDFIUM_RENDER_COMMIT,
   PDFIUM_SOURCE_COMMIT,
 } from "../pdfium-pin.js";
+import { classifyPdfProofOperation } from "../pdfium-proof-hooks.js";
 import type {
   PdfApplyOutcome,
   PdfCheckpointRef,
@@ -105,12 +106,14 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
     if (operations.length === 0) {
       return { ok: true, pendingRevision: 0, operationsApplied: 0 };
     }
+    const first = operations[0]!;
+    const proof = classifyPdfProofOperation(first, this.moduleLoaded);
     return {
       ok: false,
       code: this.moduleLoaded ? "partial-run-not-implemented" : "backend-not-configured",
       message: this.moduleLoaded
-        ? "PDFium WASM module present but native edit path not implemented (P01–P05 not-run)"
-        : `PDFium WASM artifact not loaded (${PDFIUM_WASM_MODULE_SPEC})`,
+        ? `${proof.fixtureId} (${proof.summary}): PDFium WASM loaded; native proof not-run`
+        : `${proof.fixtureId}: PDFium WASM artifact not loaded (${PDFIUM_WASM_MODULE_SPEC})`,
       rolledBack: true,
     };
   }

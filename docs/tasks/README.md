@@ -15,5 +15,10 @@
 | [G3-INPUT-03-caret-composition.md](./G3-INPUT-03-caret-composition.md) | W1 | review |
 | [M0-EVIDENCE-01-pipeline.md](./M0-EVIDENCE-01-pipeline.md) | M0 | review |
 | [W2-G4-01-fragmentation-queued.md](./W2-G4-01-fragmentation-queued.md) | W2 | review |
+| [G1-PDF-04-pdfium-worker-integration.md](./G1-PDF-04-pdfium-worker-integration.md) | W1+ | review |
+| [G2-DOCX-03-prosemirror-projection.md](./G2-DOCX-03-prosemirror-projection.md) | W1+ | review |
+| [G2-LAYOUT-03-font-stack-parley.md](./G2-LAYOUT-03-font-stack-parley.md) | W1+ | review |
+| [G3-INPUT-04-playwright-smoke.md](./G3-INPUT-04-playwright-smoke.md) | W1+ | review |
+| [W2-G4-02-component-measurement.md](./W2-G4-02-component-measurement.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

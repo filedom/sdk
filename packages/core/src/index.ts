@@ -19,6 +19,11 @@ export type { PdfWriterCapability, PdfUnsupportedCode } from "./formats/pdf/type
 export { DocxStore } from "./formats/docx/docx-store.js";
 export { buildRenderProjectionFromDocxFlow } from "./formats/docx/docx-flow-projection.js";
 export {
+  buildProseMirrorDocFromOoxmlBody,
+  docxProjectionSchema,
+  proseMirrorParagraphTexts,
+} from "./formats/docx/docx-prosemirror-projection.js";
+export {
   PdfiumWasmWriterBackend,
   tryLoadPdfiumWasmModule,
 } from "./formats/pdf/backends/pdfium-wasm-backend.js";
@@ -49,3 +54,12 @@ export {
   type BreakToken,
   type FragmentId,
 } from "./components/fragmentation-types.js";
+export {
+  measureFragmentFromBounds,
+  type FragmentRunBounds,
+  type MeasuredFragment,
+} from "./components/component-measurement-contract.js";
+export {
+  classifyPdfProofOperation,
+  type PdfProofFixtureId,
+} from "./formats/pdf/pdfium-proof-hooks.js";

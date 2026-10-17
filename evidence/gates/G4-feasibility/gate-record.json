@@ -2,10 +2,14 @@
   "gateId": "G4",
   "scope": "feasibility",
   "status": "not-run",
-  "requiredFixtureIds": ["C01", "C02", "C03", "C04", "C08", "C09", "C10", "C12"],
+  "requiredFixtureIds": [],
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-01 type validation queued; no component measurement or browser fragmentation proof",
-  "evidencePaths": ["fragmentation-types.test.ts", "domdoc-wasm layout/fragmentation.rs tests"]
+  "limitations": "W2-G4-01 types + W2-G4-02 measurement contract; no browser fragmentation proof",
+  "evidencePaths": [
+    "fragmentation-types.test.ts",
+    "component-measurement-contract.test.ts",
+    "domdoc-wasm layout/fragmentation.rs tests"
+  ]
 }

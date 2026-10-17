@@ -8,6 +8,7 @@ import {
   PdfiumWasmWriterBackend,
   tryLoadPdfiumWasmModule,
 } from "./backends/pdfium-wasm-backend.js";
+import { classifyPdfProofOperation } from "./pdfium-proof-hooks.js";
 import { createPdfWriterSession } from "./writer.js";
 
 const MINIMAL_PDF = new Uint8Array([
@@ -105,6 +106,32 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
       expect(preflight.capabilities.nativeTextReplace).toBe("unsupported");
     }
     await session.dispose();
+  });
+
+  it("classifies writer operations into P01–P05 hook buckets (G1-PDF-04)", () => {
+    expect(
+      classifyPdfProofOperation(
+        {
+          kind: "replaceTextRun",
+          pageIndex: 0,
+          objectId: "obj",
+          newText: "whole",
+          expectedRevision: 0,
+        },
+        false,
+      ).fixtureId,
+    ).toBe("P01");
+    expect(
+      classifyPdfProofOperation(
+        {
+          kind: "deleteTextObject",
+          pageIndex: 0,
+          objectId: "obj",
+          expectedRevision: 0,
+        },
+        true,
+      ),
+    ).toMatchObject({ fixtureId: "P04", hookReady: true });
   });
 
   /** P01–P05 positive native proofs — gate remains not-run until WASM artifact exists. */

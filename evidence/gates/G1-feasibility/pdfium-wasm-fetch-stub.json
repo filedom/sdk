@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-10-17T01:08:20.177Z",
-  "status": "stub-not-run",
+  "fetchedAt": "2026-10-17T08:15:42.911Z",
   "moduleSpec": "domdoc-pdfium-wasm@0.0.0-not-published",
-  "note": "Run full fetch/build pipeline locally per docs/pdfium-wasm-pin.md before enabling CI download."
+  "status": "stub-not-run",
+  "note": "No PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm. Build per docs/pdfium-wasm-pin.md and docs/pdfium-wasm-worker-isolation.md."
 }

@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "pdfium-wasm dual-path tests + fetch stub; P01–P05 not-run without vendored WASM"
+      "limits": "Worker isolation doc + P01–P05 proof hooks; binary not vendored; gate not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "OPC rels + preservation bag + comments stub; ProseMirror not wired"
+      "limits": "ProseMirror projection slice (D05 synthetic); editor not wired"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "Caret map + composition stub; Playwright IME deferred"
+      "limits": "Playwright compositor mount smoke; IME + integrated paint not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "Parley pin + shaping module; flow fallback; feature flag reserved"
+      "limits": "Font stack + parley-shaping optional dep; flow fallback authoritative"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "BreakToken types queued (W2-G4-01); no browser measurement proof"
+      "limits": "Measurement contract tests (W2-G4-02); no browser fragmentation proof"
     }
   ]
 }

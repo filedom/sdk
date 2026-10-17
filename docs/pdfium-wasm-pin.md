@@ -15,9 +15,11 @@ Constants: `packages/core/src/formats/pdf/pdfium-pin.ts`.
 
 - **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) resolves an optional module spec; without a vendored artifact it returns `backend-not-configured`. When a module loads but edit paths are unimplemented, preflight/apply report `partial-run-not-implemented` (tests cover both branches; gate still **not-run**).
 - **Feasibility proofs P01–P05:** remain **not-run** until a pinned WASM binary is loaded in CI; tests assert classification only.
-- **CI stub:** `pnpm fetch:pdfium-wasm-stub` writes `evidence/gates/G1-feasibility/pdfium-wasm-fetch-stub.json` without downloading (honest placeholder).
+- **CI stub:** `pnpm fetch:pdfium-wasm-stub` or `pnpm fetch:pdfium-wasm` writes `evidence/gates/G1-feasibility/pdfium-wasm-fetch-stub.json` (optional `PDFIUM_WASM_ARTIFACT_DIR` for local vendoring).
 
-## Fetch / build path (G1-PDF-03, not-run in CI)
+Worker isolation (separate heaps): [pdfium-wasm-worker-isolation.md](./pdfium-wasm-worker-isolation.md).
+
+## Fetch / build path (G1-PDF-03/04, not-run in CI)
 
 1. **Sources:** clone PDFium at C24 (`7c55203e…`) into a sibling build tree (not inside `domdoc-wasm` render crate).
 2. **Emscripten / WASM:** build PDFium with domdoc-specific export list and LTO flags recorded in the future `domdoc-pdfium-wasm` repo README (worker-isolated from `domdoc_engine` heap).
