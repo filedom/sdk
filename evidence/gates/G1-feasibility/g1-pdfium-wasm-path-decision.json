@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-10-17T00:00:00.000Z",
+  "gate": "G1",
+  "gateStatus": "not-run",
+  "chosenPaths": {
+    "writerProduction": "domdoc-pdfium-wasm C24 sibling build or artifact drop",
+    "displayProbe": "pdfium-lib wasm.zip + domdoc-probe-adapter (render-only)",
+    "displayBridgePackage": "@domdoc/pdfium-bridge",
+    "overlayHelpers": "pdf-lib C12 (gatePass false)",
+    "rustDisplayStub": "domdoc-wasm feature pdfium-display-bridge-stub"
+  },
+  "upstreamGnWasm": {
+    "attempted": true,
+    "result": "failed",
+    "detail": "Unsupported target_os: wasm in Chromium PDFium BUILDCONFIG.gn",
+    "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+  },
+  "nativeProofPolicy": {
+    "withoutC24Writer": "classification-blocked-upstream-gn",
+    "fakePassForbidden": true
+  },
+  "nextAutomated": [
+    "Wire custom emscripten GN target in sibling domdoc-pdfium-wasm (outside upstream wasm gn)",
+    "PDFIUM_WASM_CI_PROBE_FETCH=1 page bitmap worker test when vendor present",
+    "Expand @domdoc/vue and @domdoc/lit adapter lifecycle tests",
+    "G2 DOCX gate-grade fixtures beyond OPC round-trip"
+  ]
+}

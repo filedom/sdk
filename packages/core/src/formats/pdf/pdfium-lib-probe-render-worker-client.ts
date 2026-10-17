@@ -5,6 +5,31 @@ export interface PdfiumLibProbeWorkerStatus {
   error: string | null;
 }
 
+export async function renderPdfiumLibProbePageViaWorker(
+  workerScript: URL,
+  workerOptions?: import("node:worker_threads").WorkerOptions,
+): Promise<import("./pdfium-lib-probe-render-node.js").PdfiumLibProbePageBitmapResult> {
+  const { Worker } = await import("node:worker_threads");
+  const worker = new Worker(workerScript, {
+    ...workerOptions,
+    type: "module",
+  } as import("node:worker_threads").WorkerOptions);
+  try {
+    return await new Promise((resolve, reject) => {
+      worker.once("message", (msg: { ok: boolean; body?: { bitmap: import("./pdfium-lib-probe-render-node.js").PdfiumLibProbePageBitmapResult }; error?: string }) => {
+        if (!msg.ok || !msg.body?.bitmap) {
+          reject(new Error(msg.error ?? "pdfium-probe render-page failed"));
+          return;
+        }
+        resolve(msg.body.bitmap);
+      });
+      worker.postMessage({ type: "pdfium-probe/render-page" });
+    });
+  } finally {
+    await worker.terminate();
+  }
+}
+
 export async function loadPdfiumLibProbeViaWorker(
   workerScript: URL,
   workerOptions?: import("node:worker_threads").WorkerOptions,

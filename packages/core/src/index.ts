@@ -153,9 +153,31 @@ export {
 export {
   describePdfiumLibProbeLayoutNode,
   tryLoadPdfiumLibProbeRenderNode,
+  tryRenderPdfiumLibProbePageBitmapNode,
   readPdfiumLibProbeManifestNode,
+  type PdfiumLibProbePageBitmapResult,
 } from "./formats/pdf/pdfium-lib-probe-render-node.js";
-export { loadPdfiumLibProbeViaWorker } from "./formats/pdf/pdfium-lib-probe-render-worker-client.js";
+export {
+  loadPdfiumLibProbeViaWorker,
+  renderPdfiumLibProbePageViaWorker,
+} from "./formats/pdf/pdfium-lib-probe-render-worker-client.js";
+export {
+  PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON,
+  isPdfiumNativeProofBlockedByUpstreamGn,
+} from "./formats/pdf/pdfium-g1-blocked-reason.js";
+export {
+  createDomdocPdfiumClassificationTestDouble,
+  runP01P05ClassificationWithTestDouble,
+} from "./formats/pdf/pdfium-classification-test-double.js";
+export {
+  createPdfLibOverlayPageBytes,
+  PDF_LIB_OVERLAY_HELPERS_FEATURE_ID,
+} from "./formats/pdf/pdf-lib-overlay-helpers.js";
+export {
+  applyProsemirrorDemoEditWithToolbarUndo,
+  createProsemirrorDemoToolbarUndoState,
+  undoProsemirrorDemoViaToolbar,
+} from "./session/prosemirror-demo-toolbar-undo-bridge.js";
 export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,

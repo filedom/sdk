@@ -6,6 +6,11 @@ import {
 import { resolvePdfiumWasmModule } from "./pdfium-module-resolve.js";
 import { tryLoadPdfiumWasmModule } from "./backends/pdfium-wasm-backend.js";
 import { runNativeFeasibilityProofs, type NativeProofStatus } from "./pdfium-native-proofs.js";
+import {
+  PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON,
+  isPdfiumNativeProofBlockedByUpstreamGn,
+} from "./pdfium-g1-blocked-reason.js";
+import { runP01P05ClassificationWithTestDouble } from "./pdfium-classification-test-double.js";
 import type { PdfEditOperation } from "./types.js";
 import { sha256 } from "./writer.js";
 
@@ -62,6 +67,7 @@ export interface P01P05FixtureEvidence {
   workerCiPath: "exercised" | "skipped";
   classificationSummary: string;
   detail?: string;
+  blockedReason?: typeof PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON;
 }
 
 export interface P01P05VendorProofEvidence {
@@ -69,6 +75,7 @@ export interface P01P05VendorProofEvidence {
   status:
     | "stub-not-run"
     | "probe-adapter-load-only"
+    | "classification-blocked-upstream-gn"
     | "artifact-worker-hooks-not-run"
     | "native-proofs-run";
   resolutionSource: ReturnType<typeof resolvePdfiumWasmModule>["source"];
@@ -121,48 +128,84 @@ export async function collectP01P05VendorProofEvidence(options?: {
     workerCiPath = "exercised";
   }
 
-  const native = await runNativeFeasibilityProofs(load);
+  const classificationStubEnabled =
+    process.env.PDFIUM_WASM_P01_P05_CLASSIFICATION_STUB === "1" ||
+    isPdfiumNativeProofBlockedByUpstreamGn({ writerExportsReady });
+
+  const native = writerExportsReady
+    ? await runNativeFeasibilityProofs(load)
+    : [];
   const nativeById = new Map(native.map((p) => [p.fixtureId, p]));
+  const classificationBlocked = !writerExportsReady
+    ? runP01P05ClassificationWithTestDouble({ moduleLoadedForHooks: moduleLoaded })
+    : [];
+  const classificationById = new Map(classificationBlocked.map((c) => [c.fixtureId, c]));
 
   const fixtures: P01P05FixtureEvidence[] = [
     ...P01_P05_FIXTURE_ORDER.map((fixtureId) => {
-      const proof = classifyPdfProofOperation(SAMPLE_OPS[fixtureId], writerExportsReady);
+      const proof = classifyPdfProofOperation(SAMPLE_OPS[fixtureId], writerExportsReady || moduleLoaded);
       const nativeProof = nativeById.get(fixtureId);
+      const blocked = classificationById.get(fixtureId);
+      const nativeStatus: NativeProofStatus = nativeProof?.nativeProof
+        ?? (blocked && classificationStubEnabled ? "blocked" : "not-run");
       return {
         fixtureId,
-        nativeProof: nativeProof?.nativeProof ?? "not-run",
-        hookReady: proof.hookReady,
+        nativeProof: nativeStatus,
+        hookReady: blocked?.hookReady ?? proof.hookReady,
         workerCiPath: writerExportsReady ? workerCiPath : "skipped",
-        classificationSummary: proof.summary,
+        classificationSummary: blocked?.classificationSummary ?? proof.summary,
         detail: nativeProof?.detail,
+        blockedReason:
+          nativeStatus === "blocked" ? PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON : undefined,
       };
     }),
     {
       fixtureId: "P11",
-      nativeProof: nativeById.get("P11")?.nativeProof ?? "not-run",
+      nativeProof:
+        nativeById.get("P11")?.nativeProof
+        ?? (classificationStubEnabled && !writerExportsReady ? "blocked" : "not-run"),
       hookReady: writerExportsReady,
       workerCiPath: writerExportsReady ? workerCiPath : "skipped",
       classificationSummary: "before-commit failure rolls back scratch",
       detail: nativeById.get("P11")?.detail,
+      blockedReason:
+        classificationStubEnabled && !writerExportsReady
+          ? PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON
+          : undefined,
     },
     {
       fixtureId: "P12",
-      nativeProof: nativeById.get("P12")?.nativeProof ?? "not-run",
+      nativeProof:
+        nativeById.get("P12")?.nativeProof
+        ?? (classificationStubEnabled && !writerExportsReady ? "blocked" : "not-run"),
       hookReady: writerExportsReady,
       workerCiPath: writerExportsReady ? workerCiPath : "skipped",
       classificationSummary: "save/reopen lifecycle cycles",
       detail: nativeById.get("P12")?.detail,
+      blockedReason:
+        classificationStubEnabled && !writerExportsReady
+          ? PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON
+          : undefined,
     },
   ];
 
-  const nativeRan = writerExportsReady && fixtures.some((f) => f.nativeProof !== "not-run");
+  const nativeRan =
+    writerExportsReady && fixtures.some((f) => f.nativeProof === "pass" || f.nativeProof === "fail");
+  const coreBlocked =
+    !writerExportsReady
+    && classificationStubEnabled
+    && P01_P05_FIXTURE_ORDER.every(
+      (id) => fixtures.find((f) => f.fixtureId === id)?.nativeProof === "blocked",
+    );
   const status = nativeRan
     ? "native-proofs-run"
-    : writerExportsReady
-      ? "artifact-worker-hooks-not-run"
-      : moduleLoaded
-        ? "probe-adapter-load-only"
-        : "stub-not-run";
+    : coreBlocked
+      ? "classification-blocked-upstream-gn"
+      : writerExportsReady
+        ? "artifact-worker-hooks-not-run"
+        : moduleLoaded
+          ? "probe-adapter-load-only"
+          : "stub-not-run";
 
   return {
     recordedAt: new Date().toISOString(),

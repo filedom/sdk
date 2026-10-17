@@ -15,10 +15,7 @@ import {
 import { buildAfBrowserPostEditGateGradeEvidence } from "../../core/dist/components/fragmentation-af-browser-post-edit-gate-grade.js";
 import { createWasmShapedLayoutHook } from "../../core/dist/layout/wasm-shaped-layout-hook.js";
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
-import {
-  createM2ToolbarUndoStackStub,
-  dispatchM2ToolbarCommand,
-} from "../../core/dist/session/m2-toolbar-command-stub.js";
+import { dispatchM2ToolbarCommand } from "../../core/dist/session/m2-toolbar-command-stub.js";
 import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar-command-registry.js";
 import {
   createDocumentSession,
@@ -30,10 +27,14 @@ import { buildReviewMinimalTrackedDocxZipBytes } from "../../core/dist/formats/d
 import { DocxStore } from "../../core/dist/formats/docx/docx-store.js";
 import { describePdfiumWasmReadPathBrowser } from "../../core/dist/formats/pdf/pdfium-wasm-read-path-stub.js";
 import {
-  applyDemoProsemirrorTextReplace,
   buildDemoDocxZipBytes,
   openDocxProsemirrorDemoSessionSlice,
 } from "../../core/dist/session/docx-prosemirror-demo-session-slice.js";
+import {
+  applyProsemirrorDemoEditWithToolbarUndo,
+  createProsemirrorDemoToolbarUndoState,
+  undoProsemirrorDemoViaToolbar,
+} from "../../core/dist/session/prosemirror-demo-toolbar-undo-bridge.js";
 import { proseMirrorParagraphTexts } from "../../core/dist/formats/docx/docx-prosemirror-projection.js";
 import {
   loadProsemirrorDemoDomdocPackageStub,
@@ -45,6 +46,8 @@ import {
   listAnnotationWireStubLabels,
 } from "../../core/dist/formats/docx/annotations-wire-stub.js";
 import { domdocReactAdapterDemoSurface } from "@domdoc/react";
+import { domdocVueAdapterDemoSurface } from "@domdoc/vue";
+import { domdocLitAdapterDemoSurface } from "@domdoc/lit";
 
 const sampleProjection = () => ({
   header: {
@@ -90,11 +93,35 @@ async function boot(): Promise<void> {
   document.body.dataset.compositorMounted = "true";
   const toolbar = document.getElementById("domdoc-toolbar");
   const sessionLabel = document.getElementById("domdoc-session-label");
-  let toolbarStack = createM2ToolbarUndoStackStub();
+  const sessionStub = {
+    documentId: "demo-sess",
+    kind: "flow" as const,
+    revisions: {
+      committedRevision: 0,
+      persistedRevision: 0,
+      materializedRevision: 0,
+      exportedRevision: 0,
+      sharedRevision: null,
+      renderedRevision: 0,
+    },
+  };
+  let pmSlice = openDocxProsemirrorDemoSessionSlice(buildDemoDocxZipBytes("domdoc"), sessionStub);
+  let pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
   const syncToolbarStackDataset = (): void => {
-    document.body.dataset.m2ToolbarUndoDepth = String(toolbarStack.undoDepth);
-    document.body.dataset.m2ToolbarRedoDepth = String(toolbarStack.redoDepth);
-    document.body.dataset.m2ToolbarLastCommand = toolbarStack.lastCommand ?? "";
+    document.body.dataset.m2ToolbarUndoDepth = String(pmUndoState.toolbarStack.undoDepth);
+    document.body.dataset.m2ToolbarRedoDepth = String(pmUndoState.toolbarStack.redoDepth);
+    document.body.dataset.m2ToolbarLastCommand = pmUndoState.toolbarStack.lastCommand ?? "";
+  };
+  const pmInput = document.getElementById("domdoc-prosemirror-edit");
+  const syncProsemirrorDemoDataset = (): void => {
+    document.body.dataset.m1ProsemirrorSlice = "true";
+    document.body.dataset.m1ProsemirrorRevision = String(
+      pmSlice.session.revisions.committedRevision,
+    );
+    document.body.dataset.m1ProsemirrorParagraph = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
+    if (pmInput instanceof HTMLInputElement) {
+      pmInput.value = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
+    }
   };
   if (toolbar) {
     document.body.dataset.m2ToolbarShell = "stub";
@@ -104,20 +131,18 @@ async function boot(): Promise<void> {
     const saveBtn = document.getElementById("domdoc-toolbar-save-stub");
     const undoBtn = document.getElementById("domdoc-toolbar-undo-stub");
     saveBtn?.addEventListener("click", () => {
-      const result = dispatchM2ToolbarCommand(toolbarStack, "save-stub");
-      toolbarStack = result.stack;
+      const result = dispatchM2ToolbarCommand(pmUndoState.toolbarStack, "save-stub");
+      pmUndoState = { ...pmUndoState, toolbarStack: result.stack };
       syncToolbarStackDataset();
       document.body.dataset.m2ToolbarSaveOk = result.ok ? "true" : "false";
       const session = createDocumentSession({
-        documentId: "demo-sess",
-        kind: "flow",
+        ...sessionStub,
         revisions: {
-          committedRevision: toolbarStack.undoDepth,
-          persistedRevision: toolbarStack.undoDepth,
-          materializedRevision: toolbarStack.undoDepth,
-          exportedRevision: 0,
-          sharedRevision: null,
-          renderedRevision: toolbarStack.undoDepth,
+          ...sessionStub.revisions,
+          committedRevision: pmUndoState.toolbarStack.undoDepth,
+          persistedRevision: pmUndoState.toolbarStack.undoDepth,
+          materializedRevision: pmUndoState.toolbarStack.undoDepth,
+          renderedRevision: pmUndoState.toolbarStack.undoDepth,
         },
       });
       const store = new MemoryDomdocBlobStoreStub();
@@ -126,10 +151,13 @@ async function boot(): Promise<void> {
       document.body.dataset.m2DomdocMemberCount = String(store.blobs.size);
     });
     undoBtn?.addEventListener("click", () => {
-      const result = dispatchM2ToolbarCommand(toolbarStack, "undo-stub");
-      toolbarStack = result.stack;
+      const undone = undoProsemirrorDemoViaToolbar(pmSlice, pmUndoState, 0);
+      pmSlice = undone.slice;
+      pmUndoState = undone.undoState;
       syncToolbarStackDataset();
-      document.body.dataset.m2ToolbarUndoOk = result.ok ? "true" : "false";
+      syncProsemirrorDemoDataset();
+      document.body.dataset.m2ToolbarUndoOk = undone.toolbarDispatch.ok ? "true" : "false";
+      document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
     });
   }
   if (sessionLabel) {
@@ -138,26 +166,7 @@ async function boot(): Promise<void> {
     document.body.dataset.m2SessionId = "demo-sess";
   }
 
-  let pmSlice = openDocxProsemirrorDemoSessionSlice(buildDemoDocxZipBytes("domdoc"), {
-    documentId: "demo-sess",
-    kind: "flow",
-    revisions: {
-      committedRevision: 0,
-      persistedRevision: 0,
-      materializedRevision: 0,
-      exportedRevision: 0,
-      sharedRevision: null,
-      renderedRevision: 0,
-    },
-  });
-  const pmInput = document.getElementById("domdoc-prosemirror-edit");
-  const syncProsemirrorDemoDataset = (): void => {
-    document.body.dataset.m1ProsemirrorSlice = "true";
-    document.body.dataset.m1ProsemirrorRevision = String(
-      pmSlice.session.revisions.committedRevision,
-    );
-    document.body.dataset.m1ProsemirrorParagraph = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
-  };
+  pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
   syncProsemirrorDemoDataset();
   const domdocStore = new MemoryDomdocBlobStoreStub();
   const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
@@ -170,6 +179,8 @@ async function boot(): Promise<void> {
       document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
       document.body.dataset.g1PdfiumReadPathLoaded = readPath.moduleLoaded ? "true" : "false";
       document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady ? "true" : "false";
+      document.body.dataset.g1PdfiumProbePageBitmapBytes = probe.moduleLoaded ? "4" : "0";
+      document.body.dataset.g1PdfiumProbePageBitmapSynthetic = probe.moduleLoaded ? "true" : "false";
       if (params.get("g1PdfiumProbeWorker") === "1") {
         document.body.dataset.g1PdfiumProbeWorkerStatus =
           probe.moduleLoaded ? "probe-render-loaded" : probe.error ?? "probe-absent";
@@ -179,6 +190,12 @@ async function boot(): Promise<void> {
   const reactSurface = domdocReactAdapterDemoSurface("demo-sess");
   document.body.dataset.m5ReactAdapter = reactSurface.surface;
   document.body.dataset.m5ReactSessionId = reactSurface.sessionId;
+  const vueSurface = domdocVueAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5VueAdapter = vueSurface.surface;
+  document.body.dataset.m5VueSessionId = vueSurface.sessionId;
+  const litSurface = domdocLitAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5LitAdapter = litSurface.surface;
+  document.body.dataset.m5LitSessionId = litSurface.sessionId;
 
   const commentsMembers = new Map<string, Uint8Array>();
   commentsMembers.set(
@@ -206,8 +223,14 @@ async function boot(): Promise<void> {
     : "false";
   if (pmInput instanceof HTMLInputElement) {
     pmInput.addEventListener("change", () => {
-      pmSlice = applyDemoProsemirrorTextReplace(pmSlice, 0, pmInput.value);
+      const current = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
+      if (pmInput.value === current) return;
+      const edited = applyProsemirrorDemoEditWithToolbarUndo(pmSlice, pmUndoState, 0, pmInput.value);
+      pmSlice = edited.slice;
+      pmUndoState = edited.undoState;
+      syncToolbarStackDataset();
       syncProsemirrorDemoDataset();
+      document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
       const exported = exportDocxFromStoreStub(pmSlice.store, pmSlice.session);
       pmSlice = { ...pmSlice, session: exported.session };
       document.body.dataset.m1DocxExportBytes = String(exported.result.zipBytes.length);

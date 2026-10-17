@@ -11,10 +11,20 @@ describe("G1-PDF-07 P01–P05 vendor proof hooks", () => {
     expect(evidence.fixtures.some((f) => f.fixtureId === "P11")).toBe(true);
     expect(evidence.fixtures.some((f) => f.fixtureId === "P12")).toBe(true);
     if (!evidence.writerExportsReady) {
-      expect(evidence.status === "stub-not-run" || evidence.status === "probe-adapter-load-only").toBe(
+      expect(
+        evidence.status === "stub-not-run"
+          || evidence.status === "probe-adapter-load-only"
+          || evidence.status === "classification-blocked-upstream-gn",
+      ).toBe(true);
+      expect(core.every((f) => f.nativeProof === "blocked" || f.nativeProof === "not-run")).toBe(
         true,
       );
-      expect(core.every((f) => f.nativeProof === "not-run")).toBe(true);
+      if (evidence.status === "classification-blocked-upstream-gn") {
+        expect(core.every((f) => f.nativeProof === "blocked")).toBe(true);
+        expect(core.every((f) => f.blockedReason === "pdfium-wasm-target-unsupported-in-upstream-gn")).toBe(
+          true,
+        );
+      }
     } else {
       expect(evidence.status).toBe("native-proofs-run");
       expect(evidence.moduleLoaded).toBe(true);

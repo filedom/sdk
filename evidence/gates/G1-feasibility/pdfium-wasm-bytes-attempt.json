@@ -1,7 +1,7 @@
 {
-  "recordedAt": "2026-10-17T13:51:42.297Z",
+  "recordedAt": "2026-10-17T13:55:31.196Z",
   "card": "G1-PDF-19",
-  "phase": "post-proof-worker",
+  "phase": "post-proof-stub",
   "productionWasmObtained": false,
   "productionModuleLoaded": false,
   "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
@@ -18,50 +18,50 @@
   "ciWorkerProofStepResults": [
     {
       "step": "P01",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P02",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P03",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P04",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P05",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P11",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     },
     {
       "step": "P12",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
+      "moduleLoaded": false,
+      "nativeProof": "blocked",
       "workerCiPath": "skipped",
       "hookReady": false
     }
@@ -69,5 +69,5 @@
   "ciWorkerGreen": false,
   "feasibilityExtrasPass": false,
   "unblockRunbook": "docs/g1-pdfium-c24-unblock-runbook.md",
-  "note": "Module imported without C24 writer exports; native P01–P05 still not-run."
+  "note": "Classification hooks recorded; native P01–P05 blocked (upstream gn wasm / no C24 writer) — gate not-run."
 }

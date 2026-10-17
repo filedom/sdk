@@ -5,7 +5,7 @@ import type { PdfProofFixtureId } from "./pdfium-proof-hooks.js";
 import { createPdfWriterSession } from "./writer.js";
 import type { PdfEditOperation } from "./types.js";
 
-export type NativeProofStatus = "pass" | "fail" | "not-run";
+export type NativeProofStatus = "pass" | "fail" | "not-run" | "blocked";
 
 export interface NativeFixtureProof {
   fixtureId: PdfProofFixtureId | "P11" | "P12";

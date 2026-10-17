@@ -1,0 +1,25 @@
+{
+  "name": "@domdoc/lit",
+  "version": "0.0.1-m5-stub",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
+    "lit": "^3.2.1",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m5-pdfium-scaffold-react-comments",
+  "updatedAt": "2026-10-17-m5-m6-vue-lit-g1-classification",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["A"],
       "gateIds": [],
-      "limits": "m2-toolbar-command-registry + command-stub + demo save/undo + domdoc package stub on save; not full shared shell"
+      "limits": "m2-toolbar-command-registry + prosemirror-demo-toolbar-undo-bridge + demo save/undo + domdoc package stub on save; not full shared shell"
     },
     {
       "id": "F20",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W"],
       "gateIds": ["G2"],
-      "limits": "docx-prosemirror-demo-session-slice + .domdoc stub package save/load + demo input bound to DocumentSession"
+      "limits": "docx-prosemirror-demo-session-slice + toolbar undo bridge + .domdoc stub package save/load + demo input bound to DocumentSession"
     },
     {
       "id": "F29",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-21 packages/domdoc-pdfium-wasm C24 contract + ci emscripten gn smoke + stub emcc; probe adapter fallback; writerExportsReady/P01–P05 honest not-run"
+      "limits": "G1 path decision + domdoc-pdfium-wasm C24 contract + pdfium-lib probe + @domdoc/pdfium-bridge + pdf-lib C12 overlay (gatePass false); P01–P05 classification/blocked in CI; native writer not-run until C24 artifact drop"
     },
     {
       "id": "F34",
@@ -70,7 +70,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D"],
       "gateIds": ["G2"],
-      "limits": "review accept/reject on review-minimal-docx-fixture + DocumentSession.applyReviewSuggestionOpcPatch OPC write-back"
+      "limits": "review accept/reject on review-minimal-docx-fixture + DocumentSession.applyReviewSuggestionOpcPatch + OPC zip round-trip bytes test"
     },
     {
       "id": "F50",
@@ -121,6 +121,16 @@
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
       "limits": "W2-G4-19 coordinator authoritativeGatePath hook; default not-run"
+    },
+    {
+      "id": "F113",
+      "description": "Host adapters (Vue/Lit stubs)",
+      "milestone": "M5",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["S"],
+      "gateIds": [],
+      "limits": "@domdoc/vue DomdocProvider + @domdoc/lit domdoc-session-host + demo datasets; React stub unchanged; not full parity matrix"
     },
     {
       "id": "F49",

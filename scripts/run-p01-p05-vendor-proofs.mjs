@@ -28,9 +28,12 @@ writeFileSync(
   `${JSON.stringify(evidence, null, 2)}\n`,
 );
 
-const nativeGreen = evidence.fixtures
-  .filter((f) => ["P01", "P02", "P03", "P04", "P05"].includes(f.fixtureId))
-  .every((f) => f.nativeProof === "pass");
+const coreFixturesForHooks = evidence.fixtures.filter((f) =>
+  ["P01", "P02", "P03", "P04", "P05"].includes(f.fixtureId),
+);
+const nativeGreen = coreFixturesForHooks.every((f) => f.nativeProof === "pass");
+const nativeFailed = coreFixturesForHooks.some((f) => f.nativeProof === "fail");
+const nativeBlocked = coreFixturesForHooks.every((f) => f.nativeProof === "blocked");
 const hooks = {
   recordedAt: evidence.recordedAt,
   status:
@@ -38,12 +41,17 @@ const hooks = {
       ? nativeGreen
         ? "native-proofs-pass"
         : "native-proofs-fail"
-      : evidence.status === "artifact-worker-hooks-not-run"
-        ? "vendor-local-hooks-ready"
-        : "stub-not-run",
+      : evidence.status === "classification-blocked-upstream-gn" || nativeBlocked
+        ? "native-proofs-blocked"
+        : evidence.status === "artifact-worker-hooks-not-run"
+          ? "vendor-local-hooks-ready"
+          : evidence.status === "probe-adapter-load-only"
+            ? "probe-adapter-load-only"
+            : "stub-not-run",
   fixtures: evidence.fixtures.map((f) => ({
     fixtureId: f.fixtureId,
     nativeProof: f.nativeProof,
+    blockedReason: f.blockedReason ?? null,
     classificationHook: "pdfium-proof-hooks.ts",
     workerLoad: f.workerCiPath === "exercised" ? "pdf-writer-worker.ts exercised" : "pdf-writer-worker.ts via resolvePdfiumWasmModule",
     hookReady: f.hookReady,
@@ -51,7 +59,11 @@ const hooks = {
   })),
   note: nativeGreen
     ? "Native P01–P05 executed against C24 writer WASM; coordinator still reviews independent inspection artifacts."
-    : "Native P01–P05 proofs remain not-run or failed until C24 PDFium WASM executes fixture bytes.",
+    : nativeFailed
+      ? "Native P01–P05 failed on vendored writer — gate not-run until fixed."
+      : nativeBlocked
+        ? "P01–P05 classification exercised; native proofs blocked (pdfium-wasm-target-unsupported-in-upstream-gn) — not a pass."
+        : "Native P01–P05 proofs remain not-run until C24 PDFium WASM executes fixture bytes.",
 };
 writeFileSync(join(outDir, "p01-p05-vendor-hooks.json"), `${JSON.stringify(hooks, null, 2)}\n`);
 
@@ -92,8 +104,10 @@ const bytesAttempt = {
       : "C24 writer WASM loaded; P01–P05 passed, P11/P12 incomplete."
     : evidence.writerExportsReady
       ? "C24 writer loaded; one or more native P01–P05 proofs failed or did not pass."
+      : evidence.status === "classification-blocked-upstream-gn"
+        ? "Classification hooks recorded; native P01–P05 blocked (upstream gn wasm / no C24 writer) — gate not-run."
       : evidence.moduleLoaded
-        ? "Module imported without C24 writer exports; native P01–P05 still not-run."
+        ? "Module imported without C24 writer exports; native P01–P05 blocked or not-run."
         : "G1-PDF-19 proof recorded with moduleLoaded=false; drop C24 artifact per g1-pdfium-c24-unblock-runbook.md.",
 };
 if (existsSync(bytesAttemptPath)) {

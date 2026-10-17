@@ -1,65 +1,65 @@
 {
-  "recordedAt": "2026-10-17T13:51:42.297Z",
-  "status": "probe-adapter-load-only",
-  "resolutionSource": "vendor-artifact",
-  "moduleLoaded": true,
+  "recordedAt": "2026-10-17T13:55:31.196Z",
+  "status": "classification-blocked-upstream-gn",
+  "resolutionSource": "npm-placeholder",
+  "moduleLoaded": false,
   "writerExportsReady": false,
   "fixtures": [
     {
       "fixtureId": "P01",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "replace whole text run",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P02",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "partial run insert/delete",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P03",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "multi-run kerning replace",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P04",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "delete native text object",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P05",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "image replace and page reorder",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P11",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "before-commit failure rolls back scratch",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     },
     {
       "fixtureId": "P12",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
       "hookReady": false,
       "workerCiPath": "skipped",
       "classificationSummary": "save/reopen lifecycle cycles",
-      "detail": "C24 writer API not loaded"
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
     }
   ]
 }

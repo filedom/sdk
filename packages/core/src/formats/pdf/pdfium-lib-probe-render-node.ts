@@ -76,6 +76,42 @@ export async function tryLoadPdfiumLibProbeRenderNode(): Promise<PdfiumLibProbeR
   }
 }
 
+export interface PdfiumLibProbePageBitmapResult {
+  available: boolean;
+  renderOnly: true;
+  synthetic: boolean;
+  width: number;
+  height: number;
+  byteLength: number;
+  error?: string;
+}
+
+/** Render-only page bitmap stub when probe adapter loads (worker/demo path; not G1 writer). */
+export async function tryRenderPdfiumLibProbePageBitmapNode(): Promise<PdfiumLibProbePageBitmapResult> {
+  const status = await tryLoadPdfiumLibProbeRenderNode();
+  if (!status.moduleLoaded) {
+    return {
+      available: false,
+      renderOnly: true,
+      synthetic: false,
+      width: 0,
+      height: 0,
+      byteLength: 0,
+      error: status.error ?? "probe not loaded",
+    };
+  }
+  const width = 1;
+  const height = 1;
+  return {
+    available: true,
+    renderOnly: true,
+    synthetic: true,
+    width,
+    height,
+    byteLength: width * height * 4,
+  };
+}
+
 export function readPdfiumLibProbeManifestNode(): Record<string, unknown> | null {
   const path = join(resolvePdfiumLibProbeDir(), "probe-manifest.json");
   if (!existsSync(path)) return null;

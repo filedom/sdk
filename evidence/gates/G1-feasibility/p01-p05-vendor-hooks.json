@@ -1,63 +1,63 @@
 {
-  "recordedAt": "2026-10-17T13:51:42.297Z",
-  "status": "stub-not-run",
+  "recordedAt": "2026-10-17T13:55:31.196Z",
+  "status": "native-proofs-blocked",
   "fixtures": [
     {
       "fixtureId": "P01",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P02",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P03",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P04",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P05",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P11",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     },
     {
       "fixtureId": "P12",
-      "nativeProof": "not-run",
+      "nativeProof": "blocked",
+      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn",
       "classificationHook": "pdfium-proof-hooks.ts",
       "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false,
-      "detail": "C24 writer API not loaded"
+      "hookReady": false
     }
   ],
-  "note": "Native P01–P05 proofs remain not-run or failed until C24 PDFium WASM executes fixture bytes."
+  "note": "P01–P05 classification exercised; native proofs blocked (pdfium-wasm-target-unsupported-in-upstream-gn) — not a pass."
 }

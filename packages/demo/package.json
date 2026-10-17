@@ -10,7 +10,9 @@
     "preview": "vite preview --port 5173"
   },
   "dependencies": {
-    "@domdoc/react": "workspace:*"
+    "@domdoc/lit": "workspace:*",
+    "@domdoc/react": "workspace:*",
+    "@domdoc/vue": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.2",

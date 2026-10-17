@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { loadPdfiumLibProbeViaWorker } from "./pdfium-lib-probe-render-worker-client.js";
+import {
+  loadPdfiumLibProbeViaWorker,
+  renderPdfiumLibProbePageViaWorker,
+} from "./pdfium-lib-probe-render-worker-client.js";
 import { describePdfiumLibProbeLayoutNode } from "./pdfium-lib-probe-render-node.js";
 
 describe("G1 pdfium-lib probe render worker (optional)", () => {
@@ -15,5 +18,12 @@ describe("G1 pdfium-lib probe render worker (optional)", () => {
     });
     expect(status.renderOnly).toBe(true);
     expect(status.moduleLoaded).toBe(true);
+    const bitmap = await renderPdfiumLibProbePageViaWorker(workerScript, {
+      execArgv: ["--import", "tsx/esm"],
+    });
+    expect(bitmap.renderOnly).toBe(true);
+    if (bitmap.available) {
+      expect(bitmap.byteLength).toBeGreaterThan(0);
+    }
   });
 });
