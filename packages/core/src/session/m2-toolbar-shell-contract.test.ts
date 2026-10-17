@@ -3,6 +3,10 @@ import {
   attachM2DemoSessionBindingToManifestStub,
   createDomdocPackageManifestStub,
 } from "../persistence/domdoc-package-stub.js";
+import {
+  createM2ToolbarUndoStackStub,
+  dispatchM2ToolbarCommand,
+} from "./m2-toolbar-command-stub.js";
 
 /** F05 common shell: demo toolbar session binding on manifest stub (not authoritative session). */
 describe("F05 M2 toolbar shell contract", () => {
@@ -27,5 +31,19 @@ describe("F05 M2 toolbar shell contract", () => {
     });
     expect(bound.m2DemoSessionBinding?.sessionId).toBe("demo-sess");
     expect(bound.m2DemoSessionBinding?.toolbarSessionId).toBe("demo-sess");
+  });
+
+  it("dispatches save/undo/redo on demo undo stack stub", () => {
+    let stack = createM2ToolbarUndoStackStub();
+    const save = dispatchM2ToolbarCommand(stack, "save-stub");
+    expect(save.ok).toBe(true);
+    stack = save.stack;
+    expect(stack.undoDepth).toBe(1);
+    const undo = dispatchM2ToolbarCommand(stack, "undo-stub");
+    expect(undo.ok).toBe(true);
+    expect(undo.stack.redoDepth).toBe(1);
+    const redo = dispatchM2ToolbarCommand(undo.stack, "redo-stub");
+    expect(redo.ok).toBe(true);
+    expect(redo.stack.undoDepth).toBe(1);
   });
 });

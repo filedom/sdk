@@ -9,4 +9,8 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   expect(paintItems).toBeGreaterThan(0);
   expect(await page.locator("body").getAttribute("data-compositor-mounted")).toBe("true");
   expect(await page.locator("body").getAttribute("data-layout-stable")).toBe("true");
+  await page.locator("#domdoc-toolbar-save-stub").click();
+  await expect.poll(async () => page.locator("body").getAttribute("data-m2-toolbar-undo-depth")).toBe("1");
+  await page.locator("#domdoc-toolbar-undo-stub").click();
+  await expect.poll(async () => page.locator("body").getAttribute("data-m2-toolbar-redo-depth")).toBe("1");
 });

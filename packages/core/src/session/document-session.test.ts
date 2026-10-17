@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createDocumentSession } from "./document-session.js";
+import { createDocumentSession, DocumentSession } from "./document-session.js";
 import {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
@@ -146,6 +146,24 @@ describe("M1 DocumentSession skeleton", () => {
     const commitIdx = sim.steps.findIndex((s) => s.step === "commit-indexeddb-manifest-transaction");
     expect(verifyIdx).toBeGreaterThan(-1);
     expect(commitIdx).toBeGreaterThan(verifyIdx);
+  });
+
+  it("M1 round-trips open/save domdoc package stub via DocumentSession hooks", () => {
+    const session = createDocumentSession(base);
+    const store = new MemoryDomdocBlobStoreStub();
+    const { manifestBytes, simulation } = session.saveDomdocPackageStubToStore(store);
+    expect(simulation.ok).toBe(true);
+    const reopened = DocumentSession.openFromDomdocManifestStub(manifestBytes);
+    expect(reopened.documentId).toBe(base.documentId);
+    expect(reopened.revisions.committedRevision).toBe(base.revisions.committedRevision);
+    expect(reopened.revisions.persistedRevision).toBe(base.revisions.committedRevision);
+    const roundTripBytes = serializeDomdocPackageManifestStub({
+      documentId: reopened.documentId,
+      kind: reopened.stub.kind,
+      revisions: reopened.revisions,
+    });
+    expect(parseDomdocPackageManifestStub(roundTripBytes).documentId).toBe(base.documentId);
+    expect(store.readCommittedManifest()).toEqual(manifestBytes);
   });
 
   it("patches numbering.xml when committing list renumber", () => {

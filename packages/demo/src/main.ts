@@ -15,6 +15,10 @@ import {
 import { buildAfBrowserPostEditGateGradeEvidence } from "../../core/dist/components/fragmentation-af-browser-post-edit-gate-grade.js";
 import { createWasmShapedLayoutHook } from "../../core/dist/layout/wasm-shaped-layout-hook.js";
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
+import {
+  createM2ToolbarUndoStackStub,
+  dispatchM2ToolbarCommand,
+} from "../../core/dist/session/m2-toolbar-command-stub.js";
 
 const sampleProjection = () => ({
   header: {
@@ -56,9 +60,30 @@ async function boot(): Promise<void> {
   document.body.dataset.compositorMounted = "true";
   const toolbar = document.getElementById("domdoc-toolbar");
   const sessionLabel = document.getElementById("domdoc-session-label");
+  let toolbarStack = createM2ToolbarUndoStackStub();
+  const syncToolbarStackDataset = (): void => {
+    document.body.dataset.m2ToolbarUndoDepth = String(toolbarStack.undoDepth);
+    document.body.dataset.m2ToolbarRedoDepth = String(toolbarStack.redoDepth);
+    document.body.dataset.m2ToolbarLastCommand = toolbarStack.lastCommand ?? "";
+  };
   if (toolbar) {
     document.body.dataset.m2ToolbarShell = "stub";
     document.body.dataset.m2ToolbarSessionId = "demo-sess";
+    syncToolbarStackDataset();
+    const saveBtn = document.getElementById("domdoc-toolbar-save-stub");
+    const undoBtn = document.getElementById("domdoc-toolbar-undo-stub");
+    saveBtn?.addEventListener("click", () => {
+      const result = dispatchM2ToolbarCommand(toolbarStack, "save-stub");
+      toolbarStack = result.stack;
+      syncToolbarStackDataset();
+      document.body.dataset.m2ToolbarSaveOk = result.ok ? "true" : "false";
+    });
+    undoBtn?.addEventListener("click", () => {
+      const result = dispatchM2ToolbarCommand(toolbarStack, "undo-stub");
+      toolbarStack = result.stack;
+      syncToolbarStackDataset();
+      document.body.dataset.m2ToolbarUndoOk = result.ok ? "true" : "false";
+    });
   }
   if (sessionLabel) {
     sessionLabel.textContent = "Session: demo-sess (M2 stub)";

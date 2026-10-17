@@ -12,6 +12,13 @@ import { applyListRenumberToOpcPackage } from "../formats/docx/docx-numbering-op
 import type { ListParagraphMeta } from "../formats/docx/docx-list-numbering-stub.js";
 import { applyDocxNumberingWriteBackFromSession } from "../formats/docx/docx-numbering-body-writeback.js";
 import type { DocxNumberingSessionWriteBackOptions } from "../formats/docx/docx-numbering-session-writeback.js";
+import {
+  createDomdocPackagePersistPlanStub,
+  MemoryDomdocBlobStoreStub,
+  parseDomdocPackageManifestStub,
+  serializeDomdocPackageManifestStub,
+  type DomdocStagedWriteSimulationResult,
+} from "../persistence/domdoc-package-stub.js";
 
 /** M1 skeleton — web-owned semantic authority (blueprint §13.1). */
 export class DocumentSession {
@@ -52,6 +59,48 @@ export class DocumentSession {
   }
 
   /** G2-DOCX-11: OPC numbering write-back from session list paragraph state. */
+  /** M1/G5: open session stub from committed manifest.json bytes (.domdoc package hook). */
+  static openFromDomdocManifestStub(manifestBytes: Uint8Array): DocumentSession {
+    const manifest = parseDomdocPackageManifestStub(manifestBytes);
+    return new DocumentSession({
+      documentId: manifest.documentId,
+      kind: manifest.kind,
+      revisions: {
+        committedRevision: manifest.committedRevision,
+        persistedRevision: manifest.committedRevision,
+        materializedRevision: manifest.nativeCheckpointRevision,
+        exportedRevision: 0,
+        sharedRevision: null,
+        renderedRevision: manifest.committedRevision,
+      },
+    });
+  }
+
+  /** M1/G5: crash-safe multi-blob save hook into in-memory store stub (host persist adapter TBD). */
+  saveDomdocPackageStubToStore(
+    store: MemoryDomdocBlobStoreStub,
+    options?: { journalBytes?: Uint8Array; checkpointBytes?: Uint8Array },
+  ): { manifestBytes: Uint8Array; simulation: DomdocStagedWriteSimulationResult } {
+    const plan = createDomdocPackagePersistPlanStub(this.stub);
+    const manifestBytes = serializeDomdocPackageManifestStub(this.stub);
+    const journalBytes =
+      options?.journalBytes ??
+      new TextEncoder().encode(
+        `{"documentId":"${this.stub.documentId}","rev":${this.stub.revisions.committedRevision}}\n`,
+      );
+    const checkpointBytes =
+      options?.checkpointBytes ?? new TextEncoder().encode("native-checkpoint-stub");
+    const simulation = store.applyMultiBlobStagedWrite(
+      {
+        "source/native-checkpoint.bin": checkpointBytes,
+        "state/semantic-journal.jsonl": journalBytes,
+      },
+      plan,
+      manifestBytes,
+    );
+    return { manifestBytes, simulation };
+  }
+
   applyDocxNumberingOpcWriteBackFromSession(
     pkg: OpcPackage,
     paragraphs: readonly ListParagraphMeta[],
