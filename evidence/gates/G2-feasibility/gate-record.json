@@ -6,12 +6,14 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "D01–D04 + docx→flow vertical + D05 ProseMirror synthetic slice; Parley shaping still flow fallback",
+  "limitations": "D05 corpus partial + ProseMirror transaction stub; pkg-node flow-fallback; Parley proofs native-only",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
     "docx-prosemirror-projection.test.ts",
+    "docx-prosemirror-transaction-boundary.test.ts",
+    "docx-prosemirror-d05-corpus.test.ts",
     "layout-shaping.test.ts",
-    "domdoc-wasm layout/font_stack + parley-shaping tests"
+    "domdoc-wasm layout_font_proof + parley-shaping tests"
   ]
 }

@@ -11,6 +11,7 @@
     "qa:docs": "node ./scripts/qa-docs.mjs",
     "fetch:pdfium-wasm-stub": "node ./scripts/fetch-pdfium-wasm-stub.mjs",
     "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",
+    "build:pdfium-wasm": "node ./scripts/build-pdfium-wasm.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

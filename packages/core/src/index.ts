@@ -24,6 +24,15 @@ export {
   proseMirrorParagraphTexts,
 } from "./formats/docx/docx-prosemirror-projection.js";
 export {
+  applyProjectionTransactionStub,
+  prosemirrorDocToTransactionStub,
+  type DocxProjectionTransactionStub,
+} from "./formats/docx/docx-prosemirror-transaction-boundary.js";
+export {
+  createPdfWriterWorkerClient,
+  type PdfWriterWorkerClient,
+} from "./formats/pdf/pdf-writer-worker-client.js";
+export {
   PdfiumWasmWriterBackend,
   tryLoadPdfiumWasmModule,
 } from "./formats/pdf/backends/pdfium-wasm-backend.js";
@@ -59,6 +68,10 @@ export {
   type FragmentRunBounds,
   type MeasuredFragment,
 } from "./components/component-measurement-contract.js";
+export {
+  assertStableFragmentMeasurements,
+  type LayoutStabilityOutcome,
+} from "./components/component-measurement-layout-stability.js";
 export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,

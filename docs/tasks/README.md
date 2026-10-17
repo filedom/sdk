@@ -20,5 +20,10 @@
 | [G2-LAYOUT-03-font-stack-parley.md](./G2-LAYOUT-03-font-stack-parley.md) | W1+ | review |
 | [G3-INPUT-04-playwright-smoke.md](./G3-INPUT-04-playwright-smoke.md) | W1+ | review |
 | [W2-G4-02-component-measurement.md](./W2-G4-02-component-measurement.md) | W2 | review |
+| [G1-PDF-05-pdfium-worker-vendored-path.md](./G1-PDF-05-pdfium-worker-vendored-path.md) | W1++ | review |
+| [G2-DOCX-04-prosemirror-transaction-boundary.md](./G2-DOCX-04-prosemirror-transaction-boundary.md) | W1++ | review |
+| [G2-LAYOUT-04-parley-layout-output.md](./G2-LAYOUT-04-parley-layout-output.md) | W1++ | review |
+| [G3-INPUT-05-demo-shell-playwright.md](./G3-INPUT-05-demo-shell-playwright.md) | W1++ | review |
+| [W2-G4-03-layout-stable-measurement.md](./W2-G4-03-layout-stable-measurement.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

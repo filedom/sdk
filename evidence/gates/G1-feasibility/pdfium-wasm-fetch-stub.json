@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-10-17T08:15:42.911Z",
+  "fetchedAt": "2026-10-17T08:19:24.568Z",
   "moduleSpec": "domdoc-pdfium-wasm@0.0.0-not-published",
   "status": "stub-not-run",
-  "note": "No PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm. Build per docs/pdfium-wasm-pin.md and docs/pdfium-wasm-worker-isolation.md."
+  "note": "No PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm. Run pnpm build:pdfium-wasm then build per docs/pdfium-wasm-pin.md and docs/pdfium-wasm-worker-isolation.md."
 }

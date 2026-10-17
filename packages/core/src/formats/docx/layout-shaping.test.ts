@@ -12,6 +12,7 @@ describe("G2-LAYOUT-02 shaping export", () => {
     const flowJson = wasm.layout_flow_paragraph_json(JSON.stringify(input));
     const shapedJson = wasm.layout_flow_paragraph_shaped_json(JSON.stringify(input));
     expect(shapedJson).toBe(flowJson);
+    expect(String(wasm.layout_shaping_backend_id())).toBe("flow-fallback");
     const lines = JSON.parse(String(flowJson)) as unknown[];
     expect(lines.length).toBeGreaterThan(1);
   });

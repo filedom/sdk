@@ -32,7 +32,9 @@ Render worker messages stay on existing `render-wire-v1` schema; do not embed PD
 ## Build / fetch
 
 - Pin and licence: [pdfium-wasm-pin.md](./pdfium-wasm-pin.md).
-- Local artifact ingest: `PDFIUM_WASM_ARTIFACT_DIR=/path/to/built/pkg pnpm fetch:pdfium-wasm`.
+- Local artifact ingest: `PDFIUM_WASM_ARTIFACT_DIR=/path/to/built/pkg pnpm fetch:pdfium-wasm` (records WASM SHA-256 when copied).
+- Build placeholder: `pnpm build:pdfium-wasm` (`PDFIUM_WASM_BUILD_ROOT` optional).
+- Writer worker module: `packages/core/src/formats/pdf/pdf-writer-worker.ts` (Node worker thread; message types above).
 - **This session:** C24 PDFium WASM binary is not vendored in-repo; evidence remains **stub-not-run** until Origin/CI hosts the artifact.
 
 ## Failure modes
