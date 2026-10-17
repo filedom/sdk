@@ -93,14 +93,14 @@ export function mountDomdocShell(rootId = "domdoc-root"): DomdocShellElements {
 
   const dropZone = document.createElement("div");
   dropZone.className = cn(
-    "relative flex flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed bg-background shadow-sm",
+    "relative flex w-full flex-col items-stretch justify-center overflow-hidden rounded-lg border border-dashed bg-muted/20 shadow-sm",
     "min-h-[420px] p-2",
   );
   dropZone.setAttribute("aria-label", "Document preview");
 
   const canvas = document.createElement("canvas");
   canvas.id = "domdoc-canvas";
-  canvas.className = "max-w-full rounded-md shadow-md ring-1 ring-border";
+  canvas.className = "mx-auto block w-full max-w-full rounded-md bg-white shadow-md ring-1 ring-border";
   canvas.setAttribute("role", "img");
   canvas.setAttribute("aria-label", "domdoc rendered page preview");
   dropZone.appendChild(canvas);

@@ -56,10 +56,6 @@ import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
 import { ViewerController } from "./viewer-controller.js";
 
-const pdfiumBase = new URL("../../../vendor/domdoc-pdfium-wasm/", import.meta.url);
-const pdfiumGlueUrl = new URL("domdoc_pdfium.js", pdfiumBase).href;
-const pdfiumLocateFile = (name: string) => new URL(name, pdfiumBase).href;
-
 const shell = mountDomdocShell("domdoc-root");
 document.body.dataset.compositorMounted = "true";
 shell.statusText.textContent = "Loading layout engine…";
@@ -92,9 +88,12 @@ async function boot(): Promise<void> {
     shell,
     engine,
     sessionStub,
-    pdfiumGlueUrl,
-    pdfiumLocateFile,
   });
+
+  const resizeObserver = new ResizeObserver(() => {
+    void viewer.repaint();
+  });
+  resizeObserver.observe(shell.dropZone);
 
   let pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
   let pmSaveState = createProsemirrorDemoDebouncedSaveState(viewer.slice);
@@ -196,15 +195,21 @@ async function boot(): Promise<void> {
   syncToolbarStackDataset();
 
   const openLocalBytes = (bytes: Uint8Array, filename?: string, source?: string) => {
-    void viewer.openBytes(bytes, filename).then(() => {
-      if (viewer.documentKind() === "docx") {
-        pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
-        pmSaveState = createProsemirrorDemoDebouncedSaveState(viewer.slice);
-        syncProsemirrorDemoDataset();
-        syncToolbarStackDataset();
-      }
-      if (source) document.body.dataset.f01OpenSource = source;
-    });
+    void viewer
+      .openBytes(bytes, filename)
+      .then(() => {
+        if (viewer.documentKind() === "docx") {
+          pmUndoState = createProsemirrorDemoToolbarUndoState(viewer.slice);
+          pmSaveState = createProsemirrorDemoDebouncedSaveState(viewer.slice);
+          syncProsemirrorDemoDataset();
+          syncToolbarStackDataset();
+        }
+        if (source) document.body.dataset.f01OpenSource = source;
+      })
+      .catch((error) => {
+        document.body.dataset.g1PdfiumBrowserRender = "false";
+        document.body.dataset.f01OpenError = error instanceof Error ? error.message : String(error);
+      });
   };
 
   shell.openInput.addEventListener("change", () => {
@@ -216,6 +221,8 @@ async function boot(): Promise<void> {
       } catch (error) {
         document.body.dataset.f01OpenOk = "false";
         document.body.dataset.f01OpenError = String(error);
+      } finally {
+        shell.openInput.value = "";
       }
     });
   });

@@ -15,6 +15,7 @@
     "ci:build-pdfium-wasm": "node ./scripts/ci-build-pdfium-wasm.mjs",
     "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
     "proof:pdfium-artifact-drop": "node ./scripts/proof-pdfium-artifact-drop.mjs",
+    "proof:host-pdfium-edit-smoke": "node --import tsx/esm ./scripts/proof-host-pdfium-edit-smoke.mjs",
     "record:layout-visual-diff": "node ./scripts/record-layout-visual-diff.mjs",
     "generate:layout-visual-baselines": "node ./scripts/generate-layout-visual-baselines.mjs",
     "approve:layout-visual-baselines": "node ./scripts/approve-layout-visual-baselines.mjs --pin",

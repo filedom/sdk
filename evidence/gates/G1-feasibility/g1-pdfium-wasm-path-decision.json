@@ -1,11 +1,15 @@
 {
-  "recordedAt": "2026-10-17T12:00:00.000Z",
+  "recordedAt": "2026-10-17T15:30:00.000Z",
   "gate": "G1",
   "gateStatus": "not-run",
+  "hostStaticLib": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/ReleaseComplete/obj/libpdfium.a",
+  "hostStaticLibNote": "macOS Mach-O archive (~288Mi); discovery and native classification only — not linkable to browser WASM",
   "chosenPaths": {
-    "writerProduction": "domdoc-pdfium-wasm C24 sibling build or artifact drop",
-    "writerInRepoEmscripten": "packages/domdoc-pdfium-wasm/build/emcc-link-writer.sh (partial fpdf_edit smoke when static lib present)",
+    "writerProduction": "domdoc-pdfium-wasm C24 sibling build or artifact drop (see packages/domdoc-pdfium-wasm/build/EMSCRIPTEN_SIBLING_BUILD.md)",
+    "writerInRepoEmscripten": "packages/domdoc-pdfium-wasm/build/emcc-link-writer.sh (partial fpdf_edit smoke when pdfium-lib Emscripten static lib present)",
     "gclientHostNinjaDiscovery": "build/attempt-gclient-host-ninja.sh → g1-emscripten-gclient-host-ninja-attempt.json",
+    "hostStaticEmccAttempt": "build/attempt-host-static-emcc-link.sh → emcc-link-record.json hostStaticLibWasmLinkAttempt",
+    "nativeNodeSmoke": "pnpm proof:host-pdfium-edit-smoke → g1-host-pdfium-native-smoke-attempt.json",
     "displayProbe": "pdfium-lib wasm.zip + domdoc-probe-adapter (render-only)",
     "displayBridgePackage": "@domdoc/pdfium-bridge",
     "overlayHelpers": "pdf-lib C12 (gatePass false)",
@@ -22,9 +26,13 @@
     "fakePassForbidden": true
   },
   "nextAutomated": [
-    "Production domdoc-pdfium-wasm/dist ingest when writerExportsReady",
+    "Emscripten rebuild: ../domdoc-pdfium-wasm/build-wasm.sh (blocked upstream gn wasm; pdfium-lib pipeline)",
+    "Production domdoc-pdfium-wasm/dist ingest when writerExportsReady + P01–P05 pass",
     "Probe page bitmap worker non-synthetic dimensions when vendor/pdfium-lib-probe present",
-    "M5 Angular/Svelte adapter stubs + host manifest parity test",
+    "M3 e2e: ProseMirror debounced save receipt data attrs (Priority 2 deferred)",
+    "M2: comment accept → OPC patch on minimal fixture (Priority 2 deferred)",
+    "@domdoc/nuxt-host or SvelteKit minimal stub + manifest parity (Priority 2 deferred)",
     "G2 D05 foreign numbering + review accept integration beyond OPC round-trip"
-  ]
+  ],
+  "c24WriterExports": false
 }

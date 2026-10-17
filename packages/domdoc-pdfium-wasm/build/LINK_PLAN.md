@@ -16,6 +16,6 @@ Upstream Chromium PDFium **does not** support `target_os=wasm` in GN. Production
 | `build/emcc-link-writer.sh` | Links glue against `PDFIUM_STATIC_LIB` when present; else contract stub only |
 | `scripts/build-from-gclient.sh` | Orchestrates gclient attempt + emcc link + manifest |
 
-Set `PDFIUM_STATIC_LIB` to `libpdfium.a` from pdfium-lib Emscripten release or from gclient host `out/Release/obj/libpdfium.a` when linkable.
+Set `PDFIUM_STATIC_LIB` to pdfium-lib **Emscripten** `libpdfium.a` only. Host gclient `out/ReleaseComplete/obj/libpdfium.a` is recorded via `attempt-host-static-emcc-link.sh` (expected fail); see `EMSCRIPTEN_SIBLING_BUILD.md`.
 
 **Honest gate:** `c24WriterExports: false` until `domdoc-pdfium-wasm/dist` production drop loads `DomdocPdfiumApi`.

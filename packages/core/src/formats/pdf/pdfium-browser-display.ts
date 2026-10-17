@@ -1,20 +1,6 @@
 /** Browser PDF display via Emscripten glue (separate heap from domdoc_engine). */
 
-export interface PdfiumBrowserAssets {
-  /** URL to domdoc_pdfium.js factory module. */
-  glueModuleUrl: string;
-  /** Resolves sibling .wasm path. */
-  locateFile: (file: string) => string;
-}
-
-export interface PdfPageBitmap {
-  width: number;
-  height: number;
-  /** RGBA tightly packed (converted from BGRA). */
-  rgba: Uint8ClampedArray;
-}
-
-type EmscriptenModule = {
+export type PdfiumBrowserModule = {
   cwrap: (
     name: string,
     returnType: string | null,
@@ -25,15 +11,30 @@ type EmscriptenModule = {
   HEAPU8: Uint8Array;
 };
 
-let cachedModule: EmscriptenModule | null = null;
+export interface PdfiumBrowserAssets {
+  /** URL to domdoc_pdfium.js factory module (dynamic import — often blocked under Vite). */
+  glueModuleUrl?: string;
+  /** Resolves sibling .wasm path when using glueModuleUrl. */
+  locateFile?: (file: string) => string;
+  /** Bundler-friendly loader (preferred in Vite/demo). */
+  loadModule?: () => Promise<PdfiumBrowserModule>;
+}
 
-async function loadModule(assets: PdfiumBrowserAssets): Promise<EmscriptenModule> {
-  if (cachedModule) return cachedModule;
-  const mod = await import(/* @vite-ignore */ assets.glueModuleUrl);
-  const factory = mod.default as (opts: {
-    locateFile: (name: string) => string;
-  }) => Promise<EmscriptenModule>;
-  const instance = await factory({ locateFile: assets.locateFile });
+export interface PdfPageBitmap {
+  width: number;
+  height: number;
+  /** RGBA tightly packed (converted from BGRA). */
+  rgba: Uint8ClampedArray;
+}
+
+let cachedModule: PdfiumBrowserModule | null = null;
+
+/** Test hook — reset singleton between vitest cases. */
+export function resetPdfiumBrowserModuleCache(): void {
+  cachedModule = null;
+}
+
+async function initPdfiumInstance(instance: PdfiumBrowserModule): Promise<PdfiumBrowserModule> {
   const pdfiumInit = (instance as unknown as { _PDFium_Init?: () => void })._PDFium_Init;
   if (typeof pdfiumInit === "function") {
     pdfiumInit();
@@ -42,6 +43,23 @@ async function loadModule(assets: PdfiumBrowserAssets): Promise<EmscriptenModule
   }
   cachedModule = instance;
   return instance;
+}
+
+async function loadModule(assets: PdfiumBrowserAssets): Promise<PdfiumBrowserModule> {
+  if (cachedModule) return cachedModule;
+  let instance: PdfiumBrowserModule;
+  if (assets.loadModule) {
+    instance = await assets.loadModule();
+  } else if (assets.glueModuleUrl && assets.locateFile) {
+    const mod = await import(/* @vite-ignore */ assets.glueModuleUrl);
+    const factory = mod.default as (opts: {
+      locateFile: (name: string) => string;
+    }) => Promise<PdfiumBrowserModule>;
+    instance = await factory({ locateFile: assets.locateFile });
+  } else {
+    throw new Error("PdfiumBrowserAssets requires loadModule or glueModuleUrl+locateFile");
+  }
+  return initPdfiumInstance(instance);
 }
 
 function bgraToRgba(bgra: Uint8Array, width: number, height: number, stride: number): Uint8ClampedArray {

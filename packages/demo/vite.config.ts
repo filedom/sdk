@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
-import { existsSync } from "node:fs";
+import { createReadStream, existsSync } from "node:fs";
 
 const demoRoot = path.dirname(fileURLToPath(import.meta.url));
 const webRoot = path.join(demoRoot, "../..");
@@ -19,10 +19,48 @@ const enginePkgDir = path.join(
       : "pkg-node",
 );
 const pdfiumVendor = path.join(webRoot, "vendor/domdoc-pdfium-wasm");
+const hasProductionPdfium = existsSync(path.join(pdfiumVendor, "domdoc_pdfium.js"));
+const pdfiumGlueBasename =
+  process.env.DOMDOC_DEMO_PDFIUM_STUB === "1" &&
+  existsSync(path.join(pdfiumVendor, "domdoc_pdfium_contract_stub.js"))
+    ? "domdoc_pdfium_contract_stub"
+    : hasProductionPdfium
+      ? "domdoc_pdfium"
+      : "domdoc_pdfium_contract_stub";
 
 export default defineConfig({
   root: demoRoot,
-  plugins: [tailwindcss(), nodePolyfills({ include: ["crypto"] })],
+  plugins: [
+    tailwindcss(),
+    nodePolyfills({ include: ["crypto"] }),
+    {
+      name: "domdoc-pdfium-static",
+      configureServer(server) {
+        server.middlewares.use("/pdfium", (req, res, next) => {
+          const rel = (req.url ?? "/").split("?")[0]!.replace(/^\//, "");
+          if (!rel || rel.includes("..")) {
+            next();
+            return;
+          }
+          const file = path.join(pdfiumVendor, rel);
+          if (!file.startsWith(pdfiumVendor) || !existsSync(file)) {
+            next();
+            return;
+          }
+          const type = rel.endsWith(".wasm")
+            ? "application/wasm"
+            : rel.endsWith(".js")
+              ? "application/javascript"
+              : "application/octet-stream";
+          res.setHeader("Content-Type", type);
+          createReadStream(file).pipe(res);
+        });
+      },
+    },
+  ],
+  define: {
+    __DEMO_PDFIUM_GLUE_BASENAME__: JSON.stringify(pdfiumGlueBasename),
+  },
   resolve: {
     alias: {
       "@domdoc/demo-engine": path.join(enginePkgDir, "domdoc_engine.js"),
@@ -38,6 +76,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["domdoc-wasm", "domdoc_pdfium"],
+    exclude: ["domdoc-wasm"],
   },
 });

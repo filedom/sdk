@@ -1,0 +1,39 @@
+{
+  "recordedAt": "2026-10-17T14:26:49.897Z",
+  "gate": "G1",
+  "gateStatus": "not-run",
+  "nativeHostLinkPolicy": {
+    "nodeDlopenFeasible": false,
+    "reason": "macOS host libpdfium.a is Mach-O; Node smoke without native addon is classification-only. Use pdfium-lib WASM probe for render experiments; C24 writer requires sibling domdoc-pdfium-wasm Emscripten build.",
+    "siblingBuildDoc": "packages/domdoc-pdfium-wasm/build/EMSCRIPTEN_SIBLING_BUILD.md"
+  },
+  "hostStaticLib": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium/out/ReleaseComplete/obj/libpdfium.a",
+  "hostStaticLibBytes": 302400648,
+  "hostNinjaStatus": "host-ninja-pdfium-ok",
+  "hostPdfiumLinkableFound": true,
+  "probeRender": {
+    "renderOnly": true,
+    "probePresent": true,
+    "moduleLoaded": true,
+    "error": null,
+    "layout": {
+      "probeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe",
+      "wasmFiles": [
+        "extracted/release/node/pdfium.esm.wasm",
+        "extracted/release/node/pdfium.std.wasm",
+        "extracted/release/node/pdfium.wasm"
+      ],
+      "jsGlueFiles": [
+        "domdoc-probe-adapter.mjs",
+        "extracted/release/node/pdfium-worker.js",
+        "extracted/release/node/pdfium.esm.js",
+        "extracted/release/node/pdfium.js",
+        "extracted/release/node/pdfium.std.js"
+      ],
+      "adapterEntry": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe/domdoc-probe-adapter.mjs",
+      "packageJsonPresent": true
+    }
+  },
+  "c24WriterExports": false,
+  "nextStep": "Run ../domdoc-pdfium-wasm/build-wasm.sh (or ingest production dist/) then PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05 before any c24WriterExports claim."
+}

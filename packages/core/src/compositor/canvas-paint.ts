@@ -1,5 +1,8 @@
 import type { RenderWireResponse } from "../wire/generated-response.js";
+import { resolveViewerCanvasCssWidth } from "./viewer-canvas-width.js";
 import { CSS_PX_PER_INCH, PT_PER_INCH } from "./view-transform.js";
+
+export { resolveViewerCanvasCssWidth };
 
 export interface CanvasPaintOptions {
   pageIndex?: number;
@@ -19,7 +22,7 @@ export interface CanvasPaintMetrics {
 }
 
 export function canvasPaintMetrics(options: CanvasPaintOptions): CanvasPaintMetrics {
-  const cssWidthPx = options.cssWidthPx;
+  const cssWidthPx = Math.max(1, options.cssWidthPx);
   const cssHeightPx = (cssWidthPx * options.pageHeightPt) / options.pageWidthPt;
   const scalePxPerPt = cssWidthPx / options.pageWidthPt;
   return { cssWidthPx, cssHeightPx, scalePxPerPt };

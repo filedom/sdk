@@ -10,15 +10,16 @@
     "preview": "vite preview --port 5173"
   },
   "dependencies": {
-    "@domdoc/shell-ui": "workspace:*",
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
     "@domdoc/next-host": "workspace:*",
     "@domdoc/preact": "workspace:*",
     "@domdoc/react": "workspace:*",
+    "@domdoc/shell-ui": "workspace:*",
     "@domdoc/solid": "workspace:*",
     "@domdoc/svelte": "workspace:*",
-    "@domdoc/vue": "workspace:*"
+    "@domdoc/vue": "workspace:*",
+    "pdfjs-dist": "^6.4.299"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",

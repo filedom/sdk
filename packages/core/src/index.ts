@@ -332,6 +332,7 @@ export {
   canvasPaintMetrics,
   paintRenderWireResponse,
   paintRgbaBitmapToCanvas,
+  resolveViewerCanvasCssWidth,
 } from "./compositor/canvas-paint.js";
 export {
   buildDocxRenderProjectionFromStore,
@@ -339,6 +340,8 @@ export {
 } from "./viewer/docx-render-projection.js";
 export {
   renderPdfPageBitmapBrowser,
+  resetPdfiumBrowserModuleCache,
   type PdfiumBrowserAssets,
+  type PdfiumBrowserModule,
   type PdfPageBitmap,
 } from "./formats/pdf/pdfium-browser-display.js";
