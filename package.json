@@ -17,6 +17,7 @@
     "generate:layout-visual-baselines": "node ./scripts/generate-layout-visual-baselines.mjs",
     "approve:layout-visual-baselines": "node ./scripts/approve-layout-visual-baselines.mjs --pin",
     "sign:layout-human-signoff": "node ./scripts/sign-layout-human-signoff.mjs",
+    "record:layout-independent-png-review": "node ./scripts/record-layout-independent-png-review.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

@@ -8,6 +8,8 @@ export interface DocxProjectionTransactionStub {
   readonly targetRevision: number;
   readonly paragraphTexts: readonly string[];
   readonly listMarkers: readonly string[];
+  readonly listNumIds: readonly number[];
+  readonly listIlvls: readonly number[];
 }
 
 export function prosemirrorDocToTransactionStub(
@@ -15,9 +17,13 @@ export function prosemirrorDocToTransactionStub(
   targetRevision: number,
 ): DocxProjectionTransactionStub {
   const listMarkers: string[] = [];
+  const listNumIds: number[] = [];
+  const listIlvls: number[] = [];
   doc.forEach((node) => {
     if (node.type.name === "paragraph") {
       listMarkers.push(String(node.attrs.listMarker ?? ""));
+      listNumIds.push(Number(node.attrs.listNumId ?? 0));
+      listIlvls.push(Number(node.attrs.listIlvl ?? 0));
     }
   });
   return {
@@ -25,6 +31,8 @@ export function prosemirrorDocToTransactionStub(
     targetRevision,
     paragraphTexts: proseMirrorParagraphTexts(doc),
     listMarkers,
+    listNumIds,
+    listIlvls,
   };
 }
 

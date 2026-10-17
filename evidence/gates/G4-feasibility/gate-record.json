@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-16 post-edit gate-grade scale (3 breakpoints/entry); G4 gate not-run",
+  "limitations": "W2-G4-17 browser AF post-edit gate path (authoritativeGatePath not-run); G4 gate not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
@@ -23,6 +23,9 @@
     "af-incremental-post-edit-suffix.json",
     "fragmentation-af-post-edit-gate-grade-scale.test.ts",
     "af-incremental-post-edit-gate-grade-scale.json",
+    "fragmentation-af-browser-post-edit-gate-grade.test.ts",
+    "af-browser-post-edit-gate-grade.json",
+    "e2e/fragmentation-af-post-edit-gate-grade.spec.ts",
     "wasm-shaped-layout-hook.ts",
     "domdoc-wasm/src/layout/incremental.rs",
     "layout_flow_paragraph_legal_breaks_json",

@@ -12,6 +12,8 @@ import {
   afCorpusAllConverged,
   evaluateAfBrowserCorpus,
 } from "../../core/dist/components/fragmentation-af-browser-corpus.js";
+import { buildAfBrowserPostEditGateGradeEvidence } from "../../core/dist/components/fragmentation-af-browser-post-edit-gate-grade.js";
+import { createWasmShapedLayoutHook } from "../../core/dist/layout/wasm-shaped-layout-hook.js";
 import type { RenderWireResponse } from "../../core/dist/wire/generated-response.js";
 
 const sampleProjection = () => ({
@@ -92,6 +94,40 @@ async function boot(): Promise<void> {
   );
   document.body.dataset.afCorpusCount = String(afVerdicts.length);
   document.body.dataset.afCorpusConverged = afCorpusAllConverged(afVerdicts) ? "true" : "false";
+
+  const wasmHook = createWasmShapedLayoutHook(engine);
+  const layoutIncrementalWithPreEdit = (
+    paragraphPayload: string,
+    breakAfterCharIndex: number,
+    preEditText: string,
+  ) => {
+    const paragraph = JSON.parse(paragraphPayload) as Record<string, unknown>;
+    if (typeof engine.layout_flow_paragraph_incremental_json !== "function") {
+      return engine.layout_flow_paragraph_shaped_json(
+        JSON.stringify({ ...paragraph, text: preEditText }),
+      );
+    }
+    return String(
+      engine.layout_flow_paragraph_incremental_json(
+        JSON.stringify({ paragraph, breakAfterCharIndex, preEditText }),
+      ),
+    );
+  };
+  const postEditEvidence = buildAfBrowserPostEditGateGradeEvidence(
+    wasmHook.shapedLayoutJson,
+    layoutIncrementalWithPreEdit,
+    {
+      incrementalEnginePath: wasmHook.incrementalEnginePath,
+      proofPath: "browser-demo-wasm",
+      breakpointsPerEntry: 3,
+    },
+  );
+  document.body.dataset.afPostEditScaleCard = postEditEvidence.card;
+  document.body.dataset.afPostEditBreakpointsPerEntry = String(postEditEvidence.breakpointsPerEntry);
+  document.body.dataset.afPostEditAllEquivalent = postEditEvidence.scaledPostEditAllEquivalent
+    ? "true"
+    : "false";
+  document.body.dataset.afPostEditAuthoritativeGate = postEditEvidence.authoritativeGatePath;
 
   let composition = input.active
     ? beginComposition(input.active, "")

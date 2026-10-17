@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-17 D05-DRT-08 mixed numbering; G2-LAYOUT-17 human visual attestation workflow; gate not-run",
+  "limitations": "G2-DOCX-18 D05-DRT-09 multi-numId; G2-LAYOUT-18 independent PNG review workflow; gate not-run",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
@@ -21,6 +21,9 @@
     "docx-numbering-session-writeback.test.ts",
     "docx-numbering-d05-writer-matrix.test.ts",
     "docx-numbering-d05-document-roundtrip.test.ts",
+    "docx-prosemirror-session-numbering.test.ts",
+    "layout-visual-independent-human-png-review.json",
+    "scripts/record-layout-independent-png-review.mjs",
     "layout-visual-human-signoff-signed.json",
     "scripts/sign-layout-human-signoff.mjs",
     "docx-numbering-body-writeback.ts",

@@ -1,8 +1,9 @@
 {
-  "recordedAt": "2026-10-17T08:51:05.037Z",
-  "card": "G1-PDF-18",
+  "recordedAt": "2026-10-17T08:53:22.170Z",
+  "card": "G1-PDF-19",
   "phase": "post-proof-stub",
   "productionWasmObtained": false,
+  "productionModuleLoaded": false,
   "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   "ciWorkerGreenCriteria": "moduleLoaded=true and P01–P05 nativeProof=pass",
   "ciWorkerProofSteps": [
@@ -50,5 +51,6 @@
     }
   ],
   "ciWorkerGreen": false,
-  "note": "G1-PDF-18 proof recorded with moduleLoaded=false; obtain C24 production WASM for green CI worker."
+  "unblockRunbook": "docs/g1-pdfium-c24-unblock-runbook.md",
+  "note": "G1-PDF-19 proof recorded with moduleLoaded=false; drop C24 artifact per g1-pdfium-c24-unblock-runbook.md."
 }

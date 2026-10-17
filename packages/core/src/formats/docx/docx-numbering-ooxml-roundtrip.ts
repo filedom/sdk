@@ -55,6 +55,48 @@ ${lvlBlocks}
 </w:numbering>`;
 }
 
+/** G2-DOCX-18: merge multiple numId defs into one numbering.xml part. */
+export function buildWordCompatibleMultiNumNumberingXml(
+  defs: readonly { numId: number; levels: readonly WordNumberingLevelDef[] }[],
+): string {
+  const abstractBlocks: string[] = [];
+  const numBlocks: string[] = [];
+  for (const def of defs) {
+    const abstractNumId = Math.max(0, def.numId - 1);
+    const lvlBlocks = def.levels
+      .map((level) => {
+        const escaped = level.lvlText.replace(/"/g, "&quot;");
+        const start = level.start ?? 1;
+        const restart =
+          level.restartAfterIlvl !== undefined
+            ? `\n      <w:lvlRestart w:val="${level.restartAfterIlvl}"/>`
+            : "";
+        const ind =
+          level.leftIndentTwips !== undefined || level.hangingIndentTwips !== undefined
+            ? `\n      <w:ind w:left="${level.leftIndentTwips ?? 0}" w:hanging="${level.hangingIndentTwips ?? 0}"/>`
+            : "";
+        return `    <w:lvl w:ilvl="${level.ilvl}">
+      <w:start w:val="${start}"/>
+      <w:numFmt w:val="${level.numFmt}"/>
+      <w:lvlText w:val="${escaped}"/>
+      <w:lvlJc w:val="left"/>${ind}${restart}
+    </w:lvl>`;
+      })
+      .join("\n");
+    abstractBlocks.push(`  <w:abstractNum w:abstractNumId="${abstractNumId}">
+${lvlBlocks}
+  </w:abstractNum>`);
+    numBlocks.push(`  <w:num w:numId="${def.numId}">
+    <w:abstractNumId w:val="${abstractNumId}"/>
+  </w:num>`);
+  }
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:numbering xmlns:w="${W_NS}">
+${abstractBlocks.join("\n")}
+${numBlocks.join("\n")}
+</w:numbering>`;
+}
+
 export function parseNumberingAbstractNumIds(xml: string): number[] {
   const ids: number[] = [];
   const re = /<w:abstractNum[^>]*\sw:abstractNumId="(\d+)"/g;

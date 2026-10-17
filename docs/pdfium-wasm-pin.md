@@ -16,6 +16,7 @@ Constants: `packages/core/src/formats/pdf/pdfium-pin.ts`.
 - **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) resolves an optional module spec; without a vendored artifact it returns `backend-not-configured`. When a module loads but edit paths are unimplemented, preflight/apply report `partial-run-not-implemented` (tests cover both branches; gate still **not-run**).
 - **Feasibility proofs P01–P05:** remain **not-run** until a pinned WASM binary is loaded in CI; tests assert classification only.
 - **CI stub:** `pnpm fetch:pdfium-wasm-stub` or `pnpm fetch:pdfium-wasm` writes `evidence/gates/G1-feasibility/pdfium-wasm-fetch-stub.json` (optional `PDFIUM_WASM_ARTIFACT_DIR` for local vendoring).
+- **G1 unblock (G1-PDF-19):** explicit user steps to drop C24 production bytes — [g1-pdfium-c24-unblock-runbook.md](./g1-pdfium-c24-unblock-runbook.md).
 
 Worker isolation (separate heaps): [pdfium-wasm-worker-isolation.md](./pdfium-wasm-worker-isolation.md).
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1ppppppppppppp",
+  "updatedAt": "2026-10-17-w1pppppppppppppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-18 C24 bytes + ciWorkerProofStepResults; native proofs stub-not-run"
+      "limits": "G1-PDF-19 unblock runbook + productionModuleLoaded; native proofs stub-not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "G2-DOCX-17 D05-DRT-08 mixed fmt numbering; gate not-run"
+      "limits": "G2-DOCX-18 D05-DRT-09 multi-numId custom starts; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "G3-INPUT-18 validated demo→real slots; physical host capture not-run"
+      "limits": "G3-INPUT-19 gate-grade physical-host log template; capture not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "G2-LAYOUT-17 human visual attestation workflow; gate not-run"
+      "limits": "G2-LAYOUT-18 independent PNG review workflow; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-16 post-edit gate-grade scale; gate not-run"
+      "limits": "W2-G4-17 browser AF post-edit gate path; gate not-run"
     },
     {
       "id": "F49",

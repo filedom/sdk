@@ -50,19 +50,27 @@ const ciWorkerProofStepResults = evidence.fixtures.map((f) => ({
   workerCiPath: f.workerCiPath,
   hookReady: f.hookReady,
 }));
+const allNativePass =
+  evidence.moduleLoaded &&
+  evidence.fixtures.length > 0 &&
+  evidence.fixtures.every((f) => f.nativeProof === "pass");
 const bytesAttempt = {
   recordedAt: evidence.recordedAt,
-  card: "G1-PDF-18",
+  card: "G1-PDF-19",
   phase: evidence.moduleLoaded ? "post-proof-worker" : "post-proof-stub",
   productionWasmObtained: evidence.moduleLoaded,
+  productionModuleLoaded: evidence.moduleLoaded,
   ciWorkerProofTarget: "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   ciWorkerGreenCriteria: "moduleLoaded=true and P01–P05 nativeProof=pass",
   ciWorkerProofSteps: ["P01", "P02", "P03", "P04", "P05"],
   ciWorkerProofStepResults,
-  ciWorkerGreen: false,
-  note: evidence.moduleLoaded
-    ? "G1-PDF-18 worker exercised; native P01–P05 proofs still not-run until fixture bytes pass."
-    : "G1-PDF-18 proof recorded with moduleLoaded=false; obtain C24 production WASM for green CI worker.",
+  ciWorkerGreen: allNativePass,
+  unblockRunbook: "docs/g1-pdfium-c24-unblock-runbook.md",
+  note: allNativePass
+    ? "G1-PDF-19 production module loaded and P01–P05 passed — coordinator may review for G1 gate (not auto-pass)."
+    : evidence.moduleLoaded
+      ? "G1-PDF-19 worker exercised; native P01–P05 proofs still not-run until fixture bytes pass."
+      : "G1-PDF-19 proof recorded with moduleLoaded=false; drop C24 artifact per g1-pdfium-c24-unblock-runbook.md.",
 };
 if (existsSync(bytesAttemptPath)) {
   try {

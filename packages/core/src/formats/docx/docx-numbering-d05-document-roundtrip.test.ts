@@ -10,6 +10,7 @@ import {
   readBodyNumPrFromDocumentXml,
 } from "./docx-numbering-body-writeback.js";
 import {
+  buildWordCompatibleMultiNumNumberingXml,
   buildWordCompatibleNumberingXml,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
@@ -388,6 +389,53 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
       },
     ],
   },
+  {
+    id: "D05-DRT-09",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="10"/></w:numPr></w:pPr>
+      <w:r><w:t>List A one</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="11"/></w:numPr></w:pPr>
+      <w:r><w:t>List B starts at five</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="10"/></w:numPr></w:pPr>
+      <w:r><w:t>List A two</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="1"/><w:numId w:val="11"/></w:numPr></w:pPr>
+      <w:r><w:t>List B nested</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleMultiNumNumberingXml([
+      {
+        numId: 10,
+        levels: [{ ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 }],
+      },
+      {
+        numId: 11,
+        levels: [
+          { ilvl: 0, numFmt: "upperRoman", lvlText: "%1.", start: 5 },
+          { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+        ],
+      },
+    ]),
+    paragraphs: [
+      { text: "List A one", numId: 10, ilvl: 0 },
+      { text: "List B starts at five", numId: 11, ilvl: 0 },
+      { text: "List A two", numId: 10, ilvl: 0 },
+      { text: "List B nested", numId: 11, ilvl: 1 },
+    ],
+    expectedNumPr: [
+      { numId: 10, ilvl: 0 },
+      { numId: 11, ilvl: 0 },
+      { numId: 10, ilvl: 0 },
+      { numId: 11, ilvl: 1 },
+    ],
+    expectedTexts: ["List A one", "List B starts at five", "List A two", "List B nested"],
+    seedLevels: [
+      { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+      { ilvl: 0, numFmt: "upperRoman", lvlText: "%1.", start: 5 },
+      { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+    ],
+  },
 ];
 
 const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
@@ -395,7 +443,7 @@ const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
   { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
 ];
 
-describe("G2-DOCX-17 D05 document.xml numbering round-trip", () => {
+describe("G2-DOCX-18 D05 document.xml numbering round-trip", () => {
   it.each(D05_DOCUMENT_ROUNDTRIP.map((row) => [row.id, row] as const))(
     "%s preserves document.xml numPr through OPC export/reopen",
     (_id, row) => {
@@ -439,6 +487,14 @@ describe("G2-DOCX-17 D05 document.xml numbering round-trip", () => {
         expect(levels?.find((l) => l.ilvl === 0)?.numFmt).toBe("upperRoman");
         expect(levels?.find((l) => l.ilvl === 2)?.numFmt).toBe("bullet");
         expect(levels?.find((l) => l.ilvl === 2)?.restartAfterIlvl).toBe(1);
+      }
+      if (row.id === "D05-DRT-09") {
+        const numIds = parseNumberingNumIds(numberingXml);
+        expect(numIds.sort((a, b) => a - b)).toEqual([10, 11]);
+        const parsed = parseWordNumberingXml(numberingXml);
+        const levelsB = parsed.abstractNums.get(parsed.numToAbstract.get(11)!);
+        expect(levelsB?.find((l) => l.ilvl === 0)?.start).toBe(5);
+        expect(levelsB?.find((l) => l.ilvl === 1)?.restartAfterIlvl).toBe(0);
       }
 
       const doc = buildProseMirrorDocFromOoxmlBody(
