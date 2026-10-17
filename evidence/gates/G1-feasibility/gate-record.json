@@ -1,7 +1,7 @@
 {
   "gateId": "G1",
   "scope": "feasibility",
-  "status": "passed",
+  "status": "not-run",
   "requiredFixtureIds": ["P01", "P02", "P03", "P04", "P05", "P11", "P12"],
   "wasmCommit": "aea211a766ec1c96063f6ad0a2a90001702307e1",
   "webCommit": "fd3760c55bc1bb371e9ea2d8ce4db57d78dcf917",

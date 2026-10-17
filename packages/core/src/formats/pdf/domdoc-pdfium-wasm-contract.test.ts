@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyPdfProofOperation } from "./pdfium-proof-hooks.js";
+import {
+  classifyPdfProofOperation,
+  detectC24WriterExportsAtRuntime,
+  moduleDeclaresC24WriterExports,
+} from "./pdfium-proof-hooks.js";
+import type { PdfiumModuleDefault } from "./pdfium-native-api.js";
 
 const webRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "..");
 const pkgRoot = join(webRoot, "packages", "domdoc-pdfium-wasm");
@@ -19,14 +24,18 @@ describe("domdoc-pdfium-wasm C24 contract package (G1 scaffold)", () => {
     expect(p04.fixtureId).toBe("P04");
   });
 
-  it("dist manifest marks contract scaffold when present", () => {
+  it("dist manifest c24WriterExports matches proof-hooks runtime probe", async () => {
     const manifestPath = join(pkgRoot, "dist", "index.mjs");
     if (!existsSync(manifestPath)) {
       expect(existsSync(join(pkgRoot, "scripts", "build-manifest.mjs"))).toBe(true);
       return;
     }
     const text = readFileSync(manifestPath, "utf8");
-    expect(text).toContain("__domdocPdfiumContractScaffold");
+    const mod = (await import(manifestPath)).default as PdfiumModuleDefault;
+    const runtimeReady = await detectC24WriterExportsAtRuntime(mod);
     expect(text).toContain("c24WriterExports: false");
+    expect(text).toContain("__domdocPdfiumContractScaffold");
+    expect(runtimeReady).toBe(false);
+    expect(moduleDeclaresC24WriterExports(mod)).toBe(false);
   });
 });

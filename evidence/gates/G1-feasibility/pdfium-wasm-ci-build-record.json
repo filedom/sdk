@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T14:01:56.546Z",
+  "builtAt": "2026-10-17T14:06:44.963Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -31,7 +31,7 @@
       "cloneAttempted": false,
       "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
     },
-    "gclientConfigAttempted": true,
+    "gclientConfigAttempted": false,
     "gclientSyncAttempted": true,
     "checkoutPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
     "pdfiumTreeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
@@ -47,6 +47,9 @@
     "emscriptenGnWasmGenExit": 1,
     "emscriptenGnWasmNinjaExit": null,
     "emscriptenGnWasmTail": "ERROR at //build/config/BUILDCONFIG.gn:307:3: Assertion failed.\n  assert(false, \"Unsupported target_os: $target_os\")\n  ^-----\nUnsupported target_os: wasm"
+  },
+  "pdfiumGclientTreeEnv": {
+    "PDFIUM_GCLIENT_TREE": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium"
   },
   "pdfiumC24SourceAttempt": {
     "skipped": false,
@@ -68,13 +71,22 @@
   },
   "domdocPdfiumPackageBuild": {
     "packageDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/packages/domdoc-pdfium-wasm",
+    "pdfiumGclientTree": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
+    "hostNinjaAttempt": {
+      "skipped": false,
+      "pdfiumGclientTree": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
+      "exitCode": 0,
+      "evidencePath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/evidence/gates/G1-feasibility/g1-emscripten-gclient-host-ninja-attempt.json",
+      "hostNinjaStatus": "skipped",
+      "primaryHostStaticLib": null
+    },
     "manifestAttempted": true,
     "stubWasmAttempted": true,
     "stubWasmExitCode": 0,
     "vendorCopy": {
       "ok": true,
       "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
-      "filesCopied": 6,
+      "filesCopied": 7,
       "writerExports": false,
       "note": "contract-scaffold-only",
       "stubWasmBuilt": true
@@ -104,6 +116,7 @@
       "emcc-link-record.json",
       "index.js",
       "index.mjs",
+      "manifest-probe-sidecar.json",
       "package.json"
     ],
     "adapterNeeded": false

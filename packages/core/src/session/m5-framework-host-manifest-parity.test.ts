@@ -4,6 +4,8 @@ import { domdocVueAdapterDemoSurface } from "@domdoc/vue";
 import { domdocLitAdapterDemoSurface } from "@domdoc/lit";
 import { domdocAngularAdapterDemoSurface } from "@domdoc/angular";
 import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
+import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
+import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 
 export const M5_FRAMEWORK_ADAPTER_STUB_SURFACE = "framework-adapter-stub" as const;
 
@@ -20,6 +22,8 @@ describe("M5 framework host manifest parity", () => {
     ["lit", domdocLitAdapterDemoSurface],
     ["angular", domdocAngularAdapterDemoSurface],
     ["svelte", domdocSvelteAdapterDemoSurface],
+    ["preact", domdocPreactAdapterDemoSurface],
+    ["solid", domdocSolidAdapterDemoSurface],
   ] as const;
 
   it.each(adapters)("@domdoc/%s demo surface matches shared manifest", (_label, demoSurface) => {

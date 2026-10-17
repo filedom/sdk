@@ -65,18 +65,27 @@ if [[ $LINK_EXIT -ne 0 && "$LINK_MODE" == "partial-fpdf-edit" ]]; then
     -o "$DIST/domdoc_pdfium_contract_stub.js"
 fi
 
+VENDOR_PROBE=false
+if command -v node >/dev/null 2>&1; then
+  PROBE_OUT="$(node --import tsx/esm "$ROOT/scripts/probe-writer-exports.mjs" 2>/dev/null || echo false)"
+  if [[ "$PROBE_OUT" == "true" ]]; then
+    VENDOR_PROBE=true
+  fi
+fi
 node "$ROOT/scripts/build-manifest.mjs"
 node -e "
 const fs=require('fs');
 const path=require('path');
 const out=path.join(process.argv[1],'dist','emcc-link-record.json');
+const vendorProbe=process.argv[5]==='true';
 fs.writeFileSync(out, JSON.stringify({
   recordedAt: new Date().toISOString(),
   linkMode: process.argv[2],
   staticLib: process.argv[3] || null,
   includeDir: process.argv[4] || null,
   c24WriterExports: false,
+  vendorWriterExportsProbe: vendorProbe,
 }, null, 2)+'\n');
-" "$ROOT" "$LINK_MODE" "${STATIC_LIB:-}" "${INCLUDE_DIR:-}"
+" "$ROOT" "$LINK_MODE" "${STATIC_LIB:-}" "${INCLUDE_DIR:-}" "$VENDOR_PROBE"
 
 echo "[emcc-link-writer] done linkMode=$LINK_MODE" >&2

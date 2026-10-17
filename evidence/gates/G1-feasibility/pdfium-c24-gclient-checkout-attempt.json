@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T14:01:56.545Z",
+  "builtAt": "2026-10-17T14:06:44.962Z",
   "skipped": false,
   "card": "G1-PDF-GCLIENT-01",
   "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -9,7 +9,7 @@
     "cloneAttempted": false,
     "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
   },
-  "gclientConfigAttempted": true,
+  "gclientConfigAttempted": false,
   "gclientSyncAttempted": true,
   "checkoutPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
   "pdfiumTreeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",

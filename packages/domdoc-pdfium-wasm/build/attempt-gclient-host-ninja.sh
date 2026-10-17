@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Bounded host `ninja pdfium` attempt under PDFIUM_GCLIENT_TREE — records linkable artifact paths.
 set -euo pipefail
+unset DOMDOC_NINJA_STATUS DOMDOC_NINJA_SKIP_REASON || true
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WEB_ROOT="$(cd "$ROOT/../.." && pwd)"
 EVIDENCE="$WEB_ROOT/evidence/gates/G1-feasibility/g1-emscripten-gclient-host-ninja-attempt.json"
@@ -10,7 +11,7 @@ TIMEOUT_SEC="${PDFIUM_GCLIENT_NINJA_TIMEOUT_SEC:-120}"
 mkdir -p "$(dirname "$EVIDENCE")"
 
 write_evidence() {
-  node - "$EVIDENCE" <<'NODE'
+  node -e '
 const fs = require("fs");
 const out = process.argv[1];
 const payload = {
@@ -25,16 +26,18 @@ const payload = {
   primaryHostStaticLib: process.env.DOMDOC_PRIMARY_LIB || null,
   gnLogTail: process.env.DOMDOC_GN_LOG ?? null,
   ninjaLogTail: process.env.DOMDOC_NINJA_LOG ?? null,
+  reason: process.env.DOMDOC_NINJA_SKIP_REASON ?? null,
   note: "Host ninja pdfium for artifact discovery only; production writer uses pdfium-lib Emscripten static lib (build/LINK_PLAN.md).",
 };
-fs.writeFileSync(out, `${JSON.stringify(payload, null, 2)}\n`);
-NODE
+fs.writeFileSync(out, JSON.stringify(payload, null, 2) + "\n");
+' "$EVIDENCE"
 }
 
 if [[ -z "$TREE" || ! -f "$TREE/BUILD.gn" ]]; then
   export DOMDOC_NINJA_STATUS="skipped"
   export DOMDOC_GCLIENT_TREE=""
   export DOMDOC_HOST_LIBS=""
+  export DOMDOC_NINJA_SKIP_REASON="PDFIUM_GCLIENT_TREE unset or missing BUILD.gn in local checkout"
   write_evidence
   echo "[attempt-gclient-host-ninja] skipped — no gclient tree" >&2
   exit 0
@@ -93,6 +96,7 @@ export DOMDOC_HOST_LIBS="$HOST_LIBS"
 export DOMDOC_PRIMARY_LIB="${PRIMARY_LIB:-}"
 export DOMDOC_GN_LOG="${GN_LOG: -800}"
 export DOMDOC_NINJA_LOG="${NINJA_LOG: -800}"
+export DOMDOC_NINJA_STATUS="$DOMDOC_NINJA_STATUS"
 
 write_evidence
 echo "[attempt-gclient-host-ninja] status=$DOMDOC_NINJA_STATUS primary=${PRIMARY_LIB:-none}" >&2

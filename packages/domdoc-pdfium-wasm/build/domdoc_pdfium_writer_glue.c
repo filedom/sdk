@@ -19,8 +19,15 @@ EMSCRIPTEN_KEEPALIVE int domdoc_pdfium_writer_smoke(void) {
   FPDF_InitLibraryWithConfig(&config);
   FPDF_DOCUMENT doc = FPDF_CreateNewDocument();
   FPDF_PAGE page = FPDFPage_New(doc, 0, 612.0, 792.0);
-  const int ok = page != NULL ? 1 : 0;
+  int ok = page != NULL ? 1 : 0;
   if (page) {
+    FPDF_PAGEOBJECT text = FPDFPageObj_CreateTextObj(doc, NULL, 12.0);
+    if (text) {
+      FPDFText_SetText(text, L"domdoc");
+      FPDFPage_InsertObject(page, text);
+      FPDFPage_GenerateContent(page);
+      ok = FPDFPage_GetObjectCount(page) > 0 ? 1 : 0;
+    }
     FPDFPage_Delete(doc, 0);
   }
   FPDF_CloseDocument(doc);

@@ -339,9 +339,55 @@ function copyDomdocPdfiumPkgDistToVendor(record) {
   };
 }
 
-function attemptDomdocPdfiumWasmPackageBuild(emscripten) {
+function resolvePdfiumGclientTreeForCi() {
+  const explicit = join(PDFIUM_GCLIENT_ROOT, "pdfium");
+  if (existsSync(join(explicit, "BUILD.gn"))) return explicit;
+  return findPdfiumTreeRoot(PDFIUM_GCLIENT_ROOT);
+}
+
+function envWithGclientTree(pdfiumTree) {
+  const env = { ...process.env, PDFIUM_GCLIENT_TREE: pdfiumTree };
+  if (existsSync(LOCAL_DEPOT_TOOLS)) {
+    env.PATH = `${LOCAL_DEPOT_TOOLS}${env.PATH ? `:${env.PATH}` : ""}`;
+  }
+  return env;
+}
+
+function attemptGclientHostNinjaEvidence(pdfiumTree) {
+  const script = join(DOMDOC_PDFIUM_PKG, "build", "attempt-gclient-host-ninja.sh");
+  if (!pdfiumTree || !existsSync(script)) {
+    return { skipped: true, pdfiumGclientTree: pdfiumTree ?? null };
+  }
+  const run = spawnSync("bash", [script], {
+    encoding: "utf8",
+    cwd: DOMDOC_PDFIUM_PKG,
+    timeout: 180_000,
+    env: envWithGclientTree(pdfiumTree),
+  });
+  const evidencePath = join(outDir, "g1-emscripten-gclient-host-ninja-attempt.json");
+  let payload = null;
+  if (existsSync(evidencePath)) {
+    try {
+      payload = JSON.parse(readFileSync(evidencePath, "utf8"));
+    } catch {
+      payload = null;
+    }
+  }
+  return {
+    skipped: false,
+    pdfiumGclientTree: pdfiumTree,
+    exitCode: run.status,
+    evidencePath: existsSync(evidencePath) ? evidencePath : null,
+    hostNinjaStatus: payload?.status ?? null,
+    primaryHostStaticLib: payload?.primaryHostStaticLib ?? null,
+  };
+}
+
+function attemptDomdocPdfiumWasmPackageBuild(emscripten, pdfiumGclientTree) {
   const result = {
     packageDir: DOMDOC_PDFIUM_PKG,
+    pdfiumGclientTree: pdfiumGclientTree ?? null,
+    hostNinjaAttempt: null,
     manifestAttempted: false,
     stubWasmAttempted: false,
     stubWasmExitCode: null,
@@ -363,13 +409,21 @@ function attemptDomdocPdfiumWasmPackageBuild(emscripten) {
     result.detail = (manifest.stderr ?? manifest.stdout ?? "").slice(-800);
     return result;
   }
+  if (pdfiumGclientTree) {
+    result.hostNinjaAttempt = attemptGclientHostNinjaEvidence(pdfiumGclientTree);
+  }
+
   const stubScript = join(DOMDOC_PDFIUM_PKG, "scripts", "build-from-gclient.sh");
   if (emscripten.emccInPath && existsSync(stubScript)) {
     result.stubWasmAttempted = true;
+    const stubEnv = pdfiumGclientTree
+      ? envWithGclientTree(pdfiumGclientTree)
+      : { ...process.env };
     const stub = spawnSync("bash", [stubScript], {
       encoding: "utf8",
       cwd: DOMDOC_PDFIUM_PKG,
       timeout: 120_000,
+      env: stubEnv,
     });
     result.stubWasmExitCode = stub.status;
     if (stub.status === 2) {
@@ -810,8 +864,10 @@ if (existsSync(buildRecordPath)) {
 
 const probeFetch = await probePdfiumLibRelease();
 const pdfiumGclientCheckout = attemptPdfiumC24GclientCheckout(depotTools, emscripten);
+const pdfiumGclientTree =
+  resolvePdfiumGclientTreeForCi() ?? pdfiumGclientCheckout.pdfiumTreeDir ?? null;
 const pdfiumSourceAttempt = attemptPdfiumC24SourceBuild(emscripten, depotTools);
-const domdocPdfiumPackageBuild = attemptDomdocPdfiumWasmPackageBuild(emscripten);
+const domdocPdfiumPackageBuild = attemptDomdocPdfiumWasmPackageBuild(emscripten, pdfiumGclientTree);
 const domdocLayout = describeDomdocPdfiumWasmLayoutExpectation();
 
 writeFileSync(
@@ -850,6 +906,9 @@ const record = {
   priorBuildStatus: priorBuild?.status ?? null,
   upstreamProbe: probeFetch,
   pdfiumC24GclientCheckout: pdfiumGclientCheckout,
+  pdfiumGclientTreeEnv: pdfiumGclientTree
+    ? { PDFIUM_GCLIENT_TREE: pdfiumGclientTree }
+    : null,
   pdfiumC24SourceAttempt: pdfiumSourceAttempt,
   domdocPdfiumPackageBuild,
   domdocPdfiumWasmLayout: domdocLayout,

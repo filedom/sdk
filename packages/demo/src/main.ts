@@ -50,6 +50,8 @@ import { domdocVueAdapterDemoSurface } from "@domdoc/vue";
 import { domdocLitAdapterDemoSurface } from "@domdoc/lit";
 import { domdocAngularAdapterDemoSurface } from "@domdoc/angular";
 import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
+import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
+import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 
 const sampleProjection = () => ({
   header: {
@@ -173,6 +175,28 @@ async function boot(): Promise<void> {
 
   pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
   syncProsemirrorDemoDataset();
+  const openInput = document.getElementById("domdoc-open-local");
+  if (openInput instanceof HTMLInputElement) {
+    openInput.addEventListener("change", () => {
+      const file = openInput.files?.[0];
+      if (!file) return;
+      void file.arrayBuffer().then((buffer) => {
+        try {
+          const bytes = new Uint8Array(buffer);
+          pmSlice = openDocxProsemirrorDemoSessionSlice(bytes, sessionStub);
+          pmUndoState = createProsemirrorDemoToolbarUndoState(pmSlice);
+          syncProsemirrorDemoDataset();
+          syncToolbarStackDataset();
+          document.body.dataset.f01OpenOk = "true";
+          document.body.dataset.f01OpenKind = "docx";
+          document.body.dataset.f01OpenBytes = String(bytes.byteLength);
+        } catch (error) {
+          document.body.dataset.f01OpenOk = "false";
+          document.body.dataset.f01OpenError = String(error);
+        }
+      });
+    });
+  }
   const domdocStore = new MemoryDomdocBlobStoreStub();
   const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
   document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
@@ -211,6 +235,14 @@ async function boot(): Promise<void> {
   const svelteSurface = domdocSvelteAdapterDemoSurface("demo-sess");
   document.body.dataset.m5SvelteAdapter = svelteSurface.surface;
   document.body.dataset.m5SvelteSessionId = svelteSurface.sessionId;
+  if (params.get("m5Extended") !== "0") {
+    const preactSurface = domdocPreactAdapterDemoSurface("demo-sess");
+    document.body.dataset.m5PreactAdapter = preactSurface.surface;
+    document.body.dataset.m5PreactSessionId = preactSurface.sessionId;
+    const solidSurface = domdocSolidAdapterDemoSurface("demo-sess");
+    document.body.dataset.m5SolidAdapter = solidSurface.surface;
+    document.body.dataset.m5SolidSessionId = solidSurface.sessionId;
+  }
 
   const commentsMembers = new Map<string, Uint8Array>();
   commentsMembers.set(

@@ -39,6 +39,17 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   expect(await page.locator("body").getAttribute("data-m5-svelte-adapter")).toBe(
     "framework-adapter-stub",
   );
+  expect(await page.locator("body").getAttribute("data-m5-preact-adapter")).toBe(
+    "framework-adapter-stub",
+  );
+  expect(await page.locator("body").getAttribute("data-m5-solid-adapter")).toBe(
+    "framework-adapter-stub",
+  );
   expect(Number(await page.locator("body").getAttribute("data-m5-comments-wire-count"))).toBe(2);
   await expect(page.locator("#domdoc-comments-list li")).toHaveCount(1);
+  await page.locator("#domdoc-open-local").setInputFiles("fixtures/minimal-open.docx");
+  await expect.poll(async () => page.locator("body").getAttribute("data-f01-open-ok")).toBe("true");
+  await expect.poll(async () => page.locator("body").getAttribute("data-m1-prosemirror-paragraph")).toBe(
+    "opened-local",
+  );
 });

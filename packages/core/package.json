@@ -29,7 +29,9 @@
   "devDependencies": {
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
+    "@domdoc/preact": "workspace:*",
     "@domdoc/react": "workspace:*",
+    "@domdoc/solid": "workspace:*",
     "@domdoc/svelte": "workspace:*",
     "@domdoc/vue": "workspace:*",
     "@types/node": "^22.10.2",

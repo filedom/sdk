@@ -24,6 +24,7 @@
     "reconcile:layout-independent-png-visual-attestation": "node ./scripts/reconcile-layout-independent-png-visual-attestation.mjs",
     "run:physical-host-gate-grade-capture": "node ./scripts/run-physical-host-gate-grade-capture.mjs",
     "ingest:physical-host-gate-grade-log": "node ./scripts/ingest-physical-host-gate-grade-log.mjs",
+    "generate:synthetic-gate-grade-log": "node ./scripts/generate-synthetic-gate-grade-log.mjs",
     "proof:g4-authoritative-gate": "node ./scripts/run-g4-authoritative-gate-proof.mjs",
     "test:e2e": "playwright test"
   },
