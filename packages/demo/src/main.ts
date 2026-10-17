@@ -23,6 +23,13 @@ import {
   createDocumentSession,
 } from "../../core/dist/session/document-session.js";
 import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
+import { exportDocxFromStoreStub } from "../../core/dist/formats/docx/docx-export-stub.js";
+import {
+  applyDemoProsemirrorTextReplace,
+  buildDemoDocxZipBytes,
+  openDocxProsemirrorDemoSessionSlice,
+} from "../../core/dist/session/docx-prosemirror-demo-session-slice.js";
+import { proseMirrorParagraphTexts } from "../../core/dist/formats/docx/docx-prosemirror-projection.js";
 
 const sampleProjection = () => ({
   header: {
@@ -109,6 +116,38 @@ async function boot(): Promise<void> {
     sessionLabel.textContent = "Session: demo-sess (M2 stub)";
     document.body.dataset.m2SessionLabel = sessionLabel.textContent;
     document.body.dataset.m2SessionId = "demo-sess";
+  }
+
+  let pmSlice = openDocxProsemirrorDemoSessionSlice(buildDemoDocxZipBytes("domdoc"), {
+    documentId: "demo-sess",
+    kind: "flow",
+    revisions: {
+      committedRevision: 0,
+      persistedRevision: 0,
+      materializedRevision: 0,
+      exportedRevision: 0,
+      sharedRevision: null,
+      renderedRevision: 0,
+    },
+  });
+  const pmInput = document.getElementById("domdoc-prosemirror-edit");
+  const syncProsemirrorDemoDataset = (): void => {
+    document.body.dataset.m1ProsemirrorSlice = "true";
+    document.body.dataset.m1ProsemirrorRevision = String(
+      pmSlice.session.revisions.committedRevision,
+    );
+    document.body.dataset.m1ProsemirrorParagraph = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
+  };
+  syncProsemirrorDemoDataset();
+  if (pmInput instanceof HTMLInputElement) {
+    pmInput.addEventListener("change", () => {
+      pmSlice = applyDemoProsemirrorTextReplace(pmSlice, 0, pmInput.value);
+      syncProsemirrorDemoDataset();
+      const exported = exportDocxFromStoreStub(pmSlice.store, pmSlice.session);
+      pmSlice = { ...pmSlice, session: exported.session };
+      document.body.dataset.m1DocxExportBytes = String(exported.result.zipBytes.length);
+      document.body.dataset.m1DocxExportRevision = String(exported.result.exportedRevision);
+    });
   }
 
   const response = JSON.parse(

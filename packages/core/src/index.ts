@@ -47,6 +47,27 @@ export {
   type DocxProjectionTransactionStub,
 } from "./formats/docx/docx-prosemirror-transaction-boundary.js";
 export {
+  exportDocxFromStoreStub,
+  recordDocxExportRevision,
+  DOCX_EXPORT_FEATURE_REGISTRY_ID,
+  type DocxExportStubResult,
+} from "./formats/docx/docx-export-stub.js";
+export {
+  applyReviewSuggestionDecisionStub,
+  parseReviewSuggestionMarksFromDocumentXml,
+  REVIEW_SUGGESTION_FEATURE_REGISTRY_ID,
+  type ReviewSuggestionDecision,
+  type ReviewSuggestionDecisionResult,
+  type ReviewSuggestionMarkStub,
+} from "./formats/docx/review-suggestion-accept-reject-stub.js";
+export {
+  applyDemoProsemirrorTextReplace,
+  buildDemoDocxZipBytes,
+  openDocxProsemirrorDemoSessionSlice,
+  PROSEMIRROR_DEMO_SLICE_FEATURE_ID,
+  type DocxProsemirrorDemoSessionSlice,
+} from "./session/docx-prosemirror-demo-session-slice.js";
+export {
   createPdfWriterWorkerClient,
   type PdfWriterWorkerClient,
 } from "./formats/pdf/pdf-writer-worker-client.js";

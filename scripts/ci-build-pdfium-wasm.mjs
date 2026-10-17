@@ -23,16 +23,24 @@ function sha256Buffer(buf) {
   return createHash("sha256").update(buf).digest("hex");
 }
 
+const LOCAL_EMSDK = join(root, "tools", "emsdk");
+const LOCAL_EMSDK_ENV = join(LOCAL_EMSDK, "emsdk_env.sh");
+
 function probeEmscripten() {
-  const emcc = spawnSync("bash", ["-lc", "command -v emcc && emcc --version | head -1"], {
+  const emsdk = process.env.EMSDK?.trim();
+  const localEmsdkPresent = existsSync(LOCAL_EMSDK_ENV);
+  const shellProbe = localEmsdkPresent
+    ? `source "${LOCAL_EMSDK_ENV}" >/dev/null 2>&1; command -v emcc && emcc --version | head -1`
+    : "command -v emcc && emcc --version | head -1";
+  const emcc = spawnSync("bash", ["-lc", shellProbe], {
     encoding: "utf8",
   });
-  const emsdk = process.env.EMSDK?.trim();
   return {
     emccInPath: emcc.status === 0 && Boolean(emcc.stdout?.trim()),
     emccVersionLine: (emcc.stdout ?? "").trim() || null,
     emsdkEnv: emsdk ?? null,
-    emsdkExists: emsdk ? existsSync(emsdk) : false,
+    emsdkExists: emsdk ? existsSync(emsdk) : localEmsdkPresent,
+    localEmsdkPath: localEmsdkPresent ? LOCAL_EMSDK : null,
   };
 }
 

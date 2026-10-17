@@ -1,14 +1,15 @@
 {
-  "builtAt": "2026-10-17T09:26:19.028Z",
+  "builtAt": "2026-10-17T09:28:50.968Z",
   "card": "G1-PDF-CI-01",
-  "status": "toolchain-emscripten-missing",
+  "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
   "productionArtifactExpected": "vendor/domdoc-pdfium-wasm (domdoc-pdfium-wasm repo)",
   "emscripten": {
-    "emccInPath": false,
-    "emccVersionLine": null,
-    "emsdkEnv": null,
-    "emsdkExists": false
+    "emccInPath": true,
+    "emccVersionLine": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk/upstream/emscripten/emcc\nemcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.12 (5488e0871d46d19a3209988190fa6a653126256f)",
+    "emsdkEnv": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk",
+    "emsdkExists": true,
+    "localEmsdkPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk"
   },
   "priorBuildStatus": "not-configured",
   "upstreamProbe": {

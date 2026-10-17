@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m2-review-a11y-g1-ci",
+  "updatedAt": "2026-10-17-m1-prosemirror-docx-export-review",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -11,6 +11,16 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["A"],
       "gateIds": []
+    },
+    {
+      "id": "F02",
+      "description": "Export to DOCX",
+      "milestone": "M1",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["W"],
+      "gateIds": ["G2", "G5"],
+      "limits": "docx-export-stub (fflate OPC zip from DocxStore); exportedRevision on session; gate not-run"
     },
     {
       "id": "F05",
@@ -33,6 +43,16 @@
       "limits": "annotations-wire-stub (F20) + review-thread-stub grouping; read-only D04; no comment editing"
     },
     {
+      "id": "F21",
+      "description": "Embedded editing (ProseMirror slice)",
+      "milestone": "M1",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["W"],
+      "gateIds": ["G2"],
+      "limits": "docx-prosemirror-demo-session-slice + demo input wired to DocumentSession projection stub"
+    },
+    {
       "id": "F29",
       "description": "Native PDF text editing",
       "milestone": "M0",
@@ -41,6 +61,16 @@
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
       "limits": "G1-PDF-21 artifact-drop + ci:build-pdfium-wasm readiness record; native proofs stub-not-run"
+    },
+    {
+      "id": "F34",
+      "description": "Review accept/reject decisions",
+      "milestone": "M2",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["D"],
+      "gateIds": ["G2"],
+      "limits": "review-suggestion-accept-reject-stub (w:ins/w:del marks); in-memory ledger; no OOXML write-back"
     },
     {
       "id": "F07",

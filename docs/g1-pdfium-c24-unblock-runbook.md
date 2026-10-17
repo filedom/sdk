@@ -41,6 +41,19 @@ Optional discovery env (when vendor drop empty):
 
 Optional: clone/build tree via `PDFIUM_WASM_BUILD_ROOT` + `PDFIUM_WASM_RUN_BUILD=1` (local only; not CI).
 
+## Local Emscripten (automated install)
+
+```bash
+cd domdoc-web
+git clone https://github.com/emscripten-core/emsdk.git tools/emsdk
+cd tools/emsdk && ./emsdk install latest && ./emsdk activate latest
+source ./emsdk_env.sh
+```
+
+`pnpm ci:build-pdfium-wasm` auto-sources `tools/emsdk/emsdk_env.sh` when present (see `pdfium-wasm-ci-build-record.json`).
+
+**Third-party prebuild:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` may download **pdfium-lib** release `wasm.zip` for size/licensing probe only (BSD PDFium base; **not** C24 `domdoc-pdfium-wasm` writer exports — do not vend for G1 pass).
+
 ## CI worker (automated readiness)
 
 ```bash
