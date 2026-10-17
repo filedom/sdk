@@ -1,16 +1,17 @@
 {
   "templateVersion": 1,
-  "card": "G2-LAYOUT-13",
-  "humanReviewStatus": "simulated-signoff-labeled",
-  "reviewerId": "ci-simulated-reviewer",
-  "reviewedAt": "2026-10-17T08:43:59.106Z",
+  "card": "G2-LAYOUT-15",
+  "humanReviewStatus": "human-workflow-acknowledged",
+  "reviewerId": "local-reviewer-stub",
+  "reviewedAt": "2026-10-17T08:46:46.413Z",
   "corpusEntryIds": [
     "LV-01",
     "LV-02",
     "LV-03"
   ],
   "checksumSource": "layout-visual-baseline-checksums.json",
-  "signedChecksumSha256": "547bc993c271d142e6047349be2f20bb00a0478aebfe90f639ac44e6046cfaa2",
-  "note": "Simulated signature for local integration only — NOT human visual review. Gate G2 remains not-run.",
-  "signatureKind": "simulated-local-integration"
+  "signedChecksumSha256": "ac95075d88931e19757c9e5180c186be2858f4e6323cc4660a847bd3353fcda7",
+  "note": "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
+  "signatureKind": "human",
+  "layoutSignoffMode": "human"
 }

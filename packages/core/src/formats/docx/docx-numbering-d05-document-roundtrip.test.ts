@@ -13,7 +13,9 @@ import {
   buildWordCompatibleNumberingXml,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
+import { parseWordNumberingXml } from "./docx-numbering-runtime.js";
 import type { ListParagraphMeta } from "./docx-list-numbering-stub.js";
+import type { WordNumberingLevelDef } from "./docx-numbering-ooxml-roundtrip.js";
 import { getMemberUtf8, readOpcPackage, writeOpcPackage } from "./opc-package.js";
 
 function zipDocx(documentXml: string, numberingXml?: string): Uint8Array {
@@ -47,6 +49,7 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
   paragraphs: ListParagraphMeta[];
   expectedNumPr: Array<{ numId: number; ilvl: number }>;
   expectedTexts: string[];
+  seedLevels?: readonly WordNumberingLevelDef[];
 }[] = [
   {
     id: "D05-DRT-01",
@@ -141,18 +144,86 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
     ],
     expectedTexts: ["Parent", "Child", "Restart"],
   },
+  {
+    id: "D05-DRT-06",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Indented parent</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="1"/><w:numId w:val="7"/></w:numPr>
+      <w:ind w:left="1440" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Nested child</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="7"/></w:numPr>
+      <w:ind w:left="720" w:hanging="360"/></w:pPr>
+      <w:r><w:t>Restart after nested</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleNumberingXml(7, [
+      {
+        ilvl: 0,
+        numFmt: "decimal",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "lowerLetter",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+    ]),
+    paragraphs: [
+      { text: "Indented parent", numId: 7, ilvl: 0 },
+      { text: "Nested child", numId: 7, ilvl: 1 },
+      { text: "Restart after nested", numId: 7, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 7, ilvl: 0 },
+      { numId: 7, ilvl: 1 },
+      { numId: 7, ilvl: 0 },
+    ],
+    expectedTexts: ["Indented parent", "Nested child", "Restart after nested"],
+    seedLevels: [
+      {
+        ilvl: 0,
+        numFmt: "decimal",
+        lvlText: "%1.",
+        start: 1,
+        leftIndentTwips: 720,
+        hangingIndentTwips: 360,
+      },
+      {
+        ilvl: 1,
+        numFmt: "lowerLetter",
+        lvlText: "%2.",
+        start: 1,
+        restartAfterIlvl: 0,
+        leftIndentTwips: 1440,
+        hangingIndentTwips: 360,
+      },
+    ],
+  },
 ];
 
-describe("G2-DOCX-13 D05 document.xml numbering round-trip", () => {
+const DEFAULT_D05_SEED_LEVELS: readonly WordNumberingLevelDef[] = [
+  { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+  { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+];
+
+describe("G2-DOCX-15 D05 document.xml numbering round-trip", () => {
   it.each(D05_DOCUMENT_ROUNDTRIP.map((row) => [row.id, row] as const))(
     "%s preserves document.xml numPr through OPC export/reopen",
     (_id, row) => {
       const pkg = readOpcPackage(zipDocx(row.seedDocumentXml, row.seedNumberingXml));
       const patched = applyDocxNumberingWriteBackFromSession(pkg, row.paragraphs, {
-        seedLevels: [
-          { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
-          { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
-        ],
+        seedLevels: row.seedLevels ?? DEFAULT_D05_SEED_LEVELS,
       });
       const documentXmlFirst = getMemberUtf8(patched, "word/document.xml");
       expect(readBodyNumPrFromDocumentXml(documentXmlFirst)).toEqual(row.expectedNumPr);
@@ -166,6 +237,14 @@ describe("G2-DOCX-13 D05 document.xml numbering round-trip", () => {
 
       const numberingXml = getMemberUtf8(patched, "word/numbering.xml");
       expect(parseNumberingNumIds(numberingXml).length).toBeGreaterThan(0);
+      if (row.id === "D05-DRT-06") {
+        const parsed = parseWordNumberingXml(numberingXml);
+        const abstractId = parsed.numToAbstract.get(7);
+        expect(abstractId).toBeDefined();
+        const levels = parsed.abstractNums.get(abstractId!);
+        expect(levels?.find((l) => l.ilvl === 0)?.leftIndentTwips).toBe(720);
+        expect(levels?.find((l) => l.ilvl === 1)?.restartAfterIlvl).toBe(0);
+      }
 
       const doc = buildProseMirrorDocFromOoxmlBody(
         reopenedStore.getBody(),

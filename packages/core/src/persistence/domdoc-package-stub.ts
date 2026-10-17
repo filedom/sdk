@@ -25,6 +25,12 @@ export interface DomdocPackageMemberStub {
   contentHash: "not-computed";
 }
 
+/** M2 demo shell session ids (optional manifest annotation — not authoritative session state). */
+export interface DomdocM2DemoSessionBindingStub {
+  sessionId: string;
+  toolbarSessionId?: string;
+}
+
 export interface DomdocPackageManifestStub {
   schemaVersion: typeof DOMDOC_PACKAGE_SCHEMA_VERSION;
   documentId: string;
@@ -35,6 +41,8 @@ export interface DomdocPackageManifestStub {
   requiredMembers: readonly string[];
   componentSchemaVersions: Record<string, number>;
   memberHashes: Record<string, string>;
+  /** G5/M2: optional demo session binding when host exports manifest stub. */
+  m2DemoSessionBinding?: DomdocM2DemoSessionBindingStub;
 }
 
 export interface DomdocPackageBlobIndexStub {
@@ -170,6 +178,14 @@ export function attachMultiBlobMemberKeysToManifestStub(
     memberHashes[key] = "not-computed";
   }
   return { ...manifest, memberHashes };
+}
+
+/** G5/M2: attach demo session ids from host shell (manifest stub only). */
+export function attachM2DemoSessionBindingToManifestStub(
+  manifest: DomdocPackageManifestStub,
+  binding: DomdocM2DemoSessionBindingStub,
+): DomdocPackageManifestStub {
+  return { ...manifest, m2DemoSessionBinding: binding };
 }
 
 /** G5: minimal staged write simulation — blob verified before manifest commit. */

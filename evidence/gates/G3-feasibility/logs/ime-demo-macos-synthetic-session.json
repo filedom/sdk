@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "sessionKind": "synthetic-demo-ime",
+  "synthetic": true,
+  "platform": "macos",
+  "capturedAt": "2026-10-17T09:00:00.000Z",
+  "demoSessionId": "demo-sess-synthetic-ime",
+  "hostLabel": "domdoc-demo-shell-stub",
+  "entries": [
+    { "ts": "t0", "eventType": "compositionstart", "synthetic": true, "fields": { "data": "" } },
+    { "ts": "t1", "eventType": "compositionupdate", "synthetic": true, "fields": { "data": "あ" } },
+    { "ts": "t2", "eventType": "compositionend", "synthetic": true, "fields": { "data": "あ" } },
+    { "ts": "t3", "eventType": "input", "synthetic": true, "fields": { "inputType": "insertCompositionText" } }
+  ]
+}

@@ -24,15 +24,43 @@ const template = existsSync(templatePath)
   ? JSON.parse(readFileSync(templatePath, "utf8"))
   : { templateVersion: 1, corpusEntryIds: ["LV-01", "LV-02", "LV-03"] };
 
+const mode = (process.env.LAYOUT_SIGNOFF_MODE ?? "simulated").trim().toLowerCase();
+
+if (mode === "human") {
+  const reviewerId = process.env.LAYOUT_SIGNOFF_REVIEWER_ID?.trim();
+  if (!reviewerId) {
+    console.error(
+      "[sign-layout-human-signoff] LAYOUT_SIGNOFF_MODE=human requires LAYOUT_SIGNOFF_REVIEWER_ID (refuses simulated-only signature).",
+    );
+    process.exit(2);
+  }
+  const signed = {
+    ...template,
+    card: "G2-LAYOUT-15",
+    humanReviewStatus: "human-workflow-acknowledged",
+    reviewerId,
+    reviewedAt: new Date().toISOString(),
+    checksumSource: "layout-visual-baseline-checksums.json",
+    signedChecksumSha256,
+    signatureKind: "human",
+    layoutSignoffMode: "human",
+    note: "Human workflow invoked — visual baseline review must be completed on pinned corpus. Gate G2 remains not-run until coordinator accepts.",
+  };
+  writeFileSync(signedPath, `${JSON.stringify(signed, null, 2)}\n`);
+  console.log(`[sign-layout-human-signoff] human workflow wrote ${signedPath}`);
+  process.exit(0);
+}
+
 const signed = {
   ...template,
-  card: "G2-LAYOUT-13",
+  card: "G2-LAYOUT-15",
   humanReviewStatus: "simulated-signoff-labeled",
   reviewerId: "ci-simulated-reviewer",
   reviewedAt: new Date().toISOString(),
   checksumSource: "layout-visual-baseline-checksums.json",
   signedChecksumSha256,
   signatureKind: "simulated-local-integration",
+  layoutSignoffMode: "simulated",
   note: "Simulated signature for local integration only — NOT human visual review. Gate G2 remains not-run.",
 };
 

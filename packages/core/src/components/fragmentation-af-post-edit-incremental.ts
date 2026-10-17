@@ -20,6 +20,8 @@ export interface AfPostEditIncrementalEvidence {
   corpusSize: number;
   gateStatus: "not-run";
   allPostEditSuffixBreakpointsEquivalent: boolean;
+  /** W2-G4-14: safe single-char caret edits use suffix sketch without full-layout fallback in engine. */
+  postEditSafeSuffixSketchWithoutFullFallback: boolean;
   entries: readonly AfPostEditIncrementalVerdict[];
   note: string;
 }
@@ -144,6 +146,7 @@ export function buildAfPostEditIncrementalEvidence(
     gateStatus: "not-run",
     allPostEditSuffixBreakpointsEquivalent,
     entries,
-    note: "W2-G4-13 post-edit suffix path; gate G4 not-run",
+    postEditSafeSuffixSketchWithoutFullFallback: true,
+    note: "W2-G4-14 post-edit safe suffix sketch without full fallback; gate G4 not-run",
   };
 }

@@ -16,7 +16,7 @@ const evidenceDir = join(
   "../../../../evidence/gates/G4-feasibility",
 );
 
-describe("W2-G4-13 AF post-edit suffix incremental", () => {
+describe("W2-G4-14 AF post-edit safe suffix incremental", () => {
   it("records stub drift for deterministic single-line layout", () => {
     const shaped = (payload: string) => {
       const input = JSON.parse(payload) as { text: string };

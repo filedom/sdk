@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-17T08:43:50.310Z",
+  "recordedAt": "2026-10-17T08:46:45.808Z",
   "corpusSize": 3,
   "gateStatus": "not-run",
   "allPostEditSuffixBreakpointsEquivalent": true,
@@ -26,5 +26,6 @@
       "detail": "post-edit suffix sketch matches full layout fragments"
     }
   ],
-  "note": "W2-G4-13 post-edit suffix path; gate G4 not-run"
+  "postEditSafeSuffixSketchWithoutFullFallback": true,
+  "note": "W2-G4-14 post-edit safe suffix sketch without full fallback; gate G4 not-run"
 }

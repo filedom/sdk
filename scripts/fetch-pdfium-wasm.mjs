@@ -198,10 +198,11 @@ writeFileSync(
   `${JSON.stringify(
     {
       recordedAt: new Date().toISOString(),
-      card: "G1-PDF-15",
+      card: "G1-PDF-16",
       phase: "pre-ingest",
       productionWasmObtained: false,
       ciWorkerProofTarget: "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
+      ciWorkerGreenCriteria: "moduleLoaded=true and P01–P05 nativeProof=pass",
       note: "C24 domdoc-pdfium-wasm bytes ingest attempt; updated post-fetch outcome.",
     },
     null,

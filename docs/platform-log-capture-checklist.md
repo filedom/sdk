@@ -1,6 +1,6 @@
-# Platform log capture checklist (G3-INPUT-15)
+# Platform log capture checklist (G3-INPUT-16)
 
-Real IME/SR logs for gate **G3** remain **not-run** until capture sessions are **full demo runs** (not minimal partial fills).
+Real IME/SR logs for gate **G3** remain **not-run** until capture sessions are **full demo runs** on physical hosts. Synthetic fuller demo payloads: [demo-ime-sr-capture-sessions.md](./demo-ime-sr-capture-sessions.md).
 
 | Slot | Path | Status (2026-10-17) | Action |
 | --- | --- | --- | --- |

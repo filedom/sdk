@@ -10,6 +10,7 @@ import {
   validateDomdocCrashSafeCommitPlan,
   simulateDomdocCrashSafeStagedWrite,
   MemoryDomdocBlobStoreStub,
+  attachM2DemoSessionBindingToManifestStub,
   attachMultiBlobMemberKeysToManifestStub,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
@@ -103,6 +104,15 @@ describe("M1 DocumentSession skeleton", () => {
     const manifest = parseDomdocPackageManifestStub(manifestBytes);
     const withKeys = attachMultiBlobMemberKeysToManifestStub(manifest, store.lastCommittedBlobKeys);
     expect(withKeys.memberHashes["source/native-checkpoint.bin"]).toBe("not-computed");
+  });
+
+  it("G5/M2 attaches demo session binding to manifest stub", () => {
+    const manifest = createDomdocPackageManifestStub(base);
+    const withBinding = attachM2DemoSessionBindingToManifestStub(manifest, {
+      sessionId: "demo-sess",
+      toolbarSessionId: "demo-sess",
+    });
+    expect(withBinding.m2DemoSessionBinding?.sessionId).toBe("demo-sess");
   });
 
   it("G5 memory blob store applies staged write after simulation passes", () => {

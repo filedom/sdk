@@ -13,6 +13,10 @@ export interface WordNumberingLevelDef {
   start?: number;
   /** Restart after this ilvl (w:lvlRestart w:val). */
   restartAfterIlvl?: number;
+  /** w:ind w:left (twips) — G2-DOCX-15 subset. */
+  leftIndentTwips?: number;
+  /** w:ind w:hanging (twips). */
+  hangingIndentTwips?: number;
 }
 
 export function buildWordCompatibleNumberingXml(
@@ -28,11 +32,15 @@ export function buildWordCompatibleNumberingXml(
         level.restartAfterIlvl !== undefined
           ? `\n      <w:lvlRestart w:val="${level.restartAfterIlvl}"/>`
           : "";
+      const ind =
+        level.leftIndentTwips !== undefined || level.hangingIndentTwips !== undefined
+          ? `\n      <w:ind w:left="${level.leftIndentTwips ?? 0}" w:hanging="${level.hangingIndentTwips ?? 0}"/>`
+          : "";
       return `    <w:lvl w:ilvl="${level.ilvl}">
       <w:start w:val="${start}"/>
       <w:numFmt w:val="${level.numFmt}"/>
       <w:lvlText w:val="${escaped}"/>
-      <w:lvlJc w:val="left"/>${restart}
+      <w:lvlJc w:val="left"/>${ind}${restart}
     </w:lvl>`;
     })
     .join("\n");

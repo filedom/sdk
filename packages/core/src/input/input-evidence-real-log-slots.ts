@@ -102,6 +102,6 @@ export function buildRealInputLogSlotManifest(): {
     recordedAt: new Date().toISOString(),
     gateStatus: "not-run",
     slots: REAL_INPUT_LOG_SLOTS,
-    note: "G3-INPUT-15 IME-01/02 + SR-01 validated partial captures; full demo sessions still not-run; gate not-run",
+    note: "G3-INPUT-16 synthetic demo session validator; full physical-host demo capture still not-run; gate not-run",
   };
 }
