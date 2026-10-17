@@ -16,7 +16,7 @@ Constants: `packages/core/src/formats/pdf/pdfium-pin.ts`.
 
 | Track | Role | Status |
 | --- | --- | --- |
-| **A — C24 domdoc-pdfium-wasm writer** | Production `DomdocPdfiumApi` + P01–P05 native proofs | **Blocked upstream:** Chromium PDFium `gclient` checkout succeeds for desktop `gn gen`, but `target_os="wasm"` fails with `Unsupported target_os: wasm` (see `pdfium-c24-gclient-checkout-attempt.json`). In-repo **emcc contract stub** only (`writerExportsReady=false`). |
+| **A — C24 domdoc-pdfium-wasm writer** | Production `DomdocPdfiumApi` + P01–P05 native proofs | **Local G1 M0 subset passed:** sibling `domdoc-pdfium-wasm` links C24 `libpdfium.a` with pdfium-lib **emscripten** toolchain (`target_os=emscripten`). Vendored `domdoc_pdfium.wasm`; `writerExportsReady=true`. Upstream Chromium `target_os=wasm` remains unsupported. |
 | **B — pdfium-lib prebuild probe** | Render-only WASM experiments (`PDFIUM_WASM_CI_PROBE_FETCH=1`) | **Automated** in CI; vendored probe adapter; **not** C24 writer; no G1 pass. |
 | **C — pdfium-render (C25)** | Future display bridge / Rust-side bind to same C24 object files | **Documented pin**; optional `domdoc-wasm` feature `pdfium-display-bridge-stub` records boundary only (no PDFium link in render crate). |
 | **D — @domdoc/pdfium-bridge** | Web display-first re-export of probe render + page bitmap worker hooks | **Implemented** (`packages/domdoc-pdfium-bridge/`). |
@@ -29,8 +29,8 @@ Native P01–P05 without C24 writer bytes report **`nativeProof: blocked`** with
 
 ## Integration status (W1 → W2)
 
-- **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) resolves an optional module spec; without a vendored artifact it returns `backend-not-configured`. When a module loads but edit paths are unimplemented, preflight/apply report `partial-run-not-implemented` (tests cover both branches; gate still **not-run**).
-- **Feasibility proofs P01–P05:** **blocked** or **not-run** until C24 writer WASM loads; CI runs **classification hooks** with `DomdocPdfiumApi` test double when writer exports absent.
+- **Writer adapter:** `PdfiumWasmWriterBackend` (`pdfium-wasm`) loads vendored C24 `index.js` (`resolvePdfiumWasmModule`). Without that artifact it returns `backend-not-configured`.
+- **Feasibility proofs P01–P05 (+ P11–P12):** **nativeProof=pass** on the local C24 vendor drop (fresh `FPDF_LoadMemDocument` inspect). CI without the gitignored WASM still sees the in-repo contract stub / probe (`writerExportsReady=false`).
 - **CI stub:** `pnpm fetch:pdfium-wasm-stub` or `pnpm fetch:pdfium-wasm` writes `evidence/gates/G1-feasibility/pdfium-wasm-fetch-stub.json` (optional `PDFIUM_WASM_ARTIFACT_DIR` for local vendoring).
 - **G1 unblock (G1-PDF-19):** explicit user steps to drop C24 production bytes — [g1-pdfium-c24-unblock-runbook.md](./g1-pdfium-c24-unblock-runbook.md).
 

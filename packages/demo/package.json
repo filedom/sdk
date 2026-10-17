@@ -10,8 +10,10 @@
     "preview": "vite preview --port 5173"
   },
   "dependencies": {
+    "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
     "@domdoc/react": "workspace:*",
+    "@domdoc/svelte": "workspace:*",
     "@domdoc/vue": "workspace:*"
   },
   "devDependencies": {

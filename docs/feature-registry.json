@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1 path decision + domdoc-pdfium-wasm C24 contract + pdfium-lib probe + @domdoc/pdfium-bridge + pdf-lib C12 overlay (gatePass false); P01–P05 classification/blocked in CI; native writer not-run until C24 artifact drop"
+      "limits": "G1 M0 subset passed locally on C24 writer WASM (P01–P05, P11–P12 native inspect after FPDF_SaveAsCopy). P06–P10 remaining; qpdf/PDF.js raster not-run. Probe/contract stub must not overwrite vendor production bytes."
     },
     {
       "id": "F34",

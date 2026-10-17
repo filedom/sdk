@@ -33,6 +33,12 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   );
   expect(await page.locator("body").getAttribute("data-m5-vue-adapter")).toBe("framework-adapter-stub");
   expect(await page.locator("body").getAttribute("data-m5-lit-adapter")).toBe("framework-adapter-stub");
+  expect(await page.locator("body").getAttribute("data-m5-angular-adapter")).toBe(
+    "framework-adapter-stub",
+  );
+  expect(await page.locator("body").getAttribute("data-m5-svelte-adapter")).toBe(
+    "framework-adapter-stub",
+  );
   expect(Number(await page.locator("body").getAttribute("data-m5-comments-wire-count"))).toBe(2);
   await expect(page.locator("#domdoc-comments-list li")).toHaveCount(1);
 });

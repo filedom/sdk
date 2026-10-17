@@ -1,9 +1,9 @@
 {
-  "recordedAt": "2026-10-17T13:55:31.196Z",
+  "recordedAt": "2026-10-17T14:01:12.193Z",
   "card": "G1-PDF-19",
-  "phase": "post-proof-stub",
-  "productionWasmObtained": false,
-  "productionModuleLoaded": false,
+  "phase": "post-proof-native",
+  "productionWasmObtained": true,
+  "productionModuleLoaded": true,
   "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   "ciWorkerGreenCriteria": "moduleLoaded=true and P01–P05 nativeProof=pass",
   "ciWorkerProofSteps": [
@@ -18,56 +18,56 @@
   "ciWorkerProofStepResults": [
     {
       "step": "P01",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P02",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P03",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P04",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P05",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P11",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     },
     {
       "step": "P12",
-      "moduleLoaded": false,
-      "nativeProof": "blocked",
-      "workerCiPath": "skipped",
-      "hookReady": false
+      "moduleLoaded": true,
+      "nativeProof": "pass",
+      "workerCiPath": "exercised",
+      "hookReady": true
     }
   ],
-  "ciWorkerGreen": false,
-  "feasibilityExtrasPass": false,
+  "ciWorkerGreen": true,
+  "feasibilityExtrasPass": true,
   "unblockRunbook": "docs/g1-pdfium-c24-unblock-runbook.md",
-  "note": "Classification hooks recorded; native P01–P05 blocked (upstream gn wasm / no C24 writer) — gate not-run."
+  "note": "C24 writer WASM loaded; P01–P05 and P11–P12 native proofs passed — coordinator may set G1 feasibility after independent inspection."
 }

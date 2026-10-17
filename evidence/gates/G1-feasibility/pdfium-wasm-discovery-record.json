@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-17T13:48:46.157Z",
+  "recordedAt": "2026-10-17T13:58:18.376Z",
   "card": "G1-PDF-14",
   "envVarsChecked": [
     "PDFIUM_WASM_ARTIFACT_DIR",
@@ -29,5 +29,5 @@
   ],
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
   "phase": "post-vendor",
-  "ingestStatus": "artifact-local"
+  "ingestStatus": "artifact-local-c24"
 }

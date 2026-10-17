@@ -4,7 +4,15 @@
  * Set PDFIUM_WASM_ARTIFACT_DIR to a built domdoc-pdfium-wasm package directory.
  */
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -49,7 +57,40 @@ function siblingBuildRoots() {
 
 const outDir = join(root, "evidence", "gates", "G1-feasibility");
 const vendorDir = join(root, "vendor", "domdoc-pdfium-wasm");
+const C24_PIN = "7c55203ed66b0461378323e3fcf2efaf76755241";
 mkdirSync(outDir, { recursive: true });
+
+function dirIsProductionC24(dir) {
+  const wasm = join(dir, "domdoc_pdfium.wasm");
+  const pkgPath = join(dir, "package.json");
+  const entry = join(dir, "index.js");
+  if (!existsSync(wasm) || !existsSync(pkgPath) || !existsSync(entry)) return false;
+  try {
+    if (statSync(wasm).size < 1_000_000) return false;
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+    return pkg.pdfiumSourceCommit === C24_PIN;
+  } catch {
+    return false;
+  }
+}
+
+function vendorHasProductionC24() {
+  return dirIsProductionC24(vendorDir);
+}
+
+function preservePassedProofEvidence() {
+  if (vendorHasProductionC24()) return true;
+  const bytesAttemptPath = join(outDir, "pdfium-wasm-bytes-attempt.json");
+  if (existsSync(bytesAttemptPath)) {
+    try {
+      const prior = JSON.parse(readFileSync(bytesAttemptPath, "utf8"));
+      if (prior.productionWasmObtained === true) return true;
+    } catch {
+      /* rewrite */
+    }
+  }
+  return false;
+}
 
 const artifactDir = process.env.PDFIUM_WASM_ARTIFACT_DIR?.trim();
 const artifactUrl = process.env.PDFIUM_WASM_ARTIFACT_URL?.trim();
@@ -146,6 +187,7 @@ function writeDiscoveryRecord(extra) {
 }
 
 function writeNonProductionVendorStub() {
+  if (vendorHasProductionC24()) return;
   mkdirSync(vendorDir, { recursive: true });
   writeFileSync(
     join(vendorDir, "NONPRODUCTION-PLACEHOLDER.md"),
@@ -193,24 +235,26 @@ writeFileSync(
   )}\n`,
 );
 writeDiscoveryRecord({ phase: "pre-ingest" });
-writeFileSync(
-  join(outDir, "pdfium-wasm-bytes-attempt.json"),
-  `${JSON.stringify(
-    {
-      recordedAt: new Date().toISOString(),
-      card: "G1-PDF-18",
-      phase: "pre-ingest",
-      productionWasmObtained: false,
-      ciWorkerProofTarget: "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
-      ciWorkerGreenCriteria: "moduleLoaded=true and P01–P05 nativeProof=pass",
-      ciWorkerProofSteps: ["P01", "P02", "P03", "P04", "P05"],
-      ciWorkerProofStepResults: null,
-      note: "G1-PDF-18 C24 domdoc-pdfium-wasm bytes → CI worker P01–P05; green proofs pending production WASM.",
-    },
-    null,
-    2,
-  )}\n`,
-);
+if (!preservePassedProofEvidence()) {
+  writeFileSync(
+    join(outDir, "pdfium-wasm-bytes-attempt.json"),
+    `${JSON.stringify(
+      {
+        recordedAt: new Date().toISOString(),
+        card: "G1-PDF-18",
+        phase: "pre-ingest",
+        productionWasmObtained: false,
+        ciWorkerProofTarget: "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
+        ciWorkerGreenCriteria: "moduleLoaded=true and P01–P05 nativeProof=pass",
+        ciWorkerProofSteps: ["P01", "P02", "P03", "P04", "P05"],
+        ciWorkerProofStepResults: null,
+        note: "G1-PDF-18 C24 domdoc-pdfium-wasm bytes → CI worker P01–P05; green proofs pending production WASM.",
+      },
+      null,
+      2,
+    )}\n`,
+  );
+}
 
 if (!effectiveArtifactDir) {
   for (const buildRoot of discoverSiblingBuildRoots()) {
@@ -244,40 +288,67 @@ for (const url of urlQueue) {
 }
 
 if (effectiveArtifactDir && existsSync(effectiveArtifactDir) && hasWasmArtifact(effectiveArtifactDir)) {
+  const incomingC24 = dirIsProductionC24(effectiveArtifactDir);
+  if (vendorHasProductionC24() && !incomingC24) {
+    console.log(
+      "[fetch-pdfium-wasm] production C24 vendor present; skipping non-C24 artifact overwrite",
+    );
+    process.exit(0);
+  }
   mkdirSync(vendorDir, { recursive: true });
   const wasmFiles = [];
   for (const name of readdirSync(effectiveArtifactDir)) {
     if (name === "node_modules") continue;
-    copyFileSync(join(effectiveArtifactDir, name), join(vendorDir, name));
+    const src = join(effectiveArtifactDir, name);
+    if (!existsSync(src) || statSync(src).isDirectory()) continue;
+    copyFileSync(src, join(vendorDir, name));
     if (name.endsWith(".wasm")) {
       wasmFiles.push({ name, sha256: sha256File(join(vendorDir, name)) });
     }
   }
   const record = {
     ...baseRecord,
-    status: "artifact-local",
+    status: incomingC24 ? "artifact-local-c24" : "artifact-local",
     artifactDir: effectiveArtifactDir,
     ingestNote,
     vendorPath: vendorDir,
     wasmArtifacts: wasmFiles,
-    note: "Vendored copy for local P01–P05 proofs; gate remains not-run until CI runs fixtures.",
+    note: incomingC24
+      ? "Vendored C24 production writer; run PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05."
+      : "Vendored copy for local P01–P05 proofs; gate remains not-run until C24 writer proofs pass.",
   };
   writeFileSync(join(outDir, "pdfium-wasm-fetch-stub.json"), `${JSON.stringify(record, null, 2)}\n`);
-  writeDiscoveryRecord({ phase: "post-vendor", ingestStatus: "artifact-local" });
-  const hooks = {
-    recordedAt: new Date().toISOString(),
-    status: "vendor-local-hooks-ready",
-    fixtures: ["P01", "P02", "P03", "P04", "P05"].map((id) => ({
-      fixtureId: id,
-      nativeProof: "not-run",
-      classificationHook: "pdfium-proof-hooks.ts",
-      workerLoad: "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-    })),
-    note: "Positive P01–P05 proofs remain not-run until CI executes fixtures on vendored WASM.",
-  };
-  writeFileSync(join(outDir, "p01-p05-vendor-hooks.json"), `${JSON.stringify(hooks, null, 2)}\n`);
+  writeDiscoveryRecord({ phase: "post-vendor", ingestStatus: record.status });
+  const hooksPath = join(outDir, "p01-p05-vendor-hooks.json");
+  let keepHooks = vendorHasProductionC24();
+  if (!keepHooks && existsSync(hooksPath)) {
+    try {
+      keepHooks = JSON.parse(readFileSync(hooksPath, "utf8")).status === "native-proofs-pass";
+    } catch {
+      keepHooks = false;
+    }
+  }
+  if (!keepHooks) {
+    const hooks = {
+      recordedAt: new Date().toISOString(),
+      status: "vendor-local-hooks-ready",
+      fixtures: ["P01", "P02", "P03", "P04", "P05"].map((id) => ({
+        fixtureId: id,
+        nativeProof: "not-run",
+        classificationHook: "pdfium-proof-hooks.ts",
+        workerLoad: "pdf-writer-worker.ts via resolvePdfiumWasmModule",
+      })),
+      note: "Positive P01–P05 proofs remain not-run until CI executes fixtures on vendored WASM.",
+    };
+    writeFileSync(hooksPath, `${JSON.stringify(hooks, null, 2)}\n`);
+  }
   console.log("[fetch-pdfium-wasm] copied artifact into vendor/domdoc-pdfium-wasm");
   console.log("[fetch-pdfium-wasm] run: PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05");
+  process.exit(0);
+}
+
+if (vendorHasProductionC24()) {
+  console.log("[fetch-pdfium-wasm] production C24 vendor already present; skipping stub overwrite");
   process.exit(0);
 }
 

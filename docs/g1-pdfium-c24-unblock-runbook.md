@@ -1,14 +1,14 @@
 # G1 PDFium C24 production WASM — unblock runbook (G1-PDF-21)
 
-Gate **G1 not-run** until `moduleLoaded=true` and native **P01–P05** pass on the vendored artifact.
+Gate **G1 M0 subset passed** locally when `moduleLoaded=true`, `writerExportsReady=true`, and native **P01–P05** (plus P11–P12) `nativeProof=pass` on the vendored C24 artifact. Rebuild with sibling `domdoc-pdfium-wasm/build-wasm.sh`.
 
 ## User action: drop C24 artifact
 
 1. Obtain or build production **`domdoc-pdfium-wasm`** at PDFium pin **C24** (`7c55203e…`, see [pdfium-wasm-pin.md](./pdfium-wasm-pin.md)).
 2. Copy WASM + JS glue into **`domdoc-web/vendor/domdoc-pdfium-wasm/`** (or set **`PDFIUM_WASM_ARTIFACT_DIR`** to that directory).
 3. Required files (names must match resolver expectations):
-   - `domdoc_pdfium_wasm_bg.wasm` (or project-specific name documented in vendor README)
-   - accompanying JS init module consumed by `resolvePdfiumWasmModule`
+   - `package.json` with `main: "index.js"` and `pdfiumSourceCommit` = C24 pin
+   - `index.js` + `domdoc_pdfium.js` + `domdoc_pdfium.wasm` (~4.5 MB writer)
 4. Re-run ingest and proofs:
 
 ```bash
@@ -58,9 +58,9 @@ source ./emsdk_env.sh
 
 **C24 PDFium gclient checkout:** CI worker records `evidence/gates/G1-feasibility/pdfium-c24-gclient-checkout-attempt.json` after `tools/pdfium-checkout/` (`gclient config`, `gclient sync`, C24 pin, `gn gen` / `ninja -n`, plus bounded `target_os="wasm"` gn smoke). Legacy shallow clone smoke remains in `pdfium-c24-source-build-attempt.json` (`tools/pdfium-src`).
 
-**In-repo contract package:** `packages/domdoc-pdfium-wasm/` (README + stub `emcc` + manifest). CI may copy `dist/` to `vendor/domdoc-pdfium-wasm/` with **`c24WriterExports: false`**. Production writer link remains **not wired in-tree**.
+**In-repo contract package:** `packages/domdoc-pdfium-wasm/` (README + stub `emcc` + manifest). CI copies that stub to vendor **only when production C24 is absent**. Production writer is the sibling `domdoc-pdfium-wasm/dist` drop (`c24WriterExports: true`).
 
-**Probe vendor adapter:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` also materializes **`vendor/domdoc-pdfium-wasm/`** probe adapter (gitignored) so `resolvePdfiumWasmModule` may load with **`writerExportsReady: false`** — **not** G1 pass.
+**Probe vendor adapter:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` materializes a probe adapter into **`vendor/domdoc-pdfium-wasm/`** only when production C24 is **not** already vendored. Probe load is **`writerExportsReady: false`** — **not** G1 pass.
 
 ## CI worker (automated readiness)
 
@@ -71,7 +71,7 @@ pnpm ci:build-pdfium-wasm
 PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm
 ```
 
-Writes `evidence/gates/G1-feasibility/pdfium-wasm-ci-build-record.json` (Emscripten presence + documented steps). Gate **G1** stays **not-run** until C24 production bytes load and P01–P05 pass.
+Writes `evidence/gates/G1-feasibility/pdfium-wasm-ci-build-record.json` (Emscripten presence + documented steps). Gate **G1 M0 subset** is **passed** when vendored C24 writer loads (`writerExportsReady=true`) and P01–P05 + P11–P12 `nativeProof=pass`. G2–G4 remain **not-run**.
 
 ## Do not claim
 

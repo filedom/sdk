@@ -26,8 +26,11 @@ Native proofs run only when `writerExportsReady=true` (default export is an asyn
 
 | Path | Role |
 | --- | --- |
-| `scripts/build-stub-wasm.sh` | Minimal Emscripten stub (`emcc`) — compiles without gclient PDFium link |
-| `scripts/build-from-gclient.sh` | Optional glue when `PDFIUM_GCLIENT_TREE` points at `tools/pdfium-checkout/pdfium` |
+| `build/LINK_PLAN.md` | Emscripten static-lib link plan (pdfium-lib + custom.cpp sibling) |
+| `build/attempt-gclient-host-ninja.sh` | Bounded host `ninja pdfium` + `g1-emscripten-gclient-host-ninja-attempt.json` |
+| `build/emcc-link-writer.sh` | `fpdf_edit.h` partial smoke when `PDFIUM_STATIC_LIB` linkable; else contract stub |
+| `scripts/build-stub-wasm.sh` | Legacy entry → delegates to `build/emcc-link-writer.sh` |
+| `scripts/build-from-gclient.sh` | gclient ninja attempt + emcc link |
 | `pnpm ci:build-pdfium-wasm` | Records gclient gn/ninja smoke + may invoke stub build and copy to `vendor/` |
 
 Scaffold artifact sets `c24WriterExports: false` — **not** G1 pass. Probe adapter fallback in `packages/domdoc-pdfium-wasm-probe-adapter/` is unchanged.

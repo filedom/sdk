@@ -23,7 +23,10 @@ describe("G1 pdfium-lib probe render worker (optional)", () => {
     });
     expect(bitmap.renderOnly).toBe(true);
     if (bitmap.available) {
+      expect(bitmap.width).toBeGreaterThan(0);
+      expect(bitmap.height).toBeGreaterThan(0);
       expect(bitmap.byteLength).toBeGreaterThan(0);
+      expect(bitmap.synthetic).toBe(false);
     }
   });
 });

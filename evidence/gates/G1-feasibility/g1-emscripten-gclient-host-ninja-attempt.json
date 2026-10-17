@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-10-17T15:05:00.000Z",
+  "status": "skipped",
+  "reason": "PDFIUM_GCLIENT_TREE unset or missing BUILD.gn in local checkout",
+  "pdfiumGclientTree": null,
+  "outDir": null,
+  "gnExit": -1,
+  "ninjaExit": -1,
+  "ninjaTimeoutSec": 120,
+  "hostStaticLibs": [],
+  "primaryHostStaticLib": null,
+  "note": "Host ninja pdfium for artifact discovery only; production writer uses pdfium-lib Emscripten static lib (packages/domdoc-pdfium-wasm/build/LINK_PLAN.md). CI records gclient gn/ninja dry-run in pdfium-c24-gclient-checkout-attempt.json."
+}

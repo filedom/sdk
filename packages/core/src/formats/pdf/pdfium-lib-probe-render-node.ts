@@ -87,6 +87,18 @@ export interface PdfiumLibProbePageBitmapResult {
 }
 
 /** Render-only page bitmap stub when probe adapter loads (worker/demo path; not G1 writer). */
+function resolveProbePdfiumEsmEntry(probeDir: string): string | null {
+  const manifest = readPdfiumLibProbeManifestNode();
+  const fromManifest = manifest?.primaryJs;
+  if (typeof fromManifest === "string") {
+    const direct = join(probeDir, "extracted", fromManifest);
+    if (existsSync(direct)) return direct;
+  }
+  const esm = join(probeDir, "extracted", "release", "node", "pdfium.esm.js");
+  return existsSync(esm) ? esm : null;
+}
+
+/** Render page 0 of an in-memory doc via pdfium-lib wasm (non-synthetic when module loads). */
 export async function tryRenderPdfiumLibProbePageBitmapNode(): Promise<PdfiumLibProbePageBitmapResult> {
   const status = await tryLoadPdfiumLibProbeRenderNode();
   if (!status.moduleLoaded) {
@@ -100,16 +112,85 @@ export async function tryRenderPdfiumLibProbePageBitmapNode(): Promise<PdfiumLib
       error: status.error ?? "probe not loaded",
     };
   }
-  const width = 1;
-  const height = 1;
-  return {
-    available: true,
-    renderOnly: true,
-    synthetic: true,
-    width,
-    height,
-    byteLength: width * height * 4,
-  };
+  const probeDir = resolvePdfiumLibProbeDir();
+  const esmEntry = resolveProbePdfiumEsmEntry(probeDir);
+  if (!esmEntry) {
+    return {
+      available: false,
+      renderOnly: true,
+      synthetic: false,
+      width: 0,
+      height: 0,
+      byteLength: 0,
+      error: "probe wasm glue (pdfium.esm.js) missing under extracted/",
+    };
+  }
+  try {
+    const PDFiumModule = (await import(/* webpackIgnore: true */ pathToFileURL(esmEntry).href))
+      .default as () => Promise<{
+      cwrap: (
+        name: string,
+        returnType: string | null,
+        argTypes: string[],
+      ) => (...args: number[]) => number;
+      _malloc: (size: number) => number;
+      _free: (ptr: number) => void;
+      HEAPU8: Uint8Array;
+    }>;
+    const Module = await PDFiumModule();
+    const cwrap = Module.cwrap.bind(Module);
+    cwrap("PDFium_Init", null, [])();
+    const CreateNew = cwrap("FPDF_CreateNewDocument", "number", []);
+    const PageNew = cwrap("FPDFPage_New", "number", ["number", "number", "number", "number"]);
+    const LoadPage = cwrap("FPDF_LoadPage", "number", ["number", "number"]);
+    const GetPageWidth = cwrap("FPDF_GetPageWidthF", "number", ["number"]);
+    const GetPageHeight = cwrap("FPDF_GetPageHeightF", "number", ["number"]);
+    const CreateBitmap = cwrap("FPDFBitmap_Create", "number", ["number", "number", "number"]);
+    const RenderPageBitmap = cwrap("FPDF_RenderPageBitmap", null, [
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+      "number",
+    ]);
+    const GetStride = cwrap("FPDFBitmap_GetStride", "number", ["number"]);
+    const GetHeight = cwrap("FPDFBitmap_GetHeight", "number", ["number"]);
+    const ClosePage = cwrap("FPDF_ClosePage", null, ["number"]);
+    const CloseDoc = cwrap("FPDF_CloseDocument", null, ["number"]);
+    const DestroyBitmap = cwrap("FPDFBitmap_Destroy", null, ["number"]);
+    const doc = CreateNew();
+    PageNew(doc, 0, 612, 792);
+    const page = LoadPage(doc, 0);
+    const width = Math.max(1, Math.ceil(GetPageWidth(page)));
+    const height = Math.max(1, Math.ceil(GetPageHeight(page)));
+    const bitmap = CreateBitmap(width, height, 3);
+    RenderPageBitmap(bitmap, page, 0, 0, width, height, 0, 0);
+    const byteLength = GetStride(bitmap) * GetHeight(bitmap);
+    DestroyBitmap(bitmap);
+    ClosePage(page);
+    CloseDoc(doc);
+    return {
+      available: true,
+      renderOnly: true,
+      synthetic: false,
+      width,
+      height,
+      byteLength,
+    };
+  } catch (err) {
+    return {
+      available: false,
+      renderOnly: true,
+      synthetic: false,
+      width: 0,
+      height: 0,
+      byteLength: 0,
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
 }
 
 export function readPdfiumLibProbeManifestNode(): Record<string, unknown> | null {

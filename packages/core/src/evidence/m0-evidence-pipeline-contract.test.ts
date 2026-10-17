@@ -20,14 +20,31 @@ describe("M0 evidence pipeline contract", () => {
     expect(registry.features.length).toBeGreaterThan(0);
   });
 
-  it("feasibility gate records remain not-run until real proofs", () => {
+  it("feasibility gate records stay not-run until native proofs; G1 may pass M0 subset", () => {
     for (const gateId of ["G1", "G2", "G3", "G4", "G5"]) {
       const record = JSON.parse(
         readFileSync(
           join(webRoot, "evidence/gates", `${gateId}-feasibility`, "gate-record.json"),
           "utf8",
         ),
-      ) as { status: string };
+      ) as { status: string; requiredFixtureIds?: string[] };
+      if (gateId === "G1" && record.status === "passed") {
+        const proofs = JSON.parse(
+          readFileSync(
+            join(webRoot, "evidence/gates/G1-feasibility/p01-p05-vendor-proofs.json"),
+            "utf8",
+          ),
+        ) as {
+          writerExportsReady?: boolean;
+          fixtures: { fixtureId: string; nativeProof: string }[];
+        };
+        expect(proofs.writerExportsReady).toBe(true);
+        const required = record.requiredFixtureIds ?? ["P01", "P02", "P03", "P04", "P05", "P11", "P12"];
+        for (const id of required) {
+          expect(proofs.fixtures.find((f) => f.fixtureId === id)?.nativeProof).toBe("pass");
+        }
+        continue;
+      }
       expect(record.status).toBe("not-run");
     }
   });

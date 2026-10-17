@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T13:51:41.942Z",
+  "builtAt": "2026-10-17T14:01:56.546Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -31,7 +31,7 @@
       "cloneAttempted": false,
       "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
     },
-    "gclientConfigAttempted": false,
+    "gclientConfigAttempted": true,
     "gclientSyncAttempted": true,
     "checkoutPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
     "pdfiumTreeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
@@ -74,7 +74,7 @@
     "vendorCopy": {
       "ok": true,
       "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
-      "filesCopied": 5,
+      "filesCopied": 6,
       "writerExports": false,
       "note": "contract-scaffold-only",
       "stubWasmBuilt": true
@@ -87,6 +87,7 @@
       "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
       "packageJsonMain": "index.js",
       "wasmBasenames": [
+        "domdoc_pdfium.wasm",
         "domdoc_pdfium_wasm_bg.wasm",
         "pdfium.wasm"
       ],
@@ -100,11 +101,10 @@
       "domdoc_pdfium.wasm",
       "domdoc_pdfium_contract_stub.js",
       "domdoc_pdfium_contract_stub.wasm",
-      "domdoc_pdfium_wasm_bg.wasm",
+      "emcc-link-record.json",
       "index.js",
       "index.mjs",
-      "package.json",
-      "pdfium-lib-probe-glue.js"
+      "package.json"
     ],
     "adapterNeeded": false
   },
@@ -124,5 +124,5 @@
     "runBuild": "PDFIUM_WASM_RUN_BUILD=1 PDFIUM_WASM_BUILD_ROOT=/path/to/domdoc-pdfium-wasm pnpm build:pdfium-wasm",
     "probeFetch": "PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm"
   },
-  "note": "CI worker records readiness; G1 gate stays not-run until C24 production module loads and P01–P05 nativeProof=pass."
+  "note": "CI worker records readiness. Probe/contract-stub copies skip when vendor/domdoc-pdfium-wasm is production C24. G1 M0 subset passes only with writerExportsReady and P01–P05 nativeProof=pass."
 }

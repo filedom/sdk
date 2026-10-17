@@ -1,12 +1,25 @@
 #!/usr/bin/env bash
-# Optional: when PDFium static libs exist under gclient out/, extend this script to link
-# domdoc writer glue. Default path remains build-stub-wasm.sh for CI bounded builds.
+# G1 emscripten writer path: optional gclient host ninja discovery + emcc glue link.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TREE="${PDFIUM_GCLIENT_TREE:-}"
-if [[ -z "$TREE" || ! -f "$TREE/BUILD.gn" ]]; then
-  echo "[build-from-gclient] PDFIUM_GCLIENT_TREE unset or missing BUILD.gn — fallback stub" >&2
-  exec "$ROOT/scripts/build-stub-wasm.sh"
+TREE="${PDFIUM_GCLIENT_TREE:-${PDFIUM_GCLIENT_ROOT:-}}"
+
+if [[ -z "$TREE" ]]; then
+  WEB_ROOT="$(cd "$ROOT/../.." && pwd)"
+  for candidate in \
+    "$WEB_ROOT/tools/pdfium-checkout/pdfium" \
+    "$WEB_ROOT/tools/pdfium-checkout/src/pdfium" \
+    "$WEB_ROOT/tools/pdfium-src/pdfium"; do
+    if [[ -f "$candidate/BUILD.gn" ]]; then
+      TREE="$candidate"
+      break
+    fi
+  done
 fi
-echo "[build-from-gclient] no in-tree domdoc GN target yet at $TREE — stub only" >&2
-exec "$ROOT/scripts/build-stub-wasm.sh"
+
+export PDFIUM_GCLIENT_TREE="${TREE:-}"
+if [[ -n "${PDFIUM_GCLIENT_TREE:-}" && -f "$PDFIUM_GCLIENT_TREE/BUILD.gn" ]]; then
+  bash "$ROOT/build/attempt-gclient-host-ninja.sh" || true
+fi
+
+exec bash "$ROOT/build/emcc-link-writer.sh"

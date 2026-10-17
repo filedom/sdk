@@ -1,9 +1,11 @@
 {
-  "recordedAt": "2026-10-17T00:00:00.000Z",
+  "recordedAt": "2026-10-17T12:00:00.000Z",
   "gate": "G1",
   "gateStatus": "not-run",
   "chosenPaths": {
     "writerProduction": "domdoc-pdfium-wasm C24 sibling build or artifact drop",
+    "writerInRepoEmscripten": "packages/domdoc-pdfium-wasm/build/emcc-link-writer.sh (partial fpdf_edit smoke when static lib present)",
+    "gclientHostNinjaDiscovery": "build/attempt-gclient-host-ninja.sh → g1-emscripten-gclient-host-ninja-attempt.json",
     "displayProbe": "pdfium-lib wasm.zip + domdoc-probe-adapter (render-only)",
     "displayBridgePackage": "@domdoc/pdfium-bridge",
     "overlayHelpers": "pdf-lib C12 (gatePass false)",
@@ -20,9 +22,9 @@
     "fakePassForbidden": true
   },
   "nextAutomated": [
-    "Wire custom emscripten GN target in sibling domdoc-pdfium-wasm (outside upstream wasm gn)",
-    "PDFIUM_WASM_CI_PROBE_FETCH=1 page bitmap worker test when vendor present",
-    "Expand @domdoc/vue and @domdoc/lit adapter lifecycle tests",
-    "G2 DOCX gate-grade fixtures beyond OPC round-trip"
+    "Production domdoc-pdfium-wasm/dist ingest when writerExportsReady",
+    "Probe page bitmap worker non-synthetic dimensions when vendor/pdfium-lib-probe present",
+    "M5 Angular/Svelte adapter stubs + host manifest parity test",
+    "G2 D05 foreign numbering + review accept integration beyond OPC round-trip"
   ]
 }

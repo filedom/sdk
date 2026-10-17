@@ -1,65 +1,65 @@
 {
-  "recordedAt": "2026-10-17T13:55:31.196Z",
-  "status": "classification-blocked-upstream-gn",
-  "resolutionSource": "npm-placeholder",
-  "moduleLoaded": false,
-  "writerExportsReady": false,
+  "recordedAt": "2026-10-17T14:01:12.193Z",
+  "status": "native-proofs-run",
+  "resolutionSource": "vendor-artifact",
+  "moduleLoaded": true,
+  "writerExportsReady": true,
   "fixtures": [
     {
       "fixtureId": "P01",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "replace whole text run",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "text=\"hello\" reopened"
     },
     {
       "fixtureId": "P02",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "partial run insert/delete",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "text=\"ABxyEFGH\" boundsBefore={\"left\":72.16799926757812,\"bottom\":719.7839965820312,\"right\":137.75999450683594,\"top\":728.843994140625} boundsAfter={\"left\":72.16799926757812,\"bottom\":717.4439697265625,\"right\":132.4320068359375,\"top\":728.843994140625}"
     },
     {
       "fixtureId": "P03",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "multi-run kerning replace",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "text=\"long replacement text KERN_B\" reopened"
     },
     {
       "fixtureId": "P04",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "delete native text object",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "text=\"\" images=1 reopened"
     },
     {
       "fixtureId": "P05",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "image replace and page reorder",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "pages=2 images0=0 images1=1 text=\"PAGE_B\\n\" reopened"
     },
     {
       "fixtureId": "P11",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "before-commit failure rolls back scratch",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "applyOk=false rolledBack=true keep=\"KEEP_ME\" saveOk=true"
     },
     {
       "fixtureId": "P12",
-      "nativeProof": "blocked",
-      "hookReady": false,
-      "workerCiPath": "skipped",
+      "nativeProof": "pass",
+      "hookReady": true,
+      "workerCiPath": "exercised",
       "classificationSummary": "save/reopen lifecycle cycles",
-      "blockedReason": "pdfium-wasm-target-unsupported-in-upstream-gn"
+      "detail": "lifecycleCycles=20"
     }
   ]
 }

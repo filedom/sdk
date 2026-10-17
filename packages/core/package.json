@@ -27,6 +27,11 @@
     "prosemirror-model": "^1.25.0"
   },
   "devDependencies": {
+    "@domdoc/angular": "workspace:*",
+    "@domdoc/lit": "workspace:*",
+    "@domdoc/react": "workspace:*",
+    "@domdoc/svelte": "workspace:*",
+    "@domdoc/vue": "workspace:*",
     "@types/node": "^22.10.2",
     "domdoc-wasm": "file:../../../domdoc-wasm/pkg-node",
     "json-schema-to-typescript": "^15.0.3",

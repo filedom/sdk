@@ -10,6 +10,7 @@ import {
   mkdirSync,
   readFileSync,
   readdirSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import { join, dirname, relative } from "node:path";
@@ -204,7 +205,24 @@ export default {
   return vendored;
 }
 
+function vendorHasProductionC24() {
+  const wasm = join(DOMDOC_PDFIUM_VENDOR, "domdoc_pdfium.wasm");
+  const pkgPath = join(DOMDOC_PDFIUM_VENDOR, "package.json");
+  const entry = join(DOMDOC_PDFIUM_VENDOR, "index.js");
+  if (!existsSync(wasm) || !existsSync(pkgPath) || !existsSync(entry)) return false;
+  try {
+    if (statSync(wasm).size < 1_000_000) return false;
+    const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
+    return pkg.pdfiumSourceCommit === C24_PIN;
+  } catch {
+    return false;
+  }
+}
+
 function materializeDomdocPdfiumWasmProbeAdapter() {
+  if (vendorHasProductionC24()) {
+    return { ok: true, skipped: true, reason: "preserve-production-c24-vendor" };
+  }
   const manifestPath = join(PROBE_VENDOR_DIR, "probe-manifest.json");
   if (!existsSync(manifestPath)) {
     return { ok: false, reason: "probe-manifest-missing" };
@@ -277,7 +295,7 @@ function describeDomdocPdfiumWasmLayoutExpectation() {
   const expected = {
     vendorDir: DOMDOC_PDFIUM_VENDOR,
     packageJsonMain: "index.js",
-    wasmBasenames: ["domdoc_pdfium_wasm_bg.wasm", "pdfium.wasm"],
+    wasmBasenames: ["domdoc_pdfium.wasm", "domdoc_pdfium_wasm_bg.wasm", "pdfium.wasm"],
     resolver: "resolvePdfiumWasmModule()",
   };
   const present = existsSync(DOMDOC_PDFIUM_VENDOR);
@@ -291,6 +309,14 @@ function describeDomdocPdfiumWasmLayoutExpectation() {
 }
 
 function copyDomdocPdfiumPkgDistToVendor(record) {
+  if (vendorHasProductionC24()) {
+    return {
+      ok: true,
+      skipped: true,
+      reason: "preserve-production-c24-vendor",
+      vendorDir: DOMDOC_PDFIUM_VENDOR,
+    };
+  }
   const dist = join(DOMDOC_PDFIUM_PKG, "dist");
   if (!existsSync(join(dist, "index.mjs"))) {
     return { ok: false, reason: "package-dist-missing" };
@@ -337,7 +363,7 @@ function attemptDomdocPdfiumWasmPackageBuild(emscripten) {
     result.detail = (manifest.stderr ?? manifest.stdout ?? "").slice(-800);
     return result;
   }
-  const stubScript = join(DOMDOC_PDFIUM_PKG, "scripts", "build-stub-wasm.sh");
+  const stubScript = join(DOMDOC_PDFIUM_PKG, "scripts", "build-from-gclient.sh");
   if (emscripten.emccInPath && existsSync(stubScript)) {
     result.stubWasmAttempted = true;
     const stub = spawnSync("bash", [stubScript], {
@@ -843,7 +869,7 @@ const record = {
     runBuild: "PDFIUM_WASM_RUN_BUILD=1 PDFIUM_WASM_BUILD_ROOT=/path/to/domdoc-pdfium-wasm pnpm build:pdfium-wasm",
     probeFetch: "PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm",
   },
-  note: "CI worker records readiness; G1 gate stays not-run until C24 production module loads and P01–P05 nativeProof=pass.",
+  note: "CI worker records readiness. Probe/contract-stub copies skip when vendor/domdoc-pdfium-wasm is production C24. G1 M0 subset passes only with writerExportsReady and P01–P05 nativeProof=pass.",
 };
 
 writeFileSync(join(outDir, "pdfium-wasm-ci-build-record.json"), `${JSON.stringify(record, null, 2)}\n`);

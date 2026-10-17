@@ -48,6 +48,8 @@ import {
 import { domdocReactAdapterDemoSurface } from "@domdoc/react";
 import { domdocVueAdapterDemoSurface } from "@domdoc/vue";
 import { domdocLitAdapterDemoSurface } from "@domdoc/lit";
+import { domdocAngularAdapterDemoSurface } from "@domdoc/angular";
+import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
 
 const sampleProjection = () => ({
   header: {
@@ -80,6 +82,9 @@ async function boot(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
   if (params.get("g1PdfiumProbeWorker") === "1") {
     document.body.dataset.g1PdfiumProbeWorkerRequested = "true";
+  }
+  if (params.get("g1PdfiumProbePageRender") === "1") {
+    document.body.dataset.g1PdfiumProbePageRenderRequested = "true";
   }
   await init();
   const canvas = document.getElementById("domdoc-canvas");
@@ -181,6 +186,10 @@ async function boot(): Promise<void> {
       document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady ? "true" : "false";
       document.body.dataset.g1PdfiumProbePageBitmapBytes = probe.moduleLoaded ? "4" : "0";
       document.body.dataset.g1PdfiumProbePageBitmapSynthetic = probe.moduleLoaded ? "true" : "false";
+      if (params.get("g1PdfiumProbePageRender") === "1") {
+        document.body.dataset.g1PdfiumProbePageRenderHint =
+          "node-worker:612x792-when-vendor-present";
+      }
       if (params.get("g1PdfiumProbeWorker") === "1") {
         document.body.dataset.g1PdfiumProbeWorkerStatus =
           probe.moduleLoaded ? "probe-render-loaded" : probe.error ?? "probe-absent";
@@ -196,6 +205,12 @@ async function boot(): Promise<void> {
   const litSurface = domdocLitAdapterDemoSurface("demo-sess");
   document.body.dataset.m5LitAdapter = litSurface.surface;
   document.body.dataset.m5LitSessionId = litSurface.sessionId;
+  const angularSurface = domdocAngularAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5AngularAdapter = angularSurface.surface;
+  document.body.dataset.m5AngularSessionId = angularSurface.sessionId;
+  const svelteSurface = domdocSvelteAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5SvelteAdapter = svelteSurface.surface;
+  document.body.dataset.m5SvelteSessionId = svelteSurface.sessionId;
 
   const commentsMembers = new Map<string, Uint8Array>();
   commentsMembers.set(
