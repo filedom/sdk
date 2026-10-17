@@ -8,6 +8,7 @@
     "test": "pnpm -r run test",
     "generate:wire-types": "pnpm --filter @domdoc/core run generate:wire-types",
     "qa:gates": "node ./scripts/qa-gates.mjs",
+    "qa:market": "node ./scripts/qa-market.mjs",
     "qa:docs": "node ./scripts/qa-docs.mjs",
     "fetch:pdfium-wasm-stub": "node ./scripts/fetch-pdfium-wasm-stub.mjs",
     "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",

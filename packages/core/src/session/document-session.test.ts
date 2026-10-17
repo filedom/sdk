@@ -157,6 +157,20 @@ describe("M1 DocumentSession skeleton", () => {
     expect(commitIdx).toBeGreaterThan(verifyIdx);
   });
 
+  it("G5 crash-safe abort at manifest commit leaves store without committed manifest", () => {
+    const store = new MemoryDomdocBlobStoreStub();
+    const plan = createDomdocPackagePersistPlanStub(base);
+    const manifestBytes = serializeDomdocPackageManifestStub(base);
+    const blobBytes = new TextEncoder().encode("native-checkpoint-stub");
+    const sim = store.applyStagedWrite("source/native-checkpoint.bin", plan, blobBytes, manifestBytes, {
+      abortAfterStep: "commit-indexeddb-manifest-transaction",
+    });
+    expect(sim.ok).toBe(false);
+    expect(sim.detail).toBe("aborted-at-commit-indexeddb-manifest-transaction");
+    expect(store.readCommittedManifest()).toBeNull();
+    expect(store.readBlob("source/native-checkpoint.bin")).toBeUndefined();
+  });
+
   it("M1/F42 fenced tab writer rejects stale tab and stale fence on save", () => {
     const session = createDocumentSession(base);
     const store = new MemoryDomdocBlobStoreStub();

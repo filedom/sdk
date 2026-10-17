@@ -20,7 +20,12 @@ import type { RenderWireResponse } from "../../core/dist/wire/generated-response
 import { dispatchM2ToolbarCommand } from "../../core/dist/session/m2-toolbar-command-stub.js";
 import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar-command-registry.js";
 import { createDocumentSession } from "../../core/dist/session/document-session.js";
-import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
+import {
+  createDomdocPackagePersistPlanStub,
+  MemoryDomdocBlobStoreStub,
+  serializeDomdocPackageManifestStub,
+} from "../../core/dist/persistence/domdoc-package-stub.js";
+import { LAZY_FEATURE_MANIFEST_STUB } from "../../core/dist/session/lazy-feature-manifest-stub.js";
 import { describeDomdocDemoExportPath } from "../../core/dist/persistence/domdoc-export-path-selection.js";
 import {
   exportDocxTrackChangesFromStoreStub,
@@ -318,6 +323,40 @@ async function boot(): Promise<void> {
     document.body.dataset.m1EnhancedNativeExportStub = "true";
   }
 
+  document.body.dataset.m5LazyFeatureManifestSchema = String(LAZY_FEATURE_MANIFEST_STUB.schemaVersion);
+  document.body.dataset.m5LazyFeatureHostCount = String(LAZY_FEATURE_MANIFEST_STUB.hostExamples.length);
+  document.body.dataset.m5LazyFeatureGateStatus = LAZY_FEATURE_MANIFEST_STUB.gateStatus;
+
+  const g5Session = createDocumentSession(sessionStub);
+  const g5Store = new MemoryDomdocBlobStoreStub();
+  const g5Lease = g5Session.tryAcquireTabWriterLease("tab-primary");
+  const g5Conflict = g5Session.saveDomdocPackageStubToStore(g5Store, {
+    writerTabId: "tab-other",
+    writerFenceGeneration: g5Lease.ok ? g5Lease.fenceGeneration : 0,
+  });
+  document.body.dataset.g5FencedTabConflictOk = g5Conflict.simulation.ok ? "true" : "false";
+  document.body.dataset.g5FencedTabConflictDetail = g5Conflict.simulation.detail ?? "";
+  if (g5Lease.ok) {
+    const g5Owned = g5Session.saveDomdocPackageStubToStore(g5Store, {
+      writerTabId: "tab-primary",
+      writerFenceGeneration: g5Lease.fenceGeneration,
+    });
+    document.body.dataset.g5FencedTabWriterOk = g5Owned.simulation.ok ? "true" : "false";
+  }
+  const g5CrashStore = new MemoryDomdocBlobStoreStub();
+  const g5CrashSim = g5CrashStore.applyStagedWrite(
+    "source/native-checkpoint.bin",
+    createDomdocPackagePersistPlanStub(sessionStub),
+    new TextEncoder().encode("native-checkpoint-stub"),
+    serializeDomdocPackageManifestStub(sessionStub),
+    { abortAfterStep: "commit-indexeddb-manifest-transaction" },
+  );
+  document.body.dataset.g5CrashSafeAbortOk = g5CrashSim.ok ? "true" : "false";
+  document.body.dataset.g5CrashSafeAbortDetail = g5CrashSim.detail ?? "";
+  document.body.dataset.g5CrashSafeManifestCommitted = g5CrashStore.readCommittedManifest()
+    ? "true"
+    : "false";
+
   void Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()]).then(
     ([probe, readPath]) => {
       document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
@@ -379,8 +418,12 @@ async function boot(): Promise<void> {
     const markers = readDocxTrackChangesMarkerSnapshot(documentXml);
     document.body.dataset.m4DocxTrackChangesExportOk =
       trackedExport.result.zipBytes.byteLength > 100 ? "true" : "false";
+    document.body.dataset.m4DocxTrackChangesExportFeature = trackedExport.result.featureId;
     document.body.dataset.m4DocxTrackChangesHasIns = markers.hasIns ? "true" : "false";
     document.body.dataset.m4DocxTrackChangesHasDel = markers.hasDel ? "true" : "false";
+    document.body.dataset.m4DocxTrackChangesTrackedPreserved = trackedExport.result.trackedMarkersPreserved
+      ? "true"
+      : "false";
   };
 
   shell.acceptCommentButton.addEventListener("click", () => {
