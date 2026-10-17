@@ -1,7 +1,8 @@
 {
-  "recordedAt": "2026-10-17T08:41:29.955Z",
-  "card": "G1-PDF-14",
+  "recordedAt": "2026-10-17T08:43:57.356Z",
+  "card": "G1-PDF-15",
   "phase": "pre-ingest",
   "productionWasmObtained": false,
+  "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   "note": "C24 domdoc-pdfium-wasm bytes ingest attempt; updated post-fetch outcome."
 }

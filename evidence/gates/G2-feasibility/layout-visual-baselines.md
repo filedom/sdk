@@ -1,6 +1,6 @@
 # Layout visual baselines (G2-LAYOUT-09)
 
-Generated: 2026-10-17T08:41:31.249Z
+Generated: 2026-10-17T08:43:58.647Z
 
 Source status: `recorded-json-snapshots` — human review **pending**.
 

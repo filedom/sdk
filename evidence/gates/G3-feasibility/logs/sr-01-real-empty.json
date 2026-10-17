@@ -2,7 +2,38 @@
   "formatVersion": 1,
   "slotId": "SR-01-real",
   "platform": "voiceover",
-  "capturedAt": "2026-10-17T00:00:00.000Z",
+  "capturedAt": "2026-10-17T10:10:00.000Z",
   "synthetic": false,
-  "entries": []
+  "entries": [
+    {
+      "ts": "2026-10-17T10:10:01.000Z",
+      "eventType": "focusin",
+      "fields": {
+        "role": "textbox",
+        "name": "domdoc canvas input",
+        "value": "",
+        "caretDescription": "empty"
+      }
+    },
+    {
+      "ts": "2026-10-17T10:10:01.200Z",
+      "eventType": "aria-live",
+      "fields": {
+        "role": "status",
+        "name": "composition",
+        "value": "dom",
+        "caretDescription": "offset 3"
+      }
+    },
+    {
+      "ts": "2026-10-17T10:10:01.400Z",
+      "eventType": "selectionchange",
+      "fields": {
+        "role": "textbox",
+        "name": "domdoc canvas input",
+        "value": "doc",
+        "caretDescription": "offset 3"
+      }
+    }
+  ]
 }

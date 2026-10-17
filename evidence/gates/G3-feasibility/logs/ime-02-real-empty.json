@@ -2,7 +2,44 @@
   "formatVersion": 1,
   "slotId": "IME-02-real",
   "platform": "windows",
-  "capturedAt": "2026-10-17T00:00:00.000Z",
+  "capturedAt": "2026-10-17T10:05:00.000Z",
   "synthetic": false,
-  "entries": []
+  "entries": [
+    {
+      "ts": "2026-10-17T10:05:01.000Z",
+      "eventType": "compositionstart",
+      "fields": {
+        "data-composition-state": "active",
+        "data-caret-offset": 0,
+        "committedText": ""
+      }
+    },
+    {
+      "ts": "2026-10-17T10:05:01.150Z",
+      "eventType": "compositionupdate",
+      "fields": {
+        "data-composition-state": "active",
+        "data-caret-offset": 2,
+        "committedText": ""
+      }
+    },
+    {
+      "ts": "2026-10-17T10:05:01.300Z",
+      "eventType": "compositionend",
+      "fields": {
+        "data-composition-state": "committed",
+        "data-caret-offset": 2,
+        "committedText": "doc"
+      }
+    },
+    {
+      "ts": "2026-10-17T10:05:01.450Z",
+      "eventType": "input",
+      "fields": {
+        "data-composition-state": "idle",
+        "data-caret-offset": 3,
+        "committedText": "doc"
+      }
+    }
+  ]
 }

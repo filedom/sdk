@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-13 D05 document round-trip matrix; G2-LAYOUT-13 simulated signed checksum only; gate not-run",
+  "limitations": "G2-DOCX-14 D05-DRT-05 restart chain; G2-LAYOUT-14 human sign-off escalation; simulated checksum only; gate not-run",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
@@ -25,6 +25,7 @@
     "scripts/sign-layout-human-signoff.mjs",
     "docx-numbering-body-writeback.ts",
     "docs/layout-visual-human-signoff.md",
+    "docs/layout-visual-human-signoff-escalation.md",
     "layout-visual-human-signoff-template.json",
     "layout-shaping-font-visual-corpus.pkg.test.ts",
     "layout-shaped-flow-visual-diff.json",

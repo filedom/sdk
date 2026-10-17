@@ -131,6 +131,9 @@ export class MemoryDomdocBlobStoreStub {
   }
 
   /** G5: multi-blob staged commit — all blobs verified before manifest commit. */
+  /** Keys committed in the last successful multi-blob write (G5 manifest member tracking). */
+  lastCommittedBlobKeys: readonly string[] = [];
+
   applyMultiBlobStagedWrite(
     blobs: Readonly<Record<string, Uint8Array>>,
     plan: DomdocPackagePersistPlanStub,
@@ -146,13 +149,27 @@ export class MemoryDomdocBlobStoreStub {
     );
     const sim = simulateDomdocCrashSafeStagedWrite(plan, combined, manifestBytes, options);
     if (sim.ok) {
-      for (const key of keys) {
+      const sortedKeys = [...keys].sort();
+      for (const key of sortedKeys) {
         this.blobs.set(key, blobs[key]!.slice());
       }
       this.manifestBytes = manifestBytes.slice();
+      this.lastCommittedBlobKeys = sortedKeys;
     }
     return sim;
   }
+}
+
+/** G5: annotate manifest stub with committed member blob keys (hashes still not-computed). */
+export function attachMultiBlobMemberKeysToManifestStub(
+  manifest: DomdocPackageManifestStub,
+  blobKeys: readonly string[],
+): DomdocPackageManifestStub {
+  const memberHashes = { ...manifest.memberHashes };
+  for (const key of blobKeys) {
+    memberHashes[key] = "not-computed";
+  }
+  return { ...manifest, memberHashes };
 }
 
 /** G5: minimal staged write simulation — blob verified before manifest commit. */

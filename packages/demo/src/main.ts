@@ -56,10 +56,12 @@ async function boot(): Promise<void> {
   const sessionLabel = document.getElementById("domdoc-session-label");
   if (toolbar) {
     document.body.dataset.m2ToolbarShell = "stub";
+    document.body.dataset.m2ToolbarSessionId = "demo-sess";
   }
   if (sessionLabel) {
     sessionLabel.textContent = "Session: demo-sess (M2 stub)";
     document.body.dataset.m2SessionLabel = sessionLabel.textContent;
+    document.body.dataset.m2SessionId = "demo-sess";
   }
 
   const response = JSON.parse(

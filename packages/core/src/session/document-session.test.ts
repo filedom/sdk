@@ -10,6 +10,7 @@ import {
   validateDomdocCrashSafeCommitPlan,
   simulateDomdocCrashSafeStagedWrite,
   MemoryDomdocBlobStoreStub,
+  attachMultiBlobMemberKeysToManifestStub,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -95,6 +96,13 @@ describe("M1 DocumentSession skeleton", () => {
     expect(store.readBlob("source/native-checkpoint.bin")).toBeDefined();
     expect(store.readBlob("state/semantic-journal.jsonl")).toBeDefined();
     expect(store.readCommittedManifest()).toEqual(manifestBytes);
+    expect(store.lastCommittedBlobKeys).toEqual([
+      "source/native-checkpoint.bin",
+      "state/semantic-journal.jsonl",
+    ]);
+    const manifest = parseDomdocPackageManifestStub(manifestBytes);
+    const withKeys = attachMultiBlobMemberKeysToManifestStub(manifest, store.lastCommittedBlobKeys);
+    expect(withKeys.memberHashes["source/native-checkpoint.bin"]).toBe("not-computed");
   });
 
   it("G5 memory blob store applies staged write after simulation passes", () => {

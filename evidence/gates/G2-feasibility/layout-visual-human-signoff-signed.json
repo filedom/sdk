@@ -3,14 +3,14 @@
   "card": "G2-LAYOUT-13",
   "humanReviewStatus": "simulated-signoff-labeled",
   "reviewerId": "ci-simulated-reviewer",
-  "reviewedAt": "2026-10-17T08:41:31.707Z",
+  "reviewedAt": "2026-10-17T08:43:59.106Z",
   "corpusEntryIds": [
     "LV-01",
     "LV-02",
     "LV-03"
   ],
   "checksumSource": "layout-visual-baseline-checksums.json",
-  "signedChecksumSha256": "eab28d34a2186747a3b5a862f09d17b8fe208e53a686cfa8643d95eef4b530e1",
+  "signedChecksumSha256": "547bc993c271d142e6047349be2f20bb00a0478aebfe90f639ac44e6046cfaa2",
   "note": "Simulated signature for local integration only — NOT human visual review. Gate G2 remains not-run.",
   "signatureKind": "simulated-local-integration"
 }

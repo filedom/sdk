@@ -1,0 +1,30 @@
+{
+  "recordedAt": "2026-10-17T08:43:50.310Z",
+  "corpusSize": 3,
+  "gateStatus": "not-run",
+  "allPostEditSuffixBreakpointsEquivalent": true,
+  "entries": [
+    {
+      "entryId": "AF-01",
+      "breakAfterCharIndex": 9,
+      "insertedChar": "X",
+      "incrementalEquivalent": true,
+      "detail": "post-edit suffix sketch matches full layout fragments"
+    },
+    {
+      "entryId": "AF-02",
+      "breakAfterCharIndex": 19,
+      "insertedChar": "X",
+      "incrementalEquivalent": true,
+      "detail": "post-edit suffix sketch matches full layout fragments"
+    },
+    {
+      "entryId": "AF-03",
+      "breakAfterCharIndex": 19,
+      "insertedChar": "X",
+      "incrementalEquivalent": true,
+      "detail": "post-edit suffix sketch matches full layout fragments"
+    }
+  ],
+  "note": "W2-G4-13 post-edit suffix path; gate G4 not-run"
+}

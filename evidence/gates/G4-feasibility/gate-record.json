@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-12 edit-breakpoint matrix; legal + arbitrary unchanged-text caret ≡ full when WASM built; G4 gate not-run",
+  "limitations": "W2-G4-13 post-edit suffix incremental path; W2-G4-12 arbitrary unchanged-text caret ≡ full when WASM built; G4 gate not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
@@ -19,6 +19,8 @@
     "fragmentation-af-incremental-engine.test.ts",
     "fragmentation-af-incremental-breakpoints.test.ts",
     "af-incremental-edit-breakpoints.json",
+    "fragmentation-af-post-edit-incremental.test.ts",
+    "af-incremental-post-edit-suffix.json",
     "wasm-shaped-layout-hook.ts",
     "domdoc-wasm/src/layout/incremental.rs",
     "layout_flow_paragraph_legal_breaks_json",

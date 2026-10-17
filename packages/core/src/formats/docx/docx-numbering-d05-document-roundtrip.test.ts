@@ -112,6 +112,35 @@ const D05_DOCUMENT_ROUNDTRIP: readonly {
     ],
     expectedTexts: ["A", "B"],
   },
+  {
+    id: "D05-DRT-05",
+    seedDocumentXml: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="6"/></w:numPr></w:pPr>
+      <w:r><w:t>Parent</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="1"/><w:numId w:val="6"/></w:numPr></w:pPr>
+      <w:r><w:t>Child</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="6"/></w:numPr></w:pPr>
+      <w:r><w:t>Restart</w:t></w:r></w:p>
+  </w:body>
+</w:document>`,
+    seedNumberingXml: buildWordCompatibleNumberingXml(6, [
+      { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+      { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+    ]),
+    paragraphs: [
+      { text: "Parent", numId: 6, ilvl: 0 },
+      { text: "Child", numId: 6, ilvl: 1 },
+      { text: "Restart", numId: 6, ilvl: 0 },
+    ],
+    expectedNumPr: [
+      { numId: 6, ilvl: 0 },
+      { numId: 6, ilvl: 1 },
+      { numId: 6, ilvl: 0 },
+    ],
+    expectedTexts: ["Parent", "Child", "Restart"],
+  },
 ];
 
 describe("G2-DOCX-13 D05 document.xml numbering round-trip", () => {

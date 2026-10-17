@@ -9,7 +9,7 @@ import {
 
 const webRoot = join(import.meta.dirname, "../../../..");
 
-describe("G3-INPUT-14 real platform log paths", () => {
+describe("G3-INPUT-15 real platform log paths", () => {
   it("binds each real slot to an evidence log path", () => {
     for (const slot of REAL_INPUT_LOG_SLOTS) {
       expect(slot.logPath).toBe(REAL_PLATFORM_LOG_RELATIVE_PATHS[slot.slotId]);
@@ -24,9 +24,9 @@ describe("G3-INPUT-14 real platform log paths", () => {
       return readFileSync(abs, "utf8");
     });
     expect(results).toHaveLength(3);
-    expect(results.filter((r) => r.status === "empty-validated").length).toBe(2);
+    expect(results.filter((r) => r.status === "empty-validated").length).toBe(0);
     const filled = results.filter((r) => r.status === "filled-validated");
-    expect(filled).toHaveLength(1);
-    expect(filled[0]?.slotId).toBe("IME-01-real");
+    expect(filled).toHaveLength(3);
+    expect(filled.map((f) => f.slotId).sort()).toEqual(["IME-01-real", "IME-02-real", "SR-01-real"]);
   });
 });
