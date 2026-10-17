@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+import { PdfiumWasmWriterBackend } from "./backends/pdfium-wasm-backend.js";
 import { StubPdfWriterBackend } from "./backends/stub-backend.js";
 import type {
   PdfApplyOutcome,
@@ -40,6 +41,8 @@ export async function createPdfWriterSession(
   };
   const contextId = randomUUID();
   if (backend instanceof StubPdfWriterBackend) {
+    backend.registerContext(contextId, checkpoint);
+  } else if (backend instanceof PdfiumWasmWriterBackend) {
     backend.registerContext(contextId, checkpoint);
   }
 

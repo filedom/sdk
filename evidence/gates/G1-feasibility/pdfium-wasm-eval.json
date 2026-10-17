@@ -1,0 +1,12 @@
+{
+  "cardId": "G1-PDF-02",
+  "evaluatedAt": "2026-10-17",
+  "pdfiumSourceCommit": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "pdfiumRenderCommit": "ea2961cb8ac777bb1a06dddb8efd272d34d74f18",
+  "wasmArtifactSpec": "domdoc-pdfium-wasm@0.0.0-not-published",
+  "moduleLoadedInNodeCi": false,
+  "backendId": "pdfium-wasm",
+  "gateStatus": "not-run",
+  "p01ThroughP05": "not-run",
+  "notes": "Writer adapter wired; native proofs blocked on vendored PDFium WASM build"
+}

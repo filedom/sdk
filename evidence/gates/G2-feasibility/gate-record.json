@@ -6,6 +6,6 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "OPC store D01 slice and Rust word-wrap stub; no WASM vertical layout path yet",
-  "evidencePaths": []
+  "limitations": "D01 + docx→flow layout→render vertical test; D02–D05 and Parley pin not-run",
+  "evidencePaths": ["docx-flow-vertical-test"]
 }

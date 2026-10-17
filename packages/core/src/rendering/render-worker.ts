@@ -6,7 +6,7 @@ if (!parentPort) {
   throw new Error("render-worker must run as a worker thread");
 }
 
-const wasm = await import("domdoc-wasm/domdoc_engine.js");
+const wasm = await import("domdoc-wasm");
 
 parentPort.on(
   "message",

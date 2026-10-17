@@ -17,6 +17,15 @@ export {
 } from "./formats/pdf/writer.js";
 export type { PdfWriterCapability, PdfUnsupportedCode } from "./formats/pdf/types.js";
 export { DocxStore } from "./formats/docx/docx-store.js";
+export { buildRenderProjectionFromDocxFlow } from "./formats/docx/docx-flow-projection.js";
+export {
+  PdfiumWasmWriterBackend,
+  tryLoadPdfiumWasmModule,
+} from "./formats/pdf/backends/pdfium-wasm-backend.js";
+export {
+  PDFIUM_RENDER_COMMIT,
+  PDFIUM_SOURCE_COMMIT,
+} from "./formats/pdf/pdfium-pin.js";
 export {
   createCompositorInputState,
   onGeometryUpdated,

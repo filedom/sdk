@@ -28,7 +28,7 @@ export async function createEngineClient(
 }
 
 async function createDirectClient(): Promise<EngineClient> {
-  const wasm = await import("domdoc-wasm/domdoc_engine.js");
+  const wasm = await import("domdoc-wasm");
 
   return {
     async render(projection) {

@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "Writer contract only; PDFium WASM not pinned — native replace unsupported"
+      "limits": "pdfium-wasm backend wired; C24/C25 pins documented; P01–P05 not-run without vendored WASM"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "Minimal document.xml slice; no ProseMirror projection yet"
+      "limits": "OPC store + vertical flow→render integration test; ProseMirror not wired"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "Geometry hook only; no browser IME proof"
+      "limits": "Geometry hook + happy-dom pointer spike; no browser IME proof"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "Word-wrap stub; Parley not pinned"
+      "limits": "Word-wrap stub exported via layout_flow_paragraph_json; Parley not pinned"
     }
   ]
 }
