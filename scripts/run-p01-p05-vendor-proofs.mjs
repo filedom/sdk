@@ -28,17 +28,30 @@ writeFileSync(
   `${JSON.stringify(evidence, null, 2)}\n`,
 );
 
+const nativeGreen = evidence.fixtures
+  .filter((f) => ["P01", "P02", "P03", "P04", "P05"].includes(f.fixtureId))
+  .every((f) => f.nativeProof === "pass");
 const hooks = {
   recordedAt: evidence.recordedAt,
-  status: evidence.status === "artifact-worker-hooks-not-run" ? "vendor-local-hooks-ready" : "stub-not-run",
+  status:
+    evidence.status === "native-proofs-run"
+      ? nativeGreen
+        ? "native-proofs-pass"
+        : "native-proofs-fail"
+      : evidence.status === "artifact-worker-hooks-not-run"
+        ? "vendor-local-hooks-ready"
+        : "stub-not-run",
   fixtures: evidence.fixtures.map((f) => ({
     fixtureId: f.fixtureId,
     nativeProof: f.nativeProof,
     classificationHook: "pdfium-proof-hooks.ts",
     workerLoad: f.workerCiPath === "exercised" ? "pdf-writer-worker.ts exercised" : "pdf-writer-worker.ts via resolvePdfiumWasmModule",
     hookReady: f.hookReady,
+    detail: f.detail,
   })),
-  note: "Native P01–P05 proofs remain not-run until PDFium WASM executes fixture bytes.",
+  note: nativeGreen
+    ? "Native P01–P05 executed against C24 writer WASM; coordinator still reviews independent inspection artifacts."
+    : "Native P01–P05 proofs remain not-run or failed until C24 PDFium WASM executes fixture bytes.",
 };
 writeFileSync(join(outDir, "p01-p05-vendor-hooks.json"), `${JSON.stringify(hooks, null, 2)}\n`);
 
@@ -50,27 +63,38 @@ const ciWorkerProofStepResults = evidence.fixtures.map((f) => ({
   workerCiPath: f.workerCiPath,
   hookReady: f.hookReady,
 }));
+const coreFixtures = evidence.fixtures.filter((f) =>
+  ["P01", "P02", "P03", "P04", "P05"].includes(f.fixtureId),
+);
 const allNativePass =
-  evidence.moduleLoaded &&
-  evidence.fixtures.length > 0 &&
-  evidence.fixtures.every((f) => f.nativeProof === "pass");
+  evidence.writerExportsReady &&
+  coreFixtures.length === 5 &&
+  coreFixtures.every((f) => f.nativeProof === "pass");
+const extraPass = ["P11", "P12"].every(
+  (id) => evidence.fixtures.find((f) => f.fixtureId === id)?.nativeProof === "pass",
+);
 const bytesAttempt = {
   recordedAt: evidence.recordedAt,
   card: process.env.PDFIUM_WASM_ARTIFACT_DROP === "1" ? "G1-PDF-20" : "G1-PDF-19",
-  phase: evidence.moduleLoaded ? "post-proof-worker" : "post-proof-stub",
-  productionWasmObtained: evidence.moduleLoaded,
-  productionModuleLoaded: evidence.moduleLoaded,
+  phase: evidence.writerExportsReady ? "post-proof-native" : evidence.moduleLoaded ? "post-proof-worker" : "post-proof-stub",
+  productionWasmObtained: evidence.writerExportsReady,
+  productionModuleLoaded: evidence.writerExportsReady,
   ciWorkerProofTarget: "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   ciWorkerGreenCriteria: "moduleLoaded=true and P01–P05 nativeProof=pass",
-  ciWorkerProofSteps: ["P01", "P02", "P03", "P04", "P05"],
+  ciWorkerProofSteps: ["P01", "P02", "P03", "P04", "P05", "P11", "P12"],
   ciWorkerProofStepResults,
   ciWorkerGreen: allNativePass,
+  feasibilityExtrasPass: extraPass,
   unblockRunbook: "docs/g1-pdfium-c24-unblock-runbook.md",
   note: allNativePass
-    ? "G1-PDF-19 production module loaded and P01–P05 passed — coordinator may review for G1 gate (not auto-pass)."
-    : evidence.moduleLoaded
-      ? "G1-PDF-19 worker exercised; native P01–P05 proofs still not-run until fixture bytes pass."
-      : "G1-PDF-19 proof recorded with moduleLoaded=false; drop C24 artifact per g1-pdfium-c24-unblock-runbook.md.",
+    ? extraPass
+      ? "C24 writer WASM loaded; P01–P05 and P11–P12 native proofs passed — coordinator may set G1 feasibility after independent inspection."
+      : "C24 writer WASM loaded; P01–P05 passed, P11/P12 incomplete."
+    : evidence.writerExportsReady
+      ? "C24 writer loaded; one or more native P01–P05 proofs failed or did not pass."
+      : evidence.moduleLoaded
+        ? "Module imported without C24 writer exports; native P01–P05 still not-run."
+        : "G1-PDF-19 proof recorded with moduleLoaded=false; drop C24 artifact per g1-pdfium-c24-unblock-runbook.md.",
 };
 if (existsSync(bytesAttemptPath)) {
   try {

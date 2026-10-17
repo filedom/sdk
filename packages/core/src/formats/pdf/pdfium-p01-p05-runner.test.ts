@@ -2,19 +2,22 @@ import { describe, expect, it } from "vitest";
 import { collectP01P05VendorProofEvidence } from "./pdfium-p01-p05-runner.js";
 
 describe("G1-PDF-07 P01–P05 vendor proof hooks", () => {
-  it("keeps native proofs not-run without C24 writer exports", async () => {
+  it("records stub or native proofs depending on C24 writer availability", async () => {
     const evidence = await collectP01P05VendorProofEvidence();
-    expect(evidence.writerExportsReady).toBe(false);
-    expect(evidence.status === "stub-not-run" || evidence.status === "probe-adapter-load-only").toBe(
-      true,
+    const core = evidence.fixtures.filter((f) =>
+      ["P01", "P02", "P03", "P04", "P05"].includes(f.fixtureId),
     );
-    if (evidence.status === "probe-adapter-load-only") {
-      expect(evidence.moduleLoaded).toBe(true);
+    expect(core).toHaveLength(5);
+    expect(evidence.fixtures.some((f) => f.fixtureId === "P11")).toBe(true);
+    expect(evidence.fixtures.some((f) => f.fixtureId === "P12")).toBe(true);
+    if (!evidence.writerExportsReady) {
+      expect(evidence.status === "stub-not-run" || evidence.status === "probe-adapter-load-only").toBe(
+        true,
+      );
+      expect(core.every((f) => f.nativeProof === "not-run")).toBe(true);
     } else {
-      expect(evidence.moduleLoaded).toBe(false);
+      expect(evidence.status).toBe("native-proofs-run");
+      expect(evidence.moduleLoaded).toBe(true);
     }
-    expect(evidence.fixtures).toHaveLength(5);
-    expect(evidence.fixtures.every((f) => f.nativeProof === "not-run")).toBe(true);
-    expect(evidence.fixtures.every((f) => f.hookReady === false)).toBe(true);
   });
 });

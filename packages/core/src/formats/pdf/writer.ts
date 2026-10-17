@@ -43,7 +43,7 @@ export async function createPdfWriterSession(
   if (backend instanceof StubPdfWriterBackend) {
     backend.registerContext(contextId, checkpoint);
   } else if (backend instanceof PdfiumWasmWriterBackend) {
-    backend.registerContext(contextId, checkpoint);
+    backend.registerContext(contextId, checkpoint, sourceBytes);
   }
 
   let disposed = false;

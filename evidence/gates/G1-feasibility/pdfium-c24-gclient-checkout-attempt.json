@@ -1,0 +1,22 @@
+{
+  "builtAt": "2026-10-17T13:48:40.678Z",
+  "skipped": false,
+  "card": "G1-PDF-GCLIENT-01",
+  "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "gclientRoot": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout",
+  "depotTools": {
+    "present": true,
+    "cloneAttempted": false,
+    "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
+  },
+  "gclientConfigAttempted": false,
+  "gclientSyncAttempted": true,
+  "checkoutPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "pdfiumTreeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
+  "depsPresent": true,
+  "gnGenAttempted": true,
+  "ninjaAttempted": true,
+  "emscriptenGnHints": [],
+  "status": "gclient-gn-ninja-dry-run-ok",
+  "detail": "gclient exit 0; pin 7c55203ed66b0461378323e3fcf2efaf76755241; gn exit 0; ninja -n exit 0; [2911/2918] CXX obj/v8/v8_base_without_compiler/simulator-logic-arm64.o\n[2912/2918] CXX obj/v8/v8_base_without_compiler/regexp-macro-assembler-arm64.o\n[2913/2918] CXX obj/v8/v8_base_without_compiler/special-case.o\n[2914/2918] LINK ./mksnapshot\n[2915/2918] ACTION //v8:run_mksnapshot_default(//build/toolchain/mac:clang_arm64)\n[2916/2918] CXX obj/v8/v8_snapshot/setup-isolate-deserialize.o\n[2917/2918] ASM obj/v8/v8_snapshot/embedded.o\n[2918/2918] CXX obj/v8/v8_snapshot/snapshot-external.o; domdoc-pdfium-wasm emscripten target not wired in-tree"
+}

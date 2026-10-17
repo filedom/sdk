@@ -22,6 +22,13 @@ export function classifyPdfProofOperation(
       hookReady: moduleLoaded,
     };
   }
+  if (operation.kind === "replaceImage" || operation.kind === "movePage") {
+    return {
+      fixtureId: "P05",
+      summary: "image replace and page reorder",
+      hookReady: moduleLoaded,
+    };
+  }
   const text = operation.newText ?? "";
   if (text.includes("|img|") || operation.objectId.startsWith("image:")) {
     return {

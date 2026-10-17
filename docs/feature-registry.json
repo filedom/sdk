@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m3-review-collab-pdfium-depot",
+  "updatedAt": "2026-10-17-m4-gclient-toolbar-track-changes",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W"],
       "gateIds": ["G2", "G5"],
-      "limits": "docx-export-stub (fflate OPC zip from DocxStore); exportedRevision on session; gate not-run"
+      "limits": "docx-export-stub + docx-track-changes-export-stub (preserve w:ins/w:del); exportedRevision on session; gate not-run"
     },
     {
       "id": "F05",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["A"],
       "gateIds": [],
-      "limits": "m2-toolbar-command-stub + demo save/undo + domdoc package stub on save; not full shared shell"
+      "limits": "m2-toolbar-command-registry + command-stub + demo save/undo + domdoc package stub on save; not full shared shell"
     },
     {
       "id": "F20",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-21 ci:build-pdfium-wasm (depot_tools, emsdk, C24 gclient/gn/ninja attempt, probe→vendor/domdoc-pdfium-wasm adapter); moduleLoaded may be true for probe adapter; writerExportsReady/P01–P05 honest not-run"
+      "limits": "G1-PDF-21 ci:build-pdfium-wasm (depot_tools, tools/pdfium-checkout gclient, emsdk, C24 gn/ninja smoke, pdfium-wasm-read-path, probe→vendor/domdoc-pdfium-wasm adapter); writerExportsReady/P01–P05 honest not-run"
     },
     {
       "id": "F34",

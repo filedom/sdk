@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T09:34:17.369Z",
+  "builtAt": "2026-10-17T13:48:40.679Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -18,38 +18,29 @@
   },
   "priorBuildStatus": "not-configured",
   "upstreamProbe": {
-    "attempted": true,
-    "ok": true,
-    "releaseTag": "8046d",
-    "assetName": "wasm.zip",
-    "zipBytes": 13414692,
-    "zipSha256": "062d10055de90a01120acf307ce16e0022021a32203f4aeae4877750f9a08427",
-    "nonProduction": true,
-    "note": "pdfium-lib prebuild ≠ C24 domdoc-pdfium-wasm writer; probe only",
-    "vendored": {
-      "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe",
-      "zipPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe/wasm.zip",
-      "unzipExitCode": 0,
-      "wasmFiles": [
-        "release/node/pdfium.esm.wasm",
-        "release/node/pdfium.std.wasm",
-        "release/node/pdfium.wasm"
-      ],
-      "jsGlueFiles": [
-        "release/node/pdfium-worker.js",
-        "release/node/pdfium.esm.js",
-        "release/node/pdfium.js",
-        "release/node/pdfium.std.js"
-      ],
-      "adapterWritten": true,
-      "domdocPdfiumWasmProbeAdapter": {
-        "ok": true,
-        "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
-        "wasmCopied": true,
-        "resolvePdfiumWasmModule": "vendor-artifact via index.mjs",
-        "writerExports": false
-      }
-    }
+    "attempted": false,
+    "reason": "set PDFIUM_WASM_CI_PROBE_FETCH=1 to probe upstream WASM size"
+  },
+  "pdfiumC24GclientCheckout": {
+    "skipped": false,
+    "card": "G1-PDF-GCLIENT-01",
+    "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+    "gclientRoot": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout",
+    "depotTools": {
+      "present": true,
+      "cloneAttempted": false,
+      "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
+    },
+    "gclientConfigAttempted": false,
+    "gclientSyncAttempted": true,
+    "checkoutPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+    "pdfiumTreeDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-checkout/pdfium",
+    "depsPresent": true,
+    "gnGenAttempted": true,
+    "ninjaAttempted": true,
+    "emscriptenGnHints": [],
+    "status": "gclient-gn-ninja-dry-run-ok",
+    "detail": "gclient exit 0; pin 7c55203ed66b0461378323e3fcf2efaf76755241; gn exit 0; ninja -n exit 0; [2911/2918] CXX obj/v8/v8_base_without_compiler/simulator-logic-arm64.o\n[2912/2918] CXX obj/v8/v8_base_without_compiler/regexp-macro-assembler-arm64.o\n[2913/2918] CXX obj/v8/v8_base_without_compiler/special-case.o\n[2914/2918] LINK ./mksnapshot\n[2915/2918] ACTION //v8:run_mksnapshot_default(//build/toolchain/mac:clang_arm64)\n[2916/2918] CXX obj/v8/v8_snapshot/setup-isolate-deserialize.o\n[2917/2918] ASM obj/v8/v8_snapshot/embedded.o\n[2918/2918] CXX obj/v8/v8_snapshot/snapshot-external.o; domdoc-pdfium-wasm emscripten target not wired in-tree"
   },
   "pdfiumC24SourceAttempt": {
     "skipped": false,
@@ -66,8 +57,8 @@
     "gclientAttempted": true,
     "gnGenAttempted": true,
     "ninjaAttempted": true,
-    "status": "ninja-dry-run-ok-no-emscripten-target",
-    "detail": "gclient: exit 0; gn gen: exit 0; ninja -n: exit 0; ninja: Entering directory `/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke'\nninja: fatal: chdir to '/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke' - No such file or directory; domdoc-pdfium-wasm emscripten target not wired in-tree"
+    "status": "gn-gen-failed",
+    "detail": "gclient tail: Error: client not configured; see 'gclient config'; gn gen exit 0; build.ninja present=false; gn.py: Unable to find gn in your $PATH\nHint: `which -a gn` should output two entries; emcc: emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.12 (5488e0871d46d19a3209988190fa6a653126256f)"
   },
   "domdocPdfiumWasmLayout": {
     "expected": {
@@ -92,6 +83,7 @@
   "ciSteps": [
     "Install tools/depot_tools (gitignored) + tools/emsdk; PATH includes depot_tools",
     "Optional PDFIUM_WASM_CI_PROBE_FETCH=1 vendors pdfium-lib probe + domdoc-pdfium-wasm probe adapter",
+    "gclient full checkout under tools/pdfium-checkout (see pdfium-c24-gclient-checkout-attempt.json)",
     "Clone domdoc-pdfium-wasm at C24 pin; run build-wasm.sh",
     "Copy dist to vendor/domdoc-pdfium-wasm or set PDFIUM_WASM_ARTIFACT_DIR",
     "pnpm fetch:pdfium-wasm && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05"

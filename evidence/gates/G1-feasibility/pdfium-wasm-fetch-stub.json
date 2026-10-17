@@ -1,10 +1,15 @@
 {
-  "fetchedAt": "2026-10-17T09:31:17.661Z",
+  "fetchedAt": "2026-10-17T13:48:46.127Z",
   "moduleSpec": "domdoc-pdfium-wasm@0.0.0-not-published",
-  "status": "stub-not-run",
-  "buildRootAttempts": [],
-  "artifactUrl": null,
-  "urlCandidatesAttempted": [],
-  "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
-  "note": "G1-PDF-10: exhaustive discovery recorded in pdfium-wasm-discovery-record.json; no production C24 WASM bytes. Run pnpm build:pdfium-wasm with PDFIUM_WASM_BUILD_ROOT or set PDFIUM_WASM_ARTIFACT_DIR."
+  "status": "artifact-local",
+  "artifactDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-pdfium-wasm/dist",
+  "ingestNote": null,
+  "vendorPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
+  "wasmArtifacts": [
+    {
+      "name": "domdoc_pdfium.wasm",
+      "sha256": "73b3e79bf894cc4fd2405230e7a9f9adb3717909b23cc84182e81cff198b874d"
+    }
+  ],
+  "note": "Vendored copy for local P01–P05 proofs; gate remains not-run until CI runs fixtures."
 }

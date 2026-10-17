@@ -1,9 +1,8 @@
 {
-  "recordedAt": "2026-10-17T09:34:20.882Z",
-  "card": "G1-PDF-19",
-  "phase": "post-proof-worker",
-  "productionWasmObtained": true,
-  "productionModuleLoaded": true,
+  "recordedAt": "2026-10-17T13:48:46.129Z",
+  "card": "G1-PDF-18",
+  "phase": "pre-ingest",
+  "productionWasmObtained": false,
   "ciWorkerProofTarget": "PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
   "ciWorkerGreenCriteria": "moduleLoaded=true and P01–P05 nativeProof=pass",
   "ciWorkerProofSteps": [
@@ -13,44 +12,6 @@
     "P04",
     "P05"
   ],
-  "ciWorkerProofStepResults": [
-    {
-      "step": "P01",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
-      "workerCiPath": "skipped",
-      "hookReady": false
-    },
-    {
-      "step": "P02",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
-      "workerCiPath": "skipped",
-      "hookReady": false
-    },
-    {
-      "step": "P03",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
-      "workerCiPath": "skipped",
-      "hookReady": false
-    },
-    {
-      "step": "P04",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
-      "workerCiPath": "skipped",
-      "hookReady": false
-    },
-    {
-      "step": "P05",
-      "moduleLoaded": true,
-      "nativeProof": "not-run",
-      "workerCiPath": "skipped",
-      "hookReady": false
-    }
-  ],
-  "ciWorkerGreen": false,
-  "unblockRunbook": "docs/g1-pdfium-c24-unblock-runbook.md",
-  "note": "G1-PDF-19 worker exercised; native P01–P05 proofs still not-run until fixture bytes pass."
+  "ciWorkerProofStepResults": null,
+  "note": "G1-PDF-18 C24 domdoc-pdfium-wasm bytes → CI worker P01–P05; green proofs pending production WASM."
 }

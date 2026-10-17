@@ -19,11 +19,16 @@ import {
   createM2ToolbarUndoStackStub,
   dispatchM2ToolbarCommand,
 } from "../../core/dist/session/m2-toolbar-command-stub.js";
+import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar-command-registry.js";
 import {
   createDocumentSession,
 } from "../../core/dist/session/document-session.js";
 import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
 import { exportDocxFromStoreStub } from "../../core/dist/formats/docx/docx-export-stub.js";
+import { exportDocxTrackChangesFromStoreStub } from "../../core/dist/formats/docx/docx-track-changes-export-stub.js";
+import { buildReviewMinimalTrackedDocxZipBytes } from "../../core/dist/formats/docx/review-minimal-docx-fixture.js";
+import { DocxStore } from "../../core/dist/formats/docx/docx-store.js";
+import { describePdfiumWasmReadPathBrowser } from "../../core/dist/formats/pdf/pdfium-wasm-read-path-stub.js";
 import {
   applyDemoProsemirrorTextReplace,
   buildDemoDocxZipBytes,
@@ -89,6 +94,7 @@ async function boot(): Promise<void> {
   if (toolbar) {
     document.body.dataset.m2ToolbarShell = "stub";
     document.body.dataset.m2ToolbarSessionId = "demo-sess";
+    document.body.dataset.m2ToolbarRegistryCount = String(listM2ToolbarCommandRegistry().length);
     syncToolbarStackDataset();
     const saveBtn = document.getElementById("domdoc-toolbar-save-stub");
     const undoBtn = document.getElementById("domdoc-toolbar-undo-stub");
@@ -153,10 +159,23 @@ async function boot(): Promise<void> {
   document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
   const domdocReopened = loadProsemirrorDemoDomdocPackageStub(domdocSaved.packageZipBytes);
   document.body.dataset.m1DomdocPackageRoundTripOk = domdocReopened ? "true" : "false";
-  void tryLoadPdfiumLibProbeRender().then((probe) => {
-    document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
-    document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
-  });
+  void Promise.all([tryLoadPdfiumLibProbeRender(), describePdfiumWasmReadPathBrowser()]).then(
+    ([probe, readPath]) => {
+      document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
+      document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
+      document.body.dataset.g1PdfiumReadPathLoaded = readPath.moduleLoaded ? "true" : "false";
+      document.body.dataset.g1PdfiumWriterExportsReady = readPath.writerExportsReady ? "true" : "false";
+      if (params.get("g1PdfiumProbeWorker") === "1") {
+        document.body.dataset.g1PdfiumProbeWorkerStatus =
+          probe.moduleLoaded ? "probe-render-loaded" : probe.error ?? "probe-absent";
+      }
+    },
+  );
+  const trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
+  const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, pmSlice.session);
+  document.body.dataset.m4DocxTrackChangesExportOk = trackedExport.result.trackedMarkersPreserved
+    ? "true"
+    : "false";
   if (pmInput instanceof HTMLInputElement) {
     pmInput.addEventListener("change", () => {
       pmSlice = applyDemoProsemirrorTextReplace(pmSlice, 0, pmInput.value);

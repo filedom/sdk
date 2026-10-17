@@ -1,7 +1,9 @@
 {
-  "recordedAt": "2026-10-17T09:31:17.661Z",
+  "recordedAt": "2026-10-17T13:48:46.128Z",
   "card": "G1-PDF-13",
   "phase": "pre-ingest",
-  "siblingRoots": [],
+  "siblingRoots": [
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-pdfium-wasm"
+  ],
   "note": "C24 domdoc-pdfium-wasm vendoring attempt; production bytes required for module load."
 }

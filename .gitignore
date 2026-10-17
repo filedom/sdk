@@ -10,3 +10,4 @@ vendor/pdfium-lib-probe
 tools/emsdk
 tools/depot_tools
 tools/pdfium-src
+tools/pdfium-checkout

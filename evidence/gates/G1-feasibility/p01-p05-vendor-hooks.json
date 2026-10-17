@@ -1,42 +1,37 @@
 {
-  "recordedAt": "2026-10-17T09:34:20.882Z",
-  "status": "stub-not-run",
+  "recordedAt": "2026-10-17T13:48:46.157Z",
+  "status": "vendor-local-hooks-ready",
   "fixtures": [
     {
       "fixtureId": "P01",
       "nativeProof": "not-run",
       "classificationHook": "pdfium-proof-hooks.ts",
-      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule"
     },
     {
       "fixtureId": "P02",
       "nativeProof": "not-run",
       "classificationHook": "pdfium-proof-hooks.ts",
-      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule"
     },
     {
       "fixtureId": "P03",
       "nativeProof": "not-run",
       "classificationHook": "pdfium-proof-hooks.ts",
-      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule"
     },
     {
       "fixtureId": "P04",
       "nativeProof": "not-run",
       "classificationHook": "pdfium-proof-hooks.ts",
-      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule"
     },
     {
       "fixtureId": "P05",
       "nativeProof": "not-run",
       "classificationHook": "pdfium-proof-hooks.ts",
-      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule",
-      "hookReady": false
+      "workerLoad": "pdf-writer-worker.ts via resolvePdfiumWasmModule"
     }
   ],
-  "note": "Native P01–P05 proofs remain not-run until PDFium WASM executes fixture bytes."
+  "note": "Positive P01–P05 proofs remain not-run until CI executes fixtures on vendored WASM."
 }

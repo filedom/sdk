@@ -56,7 +56,7 @@ parentPort.on("message", async (msg: WriterWorkerRequest) => {
       }
       case "pdf-writer/preflight": {
         if (!backend) throw new Error("pdf-writer not initialized");
-        backend.registerContext(msg.contextId, msg.checkpoint);
+        backend.registerContext(msg.contextId, msg.checkpoint, msg.bytes);
         const outcome = await backend.preflight(msg.bytes, msg.checkpoint);
         parentPort?.postMessage({ ok: true, body: outcome });
         break;

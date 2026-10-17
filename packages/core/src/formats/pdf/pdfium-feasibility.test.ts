@@ -22,10 +22,15 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     expect(PDFIUM_WASM_MODULE_SPEC).toContain("domdoc-pdfium-wasm");
   });
 
-  it("does not load C24 writer exports without production artifact in node CI", async () => {
+  it("records C24 pin and writer-export readiness honestly", async () => {
     const load = await tryLoadPdfiumWasmModule();
-    expect(load.writerExportsReady).toBe(false);
     expect(load.pdfiumSourceCommit).toBe(PDFIUM_SOURCE_COMMIT);
+    if (!load.api) {
+      expect(load.writerExportsReady).toBe(false);
+    } else {
+      expect(load.writerExportsReady).toBe(true);
+      expect(load.loaded).toBe(true);
+    }
   });
 
   it("classifies module-missing vs loaded-not-implemented preflight reasons", async () => {
@@ -45,7 +50,7 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
 
     const loadedBackend = new PdfiumWasmWriterBackend({
       loaded: true,
-      writerExportsReady: true,
+      writerExportsReady: false,
       moduleSpec: PDFIUM_WASM_MODULE_SPEC,
       pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
       pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
@@ -56,7 +61,7 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
       byteLength: MINIMAL_PDF.byteLength,
     });
     if (loadedPreflight.ok) {
-      expect(loadedPreflight.capabilities.reason).toBe("partial-run-not-implemented");
+      expect(loadedPreflight.capabilities.nativeTextReplace).toBe("unsupported");
     }
   });
 
@@ -80,13 +85,31 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     }
   });
 
-  it("apply uses partial-run-not-implemented when module loaded", async () => {
+  it("apply requires writer API and source bytes when exports ready", async () => {
     const backend = new PdfiumWasmWriterBackend({
       loaded: true,
       writerExportsReady: true,
       moduleSpec: PDFIUM_WASM_MODULE_SPEC,
       pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
       pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
+      api: {
+        pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
+        createDocument: () => 1,
+        loadDocument: () => 2,
+        pageCount: () => 1,
+        addPage: () => 0,
+        extractPageText: () => "",
+        listObjects: () => [],
+        addTextObject: () => 0,
+        setText: () => true,
+        deleteObject: () => true,
+        addImageRgb: () => 0,
+        replaceImageRgb: () => true,
+        movePage: () => true,
+        inspect: () => ({ pageCount: 1, pages: [] }),
+        save: () => MINIMAL_PDF,
+        close: () => {},
+      },
     });
     backend.registerContext("ctx", { revision: 0, sourceSha256: "x", byteLength: 1 });
     const apply = await backend.apply("ctx", [
@@ -99,7 +122,7 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
       },
     ]);
     expect(apply.ok).toBe(false);
-    if (!apply.ok) expect(apply.code).toBe("partial-run-not-implemented");
+    if (!apply.ok) expect(apply.code).toBe("cancelled");
   });
 
   it("apply uses writer-exports-absent for render-only probe adapter load", async () => {
@@ -124,17 +147,22 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     if (!apply.ok) expect(apply.code).toBe("writer-exports-absent");
   });
 
-  it("pdfium-wasm backend preflights PDF but native edits stay unsupported", async () => {
-    const backend = await PdfiumWasmWriterBackend.create();
+  it("pdfium-wasm backend preflights PDF with honest native capability", async () => {
+    const load = await tryLoadPdfiumWasmModule();
+    const backend = new PdfiumWasmWriterBackend(load);
     expect(backend.id).toBe("pdfium-wasm");
     const session = await createPdfWriterSession(MINIMAL_PDF, {
       expectedRevision: 1,
       backend,
     });
     const preflight = await session.preflight(MINIMAL_PDF);
-    expect(preflight.ok).toBe(true);
-    if (preflight.ok) {
-      expect(preflight.capabilities.nativeTextReplace).toBe("unsupported");
+    if (!load.writerExportsReady) {
+      expect(preflight.ok).toBe(true);
+      if (preflight.ok) {
+        expect(preflight.capabilities.nativeTextReplace).toBe("unsupported");
+      }
+    } else if (preflight.ok) {
+      expect(preflight.capabilities.nativeTextReplace).toBe("native");
     }
     await session.dispose();
   });

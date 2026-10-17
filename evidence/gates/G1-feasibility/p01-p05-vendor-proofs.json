@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-10-17T09:34:20.882Z",
+  "recordedAt": "2026-10-17T13:48:17.880Z",
   "status": "probe-adapter-load-only",
   "resolutionSource": "vendor-artifact",
   "moduleLoaded": true,
@@ -10,35 +10,56 @@
       "nativeProof": "not-run",
       "hookReady": false,
       "workerCiPath": "skipped",
-      "classificationSummary": "replace whole text run"
+      "classificationSummary": "replace whole text run",
+      "detail": "C24 writer API not loaded"
     },
     {
       "fixtureId": "P02",
       "nativeProof": "not-run",
       "hookReady": false,
       "workerCiPath": "skipped",
-      "classificationSummary": "partial run insert/delete"
+      "classificationSummary": "partial run insert/delete",
+      "detail": "C24 writer API not loaded"
     },
     {
       "fixtureId": "P03",
       "nativeProof": "not-run",
       "hookReady": false,
       "workerCiPath": "skipped",
-      "classificationSummary": "multi-run kerning replace"
+      "classificationSummary": "multi-run kerning replace",
+      "detail": "C24 writer API not loaded"
     },
     {
       "fixtureId": "P04",
       "nativeProof": "not-run",
       "hookReady": false,
       "workerCiPath": "skipped",
-      "classificationSummary": "delete native text object"
+      "classificationSummary": "delete native text object",
+      "detail": "C24 writer API not loaded"
     },
     {
       "fixtureId": "P05",
       "nativeProof": "not-run",
       "hookReady": false,
       "workerCiPath": "skipped",
-      "classificationSummary": "image replace and page reorder"
+      "classificationSummary": "image replace and page reorder",
+      "detail": "C24 writer API not loaded"
+    },
+    {
+      "fixtureId": "P11",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "before-commit failure rolls back scratch",
+      "detail": "C24 writer API not loaded"
+    },
+    {
+      "fixtureId": "P12",
+      "nativeProof": "not-run",
+      "hookReady": false,
+      "workerCiPath": "skipped",
+      "classificationSummary": "save/reopen lifecycle cycles",
+      "detail": "C24 writer API not loaded"
     }
   ]
 }
