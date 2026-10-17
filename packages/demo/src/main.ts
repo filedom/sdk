@@ -54,6 +54,8 @@ import { domdocSvelteAdapterDemoSurface } from "@domdoc/svelte";
 import { domdocPreactAdapterDemoSurface } from "@domdoc/preact";
 import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
+import { domdocNuxtHostAdapterDemoSurface } from "@domdoc/nuxt-host";
+import { domdocSvelteKitHostAdapterDemoSurface } from "@domdoc/sveltekit-host";
 import { ViewerController } from "./viewer-controller.js";
 
 const shell = mountDomdocShell("domdoc-root");
@@ -104,6 +106,14 @@ async function boot(): Promise<void> {
     document.body.dataset.m2ToolbarRedoDepth = String(pmUndoState.toolbarStack.redoDepth);
     document.body.dataset.m2ToolbarLastCommand = pmUndoState.toolbarStack.lastCommand ?? "";
   };
+  const syncM3ReceiptDataset = (): void => {
+    const { committedRevision, persistedRevision, exportedRevision } =
+      viewer.slice.session.revisions;
+    document.body.dataset.m3PersistReceiptCommitted = String(committedRevision);
+    document.body.dataset.m3PersistReceiptPersisted = String(persistedRevision);
+    document.body.dataset.m3ExportReceiptExported = String(exportedRevision);
+    document.body.dataset.m3ExportReceiptFeature = pmSaveState.featureId;
+  };
   const syncProsemirrorDemoDataset = (): void => {
     document.body.dataset.m1ProsemirrorSlice = "true";
     document.body.dataset.m1ProsemirrorRevision = String(
@@ -118,6 +128,7 @@ async function boot(): Promise<void> {
     document.body.dataset.m1ProsemirrorDebouncedPending = pmSaveState.pendingText ? "true" : "false";
     viewer.syncProsemirrorInput();
     document.body.dataset.m1ProsemirrorToolbarUndoBound = "true";
+    syncM3ReceiptDataset();
   };
   const flushProsemirrorDebouncedSave = (): void => {
     if (pmSaveState.pendingText === null) return;
@@ -321,6 +332,14 @@ async function boot(): Promise<void> {
   document.body.dataset.m5SvelteAdapter = domdocSvelteAdapterDemoSurface("demo-sess").surface;
   document.body.dataset.m5NextHostAdapter = domdocNextHostAdapterDemoSurface("demo-sess").surface;
   document.body.dataset.m5NextHostBoundary = domdocNextHostAdapterDemoSurface("demo-sess").host;
+  document.body.dataset.m5NuxtHostAdapter = domdocNuxtHostAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5NuxtHostBoundary = domdocNuxtHostAdapterDemoSurface("demo-sess").host;
+  document.body.dataset.m5SvelteKitHostAdapter = domdocSvelteKitHostAdapterDemoSurface(
+    "demo-sess",
+  ).surface;
+  document.body.dataset.m5SvelteKitHostBoundary = domdocSvelteKitHostAdapterDemoSurface(
+    "demo-sess",
+  ).host;
   if (params.get("m5Extended") !== "0") {
     document.body.dataset.m5PreactAdapter = domdocPreactAdapterDemoSurface("demo-sess").surface;
     document.body.dataset.m5SolidAdapter = domdocSolidAdapterDemoSurface("demo-sess").surface;
@@ -344,13 +363,27 @@ async function boot(): Promise<void> {
   shell.acceptCommentButton.addEventListener("click", () => {
     const firstThread = annotationsWire.reviewThreads[0];
     const commentId = firstThread?.commentIds[0] ?? "0";
-    const acceptResult = dispatchCommentPanelAcceptAction(commentId);
+    const acceptResult = dispatchCommentPanelAcceptAction(commentId, {
+      session: viewer.slice.session,
+      trackedStore,
+    });
     document.body.dataset.m2CommentAcceptApplied = acceptResult.applied ? "true" : "false";
     document.body.dataset.m2CommentAcceptDetail = acceptResult.detail;
     document.body.dataset.m2CommentAcceptId = acceptResult.commentId;
+    document.body.dataset.m2CommentAcceptOpcApplied = acceptResult.opcPatchApplied
+      ? "true"
+      : "false";
+    document.body.dataset.m2CommentAcceptSuggestionId = acceptResult.reviewSuggestionId ?? "";
+    if (acceptResult.nextStore) {
+      trackedStore = acceptResult.nextStore;
+    }
+    if (acceptResult.nextSession) {
+      viewer.slice = { ...viewer.slice, session: acceptResult.nextSession };
+      syncProsemirrorDemoDataset();
+    }
   });
 
-  const trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
+  let trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
   const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, viewer.slice.session);
   document.body.dataset.m4DocxTrackChangesExportOk = trackedExport.result.trackedMarkersPreserved
     ? "true"

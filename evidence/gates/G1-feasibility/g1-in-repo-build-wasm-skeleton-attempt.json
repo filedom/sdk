@@ -1,0 +1,11 @@
+{
+  "recordedAt": "2026-10-17T14:35:49.118Z",
+  "script": "packages/domdoc-pdfium-wasm/build/build-wasm.sh",
+  "phase": "emcc-partial-link",
+  "result": "partial-fpdf-edit",
+  "pdfiumGitRevision": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "siblingBuildScript": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/../domdoc-pdfium-wasm/build-wasm.sh",
+  "emccLinkScript": "packages/domdoc-pdfium-wasm/build/emcc-link-writer.sh",
+  "c24WriterExports": false,
+  "note": "Partial fpdf_edit link recorded in dist/emcc-link-record.json; c24WriterExports remains false."
+}

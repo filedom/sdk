@@ -315,9 +315,11 @@ export {
 export { parseCommentRangesFromDocumentXml } from "./formats/docx/comment-range-stub.js";
 export {
   COMMENT_PANEL_ACCEPT_ACTION_FEATURE_ID,
+  COMMENT_PANEL_ACCEPT_DEFAULT_SUGGESTION_ID,
   dispatchCommentPanelAcceptAction,
   type CommentPanelAcceptActionKind,
   type CommentPanelAcceptActionResult,
+  type CommentPanelAcceptReviewOpcContext,
 } from "./formats/docx/comment-panel-accept-action-stub.js";
 export {
   attachMultiBlobMemberKeysToManifestStub,

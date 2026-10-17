@@ -13,6 +13,8 @@
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
     "@domdoc/next-host": "workspace:*",
+    "@domdoc/nuxt-host": "workspace:*",
+    "@domdoc/sveltekit-host": "workspace:*",
     "@domdoc/preact": "workspace:*",
     "@domdoc/react": "workspace:*",
     "@domdoc/shell-ui": "workspace:*",

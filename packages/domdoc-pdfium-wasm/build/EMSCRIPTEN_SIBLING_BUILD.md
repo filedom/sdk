@@ -40,6 +40,7 @@ Optional env overrides for `build-wasm.sh`:
 
 | Script | Role |
 | --- | --- |
+| `build/build-wasm.sh` | Skeleton: optional sibling `build-wasm.sh` + in-repo `emcc-link-writer.sh` + evidence JSON |
 | `build/attempt-gclient-host-ninja.sh` | Host ninja discovery only |
 | `build/attempt-host-static-emcc-link.sh` | Honest failed emcc link against host `.a` |
 | `build/emcc-link-writer.sh` | Partial **Emscripten** `fpdf_edit` smoke when pdfium-lib wasm `.a` present |
