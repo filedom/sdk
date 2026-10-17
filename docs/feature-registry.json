@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1pp",
+  "updatedAt": "2026-10-17-w1ppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "PDF writer worker + fetch/build scripts; binary not vendored; P01–P05 not-run"
+      "limits": "G1-PDF-06 vendor resolve + manual artifact path; P01–P05 not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "ProseMirror projection + transaction boundary stub; D05 corpus partial; gate not-run"
+      "limits": "List numbering stub + DocumentSession slice; D05 partial; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "@domdoc/demo vite shell + wasm paint e2e; IME not-run"
+      "limits": "Caret/composition demo + Playwright subset; OS IME not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "Parley tags shaped lines when feature enabled; pkg-node flow-fallback; gate not-run"
+      "limits": "Dual-build parley pkg optional; default pkg-node flow-fallback; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-03 layout-stable measurement + demo browser probe; gate not-run"
+      "limits": "W2-G4-04 equivalence oracle stub + layout-stable probe; gate not-run"
     }
   ]
 }

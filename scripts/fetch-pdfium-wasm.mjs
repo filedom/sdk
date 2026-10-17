@@ -48,6 +48,18 @@ if (artifactDir && existsSync(artifactDir) && hasWasmArtifact(artifactDir)) {
     note: "Vendored copy for local P01–P05 proofs; gate remains not-run until CI runs fixtures.",
   };
   writeFileSync(join(outDir, "pdfium-wasm-fetch-stub.json"), `${JSON.stringify(record, null, 2)}\n`);
+  const hooks = {
+    recordedAt: new Date().toISOString(),
+    status: "vendor-local-hooks-ready",
+    fixtures: ["P01", "P02", "P03", "P04", "P05"].map((id) => ({
+      fixtureId: id,
+      nativeProof: "not-run",
+      classificationHook: "pdfium-proof-hooks.ts",
+      workerLoad: "pdf-writer-worker.ts via resolvePdfiumWasmModule",
+    })),
+    note: "Positive P01–P05 proofs remain not-run until CI executes fixtures on vendored WASM.",
+  };
+  writeFileSync(join(outDir, "p01-p05-vendor-hooks.json"), `${JSON.stringify(hooks, null, 2)}\n`);
   console.log("[fetch-pdfium-wasm] copied artifact into vendor/domdoc-pdfium-wasm");
   process.exit(0);
 }

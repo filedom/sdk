@@ -16,6 +16,7 @@ describe("G2-DOCX-04 ProseMirror transaction boundary stub", () => {
     const stub = prosemirrorDocToTransactionStub(doc, 2);
     expect(stub.kind).toBe("docx-projection-sync");
     expect(stub.paragraphTexts).toEqual(["One", "Two"]);
+    expect(stub.listMarkers).toEqual(["", ""]);
     expect(stub.targetRevision).toBe(2);
   });
 
@@ -32,6 +33,7 @@ describe("G2-DOCX-04 ProseMirror transaction boundary stub", () => {
       kind: "docx-projection-sync",
       targetRevision: 3,
       paragraphTexts: ["x"],
+      listMarkers: [""],
     });
     expect(next.committedRevision).toBe(3);
     expect(next.renderedRevision).toBe(3);

@@ -6,14 +6,17 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "D05 corpus partial + ProseMirror transaction stub; pkg-node flow-fallback; Parley proofs native-only",
+  "limitations": "G2-DOCX-05 list stub + DocumentSession slice; D05 lists partial; pkg-node flow-fallback; parley dual-build optional",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
     "docx-prosemirror-projection.test.ts",
     "docx-prosemirror-transaction-boundary.test.ts",
     "docx-prosemirror-d05-corpus.test.ts",
+    "docx-list-numbering-stub.test.ts",
+    "document-session.test.ts",
     "layout-shaping.test.ts",
-    "domdoc-wasm layout_font_proof + parley-shaping tests"
+    "layout-shaping-parley.pkg.test.ts",
+    "domdoc-wasm/docs/parley-dual-build.md"
   ]
 }

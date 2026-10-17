@@ -4,7 +4,10 @@ import {
   PDFIUM_SOURCE_COMMIT,
   PDFIUM_WASM_MODULE_SPEC,
 } from "./pdfium-pin.js";
-import { PdfiumWasmWriterBackend } from "./backends/pdfium-wasm-backend.js";
+import {
+  PdfiumWasmWriterBackend,
+  tryLoadPdfiumWasmModule,
+} from "./backends/pdfium-wasm-backend.js";
 import type { PdfEditOperation } from "./types.js";
 
 if (!parentPort) {
@@ -36,14 +39,16 @@ parentPort.on("message", async (msg: WriterWorkerRequest) => {
     switch (msg.type) {
       case "pdf-writer/init": {
         initModuleUrl = msg.moduleUrl ?? PDFIUM_WASM_MODULE_SPEC;
-        backend = await PdfiumWasmWriterBackend.create();
+        const load = await tryLoadPdfiumWasmModule();
+        backend = new PdfiumWasmWriterBackend(load);
         parentPort?.postMessage({
           ok: true,
           body: {
-            moduleSpec: initModuleUrl,
+            moduleSpec: load.moduleSpec,
             pdfiumSourceCommit: msg.pdfiumSourceCommit || PDFIUM_SOURCE_COMMIT,
             pdfiumRenderCommit: msg.pdfiumRenderCommit || PDFIUM_RENDER_COMMIT,
-            moduleLoaded: backend !== null,
+            moduleLoaded: load.loaded,
+            resolutionSource: load.resolutionSource ?? "npm-placeholder",
           },
         });
         break;

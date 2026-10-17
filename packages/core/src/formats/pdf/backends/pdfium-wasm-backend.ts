@@ -3,6 +3,10 @@ import {
   PDFIUM_RENDER_COMMIT,
   PDFIUM_SOURCE_COMMIT,
 } from "../pdfium-pin.js";
+import {
+  resolvePdfiumWasmModule,
+  type PdfiumModuleResolutionSource,
+} from "../pdfium-module-resolve.js";
 import { classifyPdfProofOperation } from "../pdfium-proof-hooks.js";
 import type {
   PdfApplyOutcome,
@@ -18,19 +22,29 @@ export interface PdfiumWasmLoadResult {
   moduleSpec: string;
   pdfiumSourceCommit: string;
   pdfiumRenderCommit: string;
+  resolutionSource?: PdfiumModuleResolutionSource;
   error?: string;
 }
 
 /** Attempt to load the pinned PDFium WASM module (none vendored in W1). */
 export async function tryLoadPdfiumWasmModule(): Promise<PdfiumWasmLoadResult> {
+  const resolved = resolvePdfiumWasmModule();
   const base: PdfiumWasmLoadResult = {
     loaded: false,
-    moduleSpec: PDFIUM_WASM_MODULE_SPEC,
+    moduleSpec: resolved.spec,
     pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
     pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
+    resolutionSource: resolved.source,
   };
+  if (resolved.source === "npm-placeholder") {
+    return {
+      ...base,
+      moduleSpec: PDFIUM_WASM_MODULE_SPEC,
+      error: "PDFium WASM artifact not vendored",
+    };
+  }
   try {
-    await import(/* webpackIgnore: true */ PDFIUM_WASM_MODULE_SPEC);
+    await import(/* webpackIgnore: true */ resolved.spec);
     return { ...base, loaded: true };
   } catch (err) {
     return {

@@ -1,0 +1,12 @@
+{
+  "recordedAt": "2026-10-17T09:00:00.000Z",
+  "status": "stub-not-run",
+  "fixtures": [
+    { "fixtureId": "P01", "nativeProof": "not-run", "classificationHook": "pdfium-proof-hooks.ts" },
+    { "fixtureId": "P02", "nativeProof": "not-run", "classificationHook": "pdfium-proof-hooks.ts" },
+    { "fixtureId": "P03", "nativeProof": "not-run", "classificationHook": "pdfium-proof-hooks.ts" },
+    { "fixtureId": "P04", "nativeProof": "not-run", "classificationHook": "pdfium-proof-hooks.ts" },
+    { "fixtureId": "P05", "nativeProof": "not-run", "classificationHook": "pdfium-proof-hooks.ts" }
+  ],
+  "note": "Regenerated when PDFIUM_WASM_ARTIFACT_DIR ingest runs via pnpm fetch:pdfium-wasm."
+}

@@ -5,6 +5,12 @@ export {
   type RenderProjection,
 } from "./rendering/engine-client.js";
 export type { DocumentSessionStub, SessionRevisions } from "./wire/domain-owned.js";
+export { DocumentSession, createDocumentSession } from "./session/document-session.js";
+export {
+  createDomdocPackageManifestStub,
+  DOMDOC_PACKAGE_SCHEMA_VERSION,
+  type DomdocPackageManifestStub,
+} from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,
   WIRE_SCHEMA_ID,
@@ -72,6 +78,13 @@ export {
   assertStableFragmentMeasurements,
   type LayoutStabilityOutcome,
 } from "./components/component-measurement-layout-stability.js";
+export {
+  fragmentsEquivalent,
+  runFragmentationConvergenceOracle,
+  type FragmentationEquivalenceVerdict,
+  type FragmentationLayoutPass,
+} from "./components/fragmentation-equivalence-oracle.js";
+export { resolvePdfiumWasmModule } from "./formats/pdf/pdfium-module-resolve.js";
 export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,

@@ -26,10 +26,16 @@ export function parseDocumentBodyXml(xml: string): OoxmlNode {
     const pInner = match[1] ?? "";
     const textMatch = pInner.match(/<w:t[^>]*>([^<]*)<\/w:t>/);
     const text = textMatch?.[1] ?? "";
+    const ilvl = pInner.match(/<w:ilvl[^>]*w:val="(\d+)"/)?.[1];
+    const numId = pInner.match(/<w:numId[^>]*w:val="(\d+)"/)?.[1];
+    const attributes: Record<string, string> = {};
+    if (ilvl != null) attributes.listIlvl = ilvl;
+    if (numId != null) attributes.listNumId = numId;
     return {
       id: `n${nextNodeId++}`,
       kind: "element",
       name: "w:p",
+      attributes: Object.keys(attributes).length > 0 ? attributes : undefined,
       children: text
         ? [{ id: `n${nextNodeId++}`, kind: "text", text }]
         : [],

@@ -7,16 +7,24 @@ export interface DocxProjectionTransactionStub {
   readonly kind: "docx-projection-sync";
   readonly targetRevision: number;
   readonly paragraphTexts: readonly string[];
+  readonly listMarkers: readonly string[];
 }
 
 export function prosemirrorDocToTransactionStub(
   doc: ProseMirrorNode,
   targetRevision: number,
 ): DocxProjectionTransactionStub {
+  const listMarkers: string[] = [];
+  doc.forEach((node) => {
+    if (node.type.name === "paragraph") {
+      listMarkers.push(String(node.attrs.listMarker ?? ""));
+    }
+  });
   return {
     kind: "docx-projection-sync",
     targetRevision,
     paragraphTexts: proseMirrorParagraphTexts(doc),
+    listMarkers,
   };
 }
 

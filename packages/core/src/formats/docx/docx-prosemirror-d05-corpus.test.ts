@@ -54,4 +54,24 @@ describe("G2-DOCX-04 D05 corpus expansion", () => {
     const doc = buildProseMirrorDocFromOoxmlBody(store.getBody());
     expect(proseMirrorParagraphTexts(doc)).toEqual(["Intro", "", "After break"]);
   });
+
+  it("preserves numbered list order with stub markers (D05 lists slice)", () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:t>Alpha</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:t>Beta</w:t></w:r></w:p>
+  </w:body>
+</w:document>`;
+    const store = DocxStore.open(zipDocx(xml));
+    const doc = buildProseMirrorDocFromOoxmlBody(store.getBody());
+    expect(proseMirrorParagraphTexts(doc)).toEqual(["Alpha", "Beta"]);
+    const markers: string[] = [];
+    doc.forEach((node) => {
+      if (node.type.name === "paragraph") markers.push(String(node.attrs.listMarker));
+    });
+    expect(markers).toEqual(["1. ", "2. "]);
+  });
 });

@@ -25,5 +25,10 @@
 | [G2-LAYOUT-04-parley-layout-output.md](./G2-LAYOUT-04-parley-layout-output.md) | W1++ | review |
 | [G3-INPUT-05-demo-shell-playwright.md](./G3-INPUT-05-demo-shell-playwright.md) | W1++ | review |
 | [W2-G4-03-layout-stable-measurement.md](./W2-G4-03-layout-stable-measurement.md) | W2 | review |
+| [G1-PDF-06-pdfium-vendor-push.md](./G1-PDF-06-pdfium-vendor-push.md) | W1+++ | review |
+| [G2-DOCX-05-lists-session-mutation.md](./G2-DOCX-05-lists-session-mutation.md) | W1+++ | review |
+| [G2-LAYOUT-05-parley-dual-build.md](./G2-LAYOUT-05-parley-dual-build.md) | W1+++ | review |
+| [G3-INPUT-06-ime-caret-demo.md](./G3-INPUT-06-ime-caret-demo.md) | W1+++ | review |
+| [W2-G4-04-fragmentation-oracle.md](./W2-G4-04-fragmentation-oracle.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

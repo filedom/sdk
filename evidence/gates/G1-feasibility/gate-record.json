@@ -6,13 +6,16 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "PDF writer worker + fetch/build scripts + P01–P05 hooks; C24 WASM binary not vendored; proofs not-run",
+  "limitations": "G1-PDF-06 resolvePdfiumWasmModule + manual artifact doc; C24 WASM binary not vendored; P01–P05 proofs not-run",
   "evidencePaths": [
     "pdfium-wasm-eval.json",
     "pdfium-wasm-fetch-stub.json",
     "pdfium-wasm-build-record.json",
+    "p01-p05-vendor-hooks.json",
     "pdfium-feasibility.test.ts",
+    "pdfium-module-resolve.test.ts",
     "pdf-writer-worker.test.ts",
-    "docs/pdfium-wasm-worker-isolation.md"
+    "docs/pdfium-wasm-worker-isolation.md",
+    "docs/pdfium-wasm-manual-artifact.md"
   ]
 }
