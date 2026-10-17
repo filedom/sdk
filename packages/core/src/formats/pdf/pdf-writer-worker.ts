@@ -48,6 +48,7 @@ parentPort.on("message", async (msg: WriterWorkerRequest) => {
             pdfiumSourceCommit: msg.pdfiumSourceCommit || PDFIUM_SOURCE_COMMIT,
             pdfiumRenderCommit: msg.pdfiumRenderCommit || PDFIUM_RENDER_COMMIT,
             moduleLoaded: load.loaded,
+            writerExportsReady: load.writerExportsReady,
             resolutionSource: load.resolutionSource ?? "npm-placeholder",
           },
         });

@@ -22,9 +22,9 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     expect(PDFIUM_WASM_MODULE_SPEC).toContain("domdoc-pdfium-wasm");
   });
 
-  it("does not load unpublished PDFium WASM module in node CI", async () => {
+  it("does not load C24 writer exports without production artifact in node CI", async () => {
     const load = await tryLoadPdfiumWasmModule();
-    expect(load.loaded).toBe(false);
+    expect(load.writerExportsReady).toBe(false);
     expect(load.pdfiumSourceCommit).toBe(PDFIUM_SOURCE_COMMIT);
   });
 
@@ -37,11 +37,15 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     });
     expect(missingPreflight.ok).toBe(true);
     if (missingPreflight.ok) {
-      expect(missingPreflight.capabilities.reason).toBe("backend-not-configured");
+      expect(
+        missingPreflight.capabilities.reason === "backend-not-configured" ||
+          missingPreflight.capabilities.reason === "render-only-probe-adapter",
+      ).toBe(true);
     }
 
     const loadedBackend = new PdfiumWasmWriterBackend({
       loaded: true,
+      writerExportsReady: true,
       moduleSpec: PDFIUM_WASM_MODULE_SPEC,
       pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
       pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
@@ -56,7 +60,7 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     }
   });
 
-  it("apply uses backend-not-configured when module missing", async () => {
+  it("apply stays unsupported without C24 writer exports", async () => {
     const backend = await PdfiumWasmWriterBackend.create();
     backend.registerContext("ctx", { revision: 0, sourceSha256: "x", byteLength: 1 });
     const apply = await backend.apply("ctx", [
@@ -69,12 +73,17 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
       },
     ]);
     expect(apply.ok).toBe(false);
-    if (!apply.ok) expect(apply.code).toBe("backend-not-configured");
+    if (!apply.ok) {
+      expect(apply.code === "backend-not-configured" || apply.code === "writer-exports-absent").toBe(
+        true,
+      );
+    }
   });
 
   it("apply uses partial-run-not-implemented when module loaded", async () => {
     const backend = new PdfiumWasmWriterBackend({
       loaded: true,
+      writerExportsReady: true,
       moduleSpec: PDFIUM_WASM_MODULE_SPEC,
       pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
       pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
@@ -91,6 +100,28 @@ describe("G1-PDF-02 pdfium wasm evaluation", () => {
     ]);
     expect(apply.ok).toBe(false);
     if (!apply.ok) expect(apply.code).toBe("partial-run-not-implemented");
+  });
+
+  it("apply uses writer-exports-absent for render-only probe adapter load", async () => {
+    const backend = new PdfiumWasmWriterBackend({
+      loaded: true,
+      writerExportsReady: false,
+      moduleSpec: "file:///probe-adapter",
+      pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
+      pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
+    });
+    backend.registerContext("ctx", { revision: 0, sourceSha256: "x", byteLength: 1 });
+    const apply = await backend.apply("ctx", [
+      {
+        kind: "replaceTextRun",
+        pageIndex: 0,
+        objectId: "o",
+        newText: "t",
+        expectedRevision: 0,
+      },
+    ]);
+    expect(apply.ok).toBe(false);
+    if (!apply.ok) expect(apply.code).toBe("writer-exports-absent");
   });
 
   it("pdfium-wasm backend preflights PDF but native edits stay unsupported", async () => {

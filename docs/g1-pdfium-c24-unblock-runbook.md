@@ -54,7 +54,11 @@ source ./emsdk_env.sh
 
 **Third-party prebuild:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` downloads **pdfium-lib** `wasm.zip` into **`vendor/pdfium-lib-probe/`** (gitignored) with `domdoc-probe-adapter.mjs` for **render-only** experiments via `tryLoadPdfiumLibProbeRenderNode()` — **not** C24 writer exports; do not use for G1 pass or `resolvePdfiumWasmModule`.
 
-**C24 PDFium source attempt:** same CI worker records `evidence/gates/G1-feasibility/pdfium-c24-source-build-attempt.json` after cloning `tools/pdfium-src` (gitignored). Expect **`gn-missing`** without depot_tools; full Emscripten PDFium build is not wired in-tree.
+**depot_tools:** CI clones **`tools/depot_tools`** (gitignored) when missing and prepends it to `PATH` for `gclient`/`gn`/`ninja` smoke steps.
+
+**C24 PDFium source attempt:** same CI worker records `evidence/gates/G1-feasibility/pdfium-c24-source-build-attempt.json` after `tools/pdfium-src` checkout. With depot_tools, expect **`gclient sync` / `gn gen` / `ninja -n`** progress lines; domdoc-pdfium-wasm Emscripten writer target remains **not wired in-tree**.
+
+**Probe vendor adapter:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` also materializes **`vendor/domdoc-pdfium-wasm/`** probe adapter (gitignored) so `resolvePdfiumWasmModule` may load with **`writerExportsReady: false`** — **not** G1 pass.
 
 ## CI worker (automated readiness)
 

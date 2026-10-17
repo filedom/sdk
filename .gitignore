@@ -8,4 +8,5 @@ playwright-report
 vendor/domdoc-pdfium-wasm
 vendor/pdfium-lib-probe
 tools/emsdk
+tools/depot_tools
 tools/pdfium-src

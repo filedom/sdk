@@ -68,6 +68,17 @@ export {
   type ReviewSuggestionOpcPatchResult,
 } from "./formats/docx/review-suggestion-opc-patch-stub.js";
 export {
+  buildReviewMinimalTrackedDocxZipBytes,
+  REVIEW_MINIMAL_TRACKED_DOCUMENT_XML,
+} from "./formats/docx/review-minimal-docx-fixture.js";
+export {
+  CollaborationProviderOrderedStub,
+  COLLABORATION_ORDERED_STUB_FEATURE_ID,
+  type CollaborationOrderedStubEvent,
+  type CollaborationOrderedStubEventKind,
+  type CollaborationProviderOrderedStubState,
+} from "./collaboration/collaboration-provider-ordered-stub.js";
+export {
   applyDemoProsemirrorTextReplace,
   buildDemoDocxZipBytes,
   openDocxProsemirrorDemoSessionSlice,
@@ -144,6 +155,7 @@ export {
   tryLoadPdfiumLibProbeRenderNode,
   readPdfiumLibProbeManifestNode,
 } from "./formats/pdf/pdfium-lib-probe-render-node.js";
+export { loadPdfiumLibProbeViaWorker } from "./formats/pdf/pdfium-lib-probe-render-worker-client.js";
 export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,

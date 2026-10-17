@@ -64,6 +64,10 @@ const sampleProjection = () => ({
 });
 
 async function boot(): Promise<void> {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("g1PdfiumProbeWorker") === "1") {
+    document.body.dataset.g1PdfiumProbeWorkerRequested = "true";
+  }
   await init();
   const canvas = document.getElementById("domdoc-canvas");
   const imeInput = document.getElementById("domdoc-ime-input");

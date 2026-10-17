@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T09:31:15.261Z",
+  "builtAt": "2026-10-17T09:34:17.369Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -10,6 +10,11 @@
     "emsdkEnv": null,
     "emsdkExists": true,
     "localEmsdkPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk"
+  },
+  "depotTools": {
+    "present": true,
+    "cloneAttempted": false,
+    "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
   },
   "priorBuildStatus": "not-configured",
   "upstreamProbe": {
@@ -36,18 +41,33 @@
         "release/node/pdfium.js",
         "release/node/pdfium.std.js"
       ],
-      "adapterWritten": true
+      "adapterWritten": true,
+      "domdocPdfiumWasmProbeAdapter": {
+        "ok": true,
+        "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
+        "wasmCopied": true,
+        "resolvePdfiumWasmModule": "vendor-artifact via index.mjs",
+        "writerExports": false
+      }
     }
   },
   "pdfiumC24SourceAttempt": {
     "skipped": false,
     "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
     "pdfiumSrcDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src",
+    "depotTools": {
+      "present": true,
+      "cloneAttempted": false,
+      "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
+    },
     "cloneAttempted": false,
     "checkoutPin": "fetch-failed",
     "buildAttempted": true,
-    "status": "gn-missing",
-    "detail": "PDFium C24 source present but depot_tools gn not in PATH; full Emscripten PDFium build not attempted (expected local blocker)"
+    "gclientAttempted": true,
+    "gnGenAttempted": true,
+    "ninjaAttempted": true,
+    "status": "ninja-dry-run-ok-no-emscripten-target",
+    "detail": "gclient: exit 0; gn gen: exit 0; ninja -n: exit 0; ninja: Entering directory `/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke'\nninja: fatal: chdir to '/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke' - No such file or directory; domdoc-pdfium-wasm emscripten target not wired in-tree"
   },
   "domdocPdfiumWasmLayout": {
     "expected": {
@@ -61,12 +81,17 @@
     },
     "present": true,
     "files": [
-      "README.md"
+      "README.md",
+      "domdoc_pdfium_wasm_bg.wasm",
+      "index.mjs",
+      "package.json",
+      "pdfium-lib-probe-glue.js"
     ],
-    "adapterNeeded": true
+    "adapterNeeded": false
   },
   "ciSteps": [
-    "Install emsdk; source emsdk_env.sh",
+    "Install tools/depot_tools (gitignored) + tools/emsdk; PATH includes depot_tools",
+    "Optional PDFIUM_WASM_CI_PROBE_FETCH=1 vendors pdfium-lib probe + domdoc-pdfium-wasm probe adapter",
     "Clone domdoc-pdfium-wasm at C24 pin; run build-wasm.sh",
     "Copy dist to vendor/domdoc-pdfium-wasm or set PDFIUM_WASM_ARTIFACT_DIR",
     "pnpm fetch:pdfium-wasm && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05"

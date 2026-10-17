@@ -18,7 +18,10 @@ import type {
 } from "../types.js";
 
 export interface PdfiumWasmLoadResult {
+  /** Dynamic import succeeded (includes render-only probe adapter). */
   loaded: boolean;
+  /** C24 domdoc-pdfium-wasm writer exports present (G1 production path). */
+  writerExportsReady: boolean;
   moduleSpec: string;
   pdfiumSourceCommit: string;
   pdfiumRenderCommit: string;
@@ -26,11 +29,46 @@ export interface PdfiumWasmLoadResult {
   error?: string;
 }
 
+type PdfiumModuleMarker = {
+  __domdocNonProductionPdfiumStub?: boolean;
+  __domdocPdfiumLibProbeAdapter?: boolean;
+  c24WriterExports?: boolean;
+};
+
+function classifyLoadedModule(mod: PdfiumModuleMarker | undefined): {
+  loaded: boolean;
+  writerExportsReady: boolean;
+  error?: string;
+} {
+  if (mod?.__domdocNonProductionPdfiumStub) {
+    return {
+      loaded: false,
+      writerExportsReady: false,
+      error: "non-production PDFium WASM placeholder (G1-PDF-09)",
+    };
+  }
+  if (mod?.__domdocPdfiumLibProbeAdapter) {
+    return {
+      loaded: true,
+      writerExportsReady: false,
+    };
+  }
+  if (mod && mod.c24WriterExports === false) {
+    return {
+      loaded: true,
+      writerExportsReady: false,
+      error: "PDFium module missing C24 writer exports",
+    };
+  }
+  return { loaded: true, writerExportsReady: true };
+}
+
 /** Attempt to load the pinned PDFium WASM module (none vendored in W1). */
 export async function tryLoadPdfiumWasmModule(): Promise<PdfiumWasmLoadResult> {
   const resolved = resolvePdfiumWasmModule();
   const base: PdfiumWasmLoadResult = {
     loaded: false,
+    writerExportsReady: false,
     moduleSpec: resolved.spec,
     pdfiumSourceCommit: PDFIUM_SOURCE_COMMIT,
     pdfiumRenderCommit: PDFIUM_RENDER_COMMIT,
@@ -45,15 +83,15 @@ export async function tryLoadPdfiumWasmModule(): Promise<PdfiumWasmLoadResult> {
   }
   try {
     const mod = (await import(/* webpackIgnore: true */ resolved.spec)) as {
-      default?: { __domdocNonProductionPdfiumStub?: boolean };
+      default?: PdfiumModuleMarker;
     };
-    if (mod.default?.__domdocNonProductionPdfiumStub) {
-      return {
-        ...base,
-        error: "non-production PDFium WASM placeholder (G1-PDF-09)",
-      };
-    }
-    return { ...base, loaded: true };
+    const classified = classifyLoadedModule(mod.default);
+    return {
+      ...base,
+      loaded: classified.loaded,
+      writerExportsReady: classified.writerExportsReady,
+      error: classified.error,
+    };
   } catch (err) {
     return {
       ...base,
@@ -71,9 +109,11 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
 
   private contexts = new Map<string, { checkpoint: PdfCheckpointRef }>();
   private readonly moduleLoaded: boolean;
+  private readonly writerExportsReady: boolean;
 
   constructor(load: PdfiumWasmLoadResult) {
     this.moduleLoaded = load.loaded;
+    this.writerExportsReady = load.writerExportsReady;
   }
 
   static async create(): Promise<PdfiumWasmWriterBackend> {
@@ -106,7 +146,11 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
         nativeTextReplace: "unsupported",
         nativeTextDelete: "unsupported",
         nativeImageReplace: "unsupported",
-        reason: this.moduleLoaded ? "partial-run-not-implemented" : "backend-not-configured",
+        reason: this.writerExportsReady
+          ? "partial-run-not-implemented"
+          : this.moduleLoaded
+            ? "render-only-probe-adapter"
+            : "backend-not-configured",
       },
       checkpoint,
       pageCount: 1,
@@ -129,13 +173,19 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
       return { ok: true, pendingRevision: 0, operationsApplied: 0 };
     }
     const first = operations[0]!;
-    const proof = classifyPdfProofOperation(first, this.moduleLoaded);
+    const proof = classifyPdfProofOperation(first, this.writerExportsReady);
     return {
       ok: false,
-      code: this.moduleLoaded ? "partial-run-not-implemented" : "backend-not-configured",
-      message: this.moduleLoaded
+      code: this.writerExportsReady
+        ? "partial-run-not-implemented"
+        : this.moduleLoaded
+          ? "writer-exports-absent"
+          : "backend-not-configured",
+      message: this.writerExportsReady
         ? `${proof.fixtureId} (${proof.summary}): PDFium WASM loaded; native proof not-run`
-        : `${proof.fixtureId}: PDFium WASM artifact not loaded (${PDFIUM_WASM_MODULE_SPEC})`,
+        : this.moduleLoaded
+          ? `${proof.fixtureId}: render-only probe adapter (C24 writer exports absent)`
+          : `${proof.fixtureId}: PDFium WASM artifact not loaded (${PDFIUM_WASM_MODULE_SPEC})`,
       rolledBack: true,
     };
   }

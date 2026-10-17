@@ -63,9 +63,10 @@ export interface P01P05FixtureEvidence {
 
 export interface P01P05VendorProofEvidence {
   recordedAt: string;
-  status: "stub-not-run" | "artifact-worker-hooks-not-run";
+  status: "stub-not-run" | "probe-adapter-load-only" | "artifact-worker-hooks-not-run";
   resolutionSource: ReturnType<typeof resolvePdfiumWasmModule>["source"];
   moduleLoaded: boolean;
+  writerExportsReady: boolean;
   fixtures: readonly P01P05FixtureEvidence[];
 }
 
@@ -77,9 +78,10 @@ export async function collectP01P05VendorProofEvidence(options?: {
   const resolved = resolvePdfiumWasmModule();
   const load = await tryLoadPdfiumWasmModule();
   const moduleLoaded = load.loaded;
+  const writerExportsReady = load.writerExportsReady;
   const exerciseWorker =
     options?.exerciseWorker === true &&
-    moduleLoaded &&
+    writerExportsReady &&
     resolved.source !== "npm-placeholder";
 
   let workerCiPath: P01P05FixtureEvidence["workerCiPath"] = "skipped";
@@ -106,21 +108,28 @@ export async function collectP01P05VendorProofEvidence(options?: {
   }
 
   const fixtures = P01_P05_FIXTURE_ORDER.map((fixtureId) => {
-    const proof = classifyPdfProofOperation(SAMPLE_OPS[fixtureId], moduleLoaded);
+    const proof = classifyPdfProofOperation(SAMPLE_OPS[fixtureId], writerExportsReady);
     return {
       fixtureId,
       nativeProof: "not-run" as const,
       hookReady: proof.hookReady,
-      workerCiPath: moduleLoaded ? workerCiPath : "skipped",
+      workerCiPath: writerExportsReady ? workerCiPath : "skipped",
       classificationSummary: proof.summary,
     };
   });
 
+  const status = writerExportsReady
+    ? "artifact-worker-hooks-not-run"
+    : moduleLoaded
+      ? "probe-adapter-load-only"
+      : "stub-not-run";
+
   return {
     recordedAt: new Date().toISOString(),
-    status: moduleLoaded ? "artifact-worker-hooks-not-run" : "stub-not-run",
+    status,
     resolutionSource: resolved.source,
     moduleLoaded,
+    writerExportsReady,
     fixtures,
   };
 }

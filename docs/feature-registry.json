@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m2-domdoc-roundtrip-pdfium-probe",
+  "updatedAt": "2026-10-17-m3-review-collab-pdfium-depot",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-21 artifact-drop + ci:build-pdfium-wasm (emsdk, pdfium-lib probe vendoring, C24 source attempt); pdfium-lib render-only probe separate from writer gate; P01–P05 stub-not-run"
+      "limits": "G1-PDF-21 ci:build-pdfium-wasm (depot_tools, emsdk, C24 gclient/gn/ninja attempt, probe→vendor/domdoc-pdfium-wasm adapter); moduleLoaded may be true for probe adapter; writerExportsReady/P01–P05 honest not-run"
     },
     {
       "id": "F34",
@@ -70,7 +70,17 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D"],
       "gateIds": ["G2"],
-      "limits": "review-suggestion accept/reject + OPC document.xml marker stub via DocumentSession.applyReviewSuggestionOpcPatch"
+      "limits": "review accept/reject on review-minimal-docx-fixture + DocumentSession.applyReviewSuggestionOpcPatch OPC write-back"
+    },
+    {
+      "id": "F50",
+      "description": "Collaboration ordered provider stub",
+      "milestone": "M3",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["S"],
+      "gateIds": ["G6"],
+      "limits": "CollaborationProviderOrderedStub monotonic events; sharedRevision watermark; no Yjs canonical model; gate not-run"
     },
     {
       "id": "F07",

@@ -15,6 +15,8 @@ import {
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
+import { buildReviewMinimalTrackedDocxZipBytes } from "../formats/docx/review-minimal-docx-fixture.js";
+import { parseReviewSuggestionMarksFromDocumentXml } from "../formats/docx/review-suggestion-accept-reject-stub.js";
 
 describe("M1 DocumentSession skeleton", () => {
   const base = {
@@ -164,6 +166,33 @@ describe("M1 DocumentSession skeleton", () => {
     });
     expect(parseDomdocPackageManifestStub(roundTripBytes).documentId).toBe(base.documentId);
     expect(store.readCommittedManifest()).toEqual(manifestBytes);
+  });
+
+  it("M3/F34 connects review accept to OOXML patch on minimal tracked DOCX fixture", () => {
+    const zip = buildReviewMinimalTrackedDocxZipBytes();
+    const pkg = readOpcPackage(zip);
+    const documentXml = new TextDecoder().decode(pkg.members.get("word/document.xml")!);
+    const marks = parseReviewSuggestionMarksFromDocumentXml(documentXml);
+    expect(marks.some((m) => m.suggestionId === "10")).toBe(true);
+
+    const session = createDocumentSession(base);
+    const { session: next, patch } = session.applyReviewSuggestionOpcPatch(pkg, "10", "accept");
+    expect(patch.decision.applied).toBe(true);
+    expect(patch.documentXml).toContain('domdoc:review-decision id="10" decision="accept"');
+    expect(next.revisions.committedRevision).toBe(2);
+    const roundTrip = new TextDecoder().decode(
+      patch.pkg.members.get("word/document.xml")!,
+    );
+    expect(roundTrip).toContain("domdoc:review-decision");
+  });
+
+  it("M3/F34 applies review reject on minimal tracked DOCX without projection bump", () => {
+    const pkg = readOpcPackage(buildReviewMinimalTrackedDocxZipBytes());
+    const session = createDocumentSession(base);
+    const { session: next, patch } = session.applyReviewSuggestionOpcPatch(pkg, "10", "reject");
+    expect(patch.decision.applied).toBe(true);
+    expect(patch.documentXml).toContain('decision="reject"');
+    expect(next.revisions.committedRevision).toBe(base.revisions.committedRevision);
   });
 
   it("patches numbering.xml when committing list renumber", () => {

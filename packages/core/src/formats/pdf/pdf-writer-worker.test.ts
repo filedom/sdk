@@ -21,7 +21,10 @@ describe("G1-PDF-05 pdf writer worker", () => {
     const preflight = await client.preflight(contextId, minimalPdf, checkpoint);
     expect(preflight.ok).toBe(true);
     if (preflight.ok) {
-      expect(preflight.capabilities.reason).toBe("backend-not-configured");
+      expect(
+        preflight.capabilities.reason === "backend-not-configured" ||
+          preflight.capabilities.reason === "render-only-probe-adapter",
+      ).toBe(true);
     }
     await client.dispose(contextId);
     await client.terminate();

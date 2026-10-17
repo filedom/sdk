@@ -8,6 +8,8 @@ export type PdfUnsupportedCode =
   | "signed-document"
   | "unmapped-text-object"
   | "partial-run-not-implemented"
+  | "render-only-probe-adapter"
+  | "writer-exports-absent"
   | "font-subset-missing-glyph";
 
 export interface PdfWriterCapability {
@@ -24,11 +26,15 @@ export interface PdfCheckpointRef {
 }
 
 export interface PdfEditOperation {
-  kind: "replaceTextRun" | "deleteTextObject";
+  kind: "replaceTextRun" | "deleteTextObject" | "replaceImage" | "movePage";
   pageIndex: number;
   objectId: string;
   /** UTF-16 scalar string for replace; ignored for delete. */
   newText?: string;
+  destPageIndex?: number;
+  imageWidth?: number;
+  imageHeight?: number;
+  imageRgba?: Uint8Array;
   expectedRevision: number;
 }
 

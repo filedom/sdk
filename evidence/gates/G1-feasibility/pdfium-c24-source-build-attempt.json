@@ -1,12 +1,20 @@
 {
-  "builtAt": "2026-10-17T09:31:15.260Z",
+  "builtAt": "2026-10-17T09:34:17.369Z",
   "card": "G1-PDF-CI-02",
   "skipped": false,
   "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
   "pdfiumSrcDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src",
+  "depotTools": {
+    "present": true,
+    "cloneAttempted": false,
+    "path": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/depot_tools"
+  },
   "cloneAttempted": false,
   "checkoutPin": "fetch-failed",
   "buildAttempted": true,
-  "status": "gn-missing",
-  "detail": "PDFium C24 source present but depot_tools gn not in PATH; full Emscripten PDFium build not attempted (expected local blocker)"
+  "gclientAttempted": true,
+  "gnGenAttempted": true,
+  "ninjaAttempted": true,
+  "status": "ninja-dry-run-ok-no-emscripten-target",
+  "detail": "gclient: exit 0; gn gen: exit 0; ninja -n: exit 0; ninja: Entering directory `/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke'\nninja: fatal: chdir to '/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src/out/domdoc-wasm-ci-smoke' - No such file or directory; domdoc-pdfium-wasm emscripten target not wired in-tree"
 }

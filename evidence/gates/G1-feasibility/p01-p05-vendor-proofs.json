@@ -1,8 +1,9 @@
 {
-  "recordedAt": "2026-10-17T09:31:18.444Z",
-  "status": "stub-not-run",
-  "resolutionSource": "npm-placeholder",
-  "moduleLoaded": false,
+  "recordedAt": "2026-10-17T09:34:20.882Z",
+  "status": "probe-adapter-load-only",
+  "resolutionSource": "vendor-artifact",
+  "moduleLoaded": true,
+  "writerExportsReady": false,
   "fixtures": [
     {
       "fixtureId": "P01",
