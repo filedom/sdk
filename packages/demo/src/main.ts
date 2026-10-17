@@ -19,6 +19,10 @@ import {
   createM2ToolbarUndoStackStub,
   dispatchM2ToolbarCommand,
 } from "../../core/dist/session/m2-toolbar-command-stub.js";
+import {
+  createDocumentSession,
+} from "../../core/dist/session/document-session.js";
+import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
 
 const sampleProjection = () => ({
   header: {
@@ -77,6 +81,22 @@ async function boot(): Promise<void> {
       toolbarStack = result.stack;
       syncToolbarStackDataset();
       document.body.dataset.m2ToolbarSaveOk = result.ok ? "true" : "false";
+      const session = createDocumentSession({
+        documentId: "demo-sess",
+        kind: "flow",
+        revisions: {
+          committedRevision: toolbarStack.undoDepth,
+          persistedRevision: toolbarStack.undoDepth,
+          materializedRevision: toolbarStack.undoDepth,
+          exportedRevision: 0,
+          sharedRevision: null,
+          renderedRevision: toolbarStack.undoDepth,
+        },
+      });
+      const store = new MemoryDomdocBlobStoreStub();
+      const saved = session.saveDomdocPackageStubToStore(store);
+      document.body.dataset.m2DomdocSaveOk = saved.simulation.ok ? "true" : "false";
+      document.body.dataset.m2DomdocMemberCount = String(store.blobs.size);
     });
     undoBtn?.addEventListener("click", () => {
       const result = dispatchM2ToolbarCommand(toolbarStack, "undo-stub");

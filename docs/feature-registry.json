@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m1m2-domdoc-session-slices",
+  "updatedAt": "2026-10-17-m2-review-a11y-g1-ci",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["A"],
       "gateIds": [],
-      "limits": "m2-toolbar-command-stub + demo save/undo dispatch; manifest binding stub; not full shared shell"
+      "limits": "m2-toolbar-command-stub + demo save/undo + domdoc package stub on save; not full shared shell"
     },
     {
       "id": "F20",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W"],
       "gateIds": ["G2"],
-      "limits": "annotations-wire-stub (F20) + comments-part-stub; read-only D04; no comment editing"
+      "limits": "annotations-wire-stub (F20) + review-thread-stub grouping; read-only D04; no comment editing"
     },
     {
       "id": "F29",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-21 artifact-drop auto-detect + proof chain; native proofs stub-not-run"
+      "limits": "G1-PDF-21 artifact-drop + ci:build-pdfium-wasm readiness record; native proofs stub-not-run"
     },
     {
       "id": "F07",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "G3-INPUT-21 gate-grade ingest validation; physical capture not-run"
+      "limits": "G3-INPUT-21 ingest validation + G3-INPUT-22 synthetic a11y/IME Playwright+happy-dom; physical capture not-run"
     },
     {
       "id": "F13",

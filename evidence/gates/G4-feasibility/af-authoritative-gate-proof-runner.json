@@ -1,10 +1,10 @@
 {
-  "recordedAt": "2026-10-17T08:59:26.403Z",
+  "recordedAt": "2026-10-17T09:26:14.601Z",
   "card": "W2-G4-18",
   "gateStatus": "not-run",
   "authoritativeGatePath": "not-run",
   "nodeWasmPostEdit": {
-    "recordedAt": "2026-10-17T08:59:26.403Z",
+    "recordedAt": "2026-10-17T09:26:14.601Z",
     "corpusSize": 3,
     "breakpointsPerEntry": 3,
     "gateStatus": "not-run",
@@ -103,7 +103,7 @@
   },
   "browserPostEditProofPath": "browser-demo-wasm",
   "incrementalAuthoritative": {
-    "recordedAt": "2026-10-17T08:59:26.402Z",
+    "recordedAt": "2026-10-17T09:26:14.599Z",
     "corpusSize": 3,
     "incrementalEnginePath": "break-token",
     "allIncrementalEquivalent": true,

@@ -1,0 +1,37 @@
+{
+  "builtAt": "2026-10-17T09:26:19.028Z",
+  "card": "G1-PDF-CI-01",
+  "status": "toolchain-emscripten-missing",
+  "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "productionArtifactExpected": "vendor/domdoc-pdfium-wasm (domdoc-pdfium-wasm repo)",
+  "emscripten": {
+    "emccInPath": false,
+    "emccVersionLine": null,
+    "emsdkEnv": null,
+    "emsdkExists": false
+  },
+  "priorBuildStatus": "not-configured",
+  "upstreamProbe": {
+    "attempted": true,
+    "ok": true,
+    "releaseTag": "8046d",
+    "assetName": "wasm.zip",
+    "zipBytes": 13414692,
+    "zipSha256": "062d10055de90a01120acf307ce16e0022021a32203f4aeae4877750f9a08427",
+    "nonProduction": true,
+    "note": "pdfium-lib prebuild ≠ C24 domdoc-pdfium-wasm writer; probe only"
+  },
+  "ciSteps": [
+    "Install emsdk; source emsdk_env.sh",
+    "Clone domdoc-pdfium-wasm at C24 pin; run build-wasm.sh",
+    "Copy dist to vendor/domdoc-pdfium-wasm or set PDFIUM_WASM_ARTIFACT_DIR",
+    "pnpm fetch:pdfium-wasm && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05"
+  ],
+  "localCommands": {
+    "discover": "pnpm build:pdfium-wasm",
+    "ingest": "pnpm fetch:pdfium-wasm",
+    "autoDrop": "pnpm proof:pdfium-artifact-drop",
+    "runBuild": "PDFIUM_WASM_RUN_BUILD=1 PDFIUM_WASM_BUILD_ROOT=/path/to/domdoc-pdfium-wasm pnpm build:pdfium-wasm"
+  },
+  "note": "CI worker records readiness; G1 gate stays not-run until C24 production module loads and P01–P05 nativeProof=pass."
+}

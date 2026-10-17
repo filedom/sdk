@@ -41,6 +41,17 @@ Optional discovery env (when vendor drop empty):
 
 Optional: clone/build tree via `PDFIUM_WASM_BUILD_ROOT` + `PDFIUM_WASM_RUN_BUILD=1` (local only; not CI).
 
+## CI worker (automated readiness)
+
+```bash
+cd domdoc-web
+pnpm ci:build-pdfium-wasm
+# optional upstream size probe (non-C24, does not vend):
+PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm
+```
+
+Writes `evidence/gates/G1-feasibility/pdfium-wasm-ci-build-record.json` (Emscripten presence + documented steps). Gate **G1** stays **not-run** until C24 production bytes load and P01–P05 pass.
+
 ## Do not claim
 
 - G1 pass without independent native inspection of P01–P05 outputs
