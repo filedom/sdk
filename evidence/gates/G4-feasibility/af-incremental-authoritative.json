@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-10-17T08:31:29.088Z",
+  "corpusSize": 3,
+  "incrementalEnginePath": "unavailable",
+  "allIncrementalEquivalent": false,
+  "gateStatus": "not-run",
+  "entries": [
+    {
+      "entryId": "AF-01",
+      "fullLayoutAuthoritative": true,
+      "incrementalPath": "oracle-split",
+      "incrementalEquivalent": false,
+      "equivalenceTestable": true,
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+    },
+    {
+      "entryId": "AF-02",
+      "fullLayoutAuthoritative": true,
+      "incrementalPath": "oracle-split",
+      "incrementalEquivalent": false,
+      "equivalenceTestable": true,
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+    },
+    {
+      "entryId": "AF-03",
+      "fullLayoutAuthoritative": true,
+      "incrementalPath": "oracle-split",
+      "incrementalEquivalent": false,
+      "equivalenceTestable": true,
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path) (oracle-split; WASM incremental API unavailable)"
+    }
+  ],
+  "note": "Authoritative layout is full shaped pass; incremental≡full tested via oracle-split only. G4 gate not-run."
+}

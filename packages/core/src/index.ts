@@ -10,6 +10,7 @@ export {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
   createDomdocPackagePersistPlanStub,
+  parseDomdocPackageManifestStub,
   serializeDomdocPackageManifestStub,
   DOMDOC_CRASH_SAFE_COMMIT_STEPS,
   DOMDOC_PACKAGE_SCHEMA_VERSION,
@@ -143,3 +144,17 @@ export {
   evaluateAfIncrementalGateGrade,
   type AfIncrementalGateGradeEvidence,
 } from "./components/fragmentation-af-incremental-gate-grade.js";
+export {
+  buildAfAuthoritativeIncrementalEvidence,
+  evaluateAfAuthoritativeIncrementalLayout,
+  type AfAuthoritativeIncrementalEvidence,
+} from "./components/fragmentation-af-incremental-authoritative.js";
+export {
+  computeListMarkersFromNumberingXml,
+  parseWordNumberingXml,
+} from "./formats/docx/docx-numbering-runtime.js";
+export {
+  REAL_INPUT_LOG_SLOTS,
+  buildRealInputLogSlotManifest,
+  validateRealPlatformInputLog,
+} from "./input/input-evidence-real-log-slots.js";

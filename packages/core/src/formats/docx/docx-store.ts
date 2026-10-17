@@ -12,6 +12,7 @@ import {
   writeOpcPackage,
   type OpcPackage,
 } from "./opc-package.js";
+import { DOCX_NUMBERING_PART } from "./docx-numbering-opc-patch.js";
 import { PreservationBag } from "./preservation-bag.js";
 import {
   parseDocumentBodyXml,
@@ -102,6 +103,13 @@ export class DocxStore {
 
   getBody(): OoxmlNode {
     return this.body;
+  }
+
+  /** G2-DOCX-09: numbering part when present (for runtime list markers). */
+  tryGetNumberingXml(): string | undefined {
+    const bytes = this.pkg.members.get(DOCX_NUMBERING_PART);
+    if (!bytes) return undefined;
+    return new TextDecoder().decode(bytes);
   }
 
   patchParagraph(nodeId: string, text: string): boolean {

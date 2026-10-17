@@ -45,5 +45,10 @@
 | [G2-LAYOUT-08-visual-diff-artifacts.md](./G2-LAYOUT-08-visual-diff-artifacts.md) | W1++++++ | review |
 | [G3-INPUT-09-log-capture-templates.md](./G3-INPUT-09-log-capture-templates.md) | W1++++++ | review |
 | [W2-G4-07-af-incremental-gate-grade.md](./W2-G4-07-af-incremental-gate-grade.md) | W2 | review |
+| [G1-PDF-10-pdfium-wasm-exhaustive-discovery.md](./G1-PDF-10-pdfium-wasm-exhaustive-discovery.md) | W1+++++++ | review |
+| [G2-DOCX-09-numbering-xml-runtime.md](./G2-DOCX-09-numbering-xml-runtime.md) | W1+++++++ | review |
+| [G2-LAYOUT-09-visual-baseline-review.md](./G2-LAYOUT-09-visual-baseline-review.md) | W1+++++++ | review |
+| [G3-INPUT-10-real-log-slots.md](./G3-INPUT-10-real-log-slots.md) | W1+++++++ | review |
+| [W2-G4-08-af-incremental-authoritative.md](./W2-G4-08-af-incremental-authoritative.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

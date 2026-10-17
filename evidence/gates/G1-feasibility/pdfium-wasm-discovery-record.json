@@ -1,0 +1,27 @@
+{
+  "recordedAt": "2026-10-17T08:31:33.234Z",
+  "card": "G1-PDF-10",
+  "envVarsChecked": [
+    "PDFIUM_WASM_ARTIFACT_DIR",
+    "PDFIUM_WASM_ARTIFACT_URL",
+    "PDFIUM_WASM_ARTIFACT_URLS",
+    "PDFIUM_WASM_BUILD_ROOT",
+    "PDFIUM_WASM_SIBLING_SEARCH_PATHS",
+    "PDFIUM_WASM_ALLOW_NONPRODUCTION_STUB"
+  ],
+  "documentedArtifactUrls": [],
+  "urlCandidates": [],
+  "siblingBuildRootScan": [],
+  "buildOutputCandidates": [
+    "",
+    "dist",
+    "pkg",
+    "build",
+    "out",
+    "artifacts/wasm",
+    "packages/domdoc-pdfium-wasm"
+  ],
+  "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "phase": "post-stub-not-run",
+  "fetchStatus": "stub-not-run"
+}

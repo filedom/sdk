@@ -1,9 +1,10 @@
 {
-  "fetchedAt": "2026-10-17T08:29:12.329Z",
+  "fetchedAt": "2026-10-17T08:31:33.233Z",
   "moduleSpec": "domdoc-pdfium-wasm@0.0.0-not-published",
   "status": "stub-not-run",
   "buildRootAttempts": [],
   "artifactUrl": null,
+  "urlCandidatesAttempted": [],
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
-  "note": "G1-PDF-09: no PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm after URL/build-root/sibling discovery. Run pnpm build:pdfium-wasm with PDFIUM_WASM_BUILD_ROOT or set PDFIUM_WASM_ARTIFACT_URL."
+  "note": "G1-PDF-10: exhaustive discovery recorded in pdfium-wasm-discovery-record.json; no production C24 WASM bytes. Run pnpm build:pdfium-wasm with PDFIUM_WASM_BUILD_ROOT or set PDFIUM_WASM_ARTIFACT_DIR."
 }

@@ -95,6 +95,18 @@ export function serializeDomdocPackageManifestStub(session: DocumentSessionStub)
   return new TextEncoder().encode(`${JSON.stringify(manifest, null, 2)}\n`);
 }
 
+/** M1/G5: parse manifest.json stub bytes (minimal round-trip). */
+export function parseDomdocPackageManifestStub(bytes: Uint8Array): DomdocPackageManifestStub {
+  const parsed = JSON.parse(new TextDecoder().decode(bytes)) as DomdocPackageManifestStub;
+  if (parsed.schemaVersion !== DOMDOC_PACKAGE_SCHEMA_VERSION) {
+    throw new Error(`unsupported domdoc manifest schemaVersion: ${String(parsed.schemaVersion)}`);
+  }
+  if (!parsed.documentId || typeof parsed.documentId !== "string") {
+    throw new Error("domdoc manifest missing documentId");
+  }
+  return parsed;
+}
+
 export function createDomdocPackageManifestStub(
   session: DocumentSessionStub,
 ): DomdocPackageManifestStub {

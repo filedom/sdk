@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-10-17T08:31:28.203Z",
+  "status": "generated-awaiting-review",
+  "sourceArtifact": "layout-shaped-flow-visual-diff.json",
+  "baselineMarkdown": "layout-visual-baselines.md",
+  "humanReviewStatus": "pending",
+  "entries": [
+    {
+      "corpusId": "LV-01",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLineCount": 6,
+      "parleyLineCount": 6
+    },
+    {
+      "corpusId": "LV-02",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLineCount": 6,
+      "parleyLineCount": 6
+    },
+    {
+      "corpusId": "LV-03",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLineCount": 5,
+      "parleyLineCount": 5
+    }
+  ],
+  "note": "G2-LAYOUT-09 review baselines; gate G2 not-run until humanReviewStatus=approved."
+}

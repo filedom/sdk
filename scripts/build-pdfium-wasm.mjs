@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * G1-PDF-05/06: honest build placeholder + optional build-root script discovery.
+ * G1-PDF-05/06/10: honest build placeholder + exhaustive build-root script discovery.
  * Emscripten pipeline lives in domdoc-pdfium-wasm; this records evidence and may
  * invoke a checkout build when PDFIUM_WASM_RUN_BUILD=1.
  */
@@ -17,6 +17,11 @@ const workspaceRoot = join(root, "..");
 const siblingCandidates = [
   join(workspaceRoot, "domdoc-pdfium-wasm"),
   join(workspaceRoot, "..", "domdoc-pdfium-wasm"),
+  join(workspaceRoot, "..", "..", "domdoc-pdfium-wasm"),
+  join(process.env.HOME ?? "", "projects", "domdoc-pdfium-wasm"),
+  join(process.env.HOME ?? "", "Desktop", "projects", "domdoc-pdfium-wasm"),
+  ...(process.env.PDFIUM_WASM_SIBLING_SEARCH_PATHS?.split(",").map((s) => s.trim()).filter(Boolean) ??
+    []),
 ];
 const envBuildRoot = process.env.PDFIUM_WASM_BUILD_ROOT?.trim();
 const buildRoot =
@@ -65,7 +70,8 @@ const record = {
   discoveredOutputs,
   runBuildRequested: runBuild,
   c24PdfiumPin: "7c55203ed66b0461378323e3fcf2efaf76755241",
-  note: "G1-PDF-09: aggressive build-root discovery; set PDFIUM_WASM_BUILD_ROOT or clone domdoc-pdfium-wasm at C24. Optional PDFIUM_WASM_RUN_BUILD=1. Ingest via pnpm fetch:pdfium-wasm.",
+  note: "G1-PDF-10: exhaustive build-root discovery; set PDFIUM_WASM_BUILD_ROOT or clone domdoc-pdfium-wasm at C24. Optional PDFIUM_WASM_RUN_BUILD=1. Ingest via pnpm fetch:pdfium-wasm.",
+  discoveryRecord: "pdfium-wasm-discovery-record.json (fetch script)",
 };
 
 if (!buildRoot || !existsSync(buildRoot)) {

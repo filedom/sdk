@@ -65,7 +65,7 @@ const D05_READER_MATRIX: readonly {
       { ilvl: 0, numFmt: "bullet", lvlText: "•", start: 1 },
     ]),
     expectedTexts: ["Item"],
-    expectedMarkers: ["1. "],
+    expectedMarkers: ["• "],
   },
   {
     id: "D05-RM-03",
@@ -81,7 +81,7 @@ const D05_READER_MATRIX: readonly {
       { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
     ]),
     expectedTexts: ["Nested"],
-    expectedMarkers: ["1. "],
+    expectedMarkers: ["a. "],
   },
 ];
 
@@ -94,7 +94,7 @@ describe("G2-DOCX-08 D05 reader matrix", () => {
         expect(parseNumberingAbstractNumIds(row.numberingXml).length).toBeGreaterThan(0);
       }
       const store = DocxStore.open(zipDocx(row.documentXml, row.numberingXml));
-      const doc = buildProseMirrorDocFromOoxmlBody(store.getBody());
+      const doc = buildProseMirrorDocFromOoxmlBody(store.getBody(), store.tryGetNumberingXml());
       expect(proseMirrorParagraphTexts(doc)).toEqual(row.expectedTexts);
       if (row.expectedMarkers) {
         const markers: string[] = [];

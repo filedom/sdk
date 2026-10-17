@@ -1,15 +1,19 @@
 {
-  "builtAt": "2026-10-17T08:29:12.094Z",
+  "builtAt": "2026-10-17T08:31:32.994Z",
   "status": "not-configured",
   "buildRoot": null,
   "buildRootSource": null,
   "siblingCandidates": [
     "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-pdfium-wasm",
+    "/Users/nektarioskonstantinidis/Desktop/projects/domdoc-pdfium-wasm",
+    "/Users/nektarioskonstantinidis/Desktop/domdoc-pdfium-wasm",
+    "/Users/nektarioskonstantinidis/projects/domdoc-pdfium-wasm",
     "/Users/nektarioskonstantinidis/Desktop/projects/domdoc-pdfium-wasm"
   ],
   "discoveredScript": null,
   "discoveredOutputs": [],
   "runBuildRequested": false,
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
-  "note": "G1-PDF-09: aggressive build-root discovery; set PDFIUM_WASM_BUILD_ROOT or clone domdoc-pdfium-wasm at C24. Optional PDFIUM_WASM_RUN_BUILD=1. Ingest via pnpm fetch:pdfium-wasm."
+  "note": "G1-PDF-10: exhaustive build-root discovery; set PDFIUM_WASM_BUILD_ROOT or clone domdoc-pdfium-wasm at C24. Optional PDFIUM_WASM_RUN_BUILD=1. Ingest via pnpm fetch:pdfium-wasm.",
+  "discoveryRecord": "pdfium-wasm-discovery-record.json (fetch script)"
 }

@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-07 AF incremental gate-grade oracle + JSON artifact; G4 gate proof not-run",
+  "limitations": "W2-G4-08 authoritative incremental oracle; engine incremental API unavailable; G4 gate not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
@@ -15,7 +15,9 @@
     "fragmentation-af-browser-corpus.test.ts",
     "fragmentation-af-incremental-equivalence.test.ts",
     "fragmentation-af-incremental-gate-grade.test.ts",
+    "fragmentation-af-incremental-authoritative.test.ts",
     "af-incremental-gate-grade.json",
+    "af-incremental-authoritative.json",
     "e2e/fragmentation-layout-stability.spec.ts",
     "e2e/fragmentation-af-corpus.spec.ts",
     "domdoc-wasm layout/fragmentation.rs tests"

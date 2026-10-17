@@ -5,6 +5,7 @@ import {
   createDomdocPackageManifestStub,
   createDomdocPackagePersistPlanStub,
   DOMDOC_CRASH_SAFE_COMMIT_STEPS,
+  parseDomdocPackageManifestStub,
   serializeDomdocPackageManifestStub,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
@@ -46,6 +47,14 @@ describe("M1 DocumentSession skeleton", () => {
     const bytes = serializeDomdocPackageManifestStub(base);
     const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { documentId: string };
     expect(parsed.documentId).toBe("doc-1");
+  });
+
+  it("round-trips domdoc package manifest stub bytes (M1/G5)", () => {
+    const bytes = serializeDomdocPackageManifestStub(base);
+    const roundTrip = parseDomdocPackageManifestStub(bytes);
+    expect(roundTrip.documentId).toBe(base.documentId);
+    expect(roundTrip.kind).toBe(base.kind);
+    expect(roundTrip.committedRevision).toBe(base.revisions.committedRevision);
   });
 
   it("builds domdoc blob index stub", () => {

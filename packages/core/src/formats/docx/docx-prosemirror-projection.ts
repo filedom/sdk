@@ -5,6 +5,7 @@ import {
   computeListMarkers,
   listMetaFromParagraph,
 } from "./docx-list-numbering-stub.js";
+import { computeListMarkersFromNumberingXml } from "./docx-numbering-runtime.js";
 
 /** MIT prosemirror-model slice for D05 mapping tests (G2-DOCX-03). */
 export const docxProjectionSchema = new Schema({
@@ -36,10 +37,15 @@ function paragraphPlainText(paragraph: OoxmlNode): string {
 }
 
 /** Project OOXML body paragraphs into a ProseMirror document (read-only). */
-export function buildProseMirrorDocFromOoxmlBody(body: OoxmlNode): ProseMirrorNode {
+export function buildProseMirrorDocFromOoxmlBody(
+  body: OoxmlNode,
+  numberingXml?: string,
+): ProseMirrorNode {
   const paragraphNodes = listParagraphNodes(body);
   const metas = paragraphNodes.map((p) => listMetaFromParagraph(p));
-  const markers = computeListMarkers(metas);
+  const markers = numberingXml
+    ? computeListMarkersFromNumberingXml(metas, numberingXml)
+    : computeListMarkers(metas);
   const blocks = paragraphNodes.map((paragraph, index) => {
     const text = paragraphPlainText(paragraph);
     const meta = metas[index]!;
