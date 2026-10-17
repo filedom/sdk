@@ -140,6 +140,34 @@ export interface PhysicalHostCaptureExecutionPlan {
 }
 
 /** G3-INPUT-20: honest execution plan — Linux CI cannot run physical IME/SR capture. */
+/** G3-INPUT-21: validate ingest payload before writing gate-grade evidence slot. */
+export function validatePhysicalHostGateGradeIngestPayload(
+  payload: unknown,
+): { ok: true; payload: PhysicalHostGateGradeCaptureLog } | { ok: false; detail: string } {
+  if (payload == null || typeof payload !== "object") {
+    return { ok: false, detail: "payload-not-object" };
+  }
+  const record = payload as Record<string, unknown>;
+  if (record.synthetic === true) {
+    return { ok: false, detail: "synthetic-forbidden" };
+  }
+  if (record.validated !== true) {
+    return { ok: false, detail: "validated-flag-required" };
+  }
+  if (typeof record.slotId !== "string" || typeof record.logKind !== "string") {
+    return { ok: false, detail: "missing-slot-or-logKind" };
+  }
+  const entries = (record.entries ?? []) as PhysicalHostGateGradeCaptureLog["entries"];
+  const entryCheck = validatePhysicalHostGateGradeEntries(
+    record.logKind as PhysicalHostGateGradeLogKind,
+    entries,
+  );
+  if (!entryCheck.ok) {
+    return entryCheck;
+  }
+  return { ok: true, payload: payload as PhysicalHostGateGradeCaptureLog };
+}
+
 export function buildPhysicalHostCaptureExecutionPlan(
   platform: NodeJS.Platform = process.platform,
 ): PhysicalHostCaptureExecutionPlan {

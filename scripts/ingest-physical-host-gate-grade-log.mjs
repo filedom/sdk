@@ -17,11 +17,16 @@ if (!logPath || !existsSync(logPath)) {
   process.exit(2);
 }
 
-const payload = JSON.parse(readFileSync(logPath, "utf8"));
-if (payload.synthetic === true) {
-  console.error("[ingest-physical-host-gate-grade-log] refuse synthetic:true payloads for gate-grade ingest.");
+const rawPayload = JSON.parse(readFileSync(logPath, "utf8"));
+const { validatePhysicalHostGateGradeIngestPayload } = await import(
+  "../packages/core/dist/input/input-evidence-physical-host-gate-grade.js"
+);
+const validated = validatePhysicalHostGateGradeIngestPayload(rawPayload);
+if (!validated.ok) {
+  console.error(`[ingest-physical-host-gate-grade-log] invalid gate-grade log: ${validated.detail}`);
   process.exit(2);
 }
+const payload = validated.payload;
 
 const slotId = payload.slotId ?? "IME-01-real";
 const outPath = join(outDir, `${slotId}-gate-grade-ingested.json`);

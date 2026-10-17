@@ -6,6 +6,7 @@ import {
   buildPhysicalHostGateGradeCaptureLog,
   buildPhysicalHostGateGradeManifest,
   validatePhysicalHostGateGradeEntries,
+  validatePhysicalHostGateGradeIngestPayload,
 } from "./input-evidence-physical-host-gate-grade.js";
 
 const evidenceDir = join(import.meta.dirname, "../../../../evidence/gates/G3-feasibility");
@@ -56,6 +57,18 @@ describe("G3-INPUT-19 physical host gate-grade logs", () => {
       join(evidenceDir, "physical-host-gate-grade-manifest.json"),
       `${JSON.stringify(manifest, null, 2)}\n`,
     );
+  });
+
+  it("G3-INPUT-21 rejects synthetic ingest payloads", () => {
+    const verdict = validatePhysicalHostGateGradeIngestPayload({
+      synthetic: true,
+      validated: true,
+      slotId: "IME-01-real",
+      logKind: "ime-gate-grade",
+      entries: [],
+    });
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.detail).toBe("synthetic-forbidden");
   });
 
   it("G3-INPUT-20 marks linux-ci as non-executable for physical capture", () => {

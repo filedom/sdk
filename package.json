@@ -20,6 +20,7 @@
     "sign:layout-human-signoff": "node ./scripts/sign-layout-human-signoff.mjs",
     "record:layout-independent-png-review": "node ./scripts/record-layout-independent-png-review.mjs",
     "accept:layout-independent-png-review": "node ./scripts/accept-layout-independent-png-review.mjs",
+    "reconcile:layout-independent-png-visual-attestation": "node ./scripts/reconcile-layout-independent-png-visual-attestation.mjs",
     "run:physical-host-gate-grade-capture": "node ./scripts/run-physical-host-gate-grade-capture.mjs",
     "ingest:physical-host-gate-grade-log": "node ./scripts/ingest-physical-host-gate-grade-log.mjs",
     "proof:g4-authoritative-gate": "node ./scripts/run-g4-authoritative-gate-proof.mjs",

@@ -100,5 +100,10 @@
 | [G2-LAYOUT-19-coordinator-independent-png-accept.md](./G2-LAYOUT-19-coordinator-independent-png-accept.md) | W1+++++++++++++++++ | review |
 | [G3-INPUT-20-physical-host-capture-execution.md](./G3-INPUT-20-physical-host-capture-execution.md) | W1+++++++++++++++++ | review |
 | [W2-G4-18-authoritative-gate-proof-runner.md](./W2-G4-18-authoritative-gate-proof-runner.md) | W2 | review |
+| [G1-PDF-21-artifact-drop-auto-proof-hardening.md](./G1-PDF-21-artifact-drop-auto-proof-hardening.md) | W1++++++++++++++++++ | review |
+| [G2-DOCX-20-foreign-numbering-merge.md](./G2-DOCX-20-foreign-numbering-merge.md) | W1++++++++++++++++++ | review |
+| [G2-LAYOUT-20-packet-reconciliation.md](./G2-LAYOUT-20-packet-reconciliation.md) | W1++++++++++++++++++ | review |
+| [G3-INPUT-21-gate-grade-ingest-validation.md](./G3-INPUT-21-gate-grade-ingest-validation.md) | W1++++++++++++++++++ | review |
+| [W2-G4-19-authoritative-gate-coordinator-hook.md](./W2-G4-19-authoritative-gate-coordinator-hook.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).

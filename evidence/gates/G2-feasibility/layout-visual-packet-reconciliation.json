@@ -1,0 +1,10 @@
+{
+  "card": "G2-LAYOUT-20",
+  "gateStatus": "not-run",
+  "status": "reconciled-not-gate-pass",
+  "independentPngReviewPresent": true,
+  "visualAttestationPresent": true,
+  "coordinatorIndependentAcceptPresent": true,
+  "note": "G2-LAYOUT-20 packets reconciled for workflow tracking only; independent PNG review ≠ LAYOUT_SIGNOFF visual attestation; gate G2 not-run.",
+  "recordedAt": "2026-10-17T08:57:37.850Z"
+}

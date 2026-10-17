@@ -1,4 +1,4 @@
-# G1 PDFium C24 production WASM — unblock runbook (G1-PDF-19)
+# G1 PDFium C24 production WASM — unblock runbook (G1-PDF-21)
 
 Gate **G1 not-run** until `moduleLoaded=true` and native **P01–P05** pass on the vendored artifact.
 
@@ -15,9 +15,16 @@ Gate **G1 not-run** until `moduleLoaded=true` and native **P01–P05** pass on t
 cd domdoc-web
 pnpm fetch:pdfium-wasm
 PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05
-# G1-PDF-20 auto-detect (artifact dir, vendor drop, sibling build roots → fetch + proofs):
+# G1-PDF-21 auto-detect (artifact dir, module path, sibling search paths → fetch + proofs):
 pnpm proof:pdfium-artifact-drop
 ```
+
+Optional discovery env (when vendor drop empty):
+
+| Variable | Purpose |
+| --- | --- |
+| `PDFIUM_WASM_MODULE_PATH` | JS entry; parent dir must include package.json + `.wasm` |
+| `PDFIUM_WASM_SIBLING_SEARCH_PATHS` | Comma-separated build roots scanned like `PDFIUM_WASM_BUILD_ROOT` |
 
 5. Confirm **`evidence/gates/G1-feasibility/pdfium-wasm-bytes-attempt.json`** reports:
    - `productionWasmObtained: true`

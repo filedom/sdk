@@ -2,7 +2,10 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { describe, expect, it } from "vitest";
-import { buildAfAuthoritativeGateProofRunnerEvidence } from "./fragmentation-af-authoritative-gate-proof-runner.js";
+import {
+  buildAfAuthoritativeGateProofRunnerEvidence,
+  resolveAuthoritativeGatePathFromCoordinatorAccept,
+} from "./fragmentation-af-authoritative-gate-proof-runner.js";
 import { createWasmShapedLayoutHook } from "../layout/wasm-shaped-layout-hook.js";
 
 const flowEntry = join(
@@ -13,6 +16,20 @@ const flowEntry = join(
 const evidenceDir = join(import.meta.dirname, "../../../../evidence/gates/G4-feasibility");
 
 describe("W2-G4-18 AF authoritative gate proof runner", () => {
+  it("W2-G4-19 keeps not-run when coordinator accept missing bundled evidence", () => {
+    const path = resolveAuthoritativeGatePathFromCoordinatorAccept(
+      {
+        coordinatorAccept: true,
+        coordinatorId: "coord",
+        browserDemoPostEditEquivalent: false,
+        nodeWasmPostEditEquivalent: true,
+        e2eAfCorpusDeclared: true,
+      },
+      true,
+    );
+    expect(path).toBe("not-run");
+  });
+
   it("keeps authoritative gate path not-run on stub layout", () => {
     const shaped = (payload: string) => {
       const input = JSON.parse(payload) as { text: string };

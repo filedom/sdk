@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * G1-PDF-20: auto-detect C24 PDFium WASM drop path → fetch vendoring + P01–P05 proofs.
+ * G1-PDF-21: auto-detect C24 PDFium WASM drop path → fetch vendoring + P01–P05 proofs.
  */
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
@@ -39,16 +39,32 @@ function discoverFromBuildRoot(buildRoot) {
   return null;
 }
 
+function modulePathArtifactDir() {
+  const modulePath = process.env.PDFIUM_WASM_MODULE_PATH?.trim();
+  if (!modulePath || !existsSync(modulePath)) return null;
+  const dir = dirname(modulePath);
+  return hasWasmArtifact(dir) ? dir : null;
+}
+
 function detectArtifactDir() {
   const envDir = process.env.PDFIUM_WASM_ARTIFACT_DIR?.trim();
   if (hasWasmArtifact(envDir)) {
     return { dir: envDir, source: "PDFIUM_WASM_ARTIFACT_DIR" };
   }
+  const fromModule = modulePathArtifactDir();
+  if (fromModule) {
+    return { dir: fromModule, source: "PDFIUM_WASM_MODULE_PATH" };
+  }
   if (hasWasmArtifact(RUNBOOK_VENDOR)) {
     return { dir: RUNBOOK_VENDOR, source: "vendor/domdoc-pdfium-wasm-runbook" };
   }
+  const siblingExtra = (process.env.PDFIUM_WASM_SIBLING_SEARCH_PATHS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   const siblingRoots = [
     process.env.PDFIUM_WASM_BUILD_ROOT?.trim(),
+    ...siblingExtra,
     join(workspaceRoot, "domdoc-pdfium-wasm"),
     join(process.env.HOME ?? "", "Desktop", "projects", "domdoc-pdfium-wasm"),
   ].filter(Boolean);
@@ -68,12 +84,13 @@ const dropRecordPath = join(outDir, "pdfium-wasm-artifact-drop-path.json");
 if (!detected) {
   const record = {
     recordedAt: new Date().toISOString(),
-    card: "G1-PDF-20",
+    card: "G1-PDF-21",
     artifactDetected: false,
+    autoProofAttempted: false,
     requiredEnvVars: DOCUMENTED_ENV_VARS,
     runbook: "docs/g1-pdfium-c24-unblock-runbook.md",
     vendorDropPath: "domdoc-web/vendor/domdoc-pdfium-wasm/",
-    note: "G1-PDF-20 no production WASM detected; drop C24 bytes per runbook or set PDFIUM_WASM_ARTIFACT_DIR.",
+    note: "G1-PDF-21 no production WASM detected; drop C24 bytes per runbook or set PDFIUM_WASM_ARTIFACT_DIR / SIBLING_SEARCH_PATHS.",
   };
   writeFileSync(dropRecordPath, `${JSON.stringify(record, null, 2)}\n`);
   console.log("[proof-pdfium-artifact-drop] no wasm artifact — documented env vars in pdfium-wasm-artifact-drop-path.json");
@@ -102,13 +119,14 @@ const proof = spawnSync("pnpm", ["proof:p01-p05"], {
 
 const record = {
   recordedAt: new Date().toISOString(),
-  card: "G1-PDF-20",
+  card: "G1-PDF-21",
   artifactDetected: true,
+  autoProofAttempted: true,
   detectionSource: detected.source,
   artifactDir: detected.dir,
   ciWorker: process.env.PDFIUM_WASM_CI_WORKER === "1",
   proofExitCode: proof.status ?? 1,
-  note: "G1-PDF-20 auto-detect path exercised fetch + proof:p01-p05; G1 gate remains not-run until native P01–P05 pass.",
+  note: "G1-PDF-21 auto-detect path exercised fetch + proof:p01-p05; G1 gate remains not-run until native P01–P05 pass.",
 };
 writeFileSync(dropRecordPath, `${JSON.stringify(record, null, 2)}\n`);
 console.log(`[proof-pdfium-artifact-drop] detection=${detected.source} proof exit=${proof.status}`);
