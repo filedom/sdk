@@ -1,5 +1,6 @@
 {
-  "recordedAt": "2026-10-17T09:30:00.000Z",
+  "formatVersion": 1,
+  "recordedAt": "2026-10-17T10:00:00.000Z",
   "status": "not-run",
   "fixtures": [
     {
@@ -10,5 +11,5 @@
       "result": "not-run"
     }
   ],
-  "note": "No screen-reader session logs captured; scaffold only for G3-INPUT-07"
+  "note": "No screen-reader session logs captured; scaffold validated by G3-INPUT-08"
 }

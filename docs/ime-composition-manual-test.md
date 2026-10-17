@@ -4,8 +4,8 @@ Automated Playwright cannot drive real OS IME in CI. Use this checklist with `@d
 
 Evidence scaffolds (honest **not-run** until logs exist):
 
-- `evidence/gates/G3-feasibility/ime-01-02-fixtures.json`
-- `evidence/gates/G3-feasibility/sr-evidence-scaffold.json`
+- `evidence/gates/G3-feasibility/ime-01-02-fixtures.json` (`formatVersion: 1`, validated by `input-evidence-scaffold.test.ts`)
+- `evidence/gates/G3-feasibility/sr-evidence-scaffold.json` (`formatVersion: 1`)
 
 ## Setup
 

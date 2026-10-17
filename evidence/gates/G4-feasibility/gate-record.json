@@ -6,13 +6,14 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "W2-G4-05 AF browser corpus + live layout e2e; full AF gate proof not-run",
+  "limitations": "W2-G4-06 AF incremental vs full equivalence hook; full AF gate proof not-run",
   "evidencePaths": [
     "fragmentation-types.test.ts",
     "component-measurement-contract.test.ts",
     "component-measurement-layout-stability.test.ts",
     "fragmentation-equivalence-oracle.test.ts",
     "fragmentation-af-browser-corpus.test.ts",
+    "fragmentation-af-incremental-equivalence.test.ts",
     "e2e/fragmentation-layout-stability.spec.ts",
     "e2e/fragmentation-af-corpus.spec.ts",
     "domdoc-wasm layout/fragmentation.rs tests"

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1pppp",
+  "updatedAt": "2026-10-17-w1ppppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-07 P01–P05 worker hook runner; C24 WASM not vendored; native proofs not-run"
+      "limits": "G1-PDF-08 artifact ingest paths; C24 WASM not vendored; native proofs not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "G2-DOCX-06 numbering.xml OPC patch stub; gate not-run"
+      "limits": "G2-DOCX-07 OOXML numbering round-trip slice; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "IME-01/02 + SR evidence scaffold not-run; Playwright wiring only"
+      "limits": "G3-INPUT-08 evidence format validators; real IME/SR logs not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "G2-LAYOUT-06 parley≠flow pkg CI + optional demo parley job; gate not-run"
+      "limits": "G2-LAYOUT-07 font visual corpus pkg tests; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-05 AF browser corpus + live layout e2e; gate not-run"
+      "limits": "W2-G4-06 AF incremental vs full equivalence hook; gate not-run"
     }
   ]
 }

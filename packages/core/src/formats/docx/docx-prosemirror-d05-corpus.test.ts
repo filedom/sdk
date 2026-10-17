@@ -5,6 +5,10 @@ import {
   buildProseMirrorDocFromOoxmlBody,
   proseMirrorParagraphTexts,
 } from "./docx-prosemirror-projection.js";
+import { applyListRenumberWithOoxmlDefinitions } from "./docx-numbering-ooxml-roundtrip.js";
+import { readOpcPackage, writeOpcPackage } from "./opc-package.js";
+import { parseNumberingNumIds } from "./docx-numbering-ooxml-roundtrip.js";
+import { DOCX_NUMBERING_PART } from "./docx-numbering-opc-patch.js";
 
 function zipDocx(documentXml: string): Uint8Array {
   const contentTypes = `<?xml version="1.0" encoding="UTF-8"?>
@@ -73,5 +77,33 @@ describe("G2-DOCX-04 D05 corpus expansion", () => {
       if (node.type.name === "paragraph") markers.push(String(node.attrs.listMarker));
     });
     expect(markers).toEqual(["1. ", "2. "]);
+  });
+
+  it("D05 list slice survives numbering.xml OOXML round-trip patch (G2-DOCX-07)", () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:t>One</w:t></w:r></w:p>
+    <w:p><w:pPr><w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr></w:pPr>
+      <w:r><w:t>Two</w:t></w:r></w:p>
+  </w:body>
+</w:document>`;
+    const store = DocxStore.open(zipDocx(xml));
+    const docBefore = buildProseMirrorDocFromOoxmlBody(store.getBody());
+    expect(proseMirrorParagraphTexts(docBefore)).toEqual(["One", "Two"]);
+
+    const pkg = readOpcPackage(store.exportBytes());
+    const patched = applyListRenumberWithOoxmlDefinitions(pkg, {
+      kind: "docx-list-renumber-stub",
+      numId: 1,
+      markers: ["1. ", "2. "],
+    });
+    const numberingXml = new TextDecoder().decode(patched.members.get(DOCX_NUMBERING_PART)!);
+    expect(parseNumberingNumIds(numberingXml)).toContain(1);
+
+    const reopened = DocxStore.open(writeOpcPackage(patched));
+    const docAfter = buildProseMirrorDocFromOoxmlBody(reopened.getBody());
+    expect(proseMirrorParagraphTexts(docAfter)).toEqual(["One", "Two"]);
   });
 });

@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G2-DOCX-06 numbering.xml OPC patch stub; G2-LAYOUT-06 parley≠flow pkg test; gate not-run",
+  "limitations": "G2-DOCX-07 OOXML numbering round-trip slice; G2-LAYOUT-07 font visual corpus; gate not-run",
   "evidencePaths": [
     "docx-flow-vertical-test",
     "docx-store-d02.test.ts",
@@ -15,6 +15,8 @@
     "docx-prosemirror-d05-corpus.test.ts",
     "docx-list-numbering-stub.test.ts",
     "docx-numbering-opc-patch.test.ts",
+    "docx-numbering-ooxml-roundtrip.test.ts",
+    "layout-shaping-font-visual-corpus.pkg.test.ts",
     "document-session.test.ts",
     "layout-shaping.test.ts",
     "layout-shaping-parley.pkg.test.ts",

@@ -1,5 +1,6 @@
 {
-  "recordedAt": "2026-10-17T09:30:00.000Z",
+  "formatVersion": 1,
+  "recordedAt": "2026-10-17T10:00:00.000Z",
   "status": "not-run",
   "fixtures": [
     {
@@ -7,6 +8,7 @@
       "platform": "manual",
       "description": "OS IME preedit on #domdoc-ime-input",
       "expectedDatasets": ["data-composition-state=active", "data-composition-preedit"],
+      "logPath": null,
       "result": "not-run"
     },
     {
@@ -14,8 +16,9 @@
       "platform": "manual",
       "description": "Commit IME preedit updates caret",
       "expectedDatasets": ["data-composition-state=committed", "data-caret-offset"],
+      "logPath": null,
       "result": "not-run"
     }
   ],
-  "note": "Playwright subset covers wiring only; see docs/ime-composition-manual-test.md"
+  "note": "Playwright subset covers wiring only; validate via input-evidence-scaffold.test.ts (G3-INPUT-08)"
 }

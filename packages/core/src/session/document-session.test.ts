@@ -3,6 +3,8 @@ import { createDocumentSession } from "./document-session.js";
 import {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
+  createDomdocPackagePersistPlanStub,
+  DOMDOC_CRASH_SAFE_COMMIT_STEPS,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -42,6 +44,12 @@ describe("M1 DocumentSession skeleton", () => {
   it("builds domdoc blob index stub", () => {
     const index = createDomdocPackageBlobIndexStub(base);
     expect(index.members.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("builds crash-safe persist plan stub (§13.2)", () => {
+    const plan = createDomdocPackagePersistPlanStub(base);
+    expect(plan.commitSteps).toEqual([...DOMDOC_CRASH_SAFE_COMMIT_STEPS]);
+    expect(plan.recoveryPolicy).toBe("committed-manifest-only");
   });
 
   it("patches numbering.xml when committing list renumber", () => {

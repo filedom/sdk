@@ -42,6 +42,26 @@ export interface DomdocPackageBlobIndexStub {
   members: readonly DomdocPackageMemberStub[];
 }
 
+/** §13.2 crash-safe persist ordering: verified blob before manifest commit. */
+export const DOMDOC_CRASH_SAFE_COMMIT_STEPS = [
+  "write-content-addressed-blob",
+  "verify-blob-bytes",
+  "prepare-manifest-with-blob-reference",
+  "commit-indexeddb-manifest-transaction",
+  "garbage-collect-unreferenced-blobs-after-grace",
+] as const;
+
+export type DomdocCrashSafeCommitStep = (typeof DOMDOC_CRASH_SAFE_COMMIT_STEPS)[number];
+
+export interface DomdocPackagePersistPlanStub {
+  documentId: string;
+  schemaVersion: typeof DOMDOC_PACKAGE_SCHEMA_VERSION;
+  /** Ordered steps the host must follow; no cross-API IDB/OPFS transaction. */
+  commitSteps: readonly DomdocCrashSafeCommitStep[];
+  /** Recovery reads only committed manifests (§13.2). */
+  recoveryPolicy: "committed-manifest-only";
+}
+
 export function createDomdocPackageBlobIndexStub(
   session: DocumentSessionStub,
 ): DomdocPackageBlobIndexStub {
@@ -55,6 +75,17 @@ export function createDomdocPackageBlobIndexStub(
       { path: "assets/.keep", role: "asset", contentHash: "not-computed" },
       { path: "fallbacks/components/.keep", role: "fallback", contentHash: "not-computed" },
     ],
+  };
+}
+
+export function createDomdocPackagePersistPlanStub(
+  session: DocumentSessionStub,
+): DomdocPackagePersistPlanStub {
+  return {
+    documentId: session.documentId,
+    schemaVersion: DOMDOC_PACKAGE_SCHEMA_VERSION,
+    commitSteps: [...DOMDOC_CRASH_SAFE_COMMIT_STEPS],
+    recoveryPolicy: "committed-manifest-only",
   };
 }
 

@@ -9,11 +9,14 @@ export { DocumentSession, createDocumentSession } from "./session/document-sessi
 export {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
+  createDomdocPackagePersistPlanStub,
+  DOMDOC_CRASH_SAFE_COMMIT_STEPS,
   DOMDOC_PACKAGE_SCHEMA_VERSION,
   DOMDOC_REQUIRED_MEMBER_PREFIXES,
   type DomdocPackageBlobIndexStub,
   type DomdocPackageManifestStub,
   type DomdocPackageMemberStub,
+  type DomdocPackagePersistPlanStub,
 } from "./persistence/domdoc-package-stub.js";
 export {
   WIRE_PROTOCOL_VERSION,
@@ -104,8 +107,23 @@ export {
   patchNumberingXmlForListRenumber,
 } from "./formats/docx/docx-numbering-opc-patch.js";
 export {
+  applyListRenumberWithOoxmlDefinitions,
+  buildNumberingXmlWithListDef,
+  parseNumberingNumIds,
+} from "./formats/docx/docx-numbering-ooxml-roundtrip.js";
+export {
+  INPUT_EVIDENCE_FORMAT_VERSION,
+  validateImeEvidenceFile,
+  validateSrEvidenceFile,
+} from "./input/input-evidence-scaffold.js";
+export {
   AF_BROWSER_CORPUS,
   afCorpusAllConverged,
   evaluateAfBrowserCorpus,
   type AfBrowserCorpusEntry,
 } from "./components/fragmentation-af-browser-corpus.js";
+export {
+  afIncrementalAllEquivalent,
+  evaluateAfIncrementalVsFullEquivalence,
+  type AfIncrementalEquivalenceVerdict,
+} from "./components/fragmentation-af-incremental-equivalence.js";

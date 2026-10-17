@@ -35,5 +35,10 @@
 | [G2-LAYOUT-06-shaped-flow-ci-parley-demo.md](./G2-LAYOUT-06-shaped-flow-ci-parley-demo.md) | W1++++ | review |
 | [G3-INPUT-07-ime-sr-evidence.md](./G3-INPUT-07-ime-sr-evidence.md) | W1++++ | review |
 | [W2-G4-05-af-browser-corpus.md](./W2-G4-05-af-browser-corpus.md) | W2 | review |
+| [G1-PDF-08-pdfium-artifact-ingest.md](./G1-PDF-08-pdfium-artifact-ingest.md) | W1+++++ | review |
+| [G2-DOCX-07-numbering-ooxml-roundtrip.md](./G2-DOCX-07-numbering-ooxml-roundtrip.md) | W1+++++ | review |
+| [G2-LAYOUT-07-font-visual-corpus.md](./G2-LAYOUT-07-font-visual-corpus.md) | W1+++++ | review |
+| [G3-INPUT-08-evidence-formats.md](./G3-INPUT-08-evidence-formats.md) | W1+++++ | review |
+| [W2-G4-06-af-incremental-equivalence.md](./W2-G4-06-af-incremental-equivalence.md) | W2 | review |
 
 Template: blueprint §11.4. Integration pair and gate status: parent [HANDOFF.md](../../../../HANDOFF.md).
