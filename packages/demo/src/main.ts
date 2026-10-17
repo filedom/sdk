@@ -22,7 +22,12 @@ import { listM2ToolbarCommandRegistry } from "../../core/dist/session/m2-toolbar
 import { createDocumentSession } from "../../core/dist/session/document-session.js";
 import { MemoryDomdocBlobStoreStub } from "../../core/dist/persistence/domdoc-package-stub.js";
 import { describeDomdocDemoExportPath } from "../../core/dist/persistence/domdoc-export-path-selection.js";
-import { exportDocxTrackChangesFromStoreStub } from "../../core/dist/formats/docx/docx-track-changes-export-stub.js";
+import {
+  exportDocxTrackChangesFromStoreStub,
+  readDocxTrackChangesMarkerSnapshot,
+} from "../../core/dist/formats/docx/docx-track-changes-export-stub.js";
+import { readOpcPackage } from "../../core/dist/formats/docx/opc-package.js";
+import { dispatchProsemirrorDemoRejectSuggestionStub } from "../../core/dist/session/prosemirror-demo-reject-suggestion-stub.js";
 import { buildReviewMinimalTrackedDocxZipBytes } from "../../core/dist/formats/docx/review-minimal-docx-fixture.js";
 import { DocxStore } from "../../core/dist/formats/docx/docx-store.js";
 import { describePdfiumWasmReadPathBrowser } from "../../core/dist/formats/pdf/pdfium-wasm-read-path-stub.js";
@@ -56,6 +61,7 @@ import { domdocSolidAdapterDemoSurface } from "@domdoc/solid";
 import { domdocNextHostAdapterDemoSurface } from "@domdoc/next-host";
 import { domdocNuxtHostAdapterDemoSurface } from "@domdoc/nuxt-host";
 import { domdocSvelteKitHostAdapterDemoSurface } from "@domdoc/sveltekit-host";
+import { domdocAstroHostAdapterDemoSurface } from "@domdoc/astro-host";
 import { ViewerController } from "./viewer-controller.js";
 
 const shell = mountDomdocShell("domdoc-root");
@@ -340,6 +346,8 @@ async function boot(): Promise<void> {
   document.body.dataset.m5SvelteKitHostBoundary = domdocSvelteKitHostAdapterDemoSurface(
     "demo-sess",
   ).host;
+  document.body.dataset.m5AstroHostAdapter = domdocAstroHostAdapterDemoSurface("demo-sess").surface;
+  document.body.dataset.m5AstroHostBoundary = domdocAstroHostAdapterDemoSurface("demo-sess").host;
   if (params.get("m5Extended") !== "0") {
     document.body.dataset.m5PreactAdapter = domdocPreactAdapterDemoSurface("demo-sess").surface;
     document.body.dataset.m5SolidAdapter = domdocSolidAdapterDemoSurface("demo-sess").surface;
@@ -360,6 +368,21 @@ async function boot(): Promise<void> {
   }
   document.body.dataset.m5CommentsWireCount = String(annotationsWire.comments.commentCount);
   document.body.dataset.m5CommentsThreadCount = String(annotationsWire.reviewThreads.length);
+
+  let trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
+  document.body.dataset.m4DocxTrackChangesExportOk = "pending";
+
+  const syncM4TrackChangesExportFromSession = (): void => {
+    const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, viewer.slice.session);
+    const pkg = readOpcPackage(trackedExport.result.zipBytes);
+    const documentXml = new TextDecoder().decode(pkg.members.get("word/document.xml") ?? new Uint8Array());
+    const markers = readDocxTrackChangesMarkerSnapshot(documentXml);
+    document.body.dataset.m4DocxTrackChangesExportOk =
+      trackedExport.result.zipBytes.byteLength > 100 ? "true" : "false";
+    document.body.dataset.m4DocxTrackChangesHasIns = markers.hasIns ? "true" : "false";
+    document.body.dataset.m4DocxTrackChangesHasDel = markers.hasDel ? "true" : "false";
+  };
+
   shell.acceptCommentButton.addEventListener("click", () => {
     const firstThread = annotationsWire.reviewThreads[0];
     const commentId = firstThread?.commentIds[0] ?? "0";
@@ -381,13 +404,26 @@ async function boot(): Promise<void> {
       viewer.slice = { ...viewer.slice, session: acceptResult.nextSession };
       syncProsemirrorDemoDataset();
     }
+    syncM4TrackChangesExportFromSession();
   });
 
-  let trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
-  const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, viewer.slice.session);
-  document.body.dataset.m4DocxTrackChangesExportOk = trackedExport.result.trackedMarkersPreserved
-    ? "true"
-    : "false";
+  shell.rejectSuggestionButton.addEventListener("click", () => {
+    const rejectResult = dispatchProsemirrorDemoRejectSuggestionStub({
+      slice: viewer.slice,
+      trackedStore,
+    });
+    document.body.dataset.m3ProsemirrorRejectApplied = rejectResult.applied ? "true" : "false";
+    document.body.dataset.m3ProsemirrorRejectDetail = rejectResult.detail;
+    document.body.dataset.m3ProsemirrorRejectSuggestionId = rejectResult.suggestionId;
+    if (rejectResult.trackedStore) {
+      trackedStore = rejectResult.trackedStore;
+    }
+    if (rejectResult.slice) {
+      viewer.slice = rejectResult.slice;
+      syncProsemirrorDemoDataset();
+    }
+    syncM4TrackChangesExportFromSession();
+  });
 
   await viewer.renderDocx();
   document.body.dataset.engineReady = "true";

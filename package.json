@@ -12,6 +12,7 @@
     "fetch:pdfium-wasm-stub": "node ./scripts/fetch-pdfium-wasm-stub.mjs",
     "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",
     "build:pdfium-wasm": "node ./scripts/build-pdfium-wasm.mjs",
+    "build-wasm": "bash ./packages/domdoc-pdfium-wasm/build/build-wasm.sh",
     "ci:build-pdfium-wasm": "node ./scripts/ci-build-pdfium-wasm.mjs",
     "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
     "proof:pdfium-artifact-drop": "node ./scripts/proof-pdfium-artifact-drop.mjs",

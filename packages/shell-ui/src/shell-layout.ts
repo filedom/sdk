@@ -14,6 +14,7 @@ export interface DomdocShellElements {
   prosemirrorInput: HTMLInputElement;
   commentsList: HTMLUListElement;
   acceptCommentButton: HTMLButtonElement;
+  rejectSuggestionButton: HTMLButtonElement;
   imeInput: HTMLInputElement;
   dropZone: HTMLElement;
 }
@@ -136,7 +137,13 @@ export function mountDomdocShell(rootId = "domdoc-root"): DomdocShellElements {
     variant: "outline",
     className: "w-full",
   });
-  commentsCard.body.append(commentsList, acceptCommentButton);
+  const rejectSuggestionButton = createButton({
+    id: "domdoc-prosemirror-reject-suggestion-stub",
+    label: "Reject tracked insert (stub)",
+    variant: "outline",
+    className: "w-full",
+  });
+  commentsCard.body.append(commentsList, acceptCommentButton, rejectSuggestionButton);
 
   sidebar.append(editCard.root, commentsCard.root);
 
@@ -166,6 +173,7 @@ export function mountDomdocShell(rootId = "domdoc-root"): DomdocShellElements {
     prosemirrorInput,
     commentsList,
     acceptCommentButton,
+    rejectSuggestionButton,
     imeInput,
     dropZone,
   };

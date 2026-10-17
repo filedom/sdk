@@ -53,6 +53,15 @@ export {
   type DocxExportStubResult,
 } from "./formats/docx/docx-export-stub.js";
 export {
+  exportDocxTrackChangesFromSessionAfterAcceptStub,
+  exportDocxTrackChangesFromStoreStub,
+  readDocxTrackChangesMarkerSnapshot,
+  DOCX_TRACK_CHANGES_EXPORT_FEATURE_ID,
+  type DocxTrackChangesExportAfterAcceptResult,
+  type DocxTrackChangesExportStubResult,
+  type DocxTrackChangesMarkerSnapshot,
+} from "./formats/docx/docx-track-changes-export-stub.js";
+export {
   applyReviewSuggestionDecisionStub,
   parseReviewSuggestionMarksFromDocumentXml,
   REVIEW_SUGGESTION_FEATURE_REGISTRY_ID,
@@ -93,6 +102,12 @@ export {
   PROSEMIRROR_DEMO_DEBOUNCED_SAVE_FEATURE_ID,
   type ProsemirrorDemoDebouncedSaveState,
 } from "./session/prosemirror-demo-debounced-save-stub.js";
+export {
+  dispatchProsemirrorDemoRejectSuggestionStub,
+  PROSEMIRROR_DEMO_REJECT_SUGGESTION_FEATURE_ID,
+  type ProsemirrorDemoRejectSuggestionContext,
+  type ProsemirrorDemoRejectSuggestionResult,
+} from "./session/prosemirror-demo-reject-suggestion-stub.js";
 export {
   recordProsemirrorDemoExportReceiptStub,
   recordProsemirrorDemoPersistReceiptStub,

@@ -30,6 +30,7 @@
     "@domdoc/angular": "workspace:*",
     "@domdoc/lit": "workspace:*",
     "@domdoc/next-host": "workspace:*",
+    "@domdoc/astro-host": "workspace:*",
     "@domdoc/nuxt-host": "workspace:*",
     "@domdoc/sveltekit-host": "workspace:*",
     "@domdoc/preact": "workspace:*",
