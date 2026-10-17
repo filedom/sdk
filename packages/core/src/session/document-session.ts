@@ -9,6 +9,11 @@ import {
 } from "../formats/docx/docx-session-list-mutation.js";
 import type { OpcPackage } from "../formats/docx/opc-package.js";
 import { applyListRenumberToOpcPackage } from "../formats/docx/docx-numbering-opc-patch.js";
+import {
+  applyReviewSuggestionDecisionFromDocumentXml,
+  type ReviewSuggestionOpcPatchResult,
+} from "../formats/docx/review-suggestion-opc-patch-stub.js";
+import type { ReviewSuggestionDecision } from "../formats/docx/review-suggestion-accept-reject-stub.js";
 import type { ListParagraphMeta } from "../formats/docx/docx-list-numbering-stub.js";
 import { applyDocxNumberingWriteBackFromSession } from "../formats/docx/docx-numbering-body-writeback.js";
 import type { DocxNumberingSessionWriteBackOptions } from "../formats/docx/docx-numbering-session-writeback.js";
@@ -119,6 +124,27 @@ export class DocumentSession {
       session,
       pkg: applyDocxNumberingWriteBackFromSession(pkg, paragraphs, options),
     };
+  }
+
+  /** M2/F34: review accept/reject stamped into OPC document.xml (stub marker). */
+  applyReviewSuggestionOpcPatch(
+    pkg: OpcPackage,
+    suggestionId: string,
+    decision: ReviewSuggestionDecision,
+  ): { session: DocumentSession; patch: ReviewSuggestionOpcPatchResult } {
+    const patch = applyReviewSuggestionDecisionFromDocumentXml(pkg, suggestionId, decision);
+    const session =
+      patch.decision.applied && patch.decision.decision === "accept"
+        ? this.commitDocxProjectionStub({
+            kind: "docx-projection-sync",
+            targetRevision: this.revisions.committedRevision + 1,
+            paragraphTexts: [patch.decision.resultingPlainText],
+            listMarkers: [],
+            listNumIds: [],
+            listIlvls: [],
+          })
+        : this;
+    return { session, patch };
   }
 }
 

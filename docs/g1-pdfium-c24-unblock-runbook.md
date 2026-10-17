@@ -52,7 +52,9 @@ source ./emsdk_env.sh
 
 `pnpm ci:build-pdfium-wasm` auto-sources `tools/emsdk/emsdk_env.sh` when present (see `pdfium-wasm-ci-build-record.json`).
 
-**Third-party prebuild:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` may download **pdfium-lib** release `wasm.zip` for size/licensing probe only (BSD PDFium base; **not** C24 `domdoc-pdfium-wasm` writer exports — do not vend for G1 pass).
+**Third-party prebuild:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` downloads **pdfium-lib** `wasm.zip` into **`vendor/pdfium-lib-probe/`** (gitignored) with `domdoc-probe-adapter.mjs` for **render-only** experiments via `tryLoadPdfiumLibProbeRenderNode()` — **not** C24 writer exports; do not use for G1 pass or `resolvePdfiumWasmModule`.
+
+**C24 PDFium source attempt:** same CI worker records `evidence/gates/G1-feasibility/pdfium-c24-source-build-attempt.json` after cloning `tools/pdfium-src` (gitignored). Expect **`gn-missing`** without depot_tools; full Emscripten PDFium build is not wired in-tree.
 
 ## CI worker (automated readiness)
 

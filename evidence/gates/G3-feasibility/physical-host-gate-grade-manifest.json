@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "recordedAt": "2026-10-17T09:28:33.498Z",
+  "recordedAt": "2026-10-17T09:30:57.099Z",
   "gateStatus": "not-run",
   "requiredHostActions": [
     "Run demo on physical macOS/Windows with real IME; export capture JSON (no synthetic:true)",

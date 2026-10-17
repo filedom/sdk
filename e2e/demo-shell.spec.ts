@@ -16,6 +16,7 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   await expect.poll(async () => page.locator("body").getAttribute("data-m2-toolbar-redo-depth")).toBe("1");
   await expect(page.locator("#domdoc-prosemirror-edit")).toBeVisible();
   expect(await page.locator("body").getAttribute("data-m1-prosemirror-slice")).toBe("true");
+  expect(await page.locator("body").getAttribute("data-m1-domdoc-package-round-trip-ok")).toBe("true");
   await page.locator("#domdoc-prosemirror-edit").fill("edited paragraph");
   await page.locator("#domdoc-prosemirror-edit").dispatchEvent("change");
   await expect.poll(async () => page.locator("body").getAttribute("data-m1-prosemirror-revision")).toBe("1");

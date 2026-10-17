@@ -61,12 +61,25 @@ export {
   type ReviewSuggestionMarkStub,
 } from "./formats/docx/review-suggestion-accept-reject-stub.js";
 export {
+  applyReviewSuggestionDecisionFromDocumentXml,
+  applyReviewSuggestionDecisionToOpcPackage,
+  patchDocumentXmlForReviewSuggestionDecision,
+  DOCX_DOCUMENT_PART,
+  type ReviewSuggestionOpcPatchResult,
+} from "./formats/docx/review-suggestion-opc-patch-stub.js";
+export {
   applyDemoProsemirrorTextReplace,
   buildDemoDocxZipBytes,
   openDocxProsemirrorDemoSessionSlice,
   PROSEMIRROR_DEMO_SLICE_FEATURE_ID,
   type DocxProsemirrorDemoSessionSlice,
 } from "./session/docx-prosemirror-demo-session-slice.js";
+export {
+  DOMDOC_DEMO_DOCX_BLOB_KEY,
+  loadProsemirrorDemoDomdocPackageStub,
+  saveProsemirrorDemoDomdocPackageStub,
+  type ProsemirrorDomdocPackageRoundTripResult,
+} from "./session/docx-prosemirror-domdoc-package-stub.js";
 export {
   createPdfWriterWorkerClient,
   type PdfWriterWorkerClient,
@@ -118,6 +131,19 @@ export {
   type FragmentationLayoutPass,
 } from "./components/fragmentation-equivalence-oracle.js";
 export { resolvePdfiumWasmModule } from "./formats/pdf/pdfium-module-resolve.js";
+export {
+  describePdfiumLibProbeLayout,
+  tryLoadPdfiumLibProbeRender,
+  readPdfiumLibProbeManifest,
+  PDFIUM_LIB_PROBE_RENDER_FEATURE_ID,
+  type PdfiumLibProbeRenderStatus,
+  type PdfiumLibProbeLayout,
+} from "./formats/pdf/pdfium-lib-probe-render-stub.js";
+export {
+  describePdfiumLibProbeLayoutNode,
+  tryLoadPdfiumLibProbeRenderNode,
+  readPdfiumLibProbeManifestNode,
+} from "./formats/pdf/pdfium-lib-probe-render-node.js";
 export {
   classifyPdfProofOperation,
   type PdfProofFixtureId,

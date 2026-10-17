@@ -30,6 +30,11 @@ import {
   openDocxProsemirrorDemoSessionSlice,
 } from "../../core/dist/session/docx-prosemirror-demo-session-slice.js";
 import { proseMirrorParagraphTexts } from "../../core/dist/formats/docx/docx-prosemirror-projection.js";
+import {
+  loadProsemirrorDemoDomdocPackageStub,
+  saveProsemirrorDemoDomdocPackageStub,
+} from "../../core/dist/session/docx-prosemirror-domdoc-package-stub.js";
+import { tryLoadPdfiumLibProbeRender } from "../../core/dist/formats/pdf/pdfium-lib-probe-render-stub.js";
 
 const sampleProjection = () => ({
   header: {
@@ -139,6 +144,15 @@ async function boot(): Promise<void> {
     document.body.dataset.m1ProsemirrorParagraph = proseMirrorParagraphTexts(pmSlice.doc)[0] ?? "";
   };
   syncProsemirrorDemoDataset();
+  const domdocStore = new MemoryDomdocBlobStoreStub();
+  const domdocSaved = saveProsemirrorDemoDomdocPackageStub(pmSlice, domdocStore);
+  document.body.dataset.m1DomdocPackageSaveOk = domdocSaved.simulation.ok ? "true" : "false";
+  const domdocReopened = loadProsemirrorDemoDomdocPackageStub(domdocSaved.packageZipBytes);
+  document.body.dataset.m1DomdocPackageRoundTripOk = domdocReopened ? "true" : "false";
+  void tryLoadPdfiumLibProbeRender().then((probe) => {
+    document.body.dataset.g1PdfiumProbeRender = probe.moduleLoaded ? "loaded" : "absent";
+    document.body.dataset.g1PdfiumProbePresent = probe.probePresent ? "true" : "false";
+  });
   if (pmInput instanceof HTMLInputElement) {
     pmInput.addEventListener("change", () => {
       pmSlice = applyDemoProsemirrorTextReplace(pmSlice, 0, pmInput.value);

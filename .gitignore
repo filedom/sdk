@@ -6,4 +6,6 @@ packages/*/dist
 test-results
 playwright-report
 vendor/domdoc-pdfium-wasm
+vendor/pdfium-lib-probe
 tools/emsdk
+tools/pdfium-src

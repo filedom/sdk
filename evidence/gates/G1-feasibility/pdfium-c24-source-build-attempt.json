@@ -1,0 +1,12 @@
+{
+  "builtAt": "2026-10-17T09:31:15.260Z",
+  "card": "G1-PDF-CI-02",
+  "skipped": false,
+  "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+  "pdfiumSrcDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src",
+  "cloneAttempted": false,
+  "checkoutPin": "fetch-failed",
+  "buildAttempted": true,
+  "status": "gn-missing",
+  "detail": "PDFium C24 source present but depot_tools gn not in PATH; full Emscripten PDFium build not attempted (expected local blocker)"
+}

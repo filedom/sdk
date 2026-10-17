@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T09:28:50.968Z",
+  "builtAt": "2026-10-17T09:31:15.261Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -7,7 +7,7 @@
   "emscripten": {
     "emccInPath": true,
     "emccVersionLine": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk/upstream/emscripten/emcc\nemcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.12 (5488e0871d46d19a3209988190fa6a653126256f)",
-    "emsdkEnv": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk",
+    "emsdkEnv": null,
     "emsdkExists": true,
     "localEmsdkPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/emsdk"
   },
@@ -20,7 +20,50 @@
     "zipBytes": 13414692,
     "zipSha256": "062d10055de90a01120acf307ce16e0022021a32203f4aeae4877750f9a08427",
     "nonProduction": true,
-    "note": "pdfium-lib prebuild ≠ C24 domdoc-pdfium-wasm writer; probe only"
+    "note": "pdfium-lib prebuild ≠ C24 domdoc-pdfium-wasm writer; probe only",
+    "vendored": {
+      "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe",
+      "zipPath": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/pdfium-lib-probe/wasm.zip",
+      "unzipExitCode": 0,
+      "wasmFiles": [
+        "release/node/pdfium.esm.wasm",
+        "release/node/pdfium.std.wasm",
+        "release/node/pdfium.wasm"
+      ],
+      "jsGlueFiles": [
+        "release/node/pdfium-worker.js",
+        "release/node/pdfium.esm.js",
+        "release/node/pdfium.js",
+        "release/node/pdfium.std.js"
+      ],
+      "adapterWritten": true
+    }
+  },
+  "pdfiumC24SourceAttempt": {
+    "skipped": false,
+    "c24Pin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+    "pdfiumSrcDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/tools/pdfium-src",
+    "cloneAttempted": false,
+    "checkoutPin": "fetch-failed",
+    "buildAttempted": true,
+    "status": "gn-missing",
+    "detail": "PDFium C24 source present but depot_tools gn not in PATH; full Emscripten PDFium build not attempted (expected local blocker)"
+  },
+  "domdocPdfiumWasmLayout": {
+    "expected": {
+      "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
+      "packageJsonMain": "index.js",
+      "wasmBasenames": [
+        "domdoc_pdfium_wasm_bg.wasm",
+        "pdfium.wasm"
+      ],
+      "resolver": "resolvePdfiumWasmModule()"
+    },
+    "present": true,
+    "files": [
+      "README.md"
+    ],
+    "adapterNeeded": true
   },
   "ciSteps": [
     "Install emsdk; source emsdk_env.sh",
@@ -32,7 +75,8 @@
     "discover": "pnpm build:pdfium-wasm",
     "ingest": "pnpm fetch:pdfium-wasm",
     "autoDrop": "pnpm proof:pdfium-artifact-drop",
-    "runBuild": "PDFIUM_WASM_RUN_BUILD=1 PDFIUM_WASM_BUILD_ROOT=/path/to/domdoc-pdfium-wasm pnpm build:pdfium-wasm"
+    "runBuild": "PDFIUM_WASM_RUN_BUILD=1 PDFIUM_WASM_BUILD_ROOT=/path/to/domdoc-pdfium-wasm pnpm build:pdfium-wasm",
+    "probeFetch": "PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm"
   },
   "note": "CI worker records readiness; G1 gate stays not-run until C24 production module loads and P01–P05 nativeProof=pass."
 }
