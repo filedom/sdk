@@ -5,6 +5,7 @@ import {
   createDomdocPackageManifestStub,
   createDomdocPackagePersistPlanStub,
   DOMDOC_CRASH_SAFE_COMMIT_STEPS,
+  serializeDomdocPackageManifestStub,
 } from "../persistence/domdoc-package-stub.js";
 import { readOpcPackage, writeOpcPackage } from "../formats/docx/opc-package.js";
 import { DOCX_NUMBERING_PART } from "../formats/docx/docx-numbering-opc-patch.js";
@@ -39,6 +40,12 @@ describe("M1 DocumentSession skeleton", () => {
     expect(manifest.schemaVersion).toBe(1);
     expect(manifest.documentId).toBe("doc-1");
     expect(manifest.requiredMembers).toContain("state/");
+  });
+
+  it("serializes manifest.json UTF-8 write stub (M1)", () => {
+    const bytes = serializeDomdocPackageManifestStub(base);
+    const parsed = JSON.parse(new TextDecoder().decode(bytes)) as { documentId: string };
+    expect(parsed.documentId).toBe("doc-1");
   });
 
   it("builds domdoc blob index stub", () => {

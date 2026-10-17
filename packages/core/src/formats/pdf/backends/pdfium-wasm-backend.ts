@@ -44,7 +44,15 @@ export async function tryLoadPdfiumWasmModule(): Promise<PdfiumWasmLoadResult> {
     };
   }
   try {
-    await import(/* webpackIgnore: true */ resolved.spec);
+    const mod = (await import(/* webpackIgnore: true */ resolved.spec)) as {
+      default?: { __domdocNonProductionPdfiumStub?: boolean };
+    };
+    if (mod.default?.__domdocNonProductionPdfiumStub) {
+      return {
+        ...base,
+        error: "non-production PDFium WASM placeholder (G1-PDF-09)",
+      };
+    }
     return { ...base, loaded: true };
   } catch (err) {
     return {

@@ -3,11 +3,24 @@ import { readOpcPackage, writeOpcPackage } from "./opc-package.js";
 import {
   applyListRenumberWithOoxmlDefinitions,
   buildNumberingXmlWithListDef,
+  buildWordCompatibleNumberingXml,
+  parseNumberingAbstractNumIds,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
 import { DOCX_NUMBERING_PART } from "./docx-numbering-opc-patch.js";
 
 describe("G2-DOCX-07 numbering.xml OOXML round-trip", () => {
+  it("builds Word-oriented multi-level defs (G2-DOCX-08 subset)", () => {
+    const xml = buildWordCompatibleNumberingXml(9, [
+      { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },
+      { ilvl: 1, numFmt: "lowerLetter", lvlText: "%2.", start: 1, restartAfterIlvl: 0 },
+    ]);
+    expect(parseNumberingNumIds(xml)).toEqual([9]);
+    expect(parseNumberingAbstractNumIds(xml)).toEqual([8]);
+    expect(xml).toContain('w:numFmt w:val="lowerLetter"');
+    expect(xml).toContain('w:lvlRestart w:val="0"');
+  });
+
   it("builds abstractNum and num for a list id", () => {
     const xml = buildNumberingXmlWithListDef(3, "%1.");
     expect(xml).toContain('w:abstractNum w:abstractNumId="2"');

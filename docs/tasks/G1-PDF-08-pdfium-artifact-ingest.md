@@ -15,7 +15,7 @@ commands:
   - cd domdoc-web && pnpm fetch:pdfium-wasm
   - cd domdoc-web && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05
 deliverables: [PDFIUM_WASM_ARTIFACT_URL ingest attempt, honest fetch stub record]
-status: review
+status: integrated
 ```
 
 C24 binary **not published**; native P01–P05 proofs **not-run**; gate **G1** **not-run**.

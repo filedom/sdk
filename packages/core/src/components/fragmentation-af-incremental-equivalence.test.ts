@@ -7,7 +7,7 @@ import { AF_BROWSER_CORPUS } from "./fragmentation-af-browser-corpus.js";
 
 const flowEntry = join(
   fileURLToPath(new URL(".", import.meta.url)),
-  "../../../../../../domdoc-wasm/pkg-node/domdoc_engine.js",
+  "../../../../../domdoc-wasm/pkg-node/domdoc_engine.js",
 );
 
 describe("W2-G4-06 AF incremental vs full equivalence", () => {

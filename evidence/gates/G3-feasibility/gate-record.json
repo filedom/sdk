@@ -6,7 +6,7 @@
   "wasmCommit": null,
   "webCommit": null,
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
-  "limitations": "G3-INPUT-08 evidence format validators; real IME/SR logs not-run; Playwright wiring subset only",
+  "limitations": "G3-INPUT-09 log capture templates + synthetic validators; real IME/SR logs not-run",
   "evidencePaths": [
     "caret-map.test.ts",
     "composition-stub.test.ts",
@@ -14,6 +14,8 @@
     "ime-01-02-fixtures.json",
     "sr-evidence-scaffold.json",
     "input-evidence-scaffold.test.ts",
+    "input-evidence-log-templates.test.ts",
+    "input-log-capture-templates.json",
     "e2e/compositor-mount.spec.ts",
     "e2e/demo-shell.spec.ts",
     "e2e/demo-caret-composition.spec.ts",

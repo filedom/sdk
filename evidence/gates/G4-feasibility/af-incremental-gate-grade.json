@@ -1,0 +1,35 @@
+{
+  "recordedAt": "2026-10-17T08:29:28.945Z",
+  "corpusSize": 3,
+  "gateStatus": "not-run",
+  "entries": [
+    {
+      "entryId": "AF-01",
+      "fullLayoutIdempotent": true,
+      "incrementalEquivalent": false,
+      "fullLineSignature": "fragmentation stability␞short",
+      "incrementalLineSignature": "fragmentation s␟tability short",
+      "gateGradeStatus": "incremental-drift-recorded",
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+    },
+    {
+      "entryId": "AF-02",
+      "fullLayoutIdempotent": true,
+      "incrementalEquivalent": false,
+      "fullLineSignature": "repeated layout␞pass must converge␞on identical line␞breaks",
+      "incrementalLineSignature": "repeated layout␞pass must conv␟erge on identical␞line breaks",
+      "gateGradeStatus": "incremental-drift-recorded",
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+    },
+    {
+      "entryId": "AF-03",
+      "fullLayoutIdempotent": true,
+      "incrementalEquivalent": false,
+      "fullLineSignature": "component␞boundary probe␞with longer␞wrapped paragraph␞text",
+      "incrementalLineSignature": "component␞boundary probe␞with␟longer wrapped␞paragraph text",
+      "gateGradeStatus": "incremental-drift-recorded",
+      "detail": "incremental split layout drift vs full layout (expected until true incremental engine path)"
+    }
+  ],
+  "note": "Incremental drift recorded on AF corpus; G4 gate proof not-run."
+}

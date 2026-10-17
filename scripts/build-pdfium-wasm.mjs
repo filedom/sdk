@@ -4,7 +4,7 @@
  * Emscripten pipeline lives in domdoc-pdfium-wasm; this records evidence and may
  * invoke a checkout build when PDFIUM_WASM_RUN_BUILD=1.
  */
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -13,7 +13,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const outDir = join(root, "evidence", "gates", "G1-feasibility");
 mkdirSync(outDir, { recursive: true });
 
-const buildRoot = process.env.PDFIUM_WASM_BUILD_ROOT?.trim();
+const workspaceRoot = join(root, "..");
+const siblingCandidates = [
+  join(workspaceRoot, "domdoc-pdfium-wasm"),
+  join(workspaceRoot, "..", "domdoc-pdfium-wasm"),
+];
+const envBuildRoot = process.env.PDFIUM_WASM_BUILD_ROOT?.trim();
+const buildRoot =
+  envBuildRoot && existsSync(envBuildRoot)
+    ? envBuildRoot
+    : siblingCandidates.find((p) => existsSync(p)) ?? envBuildRoot;
 const runBuild = process.env.PDFIUM_WASM_RUN_BUILD === "1";
 
 const scriptCandidates = [
@@ -35,13 +44,28 @@ if (buildRoot && existsSync(buildRoot)) {
   }
 }
 
+const outputDirCandidates = ["", "dist", "pkg", "build", "out", "artifacts/wasm"];
+const discoveredOutputs = buildRoot
+  ? outputDirCandidates
+      .map((sub) => (sub ? join(buildRoot, sub) : buildRoot))
+      .filter((dir) => existsSync(dir))
+      .map((dir) => ({
+        dir,
+        hasWasm: existsSync(dir) && readdirSync(dir).some((f) => f.endsWith(".wasm")),
+      }))
+  : [];
+
 const record = {
   builtAt: new Date().toISOString(),
   status: "not-configured",
   buildRoot: buildRoot ?? null,
+  buildRootSource: envBuildRoot ? "env" : buildRoot ? "sibling-discovery" : null,
+  siblingCandidates,
   discoveredScript,
+  discoveredOutputs,
   runBuildRequested: runBuild,
-  note: "Set PDFIUM_WASM_BUILD_ROOT to a domdoc-pdfium-wasm checkout. Optional PDFIUM_WASM_RUN_BUILD=1 runs discovered script. Ingest output via PDFIUM_WASM_ARTIFACT_DIR + pnpm fetch:pdfium-wasm.",
+  c24PdfiumPin: "7c55203ed66b0461378323e3fcf2efaf76755241",
+  note: "G1-PDF-09: aggressive build-root discovery; set PDFIUM_WASM_BUILD_ROOT or clone domdoc-pdfium-wasm at C24. Optional PDFIUM_WASM_RUN_BUILD=1. Ingest via pnpm fetch:pdfium-wasm.",
 };
 
 if (!buildRoot || !existsSync(buildRoot)) {

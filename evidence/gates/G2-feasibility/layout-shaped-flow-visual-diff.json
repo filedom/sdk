@@ -1,0 +1,244 @@
+{
+  "recordedAt": "2026-10-17T08:29:13.146Z",
+  "status": "recorded-json-snapshots",
+  "entries": [
+    {
+      "corpusId": "LV-01",
+      "flowBackend": "flow-fallback",
+      "parleyBackend": "parley-eval",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLines": [
+        {
+          "text": "ffi fl",
+          "width_pt": 39.6,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "ligature",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "probe",
+          "width_pt": 33,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "words",
+          "width_pt": 33,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "flow wrap",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "boundary",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": null,
+          "primary_font_family": null
+        }
+      ],
+      "parleyLines": [
+        {
+          "text": "ffi fl",
+          "width_pt": 39.6,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "ligature",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "probe",
+          "width_pt": 33,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "words",
+          "width_pt": 33,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "flow wrap",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "boundary",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        }
+      ]
+    },
+    {
+      "corpusId": "LV-02",
+      "flowBackend": "flow-fallback",
+      "parleyBackend": "parley-eval",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLines": [
+        {
+          "text": "The quick",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "brown fox",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "jumps over",
+          "width_pt": 66,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "the lazy",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "dog",
+          "width_pt": 19.8,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "repeatedly",
+          "width_pt": 66,
+          "shaping_backend": null,
+          "primary_font_family": null
+        }
+      ],
+      "parleyLines": [
+        {
+          "text": "The quick",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "brown fox",
+          "width_pt": 59.400000000000006,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "jumps over",
+          "width_pt": 66,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "the lazy",
+          "width_pt": 52.800000000000004,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "dog",
+          "width_pt": 19.8,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "repeatedly",
+          "width_pt": 66,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        }
+      ]
+    },
+    {
+      "corpusId": "LV-03",
+      "flowBackend": "flow-fallback",
+      "parleyBackend": "parley-eval",
+      "jsonEqual": false,
+      "lineBreakEqual": true,
+      "flowLines": [
+        {
+          "text": "Domdoc Sans",
+          "width_pt": 66.55000000000001,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "Fallback",
+          "width_pt": 48.400000000000006,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "shaping",
+          "width_pt": 42.35000000000001,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "metadata on",
+          "width_pt": 66.55000000000001,
+          "shaping_backend": null,
+          "primary_font_family": null
+        },
+        {
+          "text": "each line",
+          "width_pt": 54.45,
+          "shaping_backend": null,
+          "primary_font_family": null
+        }
+      ],
+      "parleyLines": [
+        {
+          "text": "Domdoc Sans",
+          "width_pt": 66.55000000000001,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "Fallback",
+          "width_pt": 48.400000000000006,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "shaping",
+          "width_pt": 42.35000000000001,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "metadata on",
+          "width_pt": 66.55000000000001,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        },
+        {
+          "text": "each line",
+          "width_pt": 54.45,
+          "shaping_backend": "parley-eval",
+          "primary_font_family": "Domdoc Sans Fallback"
+        }
+      ]
+    }
+  ],
+  "note": "G2-LAYOUT-08 JSON snapshots; gate G2 not-run until visual baselines reviewed."
+}

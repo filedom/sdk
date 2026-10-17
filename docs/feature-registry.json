@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-w1ppppp",
+  "updatedAt": "2026-10-17-w1pppppp",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -20,7 +20,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-08 artifact ingest paths; C24 WASM not vendored; native proofs not-run"
+      "limits": "G1-PDF-09 aggressive ingest + C24 pin; WASM not vendored; native proofs not-run"
     },
     {
       "id": "F07",
@@ -30,7 +30,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["W", "AD"],
       "gateIds": ["G2"],
-      "limits": "G2-DOCX-07 OOXML numbering round-trip slice; gate not-run"
+      "limits": "G2-DOCX-08 Word numbering defs + D05 matrix; gate not-run"
     },
     {
       "id": "F12",
@@ -40,7 +40,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["O", "AE"],
       "gateIds": ["G3"],
-      "limits": "G3-INPUT-08 evidence format validators; real IME/SR logs not-run"
+      "limits": "G3-INPUT-09 log capture templates; real IME/SR logs not-run"
     },
     {
       "id": "F13",
@@ -50,7 +50,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["V"],
       "gateIds": ["G2"],
-      "limits": "G2-LAYOUT-07 font visual corpus pkg tests; gate not-run"
+      "limits": "G2-LAYOUT-08 shaped≠flow JSON diff artifacts; gate not-run"
     },
     {
       "id": "F18",
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["AF"],
       "gateIds": ["G4"],
-      "limits": "W2-G4-06 AF incremental vs full equivalence hook; gate not-run"
+      "limits": "W2-G4-07 AF incremental gate-grade oracle; gate not-run"
     }
   ]
 }

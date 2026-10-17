@@ -89,6 +89,12 @@ export function createDomdocPackagePersistPlanStub(
   };
 }
 
+/** M1: UTF-8 manifest.json bytes for host write stub (§13.3). */
+export function serializeDomdocPackageManifestStub(session: DocumentSessionStub): Uint8Array {
+  const manifest = createDomdocPackageManifestStub(session);
+  return new TextEncoder().encode(`${JSON.stringify(manifest, null, 2)}\n`);
+}
+
 export function createDomdocPackageManifestStub(
   session: DocumentSessionStub,
 ): DomdocPackageManifestStub {

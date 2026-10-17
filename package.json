@@ -13,6 +13,7 @@
     "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",
     "build:pdfium-wasm": "node ./scripts/build-pdfium-wasm.mjs",
     "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
+    "record:layout-visual-diff": "node ./scripts/record-layout-visual-diff.mjs",
     "test:e2e": "playwright test"
   },
   "devDependencies": {

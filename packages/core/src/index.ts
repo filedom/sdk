@@ -10,6 +10,7 @@ export {
   createDomdocPackageBlobIndexStub,
   createDomdocPackageManifestStub,
   createDomdocPackagePersistPlanStub,
+  serializeDomdocPackageManifestStub,
   DOMDOC_CRASH_SAFE_COMMIT_STEPS,
   DOMDOC_PACKAGE_SCHEMA_VERSION,
   DOMDOC_REQUIRED_MEMBER_PREFIXES,
@@ -109,13 +110,23 @@ export {
 export {
   applyListRenumberWithOoxmlDefinitions,
   buildNumberingXmlWithListDef,
+  buildWordCompatibleNumberingXml,
+  parseNumberingAbstractNumIds,
   parseNumberingNumIds,
+  type WordNumberingLevelDef,
 } from "./formats/docx/docx-numbering-ooxml-roundtrip.js";
 export {
   INPUT_EVIDENCE_FORMAT_VERSION,
   validateImeEvidenceFile,
   validateSrEvidenceFile,
 } from "./input/input-evidence-scaffold.js";
+export {
+  IME_LOG_CAPTURE_TEMPLATES,
+  SR_LOG_CAPTURE_TEMPLATES,
+  buildImeEvidenceFileFromSyntheticLog,
+  validateCapturedImeLog,
+  validateCapturedSrLog,
+} from "./input/input-evidence-log-templates.js";
 export {
   AF_BROWSER_CORPUS,
   afCorpusAllConverged,
@@ -127,3 +138,8 @@ export {
   evaluateAfIncrementalVsFullEquivalence,
   type AfIncrementalEquivalenceVerdict,
 } from "./components/fragmentation-af-incremental-equivalence.js";
+export {
+  buildAfIncrementalGateGradeEvidence,
+  evaluateAfIncrementalGateGrade,
+  type AfIncrementalGateGradeEvidence,
+} from "./components/fragmentation-af-incremental-gate-grade.js";

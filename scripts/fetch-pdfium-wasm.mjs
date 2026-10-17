@@ -9,6 +9,23 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const workspaceRoot = join(root, "..");
+
+const BUILD_OUTPUT_CANDIDATES = [
+  "",
+  "dist",
+  "pkg",
+  "build",
+  "out",
+  "artifacts/wasm",
+  "packages/domdoc-pdfium-wasm",
+];
+
+const SIBLING_BUILD_ROOTS = [
+  join(workspaceRoot, "domdoc-pdfium-wasm"),
+  join(workspaceRoot, "..", "domdoc-pdfium-wasm"),
+  join(process.env.HOME ?? "", "src", "domdoc-pdfium-wasm"),
+];
 const outDir = join(root, "evidence", "gates", "G1-feasibility");
 const vendorDir = join(root, "vendor", "domdoc-pdfium-wasm");
 mkdirSync(outDir, { recursive: true });
@@ -58,6 +75,49 @@ function hasWasmArtifact(dir) {
   return readdirSync(dir).some((f) => f.endsWith(".wasm"));
 }
 
+function discoverArtifactDirFromBuildRoot(buildRoot) {
+  if (!buildRoot || !existsSync(buildRoot)) return null;
+  for (const sub of BUILD_OUTPUT_CANDIDATES) {
+    const candidate = sub ? join(buildRoot, sub) : buildRoot;
+    if (hasWasmArtifact(candidate)) return candidate;
+  }
+  return null;
+}
+
+function discoverSiblingBuildRoots() {
+  const envRoot = process.env.PDFIUM_WASM_BUILD_ROOT?.trim();
+  const roots = [];
+  if (envRoot) roots.push(envRoot);
+  for (const sibling of SIBLING_BUILD_ROOTS) {
+    if (existsSync(sibling)) roots.push(sibling);
+  }
+  return [...new Set(roots)];
+}
+
+function writeNonProductionVendorStub() {
+  mkdirSync(vendorDir, { recursive: true });
+  writeFileSync(
+    join(vendorDir, "NONPRODUCTION-PLACEHOLDER.md"),
+    `# domdoc-pdfium-wasm — non-production placeholder (G1-PDF-09)
+
+This directory was created with \`PDFIUM_WASM_ALLOW_NONPRODUCTION_STUB=1\`.
+It is **not** a C24 PDFium build. \`tryLoadPdfiumWasmModule\` rejects this stub for gate evidence.
+Obtain a real artifact via C24 \`domdoc-pdfium-wasm\` build per docs/pdfium-wasm-pin.md.
+`,
+  );
+  writeFileSync(
+    join(vendorDir, "package.json"),
+    `${JSON.stringify({ name: "domdoc-pdfium-wasm", version: "0.0.0-nonproduction-stub", type: "module", main: "index.js" }, null, 2)}\n`,
+  );
+  writeFileSync(
+    join(vendorDir, "index.js"),
+    `/** @type {{ __domdocNonProductionPdfiumStub: true }} */
+export default { __domdocNonProductionPdfiumStub: true };
+`,
+  );
+  writeFileSync(join(vendorDir, "domdoc_pdfium.wasm"), Buffer.from([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]));
+}
+
 function sha256File(path) {
   const bytes = readFileSync(path);
   return createHash("sha256").update(bytes).digest("hex");
@@ -65,6 +125,19 @@ function sha256File(path) {
 
 let effectiveArtifactDir = artifactDir;
 let ingestNote = null;
+const buildRootAttempts = [];
+
+if (!effectiveArtifactDir) {
+  for (const buildRoot of discoverSiblingBuildRoots()) {
+    const discovered = discoverArtifactDirFromBuildRoot(buildRoot);
+    buildRootAttempts.push({ buildRoot, discoveredDir: discovered });
+    if (discovered) {
+      effectiveArtifactDir = discovered;
+      ingestNote = "discovered-from-build-root";
+      break;
+    }
+  }
+}
 
 if (!effectiveArtifactDir && artifactUrl) {
   const attempt = await tryDownloadArtifactUrl(artifactUrl);
@@ -124,10 +197,28 @@ if (effectiveArtifactDir && existsSync(effectiveArtifactDir) && hasWasmArtifact(
   process.exit(0);
 }
 
+if (process.env.PDFIUM_WASM_ALLOW_NONPRODUCTION_STUB === "1") {
+  writeNonProductionVendorStub();
+  const stubRecord = {
+    ...baseRecord,
+    status: "nonproduction-vendor-stub-written",
+    buildRootAttempts,
+    artifactUrl: artifactUrl ?? null,
+    vendorPath: vendorDir,
+    note: "G1-PDF-09: documented non-production placeholder only; module load rejected for gates. Prefer C24 domdoc-pdfium-wasm build.",
+  };
+  writeFileSync(join(outDir, "pdfium-wasm-fetch-stub.json"), `${JSON.stringify(stubRecord, null, 2)}\n`);
+  console.log("[fetch-pdfium-wasm] non-production vendor stub written (module load will stay false for gates)");
+  process.exit(0);
+}
+
 const stub = {
   ...baseRecord,
   status: "stub-not-run",
-  note: "No PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm. Run pnpm build:pdfium-wasm then build per docs/pdfium-wasm-pin.md and docs/pdfium-wasm-worker-isolation.md.",
+  buildRootAttempts,
+  artifactUrl: artifactUrl ?? null,
+  c24PdfiumPin: "7c55203ed66b0461378323e3fcf2efaf76755241",
+  note: "G1-PDF-09: no PDFIUM_WASM_ARTIFACT_DIR with package.json + .wasm after URL/build-root/sibling discovery. Run pnpm build:pdfium-wasm with PDFIUM_WASM_BUILD_ROOT or set PDFIUM_WASM_ARTIFACT_URL.",
 };
 writeFileSync(join(outDir, "pdfium-wasm-fetch-stub.json"), `${JSON.stringify(stub, null, 2)}\n`);
 console.log("[fetch-pdfium-wasm] stub only (no artifact directory)");
