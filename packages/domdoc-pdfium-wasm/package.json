@@ -1,0 +1,22 @@
+{
+  "name": "domdoc-pdfium-wasm",
+  "version": "0.0.0-c24-scaffold",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.mjs",
+  "domdoc": {
+    "role": "c24-pdfium-writer-contract",
+    "pdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
+    "writerExportsRequiredForG1": true
+  },
+  "scripts": {
+    "build": "node ./scripts/build-manifest.mjs",
+    "build:stub-wasm": "bash ./scripts/build-stub-wasm.sh"
+  },
+  "files": [
+    "dist",
+    "native",
+    "scripts",
+    "README.md"
+  ]
+}

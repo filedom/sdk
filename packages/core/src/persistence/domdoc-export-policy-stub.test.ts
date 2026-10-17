@@ -4,6 +4,7 @@ import {
   DOMDOC_REQUIRED_MEMBER_PREFIXES,
 } from "./domdoc-package-stub.js";
 import {
+  createEnhancedNativeExportStubDescriptor,
   describeDomdocExportPolicy,
   readDomdocExportPolicyFromManifestStub,
 } from "./domdoc-export-policy-stub.js";
@@ -36,6 +37,13 @@ describe("domdoc export policy stub", () => {
     expect(portable.implemented).toBe(false);
     expect(enhanced.envelope).toContain("sidecar");
     expect(portable.envelope).toContain("native file only");
+  });
+
+  it("createEnhancedNativeExportStubDescriptor exposes F49 enhanced-native stub", () => {
+    const stub = createEnhancedNativeExportStubDescriptor();
+    expect(stub.policy).toBe("enhanced-native-stub");
+    expect(stub.implemented).toBe(false);
+    expect(stub.nativeCheckpoint).toContain("revision ledger");
   });
 
   it("reads implemented domdoc-package policy from manifest stub", () => {

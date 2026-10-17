@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-10-17T13:48:40.679Z",
+  "builtAt": "2026-10-17T13:51:41.942Z",
   "card": "G1-PDF-CI-01",
   "status": "toolchain-emscripten-present",
   "c24PdfiumPin": "7c55203ed66b0461378323e3fcf2efaf76755241",
@@ -38,9 +38,15 @@
     "depsPresent": true,
     "gnGenAttempted": true,
     "ninjaAttempted": true,
+    "emscriptenGnGenAttempted": true,
+    "emscriptenNinjaAttempted": true,
     "emscriptenGnHints": [],
     "status": "gclient-gn-ninja-dry-run-ok",
-    "detail": "gclient exit 0; pin 7c55203ed66b0461378323e3fcf2efaf76755241; gn exit 0; ninja -n exit 0; [2911/2918] CXX obj/v8/v8_base_without_compiler/simulator-logic-arm64.o\n[2912/2918] CXX obj/v8/v8_base_without_compiler/regexp-macro-assembler-arm64.o\n[2913/2918] CXX obj/v8/v8_base_without_compiler/special-case.o\n[2914/2918] LINK ./mksnapshot\n[2915/2918] ACTION //v8:run_mksnapshot_default(//build/toolchain/mac:clang_arm64)\n[2916/2918] CXX obj/v8/v8_snapshot/setup-isolate-deserialize.o\n[2917/2918] ASM obj/v8/v8_snapshot/embedded.o\n[2918/2918] CXX obj/v8/v8_snapshot/snapshot-external.o; domdoc-pdfium-wasm emscripten target not wired in-tree"
+    "detail": "gclient exit 0; pin 7c55203ed66b0461378323e3fcf2efaf76755241; gn exit 0; ninja -n exit 0; wasm gn exit 1; wasm build.ninja=false; wasm ninja -n exit skipped; ERROR at //build/config/BUILDCONFIG.gn:307:3: Assertion failed.\n  assert(false, \"Unsupported target_os: $target_os\")\n  ^-----\nUnsupported target_os: wasm; domdoc-pdfium-wasm emscripten writer target not wired in-tree",
+    "emscriptenGnWasmBuildNinja": false,
+    "emscriptenGnWasmGenExit": 1,
+    "emscriptenGnWasmNinjaExit": null,
+    "emscriptenGnWasmTail": "ERROR at //build/config/BUILDCONFIG.gn:307:3: Assertion failed.\n  assert(false, \"Unsupported target_os: $target_os\")\n  ^-----\nUnsupported target_os: wasm"
   },
   "pdfiumC24SourceAttempt": {
     "skipped": false,
@@ -60,6 +66,22 @@
     "status": "gn-gen-failed",
     "detail": "gclient tail: Error: client not configured; see 'gclient config'; gn gen exit 0; build.ninja present=false; gn.py: Unable to find gn in your $PATH\nHint: `which -a gn` should output two entries; emcc: emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.12 (5488e0871d46d19a3209988190fa6a653126256f)"
   },
+  "domdocPdfiumPackageBuild": {
+    "packageDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/packages/domdoc-pdfium-wasm",
+    "manifestAttempted": true,
+    "stubWasmAttempted": true,
+    "stubWasmExitCode": 0,
+    "vendorCopy": {
+      "ok": true,
+      "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
+      "filesCopied": 5,
+      "writerExports": false,
+      "note": "contract-scaffold-only",
+      "stubWasmBuilt": true
+    },
+    "status": "contract-stub-wasm-built",
+    "detail": "domdoc-pdfium-wasm in-repo scaffold; c24WriterExports=false until production link"
+  },
   "domdocPdfiumWasmLayout": {
     "expected": {
       "vendorDir": "/Users/nektarioskonstantinidis/Desktop/projects/domdoc/domdoc-web/vendor/domdoc-pdfium-wasm",
@@ -72,8 +94,14 @@
     },
     "present": true,
     "files": [
+      "C24_PIN.txt",
       "README.md",
+      "domdoc_pdfium.js",
+      "domdoc_pdfium.wasm",
+      "domdoc_pdfium_contract_stub.js",
+      "domdoc_pdfium_contract_stub.wasm",
       "domdoc_pdfium_wasm_bg.wasm",
+      "index.js",
       "index.mjs",
       "package.json",
       "pdfium-lib-probe-glue.js"
@@ -84,6 +112,7 @@
     "Install tools/depot_tools (gitignored) + tools/emsdk; PATH includes depot_tools",
     "Optional PDFIUM_WASM_CI_PROBE_FETCH=1 vendors pdfium-lib probe + domdoc-pdfium-wasm probe adapter",
     "gclient full checkout under tools/pdfium-checkout (see pdfium-c24-gclient-checkout-attempt.json)",
+    "packages/domdoc-pdfium-wasm contract scaffold (stub emcc + vendor copy when PDFIUM_WASM_CI_VENDOR_CONTRACT≠0)",
     "Clone domdoc-pdfium-wasm at C24 pin; run build-wasm.sh",
     "Copy dist to vendor/domdoc-pdfium-wasm or set PDFIUM_WASM_ARTIFACT_DIR",
     "pnpm fetch:pdfium-wasm && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05"

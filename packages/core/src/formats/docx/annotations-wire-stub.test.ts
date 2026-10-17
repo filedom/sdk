@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ANNOTATIONS_FEATURE_REGISTRY_ID,
   buildAnnotationsWireStubFromOpcMembers,
+  listAnnotationWireStubLabels,
 } from "./annotations-wire-stub.js";
 
 describe("F20 annotations wire stub", () => {
@@ -20,5 +21,8 @@ describe("F20 annotations wire stub", () => {
     expect(wire.comments.commentCount).toBe(2);
     expect(wire.reviewThreads).toHaveLength(1);
     expect(wire.reviewThreads[0]?.replyCount).toBe(1);
+    const labels = listAnnotationWireStubLabels(wire);
+    expect(labels).toHaveLength(1);
+    expect(labels[0]).toContain("replies");
   });
 });

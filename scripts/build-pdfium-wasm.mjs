@@ -15,6 +15,7 @@ mkdirSync(outDir, { recursive: true });
 
 const workspaceRoot = join(root, "..");
 const siblingCandidates = [
+  join(root, "packages", "domdoc-pdfium-wasm"),
   join(workspaceRoot, "domdoc-pdfium-wasm"),
   join(workspaceRoot, "..", "domdoc-pdfium-wasm"),
   join(workspaceRoot, "..", "..", "domdoc-pdfium-wasm"),

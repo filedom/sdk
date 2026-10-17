@@ -5,9 +5,15 @@ import {
   parseNumberingAbstractNumIds,
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
-import { mergeForeignNumberingPart } from "./docx-numbering-foreign-merge.js";
+import {
+  DOCX_NUMBERING_FEATURE_REGISTRY_ID,
+  mergeForeignNumberingPart,
+} from "./docx-numbering-foreign-merge.js";
 
 describe("G2-DOCX-20 foreign numbering merge", () => {
+  it("binds foreign numbering merge to feature registry F07", () => {
+    expect(DOCX_NUMBERING_FEATURE_REGISTRY_ID).toBe("F07");
+  });
   it("D05-DRT-12 reallocates colliding numId and abstractNumId on foreign merge", () => {
     const base = buildWordCompatibleNumberingXml(2, [
       { ilvl: 0, numFmt: "decimal", lvlText: "%1.", start: 1 },

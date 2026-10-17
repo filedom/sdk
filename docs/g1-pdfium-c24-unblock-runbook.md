@@ -56,7 +56,9 @@ source ./emsdk_env.sh
 
 **depot_tools:** CI clones **`tools/depot_tools`** (gitignored) when missing and prepends it to `PATH` for `gclient`/`gn`/`ninja` smoke steps.
 
-**C24 PDFium gclient checkout:** CI worker records `evidence/gates/G1-feasibility/pdfium-c24-gclient-checkout-attempt.json` after `tools/pdfium-checkout/` (`gclient config`, `gclient sync`, C24 pin, optional `gn gen` / `ninja -n`). Legacy shallow clone smoke remains in `pdfium-c24-source-build-attempt.json` (`tools/pdfium-src`). domdoc-pdfium-wasm Emscripten writer target remains **not wired in-tree**.
+**C24 PDFium gclient checkout:** CI worker records `evidence/gates/G1-feasibility/pdfium-c24-gclient-checkout-attempt.json` after `tools/pdfium-checkout/` (`gclient config`, `gclient sync`, C24 pin, `gn gen` / `ninja -n`, plus bounded `target_os="wasm"` gn smoke). Legacy shallow clone smoke remains in `pdfium-c24-source-build-attempt.json` (`tools/pdfium-src`).
+
+**In-repo contract package:** `packages/domdoc-pdfium-wasm/` (README + stub `emcc` + manifest). CI may copy `dist/` to `vendor/domdoc-pdfium-wasm/` with **`c24WriterExports: false`**. Production writer link remains **not wired in-tree**.
 
 **Probe vendor adapter:** `PDFIUM_WASM_CI_PROBE_FETCH=1 pnpm ci:build-pdfium-wasm` also materializes **`vendor/domdoc-pdfium-wasm/`** probe adapter (gitignored) so `resolvePdfiumWasmModule` may load with **`writerExportsReady: false`** — **not** G1 pass.
 

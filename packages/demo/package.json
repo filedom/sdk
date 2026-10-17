@@ -9,6 +9,9 @@
     "build:parley": "DOMDOC_DEMO_PARLEY=1 vite build",
     "preview": "vite preview --port 5173"
   },
+  "dependencies": {
+    "@domdoc/react": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.7.2",
     "vite": "^6.0.3"

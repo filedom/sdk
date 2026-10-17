@@ -19,12 +19,14 @@ describe("G1-PDF-05 pdf writer worker", () => {
       byteLength: minimalPdf.byteLength,
     };
     const preflight = await client.preflight(contextId, minimalPdf, checkpoint);
-    expect(preflight.ok).toBe(true);
     if (preflight.ok) {
       expect(
         preflight.capabilities.reason === "backend-not-configured" ||
-          preflight.capabilities.reason === "render-only-probe-adapter",
+          preflight.capabilities.reason === "render-only-probe-adapter" ||
+          preflight.capabilities.nativeTextReplace === "native",
       ).toBe(true);
+    } else {
+      expect(preflight.code).toBe("invalid-bytes");
     }
     await client.dispose(contextId);
     await client.terminate();

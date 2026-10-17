@@ -22,4 +22,9 @@ test("demo shell mounts canvas and runs wasm paint", async ({ page }) => {
   await expect.poll(async () => page.locator("body").getAttribute("data-m1-prosemirror-revision")).toBe("1");
   const exportBytes = Number(await page.locator("body").getAttribute("data-m1-docx-export-bytes"));
   expect(exportBytes).toBeGreaterThan(100);
+  expect(await page.locator("body").getAttribute("data-m5-react-adapter")).toBe(
+    "framework-adapter-stub",
+  );
+  expect(Number(await page.locator("body").getAttribute("data-m5-comments-wire-count"))).toBe(2);
+  await expect(page.locator("#domdoc-comments-list li")).toHaveCount(1);
 });

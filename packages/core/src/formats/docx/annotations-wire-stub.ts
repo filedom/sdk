@@ -18,6 +18,14 @@ export interface AnnotationsWireStub {
   surface: AnnotationsWireSurface;
 }
 
+/** Read-only comment labels for demo shell (F20 / M5). */
+export function listAnnotationWireStubLabels(wire: AnnotationsWireStub): string[] {
+  if (!wire.comments.present) return [];
+  return wire.reviewThreads.map(
+    (thread) => `${thread.threadId} (${thread.replyCount} replies, read-only)`,
+  );
+}
+
 export function buildAnnotationsWireStubFromOpcMembers(
   members: ReadonlyMap<string, Uint8Array>,
 ): AnnotationsWireStub {

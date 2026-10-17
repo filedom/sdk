@@ -3,6 +3,9 @@ import {
   parseNumberingNumIds,
 } from "./docx-numbering-ooxml-roundtrip.js";
 
+/** Feature registry id for DOCX source-preserving store (F07). */
+export const DOCX_NUMBERING_FEATURE_REGISTRY_ID = "F07" as const;
+
 /** G2-DOCX-20: merge foreign numbering.xml into base with collision-safe ID allocation. */
 export interface ForeignNumberingMergeResult {
   numberingXml: string;

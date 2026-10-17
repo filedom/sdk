@@ -66,6 +66,13 @@ function classifyLoadedModule(mod: PdfiumModuleDefault | undefined): {
       writerExportsReady: false,
     };
   }
+  if ("__domdocPdfiumContractScaffold" in mod && mod.__domdocPdfiumContractScaffold) {
+    return {
+      loaded: true,
+      writerExportsReady: false,
+      error: "domdoc-pdfium-wasm contract scaffold (C24 writer build pending)",
+    };
+  }
   if ("c24WriterExports" in mod && mod.c24WriterExports === false) {
     return {
       loaded: true,
@@ -239,8 +246,8 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
       };
     }
 
-    this.resetScratch(ctx, original);
     try {
+      this.resetScratch(ctx, original);
       for (const op of operations) {
         const ok = this.applyOne(ctx.scratch!, op);
         if (!ok) {
@@ -260,7 +267,11 @@ export class PdfiumWasmWriterBackend implements PdfWriterBackend {
         operationsApplied: operations.length,
       };
     } catch (err) {
-      this.resetScratch(ctx, original);
+      try {
+        this.resetScratch(ctx, original);
+      } catch {
+        ctx.scratch = undefined;
+      }
       return {
         ok: false,
         code: "unmapped-text-object",

@@ -94,18 +94,25 @@ export async function collectP01P05VendorProofEvidence(options?: {
   let workerCiPath: P01P05FixtureEvidence["workerCiPath"] = "skipped";
 
   if (exerciseWorker && options?.workerScript) {
-    const minimalPdf = new TextEncoder().encode("%PDF-1.4\n%%EOF\n");
     const client = await createPdfWriterWorkerClient({
       workerScript: options.workerScript,
       workerOptions: { execArgv: ["--import", "tsx/esm"] },
     });
     const contextId = "p01-p05-ci";
+    let workerBytes = new TextEncoder().encode("%PDF-1.4\n%%EOF\n");
+    if (load.api) {
+      const doc = load.api.createDocument();
+      load.api.addPage(doc, 0);
+      load.api.addTextObject(doc, 0, "WORKER");
+      workerBytes = Uint8Array.from(load.api.save(doc));
+      load.api.close(doc);
+    }
     const checkpoint = {
       revision: 1,
-      sourceSha256: sha256(minimalPdf),
-      byteLength: minimalPdf.byteLength,
+      sourceSha256: sha256(workerBytes),
+      byteLength: workerBytes.byteLength,
     };
-    await client.preflight(contextId, minimalPdf, checkpoint);
+    await client.preflight(contextId, workerBytes, checkpoint);
     for (const fixtureId of P01_P05_FIXTURE_ORDER) {
       await client.apply(contextId, [SAMPLE_OPS[fixtureId]], SAMPLE_OPS[fixtureId].expectedRevision);
     }

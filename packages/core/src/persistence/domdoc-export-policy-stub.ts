@@ -45,6 +45,11 @@ export function describeDomdocExportPolicy(
   return DESCRIPTORS[policy];
 }
 
+/** F49 / G5: enhanced-native export path label (stub — gate not-run). */
+export function createEnhancedNativeExportStubDescriptor(): DomdocExportPolicyDescriptor {
+  return describeDomdocExportPolicy("enhanced-native-stub");
+}
+
 /** Default reopen path exercised in tests: domdoc-package manifest exportPolicy. */
 export function readDomdocExportPolicyFromManifestStub(
   manifest: DomdocPackageManifestStub,

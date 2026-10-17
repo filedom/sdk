@@ -40,6 +40,11 @@ import {
   saveProsemirrorDemoDomdocPackageStub,
 } from "../../core/dist/session/docx-prosemirror-domdoc-package-stub.js";
 import { tryLoadPdfiumLibProbeRender } from "../../core/dist/formats/pdf/pdfium-lib-probe-render-stub.js";
+import {
+  buildAnnotationsWireStubFromOpcMembers,
+  listAnnotationWireStubLabels,
+} from "../../core/dist/formats/docx/annotations-wire-stub.js";
+import { domdocReactAdapterDemoSurface } from "@domdoc/react";
 
 const sampleProjection = () => ({
   header: {
@@ -171,6 +176,29 @@ async function boot(): Promise<void> {
       }
     },
   );
+  const reactSurface = domdocReactAdapterDemoSurface("demo-sess");
+  document.body.dataset.m5ReactAdapter = reactSurface.surface;
+  document.body.dataset.m5ReactSessionId = reactSurface.sessionId;
+
+  const commentsMembers = new Map<string, Uint8Array>();
+  commentsMembers.set(
+    "word/comments.xml",
+    new TextEncoder().encode(
+      `<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:comment w:id="0" w:author="Reviewer"/><w:comment w:id="1" w:author="Author" w:parentId="0"/></w:comments>`,
+    ),
+  );
+  const annotationsWire = buildAnnotationsWireStubFromOpcMembers(commentsMembers);
+  const commentsList = document.getElementById("domdoc-comments-list");
+  if (commentsList) {
+    for (const label of listAnnotationWireStubLabels(annotationsWire)) {
+      const li = document.createElement("li");
+      li.textContent = label;
+      commentsList.appendChild(li);
+    }
+  }
+  document.body.dataset.m5CommentsWireCount = String(annotationsWire.comments.commentCount);
+  document.body.dataset.m5CommentsThreadCount = String(annotationsWire.reviewThreads.length);
+
   const trackedStore = DocxStore.open(buildReviewMinimalTrackedDocxZipBytes());
   const trackedExport = exportDocxTrackChangesFromStoreStub(trackedStore, pmSlice.session);
   document.body.dataset.m4DocxTrackChangesExportOk = trackedExport.result.trackedMarkersPreserved

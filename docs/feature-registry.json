@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-10-17-m4-gclient-toolbar-track-changes",
+  "updatedAt": "2026-10-17-m5-pdfium-scaffold-react-comments",
   "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
   "features": [
     {
@@ -60,7 +60,7 @@
       "verificationStatus": "unverified",
       "acceptanceIds": ["D", "AC"],
       "gateIds": ["G1"],
-      "limits": "G1-PDF-21 ci:build-pdfium-wasm (depot_tools, tools/pdfium-checkout gclient, emsdk, C24 gn/ninja smoke, pdfium-wasm-read-path, probe→vendor/domdoc-pdfium-wasm adapter); writerExportsReady/P01–P05 honest not-run"
+      "limits": "G1-PDF-21 packages/domdoc-pdfium-wasm C24 contract + ci emscripten gn smoke + stub emcc; probe adapter fallback; writerExportsReady/P01–P05 honest not-run"
     },
     {
       "id": "F34",

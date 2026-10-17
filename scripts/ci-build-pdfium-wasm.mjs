@@ -25,6 +25,7 @@ const PROBE_VENDOR_DIR = join(root, "vendor", "pdfium-lib-probe");
 const PDFIUM_SRC_DIR = join(root, "tools", "pdfium-src");
 const PDFIUM_GCLIENT_ROOT = join(root, "tools", "pdfium-checkout");
 const DOMDOC_PDFIUM_VENDOR = join(root, "vendor", "domdoc-pdfium-wasm");
+const DOMDOC_PDFIUM_PKG = join(root, "packages", "domdoc-pdfium-wasm");
 
 /** Upstream prebuilt WASM (pdfium-render docs) — not C24 domdoc writer exports. */
 const PDFIUM_LIB_RELEASE_API =
@@ -289,6 +290,86 @@ function describeDomdocPdfiumWasmLayoutExpectation() {
   };
 }
 
+function copyDomdocPdfiumPkgDistToVendor(record) {
+  const dist = join(DOMDOC_PDFIUM_PKG, "dist");
+  if (!existsSync(join(dist, "index.mjs"))) {
+    return { ok: false, reason: "package-dist-missing" };
+  }
+  mkdirSync(DOMDOC_PDFIUM_VENDOR, { recursive: true });
+  const files = listFilesRecursive(dist);
+  for (const rel of files) {
+    const src = join(dist, rel);
+    const dest = join(DOMDOC_PDFIUM_VENDOR, rel);
+    mkdirSync(dirname(dest), { recursive: true });
+    copyFileSync(src, dest);
+  }
+  return {
+    ok: true,
+    vendorDir: DOMDOC_PDFIUM_VENDOR,
+    filesCopied: files.length,
+    writerExports: false,
+    note: "contract-scaffold-only",
+    ...record,
+  };
+}
+
+function attemptDomdocPdfiumWasmPackageBuild(emscripten) {
+  const result = {
+    packageDir: DOMDOC_PDFIUM_PKG,
+    manifestAttempted: false,
+    stubWasmAttempted: false,
+    stubWasmExitCode: null,
+    vendorCopy: null,
+    status: "not-started",
+    detail: null,
+  };
+  if (!existsSync(DOMDOC_PDFIUM_PKG)) {
+    result.status = "package-missing";
+    return result;
+  }
+  result.manifestAttempted = true;
+  const manifest = spawnSync("node", [join(DOMDOC_PDFIUM_PKG, "scripts", "build-manifest.mjs")], {
+    encoding: "utf8",
+    cwd: DOMDOC_PDFIUM_PKG,
+  });
+  if (manifest.status !== 0) {
+    result.status = "manifest-failed";
+    result.detail = (manifest.stderr ?? manifest.stdout ?? "").slice(-800);
+    return result;
+  }
+  const stubScript = join(DOMDOC_PDFIUM_PKG, "scripts", "build-stub-wasm.sh");
+  if (emscripten.emccInPath && existsSync(stubScript)) {
+    result.stubWasmAttempted = true;
+    const stub = spawnSync("bash", [stubScript], {
+      encoding: "utf8",
+      cwd: DOMDOC_PDFIUM_PKG,
+      timeout: 120_000,
+    });
+    result.stubWasmExitCode = stub.status;
+    if (stub.status === 2) {
+      result.detail = "emcc missing at stub script runtime";
+    } else if (stub.status !== 0) {
+      result.detail = (stub.stderr ?? stub.stdout ?? "").slice(-800);
+    }
+  }
+  if (process.env.PDFIUM_WASM_CI_VENDOR_CONTRACT !== "0") {
+    result.vendorCopy = copyDomdocPdfiumPkgDistToVendor({
+      stubWasmBuilt: result.stubWasmExitCode === 0,
+    });
+  }
+  result.status =
+    result.stubWasmExitCode === 0
+      ? "contract-stub-wasm-built"
+      : result.manifestAttempted
+        ? "contract-manifest-only"
+        : "failed";
+  if (!result.detail) {
+    result.detail =
+      "domdoc-pdfium-wasm in-repo scaffold; c24WriterExports=false until production link";
+  }
+  return result;
+}
+
 function findPdfiumTreeRoot(baseDir) {
   const direct = join(baseDir, "pdfium");
   if (existsSync(join(direct, "BUILD.gn"))) return direct;
@@ -315,6 +396,8 @@ function attemptPdfiumC24GclientCheckout(depotTools, emscripten) {
     depsPresent: false,
     gnGenAttempted: false,
     ninjaAttempted: false,
+    emscriptenGnGenAttempted: false,
+    emscriptenNinjaAttempted: false,
     emscriptenGnHints: [],
     status: "not-started",
     detail: null,
@@ -444,8 +527,57 @@ function attemptPdfiumC24GclientCheckout(depotTools, emscripten) {
 
   const ninjaOk =
     ninja.status === 0 && !/ninja: error:/i.test(ninjaTail) && !/fatal:/i.test(ninjaTail);
-  result.status = ninjaOk ? "gclient-gn-ninja-dry-run-ok" : "gclient-gn-ok-ninja-dry-run-blocked";
-  result.detail = `gclient exit ${sync.status}; pin ${result.checkoutPin}; gn exit ${gnGen.status}; ninja -n exit ${ninja.status}; ${ninjaTail || gnTail}; domdoc-pdfium-wasm emscripten target not wired in-tree`;
+
+  result.emscriptenGnGenAttempted = true;
+  const wasmOutDir = join(pdfiumTree, "out", "wasm");
+  const wasmGnLog = join(pdfiumTree, "out", "domdoc-wasm-gn-smoke.log");
+  const wasmGn = spawnSync(
+    "bash",
+    [
+      "-lc",
+      `${emscriptenShellPrefix()}cd "${pdfiumTree}" && gn gen "${wasmOutDir}" --args='target_os="wasm" target_cpu="wasm" is_debug=false is_component_build=false pdf_is_complete=true use_custom_libcxx=false v8_enable_sandbox=false' >"${wasmGnLog}" 2>&1; echo $?`,
+    ],
+    { encoding: "utf8", timeout: 180_000 },
+  );
+  const wasmGnExit = Number((wasmGn.stdout ?? "").trim()) || wasmGn.status || 1;
+  const wasmGnTail = existsSync(wasmGnLog)
+    ? readFileSync(wasmGnLog, "utf8").trim().slice(-1200)
+    : (wasmGn.stderr ?? "").trim();
+  result.emscriptenNinjaAttempted = true;
+  const wasmBuildNinja = join(wasmOutDir, "build.ninja");
+  let wasmNinjaTail = "";
+  let wasmNinjaExit = null;
+  if (existsSync(wasmBuildNinja)) {
+    const wasmNinja = spawnSync(
+      "bash",
+      [
+        "-lc",
+        `${emscriptenShellPrefix()}cd "${pdfiumTree}" && ninja -C "${wasmOutDir}" -n pdfium 2>&1 | tail -8`,
+      ],
+      { encoding: "utf8", timeout: 120_000,
+      },
+    );
+    wasmNinjaExit = wasmNinja.status;
+    wasmNinjaTail = (wasmNinja.stdout ?? wasmNinja.stderr ?? "").trim();
+  }
+  result.emscriptenGnWasmBuildNinja = existsSync(wasmBuildNinja);
+  result.emscriptenGnWasmGenExit = wasmGnExit;
+  result.emscriptenGnWasmNinjaExit = wasmNinjaExit;
+  result.emscriptenGnWasmTail = wasmGnTail || wasmNinjaTail || null;
+
+  const wasmGnOk = wasmGnExit === 0 && existsSync(wasmBuildNinja);
+  const wasmNinjaOk =
+    wasmNinjaExit === null ||
+    (wasmNinjaExit === 0 &&
+      !/ninja: error:/i.test(wasmNinjaTail) &&
+      !/fatal:/i.test(wasmNinjaTail));
+
+  result.status = ninjaOk
+    ? wasmGnOk && wasmNinjaOk
+      ? "gclient-gn-ninja-dry-run-ok-emscripten-gn-ok"
+      : "gclient-gn-ninja-dry-run-ok"
+    : "gclient-gn-ok-ninja-dry-run-blocked";
+  result.detail = `gclient exit ${sync.status}; pin ${result.checkoutPin}; gn exit ${gnGen.status}; ninja -n exit ${ninja.status}; wasm gn exit ${wasmGnExit}; wasm build.ninja=${existsSync(wasmBuildNinja)}; wasm ninja -n exit ${wasmNinjaExit ?? "skipped"}; ${(wasmGnTail || wasmNinjaTail || ninjaTail || gnTail).slice(-400)}; domdoc-pdfium-wasm emscripten writer target not wired in-tree`;
   return result;
 }
 
@@ -653,6 +785,7 @@ if (existsSync(buildRecordPath)) {
 const probeFetch = await probePdfiumLibRelease();
 const pdfiumGclientCheckout = attemptPdfiumC24GclientCheckout(depotTools, emscripten);
 const pdfiumSourceAttempt = attemptPdfiumC24SourceBuild(emscripten, depotTools);
+const domdocPdfiumPackageBuild = attemptDomdocPdfiumWasmPackageBuild(emscripten);
 const domdocLayout = describeDomdocPdfiumWasmLayoutExpectation();
 
 writeFileSync(
@@ -692,11 +825,13 @@ const record = {
   upstreamProbe: probeFetch,
   pdfiumC24GclientCheckout: pdfiumGclientCheckout,
   pdfiumC24SourceAttempt: pdfiumSourceAttempt,
+  domdocPdfiumPackageBuild,
   domdocPdfiumWasmLayout: domdocLayout,
   ciSteps: [
     "Install tools/depot_tools (gitignored) + tools/emsdk; PATH includes depot_tools",
     "Optional PDFIUM_WASM_CI_PROBE_FETCH=1 vendors pdfium-lib probe + domdoc-pdfium-wasm probe adapter",
     "gclient full checkout under tools/pdfium-checkout (see pdfium-c24-gclient-checkout-attempt.json)",
+    "packages/domdoc-pdfium-wasm contract scaffold (stub emcc + vendor copy when PDFIUM_WASM_CI_VENDOR_CONTRACT≠0)",
     "Clone domdoc-pdfium-wasm at C24 pin; run build-wasm.sh",
     "Copy dist to vendor/domdoc-pdfium-wasm or set PDFIUM_WASM_ARTIFACT_DIR",
     "pnpm fetch:pdfium-wasm && PDFIUM_WASM_CI_WORKER=1 pnpm proof:p01-p05",
@@ -728,4 +863,7 @@ if (pdfiumGclientCheckout.status) {
 }
 if (pdfiumSourceAttempt.status) {
   console.log(`[ci-build-pdfium-wasm] pdfium C24 source: ${pdfiumSourceAttempt.status}`);
+}
+if (domdocPdfiumPackageBuild.status) {
+  console.log(`[ci-build-pdfium-wasm] domdoc-pdfium-wasm pkg: ${domdocPdfiumPackageBuild.status}`);
 }

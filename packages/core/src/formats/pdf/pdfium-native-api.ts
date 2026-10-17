@@ -65,9 +65,11 @@ export type PdfiumModuleDefault = ((() => Promise<DomdocPdfiumApi>) & {
   c24WriterExports?: boolean;
   __domdocNonProductionPdfiumStub?: boolean;
   __domdocPdfiumLibProbeAdapter?: boolean;
+  __domdocPdfiumContractScaffold?: boolean;
   pdfiumSourceCommit?: string;
 }) | {
   c24WriterExports?: boolean;
   __domdocNonProductionPdfiumStub?: boolean;
   __domdocPdfiumLibProbeAdapter?: boolean;
+  __domdocPdfiumContractScaffold?: boolean;
 };
