@@ -1,0 +1,11 @@
+{
+  "gateId": "G1",
+  "scope": "feasibility",
+  "status": "not-run",
+  "requiredFixtureIds": ["P01", "P02", "P03", "P04", "P05", "P11", "P12"],
+  "wasmCommit": null,
+  "webCommit": null,
+  "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
+  "limitations": "PDF writer contract and stub backend only; PDFium WASM writer not pinned",
+  "evidencePaths": []
+}

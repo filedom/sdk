@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-17",
+  "contractHash": "d37ee9aabf1f9468851ed78961716531ed86d616faf80232f1db31998eb9b2a3",
+  "features": [
+    {
+      "id": "F01",
+      "description": "Open local documents",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["A"],
+      "gateIds": []
+    },
+    {
+      "id": "F29",
+      "description": "Native PDF text editing",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["D", "AC"],
+      "gateIds": ["G1"],
+      "limits": "Writer contract only; PDFium WASM not pinned — native replace unsupported"
+    },
+    {
+      "id": "F07",
+      "description": "DOCX source-preserving store",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["W", "AD"],
+      "gateIds": ["G2"],
+      "limits": "Minimal document.xml slice; no ProseMirror projection yet"
+    },
+    {
+      "id": "F12",
+      "description": "Canvas/page input region",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["O", "AE"],
+      "gateIds": ["G3"],
+      "limits": "Geometry hook only; no browser IME proof"
+    },
+    {
+      "id": "F13",
+      "description": "Rust flow layout",
+      "milestone": "M0",
+      "implementationStatus": "partial",
+      "verificationStatus": "unverified",
+      "acceptanceIds": ["V"],
+      "gateIds": ["G2"],
+      "limits": "Word-wrap stub; Parley not pinned"
+    }
+  ]
+}

@@ -21,6 +21,9 @@
     "build": "pnpm run generate:wire-types && tsc -p tsconfig.json",
     "test": "vitest run"
   },
+  "dependencies": {
+    "fflate": "^0.8.2"
+  },
   "devDependencies": {
     "@types/node": "^22.10.2",
     "domdoc-wasm": "file:../../../domdoc-wasm/pkg-node",
