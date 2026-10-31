@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/ui",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "description": "Copy-in UI kit for the domdoc viewer: theme, per-framework components, and the domdoc CLI",
   "type": "module",

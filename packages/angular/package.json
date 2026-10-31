@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/angular",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "description": "domdoc Angular directive and mount helper wrapping @domdoc/core",
   "type": "module",

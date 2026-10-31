@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5 — 31 Oct 2026
+
+The SDK docs count visits with Google Analytics.
+
 ## 0.0.4 — 31 Oct 2026
 
 The version moved to 0.0.4 to match the other repos.

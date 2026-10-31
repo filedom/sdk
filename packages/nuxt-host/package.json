@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/nuxt-host",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "description": "domdoc Nuxt client-only component wrapping @domdoc/core",
   "type": "module",
