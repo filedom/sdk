@@ -8,7 +8,7 @@ import { detectFormat } from "./formats.js";
  * Track changes is a separate module: it edits the original file and is
  * loaded only when the host sets it.
  */
-/** Formats `CoreLoader` can open. PDF uses PDFium. Each Office type loads its own module when `formatModules` is set. */
+/** Formats `CoreLoader` can open. Each Office type loads its own module when `formatModules` is set. */
 export type EngineFormat = "pdf" | "doc" | "docx" | "xls" | "xlsx" | "ppt" | "pptx";
 
 export interface HostEngineConfig {
@@ -75,9 +75,7 @@ export interface EngineSources {
    * start. Those engines then download together.
    */
   core: () => Promise<unknown>;
-  /** PDFium WebAssembly. Fetched only when a PDF is opened or preloaded. */
-  pdfiumWasm: string;
-  /** `pdfium-render` wrapper. Its download starts with `pdfiumWasm`, not after it. */
+  /** PDF bundle, loaded only when a PDF is opened. */
   pdfiumRender: () => Promise<EngineModule>;
   /** `office_oxide`. Used when `formatModules` does not list that format. */
   officeOxide: () => Promise<EngineModule>;
@@ -142,8 +140,7 @@ export function enginesFromCdn(base: string): EngineSources {
   }
   return {
     core: async () => ({}),
-    pdfiumWasm: `${root}/pdf/pdfium.wasm`,
-    pdfiumRender: pdfEngine(bundleUrl(root, "pdf"), `${root}/pdf/pdfium.wasm`),
+    pdfiumRender: pdfEngine(bundleUrl(root, "pdf")),
     officeOxide: formatModules.docx!,
     formatModules,
     trackChanges: () => import("./engines/track.js"),
@@ -156,8 +153,6 @@ export function enginesFromCdn(base: string): EngineSources {
  */
 export class CoreLoader {
   private coreReady?: Promise<unknown>;
-  private pdfiumBinary?: Promise<ArrayBuffer>;
-  private pdfiumModule?: Promise<EngineModule>;
   private pdfReady?: Promise<EngineModule>;
   private readonly moduleReady = new Map<string, Promise<EngineModule>>();
   private trackReady?: Promise<TrackChangesModule>;
@@ -198,7 +193,7 @@ export class CoreLoader {
   requested(): string[] {
     const ids: string[] = [];
     if (this.coreReady) ids.push("core");
-    if (this.pdfiumBinary || this.pdfReady) ids.push("pdfium", "pdfium-render");
+    if (this.pdfReady) ids.push("pdfium", "pdfium-render");
     if (this.moduleReady.has("office")) ids.push("office-oxide");
     for (const key of this.moduleReady.keys()) {
       if (key !== "office") ids.push(key);
@@ -212,18 +207,12 @@ export class CoreLoader {
     return this.coreReady;
   }
 
-  /** Starts the PDFium binary and the wrapper in the same turn. Init waits for both. */
+  /** Starts the pdf bundle. The renderer is inside that wasm, so this does not fetch a second URL. */
   private startPdf(): void {
     if (this.pdfReady) return;
-    this.pdfiumBinary ??= fetch(this.sources.pdfiumWasm).then(async (response) => {
-      if (!response.ok) throw new DomdocError("bundle-missing", `pdfium: ${response.status}`);
-      return response.arrayBuffer();
-    });
-    this.pdfiumModule ??= this.sources.pdfiumRender();
-    const binary = this.pdfiumBinary;
-    const wrapper = this.pdfiumModule;
-    this.pdfReady = Promise.all([binary, wrapper]).then(async ([wasmBinary, module]) => {
-      await module.default({ wasmBinary });
+    const load = this.sources.pdfiumRender;
+    this.pdfReady = load().then(async (module) => {
+      await module.default();
       return module;
     });
   }
@@ -267,26 +256,24 @@ export function loadingLabel(format: EngineFormat): string {
 }
 
 /**
- * The engines shipped with the SDK. `pdfiumWasm` is the URL of the PDFium
- * module; the host passes a file URL in Node and a bundled asset in the browser.
+ * The engines shipped with the SDK. A PDF open uses only the pdf wasm.
  * The core import resolves immediately because the viewer shell is already running.
  */
-export function bundledEngines(pdfiumWasm: string): EngineSources {
+export function bundledEngines(): EngineSources {
   return {
     core: async () => ({}),
-    pdfiumWasm,
     pdfiumRender: () => import("./engines/domdoc-pdf.js"),
     officeOxide: () => import("./engines/domdoc-office.js"),
     trackChanges: () => import("./engines/track.js"),
   };
 }
 
-/** Core loader with PDFium, office_oxide and track changes wired to the installed packages. */
-export function createEngineLoader(pdfiumWasm: string, host: HostEngineConfig = ALL_ENGINES): CoreLoader {
-  return new CoreLoader(host, bundledEngines(pdfiumWasm));
+/** Core loader with the pdf bundle, office_oxide and track changes wired to the installed packages. */
+export function createEngineLoader(host: HostEngineConfig = ALL_ENGINES): CoreLoader {
+  return new CoreLoader(host, bundledEngines());
 }
 
-/** True when the plan is the shared Word engine rather than PDFium. */
+/** True when the plan is the shared Word engine rather than the PDF engine. */
 export function usesOfficeOxide(plan: LoadPlan): boolean {
   return plan.modules.some((module) => WORD.has(module.id));
 }

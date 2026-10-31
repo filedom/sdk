@@ -1,14 +1,13 @@
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
-import { createRequire } from "node:module";
-import { describe, expect, it } from "vitest";
+import { Window } from "happy-dom";
+import { describe, expect, it, vi } from "vitest";
+import { createViewerStore } from "./headless.js";
 import { createEngineLoader } from "./modules.js";
 import { openDocument } from "./open.js";
 import { storeZip } from "./engines/package-file.js";
+import { DomdocViewer } from "./viewer.js";
 
-const require = createRequire(import.meta.url);
-const wasmBytes = readFileSync(require.resolve("@embedpdf/pdfium/pdfium.wasm"));
-const pdfiumWasm = `data:application/wasm;base64,${wasmBytes.toString("base64")}`;
 const fixtures = new URL("../../../../domdoc-wasm/fixtures/", import.meta.url);
 const text = new TextEncoder();
 
@@ -154,7 +153,7 @@ function pdfPlainText(bytes: Uint8Array): string {
 }
 
 async function open(bytes: Uint8Array, name: string) {
-  const doc = await openDocument({} as never, bytes, { name, core: createEngineLoader(pdfiumWasm) });
+  const doc = await openDocument({} as never, bytes, { name, core: createEngineLoader() });
   doc.attach("edit");
   return doc;
 }
@@ -637,4 +636,62 @@ describe("pdfium and office_oxide", () => {
     expect(ppt.page(0).runs.some((run) => run.text.trim().length > 0)).toBe(true);
     ppt.dispose();
   }, 30_000);
+});
+
+describe("headless store on a real engine", () => {
+  it("zooms a PDF through the store and reports an action PDF cannot do as unsupported", async () => {
+    // The rest of this file runs under node; only the viewer needs a DOM.
+    const window = new Window();
+    const scope = window as unknown as Record<string, unknown>;
+    vi.stubGlobal("window", window);
+    for (const key of Object.getOwnPropertyNames(window)) {
+      if (key in globalThis) continue;
+      const value = scope[key];
+      vi.stubGlobal(key, typeof value === "function" && /^[a-z]/.test(key) ? value.bind(window) : value);
+    }
+    try {
+      const root = window.document.createElement("div");
+      window.document.body.append(root);
+      const viewer = new DomdocViewer(root as unknown as HTMLElement, {
+        bundles: {},
+        core: createEngineLoader(),
+        toolbar: false,
+      });
+      const store = createViewerStore(viewer);
+      const statuses: string[] = [];
+      store.subscribe(() => statuses.push(store.getSnapshot().status));
+
+      await viewer.open(new Uint8Array(readFileSync(new URL("sample.pdf", fixtures))), { name: "sample.pdf" });
+      expect(statuses[0]).toBe("loading");
+      const opened = store.getSnapshot();
+      expect(opened.status).toBe("ready");
+      expect(opened.document).toMatchObject({ name: "sample.pdf", format: "pdf" });
+      expect(opened.document!.pageCount).toBeGreaterThan(0);
+      expect(opened.document!.capabilities).toEqual(viewer.document!.info().capabilities);
+
+      const before = viewer.getZoom();
+      expect(store.run("zoomIn")).toEqual({ status: "applied" });
+      expect(viewer.getZoom()).toBeGreaterThan(before);
+      expect(store.getSnapshot().zoom).toBe(viewer.getZoom());
+
+      const hits = store.viewer.search("Line two");
+      expect(store.getSnapshot().search).toEqual({ query: "Line two", hitCount: hits.length, hitIndex: hits.length ? 0 : -1 });
+
+      const line = viewer.document!.page(0).runs.find((run) => run.text.includes("Line two"))!;
+      await viewer.selectAsync({ unit: line.unit, offset: 0 }, { unit: line.unit, offset: 4 });
+      expect(store.getSnapshot().selection?.text).toBe("Line");
+      expect(viewer.document!.info().capabilities.formatParagraph).toBe(false);
+      const errors: unknown[] = [];
+      viewer.on("error", (event) => errors.push(event));
+      const result = store.run("alignCenter");
+      expect(result).toEqual({ status: "unsupported", detail: "Align center is not supported for PDF documents" });
+      expect(errors).toEqual([]);
+
+      store.destroy();
+      viewer.destroy();
+    } finally {
+      vi.unstubAllGlobals();
+      await window.happyDOM.close();
+    }
+  }, 60_000);
 });

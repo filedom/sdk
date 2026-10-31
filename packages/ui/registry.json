@@ -1,0 +1,354 @@
+{
+  "$schema": "./schema/registry.schema.json",
+  "name": "domdoc",
+  "items": [
+    {
+      "name": "cn",
+      "type": "lib",
+      "description": "Class name helper: clsx plus tailwind-merge",
+      "files": {
+        "react": [{ "path": "registry/react/lib/cn.ts", "target": "cn.ts" }],
+        "preact": [{ "path": "registry/preact/lib/cn.ts", "target": "cn.ts" }],
+        "vue": [{ "path": "registry/vue/lib/cn.ts", "target": "cn.ts" }],
+        "svelte": [{ "path": "registry/svelte/lib/cn.ts", "target": "cn.ts" }],
+        "angular": [{ "path": "registry/angular/lib/cn.ts", "target": "cn.ts" }],
+        "solid": [{ "path": "registry/solid/lib/cn.ts", "target": "cn.ts" }],
+        "lit": [{ "path": "registry/lit/lib/cn.ts", "target": "cn.ts" }],
+        "astro": [{ "path": "registry/astro/lib/cn.ts", "target": "cn.ts" }]
+      },
+      "dependencies": {
+        "react": ["clsx", "tailwind-merge"],
+        "preact": ["clsx", "tailwind-merge"],
+        "vue": ["clsx", "tailwind-merge"],
+        "svelte": ["clsx", "tailwind-merge"],
+        "angular": ["clsx", "tailwind-merge"],
+        "solid": ["clsx", "tailwind-merge"],
+        "lit": ["clsx", "tailwind-merge"],
+        "astro": ["clsx", "tailwind-merge"]
+      }
+    },
+    {
+      "name": "button",
+      "type": "primitive",
+      "description": "Button with default, outline, ghost, and icon variants",
+      "slots": ["button"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/button.tsx", "target": "button.tsx" }],
+        "preact": [{ "path": "registry/preact/button.tsx", "target": "button.tsx" }],
+        "vue": [{ "path": "registry/vue/Button.vue", "target": "Button.vue" }],
+        "svelte": [{ "path": "registry/svelte/Button.svelte", "target": "Button.svelte" }],
+        "angular": [{ "path": "registry/angular/button.ts", "target": "button.ts" }],
+        "solid": [{ "path": "registry/solid/button.tsx", "target": "button.tsx" }],
+        "lit": [{ "path": "registry/lit/button.ts", "target": "button.ts" }],
+        "astro": [{ "path": "registry/astro/Button.astro", "target": "Button.astro" }]
+      }
+    },
+    {
+      "name": "select",
+      "type": "primitive",
+      "description": "Native select styled with the theme",
+      "slots": ["select"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/select.tsx", "target": "select.tsx" }],
+        "preact": [{ "path": "registry/preact/select.tsx", "target": "select.tsx" }],
+        "vue": [{ "path": "registry/vue/Select.vue", "target": "Select.vue" }],
+        "svelte": [{ "path": "registry/svelte/Select.svelte", "target": "Select.svelte" }],
+        "angular": [{ "path": "registry/angular/select.ts", "target": "select.ts" }],
+        "solid": [{ "path": "registry/solid/select.tsx", "target": "select.tsx" }],
+        "lit": [{ "path": "registry/lit/select.ts", "target": "select.ts" }],
+        "astro": [{ "path": "registry/astro/Select.astro", "target": "Select.astro" }]
+      }
+    },
+    {
+      "name": "input",
+      "type": "primitive",
+      "description": "Text input styled with the theme",
+      "slots": ["input"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/input.tsx", "target": "input.tsx" }],
+        "preact": [{ "path": "registry/preact/input.tsx", "target": "input.tsx" }],
+        "vue": [{ "path": "registry/vue/Input.vue", "target": "Input.vue" }],
+        "svelte": [{ "path": "registry/svelte/Input.svelte", "target": "Input.svelte" }],
+        "angular": [{ "path": "registry/angular/input.ts", "target": "input.ts" }],
+        "solid": [{ "path": "registry/solid/input.tsx", "target": "input.tsx" }],
+        "lit": [{ "path": "registry/lit/input.ts", "target": "input.ts" }],
+        "astro": [{ "path": "registry/astro/Input.astro", "target": "Input.astro" }]
+      }
+    },
+    {
+      "name": "separator",
+      "type": "primitive",
+      "description": "Hairline divider, horizontal or vertical",
+      "slots": ["separator"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/separator.tsx", "target": "separator.tsx" }],
+        "preact": [{ "path": "registry/preact/separator.tsx", "target": "separator.tsx" }],
+        "vue": [{ "path": "registry/vue/Separator.vue", "target": "Separator.vue" }],
+        "svelte": [{ "path": "registry/svelte/Separator.svelte", "target": "Separator.svelte" }],
+        "angular": [{ "path": "registry/angular/separator.ts", "target": "separator.ts" }],
+        "solid": [{ "path": "registry/solid/separator.tsx", "target": "separator.tsx" }],
+        "lit": [{ "path": "registry/lit/separator.ts", "target": "separator.ts" }],
+        "astro": [{ "path": "registry/astro/Separator.astro", "target": "Separator.astro" }]
+      }
+    },
+    {
+      "name": "tooltip",
+      "type": "primitive",
+      "description": "Hover and focus label for icon buttons",
+      "slots": ["tooltip"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/tooltip.tsx", "target": "tooltip.tsx" }],
+        "preact": [{ "path": "registry/preact/tooltip.tsx", "target": "tooltip.tsx" }],
+        "vue": [{ "path": "registry/vue/Tooltip.vue", "target": "Tooltip.vue" }],
+        "svelte": [{ "path": "registry/svelte/Tooltip.svelte", "target": "Tooltip.svelte" }],
+        "angular": [{ "path": "registry/angular/tooltip.ts", "target": "tooltip.ts" }],
+        "solid": [{ "path": "registry/solid/tooltip.tsx", "target": "tooltip.tsx" }],
+        "lit": [{ "path": "registry/lit/tooltip.ts", "target": "tooltip.ts" }],
+        "astro": [{ "path": "registry/astro/Tooltip.astro", "target": "Tooltip.astro" }]
+      }
+    },
+    {
+      "name": "toggle-group",
+      "type": "primitive",
+      "description": "Group of pressed-state buttons",
+      "slots": ["toggle-group", "toggle-group-item"],
+      "registryDependencies": ["cn"],
+      "files": {
+        "react": [{ "path": "registry/react/toggle-group.tsx", "target": "toggle-group.tsx" }],
+        "preact": [{ "path": "registry/preact/toggle-group.tsx", "target": "toggle-group.tsx" }],
+        "vue": [{ "path": "registry/vue/ToggleGroup.vue", "target": "ToggleGroup.vue" }],
+        "svelte": [{ "path": "registry/svelte/ToggleGroup.svelte", "target": "ToggleGroup.svelte" }],
+        "angular": [{ "path": "registry/angular/toggle-group.ts", "target": "toggle-group.ts" }],
+        "solid": [{ "path": "registry/solid/toggle-group.tsx", "target": "toggle-group.tsx" }],
+        "lit": [{ "path": "registry/lit/toggle-group.ts", "target": "toggle-group.ts" }],
+        "astro": [{ "path": "registry/astro/ToggleGroup.astro", "target": "ToggleGroup.astro" }]
+      }
+    },
+    {
+      "name": "domdoc-provider",
+      "type": "block",
+      "description": "Creates the headless store for a viewer and shares it with the blocks",
+      "files": {
+        "react": [{ "path": "registry/react/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
+        "preact": [{ "path": "registry/preact/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
+        "vue": [{ "path": "registry/vue/DomdocProvider.vue", "target": "DomdocProvider.vue" }],
+        "svelte": [{ "path": "registry/svelte/DomdocProvider.svelte", "target": "DomdocProvider.svelte" }],
+        "angular": [{ "path": "registry/angular/domdoc-provider.ts", "target": "domdoc-provider.ts" }],
+        "solid": [{ "path": "registry/solid/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
+        "lit": [{ "path": "registry/lit/domdoc-provider.ts", "target": "domdoc-provider.ts" }],
+        "astro": [{ "path": "registry/astro/DomdocProvider.astro", "target": "DomdocProvider.astro" }]
+      },
+      "dependencies": {
+        "react": ["@domdoc/core", "@domdoc/react"],
+        "preact": ["@domdoc/core", "@domdoc/preact"],
+        "vue": ["@domdoc/core", "@domdoc/vue"],
+        "svelte": ["@domdoc/core", "@domdoc/svelte"],
+        "angular": ["@domdoc/core", "@domdoc/angular"],
+        "solid": ["@domdoc/core", "@domdoc/solid"],
+        "lit": ["@domdoc/core", "@domdoc/lit"],
+        "astro": ["@domdoc/core", "@domdoc/astro-host"]
+      }
+    },
+    {
+      "name": "viewer-shell",
+      "type": "block",
+      "description": "Layout around the viewer canvas, with the empty state, dropzone, and open-sample button",
+      "slots": ["viewer-shell", "viewer-canvas", "empty-state", "dropzone", "open-sample"],
+      "registryDependencies": ["button", "cn", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/viewer-shell.tsx", "target": "viewer-shell.tsx" }],
+        "preact": [{ "path": "registry/preact/viewer-shell.tsx", "target": "viewer-shell.tsx" }],
+        "vue": [{ "path": "registry/vue/ViewerShell.vue", "target": "ViewerShell.vue" }],
+        "svelte": [{ "path": "registry/svelte/ViewerShell.svelte", "target": "ViewerShell.svelte" }],
+        "angular": [{ "path": "registry/angular/viewer-shell.ts", "target": "viewer-shell.ts" }],
+        "solid": [{ "path": "registry/solid/viewer-shell.tsx", "target": "viewer-shell.tsx" }],
+        "lit": [{ "path": "registry/lit/viewer-shell.ts", "target": "viewer-shell.ts" }],
+        "astro": [{ "path": "registry/astro/ViewerShell.astro", "target": "ViewerShell.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "toolbar",
+      "type": "block",
+      "description": "40px toolbar: undo, redo, file, zoom, search, mode, theme, and page status",
+      "slots": ["toolbar", "undo", "redo"],
+      "registryDependencies": ["button", "separator", "tooltip", "domdoc-provider", "zoom-controls", "search-bar", "mode-select", "theme-toggle", "file-button", "page-status"],
+      "files": {
+        "react": [{ "path": "registry/react/toolbar.tsx", "target": "toolbar.tsx" }],
+        "preact": [{ "path": "registry/preact/toolbar.tsx", "target": "toolbar.tsx" }],
+        "vue": [{ "path": "registry/vue/Toolbar.vue", "target": "Toolbar.vue" }],
+        "svelte": [{ "path": "registry/svelte/Toolbar.svelte", "target": "Toolbar.svelte" }],
+        "angular": [{ "path": "registry/angular/toolbar.ts", "target": "toolbar.ts" }],
+        "solid": [{ "path": "registry/solid/toolbar.tsx", "target": "toolbar.tsx" }],
+        "lit": [{ "path": "registry/lit/toolbar.ts", "target": "toolbar.ts" }],
+        "astro": [{ "path": "registry/astro/Toolbar.astro", "target": "Toolbar.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "zoom-controls",
+      "type": "block",
+      "description": "Zoom out, zoom label, zoom in, fit width, fit page",
+      "slots": ["zoom-controls", "zoom-out", "zoom-label", "zoom-in", "fit-width", "fit-page"],
+      "registryDependencies": ["button", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/zoom-controls.tsx", "target": "zoom-controls.tsx" }],
+        "preact": [{ "path": "registry/preact/zoom-controls.tsx", "target": "zoom-controls.tsx" }],
+        "vue": [{ "path": "registry/vue/ZoomControls.vue", "target": "ZoomControls.vue" }],
+        "svelte": [{ "path": "registry/svelte/ZoomControls.svelte", "target": "ZoomControls.svelte" }],
+        "angular": [{ "path": "registry/angular/zoom-controls.ts", "target": "zoom-controls.ts" }],
+        "solid": [{ "path": "registry/solid/zoom-controls.tsx", "target": "zoom-controls.tsx" }],
+        "lit": [{ "path": "registry/lit/zoom-controls.ts", "target": "zoom-controls.ts" }],
+        "astro": [{ "path": "registry/astro/ZoomControls.astro", "target": "ZoomControls.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "search-bar",
+      "type": "block",
+      "description": "Search input with previous, next, and hit count",
+      "slots": ["search-bar", "search-input", "search-prev", "search-next", "search-count"],
+      "registryDependencies": ["button", "input", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/search-bar.tsx", "target": "search-bar.tsx" }],
+        "preact": [{ "path": "registry/preact/search-bar.tsx", "target": "search-bar.tsx" }],
+        "vue": [{ "path": "registry/vue/SearchBar.vue", "target": "SearchBar.vue" }],
+        "svelte": [{ "path": "registry/svelte/SearchBar.svelte", "target": "SearchBar.svelte" }],
+        "angular": [{ "path": "registry/angular/search-bar.ts", "target": "search-bar.ts" }],
+        "solid": [{ "path": "registry/solid/search-bar.tsx", "target": "search-bar.tsx" }],
+        "lit": [{ "path": "registry/lit/search-bar.ts", "target": "search-bar.ts" }],
+        "astro": [{ "path": "registry/astro/SearchBar.astro", "target": "SearchBar.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "mode-select",
+      "type": "block",
+      "description": "View mode select: live, track, view",
+      "slots": ["mode-select"],
+      "registryDependencies": ["select", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/mode-select.tsx", "target": "mode-select.tsx" }],
+        "preact": [{ "path": "registry/preact/mode-select.tsx", "target": "mode-select.tsx" }],
+        "vue": [{ "path": "registry/vue/ModeSelect.vue", "target": "ModeSelect.vue" }],
+        "svelte": [{ "path": "registry/svelte/ModeSelect.svelte", "target": "ModeSelect.svelte" }],
+        "angular": [{ "path": "registry/angular/mode-select.ts", "target": "mode-select.ts" }],
+        "solid": [{ "path": "registry/solid/mode-select.tsx", "target": "mode-select.tsx" }],
+        "lit": [{ "path": "registry/lit/mode-select.ts", "target": "mode-select.ts" }],
+        "astro": [{ "path": "registry/astro/ModeSelect.astro", "target": "ModeSelect.astro" }]
+      }
+    },
+    {
+      "name": "theme-toggle",
+      "type": "block",
+      "description": "Switches light and dark on the page and the viewer",
+      "slots": ["theme-toggle"],
+      "registryDependencies": ["button", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/theme-toggle.tsx", "target": "theme-toggle.tsx" }],
+        "preact": [{ "path": "registry/preact/theme-toggle.tsx", "target": "theme-toggle.tsx" }],
+        "vue": [{ "path": "registry/vue/ThemeToggle.vue", "target": "ThemeToggle.vue" }],
+        "svelte": [{ "path": "registry/svelte/ThemeToggle.svelte", "target": "ThemeToggle.svelte" }],
+        "angular": [{ "path": "registry/angular/theme-toggle.ts", "target": "theme-toggle.ts" }],
+        "solid": [{ "path": "registry/solid/theme-toggle.tsx", "target": "theme-toggle.tsx" }],
+        "lit": [{ "path": "registry/lit/theme-toggle.ts", "target": "theme-toggle.ts" }],
+        "astro": [{ "path": "registry/astro/ThemeToggle.astro", "target": "ThemeToggle.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "file-button",
+      "type": "block",
+      "description": "Opens a local file in the viewer",
+      "slots": ["file-button"],
+      "registryDependencies": ["button", "domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/file-button.tsx", "target": "file-button.tsx" }],
+        "preact": [{ "path": "registry/preact/file-button.tsx", "target": "file-button.tsx" }],
+        "vue": [{ "path": "registry/vue/FileButton.vue", "target": "FileButton.vue" }],
+        "svelte": [{ "path": "registry/svelte/FileButton.svelte", "target": "FileButton.svelte" }],
+        "angular": [{ "path": "registry/angular/file-button.ts", "target": "file-button.ts" }],
+        "solid": [{ "path": "registry/solid/file-button.tsx", "target": "file-button.tsx" }],
+        "lit": [{ "path": "registry/lit/file-button.ts", "target": "file-button.ts" }],
+        "astro": [{ "path": "registry/astro/FileButton.astro", "target": "FileButton.astro" }]
+      },
+      "dependencies": {
+        "react": ["lucide-react"],
+        "preact": ["lucide-preact"],
+        "vue": ["lucide-vue-next"],
+        "svelte": ["lucide-svelte"],
+        "angular": ["lucide-angular"],
+        "solid": ["lucide-solid"],
+        "lit": ["lucide"],
+        "astro": ["lucide"]
+      }
+    },
+    {
+      "name": "page-status",
+      "type": "block",
+      "description": "Document name and page count",
+      "slots": ["page-status"],
+      "registryDependencies": ["domdoc-provider"],
+      "files": {
+        "react": [{ "path": "registry/react/page-status.tsx", "target": "page-status.tsx" }],
+        "preact": [{ "path": "registry/preact/page-status.tsx", "target": "page-status.tsx" }],
+        "vue": [{ "path": "registry/vue/PageStatus.vue", "target": "PageStatus.vue" }],
+        "svelte": [{ "path": "registry/svelte/PageStatus.svelte", "target": "PageStatus.svelte" }],
+        "angular": [{ "path": "registry/angular/page-status.ts", "target": "page-status.ts" }],
+        "solid": [{ "path": "registry/solid/page-status.tsx", "target": "page-status.tsx" }],
+        "lit": [{ "path": "registry/lit/page-status.ts", "target": "page-status.ts" }],
+        "astro": [{ "path": "registry/astro/PageStatus.astro", "target": "PageStatus.astro" }]
+      }
+    }
+  ]
+}

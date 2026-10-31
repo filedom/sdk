@@ -52,7 +52,7 @@ export class DomdocDocument {
   private disposed = false;
 
   constructor(
-    private readonly session: EngineSession,
+    private session: EngineSession,
     readonly name: string,
     readonly format: Format,
     /** FileStore id this document was opened from, if any. */

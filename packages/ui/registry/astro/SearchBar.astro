@@ -1,0 +1,38 @@
+---
+import { ChevronDown, ChevronUp, Search } from "lucide";
+import { lucideSvg } from "@/lib/cn";
+import Button from "@/components/domdoc/Button.astro";
+import Input from "@/components/domdoc/Input.astro";
+import Tooltip from "@/components/domdoc/Tooltip.astro";
+
+const search = lucideSvg(Search);
+const prev = lucideSvg(ChevronUp);
+const next = lucideSvg(ChevronDown);
+---
+
+<div data-slot="search-bar" class="flex items-center gap-0.5">
+  <div class="relative">
+    <span class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" set:html={search} />
+    <Input
+      data-slot="search-input"
+      data-action="search"
+      data-label="Search"
+      type="text"
+      placeholder="Search"
+      aria-label="Search"
+      title="Search"
+      class="w-40 pl-7"
+    />
+  </div>
+  <Tooltip label="Previous match">
+    <Button variant="icon" data-slot="search-prev" data-action="findPrev" data-label="Previous match" title="Previous match" aria-label="Previous match">
+      <span class="contents" set:html={prev} />
+    </Button>
+  </Tooltip>
+  <span data-slot="search-count" class="min-w-12 px-1 text-center text-xs tabular-nums text-muted-foreground">0</span>
+  <Tooltip label="Next match">
+    <Button variant="icon" data-slot="search-next" data-action="findNext" data-label="Next match" title="Next match" aria-label="Next match">
+      <span class="contents" set:html={next} />
+    </Button>
+  </Tooltip>
+</div>

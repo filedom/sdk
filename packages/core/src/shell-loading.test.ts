@@ -29,11 +29,9 @@ describe("empty layout while engines load", () => {
     const officeOxide = vi.fn(async () => engine());
     const sources: EngineSources = {
       core: () => coreGate,
-      pdfiumWasm: "https://cdn.example/pdf/pdfium.wasm",
       pdfiumRender: async () => engine(),
       officeOxide,
     };
-    vi.stubGlobal("fetch", async () => new Response(new Uint8Array([1])));
 
     const root = document.createElement("div");
     document.body.append(root);
@@ -58,6 +56,5 @@ describe("empty layout while engines load", () => {
     await opening.catch(() => undefined);
     expect(root.querySelector(".dd-loading")?.hasAttribute("hidden")).toBe(true);
     viewer.destroy();
-    vi.unstubAllGlobals();
   });
 });

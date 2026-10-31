@@ -1,0 +1,25 @@
+---
+import "../styles/global.css";
+import DomdocProvider from "@/components/domdoc/DomdocProvider.astro";
+import Toolbar from "@/components/domdoc/Toolbar.astro";
+import ViewerShell from "@/components/domdoc/ViewerShell.astro";
+
+const bundlesBase = import.meta.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const toolbar = false;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>domdoc Astro</title>
+  </head>
+  <body>
+    <DomdocProvider bundlesBase={bundlesBase} toolbar={toolbar}>
+      <div class="flex h-dvh min-h-0 flex-col overflow-hidden bg-background font-sans text-foreground">
+        <Toolbar />
+        <ViewerShell />
+      </div>
+    </DomdocProvider>
+  </body>
+</html>

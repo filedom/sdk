@@ -30,5 +30,6 @@ async function boot(): Promise<unknown> {
     const wasm = await readFile(new URL("../../../../../domdoc-wasm/pkg/office/domdoc_office_bg.wasm", import.meta.url));
     return initSync({ module: wasm });
   }
-  return init();
+  // pkg/ has no package.json, so NodeNext reads the glue typings as CommonJS and types the default import as the namespace.
+  return (init as unknown as () => Promise<unknown>)();
 }

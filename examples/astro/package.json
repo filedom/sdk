@@ -1,0 +1,26 @@
+{
+  "name": "@domdoc/example-astro",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@domdoc/astro-host": "workspace:*",
+    "@domdoc/core": "workspace:*",
+    "@domdoc/ui": "workspace:*",
+    "clsx": "^2.1.1",
+    "lucide": "^1.66.0",
+    "tailwind-merge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.12",
+    "astro": "^7.4.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.7.2",
+    "vite": "^5.4.0 || ^6.0.0 || ^8.0.0"
+  }
+}

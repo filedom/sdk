@@ -92,6 +92,8 @@ export const VIEWER_CSS = `
 .dd-empty:hover,.dd-empty:focus-visible{border-color:var(--dd-accent);color:var(--dd-fg);outline:none}
 .dd-loading{margin:auto;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--dd-muted)}
 .dd-loading[hidden]{display:none}
+.dd-trial{flex:none;padding:6px 12px;text-align:center;font-weight:650;background:var(--dd-accent-tint);color:var(--dd-fg)}
+.dd-trial[hidden]{display:none}
 .dd-sheet{position:relative;display:flex;align-items:center;justify-content:center;width:calc(612 * var(--dd-scale) * 1px);height:calc(792 * var(--dd-scale) * 1px);background:var(--dd-page);box-shadow:var(--dd-page-shadow,0 1px 2px rgb(0 0 0 / 0.05),0 12px 32px rgb(0 0 0 / 0.08));flex:none}
 .dd-spinner{width:28px;height:28px;border:3px solid var(--dd-border);border-top-color:var(--dd-accent);border-radius:50%;animation:dd-spin .8s linear infinite}
 .dd-loading-label{margin:0}

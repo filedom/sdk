@@ -1,30 +1,19 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
 
 const sidebars: SidebarsConfig = {
-  integrator: [
-    "install",
-    "events",
-    "files",
-    "modes",
-    "toolbars",
-    "components",
-    {
-      type: "category",
-      label: "Frameworks",
-      items: [
-        "frameworks/react",
-        "frameworks/preact",
-        "frameworks/vue",
-        "frameworks/solid",
-        "frameworks/svelte",
-        "frameworks/lit",
-        "frameworks/angular",
-        "frameworks/next",
-        "frameworks/nuxt",
-        "frameworks/sveltekit",
-        "frameworks/astro",
-      ],
-    },
+  docs: ["install", "events", "files", "modes", "toolbars", "components", "ui-kit"],
+  frameworks: [
+    "frameworks/react",
+    "frameworks/next",
+    "frameworks/preact",
+    "frameworks/vue",
+    "frameworks/nuxt",
+    "frameworks/svelte",
+    "frameworks/sveltekit",
+    "frameworks/angular",
+    "frameworks/solid",
+    "frameworks/lit",
+    "frameworks/astro",
   ],
 };
 

@@ -1,0 +1,12 @@
+---
+interface Props {
+  orientation?: "horizontal" | "vertical";
+  class?: string;
+}
+
+const { orientation = "horizontal", class: className } = Astro.props;
+const vertical = orientation === "vertical";
+const line = vertical ? "mx-1 h-5 w-px shrink-0 bg-border" : "my-1 h-px w-full shrink-0 bg-border";
+---
+
+<div data-slot="separator" role="separator" aria-orientation={vertical ? "vertical" : "horizontal"} class:list={[line, className]}></div>

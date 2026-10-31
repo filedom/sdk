@@ -1,0 +1,220 @@
+---
+interface Props {
+  /** `DOMDOC_EXAMPLES_BUNDLES`, or `/api/bundles/<version>` when that env var is unset. */
+  bundlesBase?: string;
+  /** The viewer is always created with `toolbar: false`. */
+  toolbar?: boolean;
+}
+
+const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
+---
+
+<div data-domdoc-provider data-bundles-base={bundlesBase} data-toolbar={toolbar ? "true" : "false"} class="contents">
+  <slot />
+</div>
+
+<script>
+  import { bundlesFromCdn, createViewerStore, type ViewerStore, type ViewerStoreSnapshot, type ViewMode } from "@domdoc/core";
+  import { mountDomdocIsland } from "@domdoc/astro-host";
+
+  const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+
+  function shellState(snapshot: { status: string }): string {
+    const notice = (snapshot as { usageNotice?: string | null }).usageNotice;
+    if (notice === "blocked") return "blocked";
+    return snapshot.status;
+  }
+
+  function paint(root: HTMLElement, snapshot: ViewerStoreSnapshot): void {
+    const status = shellState(snapshot);
+    const dark = snapshot.theme === "dark" || snapshot.theme === "high-contrast-dark";
+    document.documentElement.classList.toggle("dark", dark);
+
+    root.querySelector("[data-slot='viewer-shell']")?.setAttribute("data-domdoc-state", status);
+    root.querySelector("[data-slot='usage-notice']")?.setAttribute("data-domdoc-state", status);
+
+    const empty = root.querySelector<HTMLElement>("[data-slot='empty-state']");
+    if (empty) empty.hidden = status !== "empty" && status !== "error";
+    const loading = root.querySelector<HTMLElement>("[data-domdoc-loading]");
+    if (loading) loading.hidden = status !== "loading";
+    const error = root.querySelector<HTMLElement>("[data-domdoc-error]");
+    if (error) {
+      const detail = snapshot.error?.detail ?? "";
+      error.hidden = !detail;
+      error.textContent = detail;
+    }
+
+    for (const el of root.querySelectorAll<HTMLElement>("[data-action]")) {
+      const id = el.dataset.action;
+      if (!id) continue;
+      const action = snapshot.actions[id];
+      const availability = action?.availability ?? "disabled";
+      el.hidden = availability === "hidden";
+      if (availability === "shown") {
+        el.removeAttribute("disabled");
+        const label = el.dataset.label;
+        if (label) el.title = label;
+      } else {
+        el.setAttribute("disabled", "");
+        if (action?.detail) el.title = action.detail;
+      }
+      const bubble = el.closest("[data-slot='tooltip']")?.querySelector("[role='tooltip']");
+      if (bubble && el.title) bubble.textContent = el.title;
+    }
+
+    const zoom = root.querySelector("[data-slot='zoom-label']");
+    if (zoom) zoom.textContent = `${Math.round(snapshot.zoom * 100)}%`;
+
+    const count = root.querySelector("[data-slot='search-count']");
+    if (count) {
+      const { hitCount, hitIndex } = snapshot.search;
+      count.textContent = hitCount ? `${hitIndex + 1} / ${hitCount}` : "0";
+    }
+
+    const pages = root.querySelector("[data-slot='page-status']");
+    if (pages) {
+      const doc = snapshot.document;
+      pages.textContent = doc
+        ? `${doc.name ?? "Document"} · ${doc.pageCount === 1 ? "1 page" : `${doc.pageCount} pages`}`
+        : "No document";
+    }
+
+    const search = root.querySelector<HTMLInputElement>("[data-slot='search-input']");
+    if (search && document.activeElement !== search && search.value !== snapshot.search.query) {
+      search.value = snapshot.search.query;
+    }
+
+    const mode = root.querySelector<HTMLSelectElement>("[data-slot='mode-select']");
+    if (mode) {
+      if (document.activeElement !== mode) mode.value = snapshot.viewMode;
+      for (const option of mode.options) {
+        const action = snapshot.actions[option.value];
+        if (!action) continue;
+        option.disabled = action.availability !== "shown";
+        option.hidden = action.availability === "hidden";
+        if (action.availability === "disabled" && action.detail) option.title = action.detail;
+      }
+    }
+
+    for (const icon of root.querySelectorAll<HTMLElement>("[data-theme-icon]")) {
+      icon.hidden = icon.dataset.themeIcon === "sun" ? !dark : dark;
+    }
+  }
+
+  function fail(root: HTMLElement, message: string): void {
+    root.querySelector("[data-slot='viewer-shell']")?.setAttribute("data-domdoc-state", "error");
+    root.querySelector("[data-slot='usage-notice']")?.setAttribute("data-domdoc-state", "error");
+    const error = root.querySelector<HTMLElement>("[data-domdoc-error]");
+    if (error) {
+      error.hidden = false;
+      error.textContent = message;
+    }
+  }
+
+  const root = document.querySelector<HTMLElement>("[data-domdoc-provider]");
+  if (root) {
+    const bundlesBase = root.dataset.bundlesBase || "/api/bundles/0.0.1";
+    const canvas = root.querySelector<HTMLElement>("[data-slot='viewer-canvas']");
+    const fileInput = document.createElement("input");
+    fileInput.type = "file";
+    fileInput.hidden = true;
+    fileInput.tabIndex = -1;
+    root.append(fileInput);
+
+    let store: ViewerStore | undefined;
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files?.[0];
+      fileInput.value = "";
+      if (file) void store?.viewer.open(file);
+    });
+
+    const zone = root.querySelector("[data-slot='dropzone']");
+    zone?.addEventListener("dragover", (event) => event.preventDefault());
+    zone?.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const file = (event as DragEvent).dataTransfer?.files?.[0];
+      if (file) void store?.viewer.open(file);
+    });
+
+    async function openSample(): Promise<void> {
+      if (!store) return;
+      const response = await fetch(SAMPLE_PDF);
+      if (!response.ok) return;
+      await store.viewer.open(new Uint8Array(await response.arrayBuffer()), { name: "hello.pdf" });
+    }
+
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Node) || !root.contains(target)) return;
+      if (target instanceof Element && target.closest("[data-slot='open-sample']")) {
+        event.preventDefault();
+        void openSample();
+        return;
+      }
+      if (!(target instanceof Element)) return;
+      const control = target.closest<HTMLElement>("[data-action]");
+      if (!control || control instanceof HTMLInputElement || control instanceof HTMLSelectElement) return;
+      if (control.hasAttribute("disabled") || !store) return;
+      const id = control.dataset.action;
+      if (!id) return;
+      if (id === "theme") {
+        const dark = store.getSnapshot().theme === "dark" || store.getSnapshot().theme === "high-contrast-dark";
+        const next = dark ? "light" : "dark";
+        document.documentElement.classList.toggle("dark", next === "dark");
+        store.viewer.setTheme(next);
+        return;
+      }
+      if (id === "zoomReset") {
+        store.viewer.setZoom(1);
+        return;
+      }
+      if (id === "open") {
+        fileInput.click();
+        return;
+      }
+      store.run(id);
+    });
+
+    document.addEventListener("input", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.getAttribute("data-slot") !== "search-input" || !store) return;
+      store.viewer.search(target.value);
+    });
+
+    document.addEventListener("change", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLSelectElement) || target.getAttribute("data-slot") !== "mode-select" || !store) return;
+      const value = target.value;
+      if (value === "live" || value === "track" || value === "view") store.viewer.setViewMode(value as ViewMode);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      const target = event.target;
+      if (!(target instanceof HTMLInputElement) || target.getAttribute("data-slot") !== "search-input" || !store) return;
+      event.preventDefault();
+      store.run(event.shiftKey ? "findPrev" : "findNext");
+    });
+
+    if (!canvas) {
+      fail(root, "Viewer canvas is missing");
+    } else {
+      try {
+        const viewer = await mountDomdocIsland(canvas, {
+          bundles: bundlesFromCdn(bundlesBase),
+          toolbar: false,
+          fontsWasmBase: `${bundlesBase.replace(/\/$/, "")}/fonts/`,
+        });
+        store = createViewerStore(viewer);
+        const draw = () => {
+          if (store) paint(root, store.getSnapshot());
+        };
+        draw();
+        store.subscribe(draw);
+      } catch (error) {
+        fail(root, error instanceof Error ? error.message : "Could not start the viewer");
+      }
+    }
+  }
+</script>

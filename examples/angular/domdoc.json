@@ -1,0 +1,10 @@
+{
+  "$schema": "https://domdoc.io/sdk-docs/schema/domdoc.schema.json",
+  "framework": "angular",
+  "componentDir": "src/app/components/domdoc",
+  "css": "src/styles.css",
+  "aliases": {
+    "components": "@/components/domdoc",
+    "lib": "@/lib"
+  }
+}

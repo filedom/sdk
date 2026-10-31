@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/domdoc-example.schema.json",
+  "framework": "react",
+  "label": "React",
+  "logo": "logo.svg",
+  "install": "npm install @domdoc/core @domdoc/react",
+  "add": "npx @domdoc/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/App.tsx", "role": "page" },
+    { "path": "src/index.css", "role": "css" },
+    { "path": "vite.config.ts", "role": "config" }
+  ]
+}

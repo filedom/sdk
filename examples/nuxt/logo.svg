@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Nuxt">
+  <rect width="32" height="32" rx="8" fill="#00dc82"/>
+  <path fill="#fff" d="M7 24 16 7l9 17h-3.4l-5.6-10.8L10.4 24H7z"/>
+</svg>

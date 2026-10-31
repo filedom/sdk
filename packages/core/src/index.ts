@@ -1,6 +1,6 @@
 export * from "./engine-types.js";
 export { BundleLoader, type BundleImporters } from "./bundles.js";
-export { bundleUrl, bundlesFromCdn, type CdnBundleOptions, type CdnBundleTicket } from "./cdn.js";
+export { bundleUrl, bundlesFromCdn, type CdnBundleOptions, type CdnBundleTicket, type GlueLoader } from "./cdn.js";
 export {
   ComponentRegistry,
   isFlowMode,
@@ -66,6 +66,16 @@ export {
   type LayerElementItem,
 } from "./layers.js";
 export { HistoryPanel, type HistoryActions } from "./history.js";
+export {
+  createViewerStore,
+  type ViewerStore,
+  type ViewerStoreAction,
+  type ViewerStoreDocument,
+  type ViewerStoreRunResult,
+  type ViewerStoreSearch,
+  type ViewerStoreSnapshot,
+  type ViewerStoreStatus,
+} from "./headless.js";
 export { Toolbar, type ToolbarActions, type ToolbarState } from "./toolbar.js";
 // ViewMode stays exported from ./viewer.js.
 

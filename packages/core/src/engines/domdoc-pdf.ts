@@ -1,19 +1,23 @@
 import { init as initPdfium } from "@embedpdf/pdfium";
 import init, { initSync, initialize_pdfium_render, open as openPdf } from "../../../../../domdoc-wasm/pkg/pdf/domdoc_pdf.js";
 import type { EngineSession } from "../engine-types.js";
+import { DomdocError } from "../errors.js";
 import { bindPdfiumRender } from "./bind-pdfium.js";
+import { pdfiumBytes, wasmArrayBuffer } from "./pdfium-section.js";
+
+const wasmUrl = new URL("../../../../../domdoc-wasm/pkg/pdf/domdoc_pdf_bg.wasm", import.meta.url);
 
 let ready: Promise<unknown> | undefined;
 
 /**
- * The domdoc PDF bundle. Loads the PDFium module, then binds it to this wasm
- * with `initialize_pdfium_render` before any page is opened.
+ * The domdoc PDF bundle. The renderer is a custom section of this wasm.
+ * The bundle's setup export binds that module before any page is opened.
  */
-export default async function initDomdocPdf(arg?: unknown): Promise<void> {
-  const wasmBinary = (arg as { wasmBinary?: ArrayBuffer } | undefined)?.wasmBinary;
+export default async function initDomdocPdf(): Promise<void> {
+  const wasm = await rustWasmBytes();
   const [pdfium, rust] = await Promise.all([
-    initPdfium(wasmBinary ? { wasmBinary } : {}),
-    rustModule(),
+    initPdfium({ wasmBinary: wasmArrayBuffer(pdfiumBytes(wasm)) }),
+    rustModule(wasm),
   ]);
   bindPdfiumRender(
     pdfium as { pdfium?: { ccall?: PdfiumCall }; PDFiumExt_Init?: () => void },
@@ -32,9 +36,9 @@ export function open(bytes: Uint8Array, password?: string): EngineSession {
   return openPdf(bytes, password) as EngineSession;
 }
 
-function rustModule(): Promise<unknown> {
+function rustModule(wasm: Uint8Array): Promise<unknown> {
   if (!ready) {
-    ready = boot().catch((error: unknown) => {
+    ready = boot(wasm).catch((error: unknown) => {
       ready = undefined;
       throw error;
     });
@@ -42,13 +46,21 @@ function rustModule(): Promise<unknown> {
   return ready;
 }
 
-async function boot(): Promise<unknown> {
+async function rustWasmBytes(): Promise<Uint8Array> {
   const runtime = globalThis as { process?: { versions?: { node?: string } } };
   if (runtime.process?.versions?.node) {
     // @ts-expect-error Node builtins are loaded only under Node; the package typecheck has no Node types.
     const { readFile } = await import("node:fs/promises");
-    const wasm = await readFile(new URL("../../../../../domdoc-wasm/pkg/pdf/domdoc_pdf_bg.wasm", import.meta.url));
-    return initSync({ module: wasm });
+    return new Uint8Array(await readFile(wasmUrl));
   }
-  return init();
+  const response = await fetch(wasmUrl);
+  if (!response.ok) throw new DomdocError("bundle-missing", `wasm: ${response.status}`);
+  return new Uint8Array(await response.arrayBuffer());
+}
+
+async function boot(wasm: Uint8Array): Promise<unknown> {
+  const runtime = globalThis as { process?: { versions?: { node?: string } } };
+  if (runtime.process?.versions?.node) return initSync({ module: wasm });
+  // pkg/ has no package.json, so NodeNext reads the glue typings as CommonJS and types the default import as the namespace.
+  return (init as unknown as (arg: { module_or_path: Uint8Array }) => Promise<unknown>)({ module_or_path: wasm });
 }

@@ -1,5 +1,6 @@
 import { AnnotationCard, SelectionMenu, passageEnds, quoteFromRanges, type Annotation, type HighlightEvent } from "./annotate.js";
 import { BundleLoader, type BundleImporters } from "./bundles.js";
+import { bundleLoadNotice } from "./cdn.js";
 import { ComponentLayer } from "./component-layer.js";
 import { ComponentRegistry, type ComponentFactory, type Placement } from "./components.js";
 import {
@@ -99,12 +100,12 @@ export type ChromeDir = "ltr" | "rtl";
 export interface ViewerOptions {
   /**
    * Previous per-format wasm bundles. Omit this when `core` is set: open then
-   * uses PDFium or office_oxide instead.
+   * uses the PDF or Office engine instead.
    */
   bundles?: BundleImporters;
   /**
-   * When set, open ignores `bundles` and loads PDFium plus pdfium-render, or
-   * office_oxide, from the switches on this loader. Track changes is a further
+   * When set, open ignores `bundles` and loads the pdf bundle or office_oxide, from
+   * the switches on this loader. Track changes is a further
    * module, fetched only when the host turned it on.
    */
   core?: CoreLoader;
@@ -129,7 +130,7 @@ export interface ViewerOptions {
    * document's runs are not Helvetica or Arial.
    */
   fontsBase?: string;
-  /** Lazy `domdoc_fonts.wasm` glue directory. Defaults to `/wasm/fonts/`. */
+  /** Lazy `domdoc_fonts.wasm` glue directory. Omitted: that module is not fetched. */
   fontsWasmBase?: string;
   /** Unused. Editing is inside the PDF and office bundles. */
   editWasmBase?: string;
@@ -169,6 +170,11 @@ export interface ViewerEvents {
   zoom: { zoom: number };
   /** The palette on screen. `system` reports the light or dark it resolved to. */
   theme: { theme: ThemeName };
+  /** `open` started. `open` or `error` follows. */
+  loading: { name?: string };
+  viewMode: { mode: ViewMode };
+  /** After `search` and `nextHit`. `hitIndex` is zero-based, or -1 with no hits. */
+  search: { query: string; hitCount: number; hitIndex: number };
 }
 
 type Handler<K extends keyof ViewerEvents> = (event: ViewerEvents[K]) => void;
@@ -230,6 +236,7 @@ export class DomdocViewer {
   private pending?: TextStyle;
   private hits: SearchHit[] = [];
   private hitIndex = -1;
+  private searchQuery = "";
   private dragging = false;
   private moved = false;
   /** A selected text line is being typed into, rather than only framed. */
@@ -287,6 +294,8 @@ export class DomdocViewer {
   private motionOff?: () => void;
   private fontsModule?: Promise<void>;
   private readonly loadingEl: HTMLDivElement;
+  /** Shown only while the bundle response says this load is a trial. Memory only. */
+  private readonly trialEl: HTMLDivElement;
   private readonly loadingText: HTMLParagraphElement;
   /** Image file picker for replacing a selected image. */
   private readonly imageInput: HTMLInputElement;
@@ -306,7 +315,7 @@ export class DomdocViewer {
     this.files = options.files ?? new FileStore();
     this.components = options.components ?? new ComponentRegistry();
     if (!this.components.get(CONTENT_COMPONENT)) {
-      this.components.register(CONTENT_COMPONENT, ({ props, container }) => mountContentElement(container, props));
+      this.components.register<Record<string, unknown>>(CONTENT_COMPONENT, ({ props, container }) => mountContentElement(container, props));
     }
     this.loader = new BundleLoader(options.bundles ?? {});
     this.zoomValue = clampZoom(options.zoom ?? 1);
@@ -321,6 +330,10 @@ export class DomdocViewer {
     this.el.dataset.mode = this.viewModeValue;
     this.themeStyle = this.h("style");
     this.el.append(this.themeStyle);
+    this.trialEl = this.h("div", "dd-trial");
+    this.trialEl.hidden = true;
+    this.trialEl.setAttribute("role", "status");
+    this.el.append(this.trialEl);
     this.applyTheme(options.theme);
     this.el.dir = options.dir ?? "ltr";
     this.el.tabIndex = -1;
@@ -524,6 +537,11 @@ export class DomdocViewer {
     return this.viewModeValue;
   }
 
+  /** The palette on screen, as last reported by the `theme` event. */
+  get theme(): ThemeName {
+    return this.el.dataset.theme as ThemeName;
+  }
+
   /** Zoom factor. `1` is 96 DPI, the same page width Word uses at 100%. */
   get zoom(): number {
     return this.zoomValue;
@@ -557,6 +575,7 @@ export class DomdocViewer {
     const previous = this.inflight;
     this.inflight = { type: "open", name: options.name };
     this.hideOpenDocument = true;
+    this.emit("loading", { name: options.name });
     this.showLoading(await this.loadingCopy(source, options.name));
     try {
       const doc = await openDocument(this.loader, source, {
@@ -576,6 +595,7 @@ export class DomdocViewer {
         doc.attach("edit");
       }
       this.applyViewMode();
+      this.syncTrialBanner();
       void this.drive({ type: "scan" });
       this.requestRefresh();
       this.pages.container.scrollTop = 0;
@@ -589,6 +609,13 @@ export class DomdocViewer {
       this.inflight = previous;
       this.hideOpenDocument = false;
     }
+  }
+
+  /** Paints the trial banner from the in-memory bundle notice. Nothing is stored. */
+  private syncTrialBanner(): void {
+    const trial = bundleLoadNotice(this.options.bundles).trial;
+    this.trialEl.hidden = !trial;
+    this.trialEl.textContent = trial ? "Trial: unlicensed domdoc" : "";
   }
 
   /** Blank page and spinner. Stays up until the engines for this file finish. */
@@ -640,7 +667,8 @@ export class DomdocViewer {
   /** Loads `fonts.wasm` and wires `globalThis.__domdoc.rasterGlyph` for cold DOCX/DOC bundles. */
   private async ensureFontsModule(): Promise<void> {
     if (this.fontsModule) return this.fontsModule;
-    const base = this.options.fontsWasmBase ?? "/wasm/fonts/";
+    const base = this.options.fontsWasmBase;
+    if (!base) return;
     const root = base.endsWith("/") ? base : `${base}/`;
     this.fontsModule = (async () => {
       try {
@@ -777,6 +805,7 @@ export class DomdocViewer {
     this.pending = undefined;
     this.hits = [];
     this.hitIndex = -1;
+    this.searchQuery = "";
     this.caretEl?.remove();
     this.caretEl = undefined;
     this.caretLoc = undefined;
@@ -900,7 +929,7 @@ export class DomdocViewer {
     return this.insertText("");
   }
 
-  format(style: TextStyle): CommandResult | undefined {
+  format(style: TextStyle): Promise<CommandResult | undefined> | undefined {
     if (!this.doc || this.viewModeValue === "view") return undefined;
     const highlighted = this.sel && !isCollapsed(this.sel) ? this.activeRanges() : [];
     // A highlight formats that range. With no highlight, PDF text formats the whole element.
@@ -926,11 +955,11 @@ export class DomdocViewer {
     return this.apply({ type: "format", ranges, style });
   }
 
-  toggle(style: "bold" | "italic" | "underline" | "strike"): CommandResult | undefined {
+  toggle(style: "bold" | "italic" | "underline" | "strike"): Promise<CommandResult | undefined> | undefined {
     return this.format({ [style]: !this.styleOn(style) });
   }
 
-  setParagraph(style: ParagraphPatch): CommandResult | undefined {
+  setParagraph(style: ParagraphPatch): Promise<CommandResult | undefined> | undefined {
     const units = this.paragraphUnits();
     if (!units.length || !this.doc || this.viewModeValue === "view") return undefined;
     if (!this.doc.info().capabilities.formatParagraph) {
@@ -943,7 +972,7 @@ export class DomdocViewer {
   }
 
   /** Highlights the selection. `null` clears highlighting. Emits `highlight` when it applies. */
-  highlight(color: string | null = this.highlightColor): CommandResult | undefined {
+  highlight(color: string | null = this.highlightColor): Promise<CommandResult | undefined> | undefined {
     if (this.viewModeValue === "view") return undefined;
     const ranges = this.activeRanges().length ? this.activeRanges() : this.pickedTextRanges();
     if (!ranges.length) return undefined;
@@ -994,17 +1023,17 @@ export class DomdocViewer {
     }));
   }
 
-  undo(): CommandResult | undefined {
+  undo(): Promise<CommandResult | undefined> | undefined {
     if (this.viewModeValue === "view") return undefined;
     return this.apply({ type: "undo" });
   }
 
-  redo(): CommandResult | undefined {
+  redo(): Promise<CommandResult | undefined> | undefined {
     if (this.viewModeValue === "view") return undefined;
     return this.apply({ type: "redo" });
   }
 
-  setTrackChanges(enabled: boolean): CommandResult | undefined {
+  setTrackChanges(enabled: boolean): Promise<CommandResult | undefined> | undefined {
     return this.apply({ type: "setTrackChanges", enabled, author: this.author });
   }
 
@@ -1022,6 +1051,7 @@ export class DomdocViewer {
     this.applyViewMode();
     this.paintNow("full");
     this.syncChrome();
+    this.emit("viewMode", { mode });
   }
 
   private showHistory(): boolean {
@@ -1113,6 +1143,8 @@ export class DomdocViewer {
     const hit = this.hits[this.hitIndex];
     if (hit) this.revealPos({ unit: hit.unit, offset: hit.start });
     this.setStatus(query.trim() ? `${this.hits.length} match${this.hits.length === 1 ? "" : "es"}` : "");
+    this.searchQuery = query;
+    this.emitSearch();
     return this.hits;
   }
 
@@ -1123,6 +1155,11 @@ export class DomdocViewer {
     const hit = this.hits[this.hitIndex]!;
     this.revealPos({ unit: hit.unit, offset: hit.start });
     this.setStatus(`${this.hitIndex + 1} / ${this.hits.length}`);
+    this.emitSearch();
+  }
+
+  private emitSearch(): void {
+    this.emit("search", { query: this.searchQuery, hitCount: this.hits.length, hitIndex: this.hitIndex });
   }
 
   setZoom(zoom: number, anchor?: { clientX: number; clientY: number }): void {

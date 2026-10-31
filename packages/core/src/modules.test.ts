@@ -26,7 +26,6 @@ function engine(format: string, opened: Uint8Array[] = []): EngineModule {
 function sources(over: Partial<EngineSources> = {}): EngineSources {
   return {
     core: async () => ({}),
-    pdfiumWasm: "https://cdn.example/pdf/pdfium.wasm",
     pdfiumRender: async () => engine("pdf"),
     officeOxide: async () => engine("docx"),
     ...over,
@@ -72,22 +71,21 @@ describe("planLoad", () => {
 });
 
 describe("CoreLoader", () => {
-  it("fetches pdfium wasm and the pdfium-render wrapper, and skips office_oxide", async () => {
-    const wasm = new Uint8Array([1, 2, 3]).buffer;
+  it("loads the pdf module and does not fetch pdfium.wasm", async () => {
     const init = vi.fn(async () => {});
     const pdfiumRender = vi.fn(async () => ({ ...engine("pdf"), default: init }));
     const officeOxide = vi.fn(async () => engine("docx"));
-    const fetchMock = vi.fn(async () => new Response(wasm));
+    const fetchMock = vi.fn(async () => new Response(new Uint8Array([1])));
     vi.stubGlobal("fetch", fetchMock);
 
     const loader = new CoreLoader({ pdf: true, docx: true }, sources({ pdfiumRender, officeOxide }));
 
     const prepared = await loader.prepare(PDF, "notes.pdf");
-    expect(fetchMock).toHaveBeenCalledOnce();
-    expect(fetchMock).toHaveBeenCalledWith("https://cdn.example/pdf/pdfium.wasm");
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(pdfiumRender).toHaveBeenCalledOnce();
     expect(officeOxide).not.toHaveBeenCalled();
-    expect(init).toHaveBeenCalledWith({ wasmBinary: wasm });
+    expect(init).toHaveBeenCalledOnce();
+    expect(init.mock.calls[0]).toEqual([]);
     expect(prepared.original).toBe(PDF);
     expect(loader.requested()).toEqual(["core", "pdfium", "pdfium-render"]);
     vi.unstubAllGlobals();
@@ -123,10 +121,6 @@ describe("CoreLoader", () => {
     const coreGate = new Promise<void>((resolve) => {
       releaseCore = resolve;
     });
-    let releaseWasm!: (buffer: ArrayBuffer) => void;
-    const wasmGate = new Promise<ArrayBuffer>((resolve) => {
-      releaseWasm = resolve;
-    });
     let releaseRender!: (module: EngineModule) => void;
     const renderGate = new Promise<EngineModule>((resolve) => {
       releaseRender = resolve;
@@ -157,11 +151,8 @@ describe("CoreLoader", () => {
         },
       }),
     );
-    vi.stubGlobal("fetch", () => {
-      order.push("pdfium");
-      return wasmGate.then((buffer) => new Response(buffer));
-    });
-
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
     const pending = loader.prepare(PDF, "notes.pdf");
     await Promise.resolve();
     expect(order).toEqual(["core"]);
@@ -169,10 +160,10 @@ describe("CoreLoader", () => {
     releaseCore();
     await Promise.resolve();
     await Promise.resolve();
-    expect(order.slice(0, 4).sort()).toEqual(["core", "pdfium", "pdfium-render", "track-changes"]);
+    expect(order.slice().sort()).toEqual(["core", "pdfium-render", "track-changes"]);
     expect(order).not.toContain("office-oxide");
+    expect(fetchMock).not.toHaveBeenCalled();
 
-    releaseWasm(new ArrayBuffer(4));
     releaseRender(engine("pdf"));
     releaseTrack({ attach() {} });
     await pending;
@@ -193,9 +184,11 @@ describe("openDocument with the core loader", () => {
         trackChanges: async () => ({ attach }),
       }),
     );
-    vi.stubGlobal("fetch", async () => new Response(new Uint8Array([9])));
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
 
     const doc = await openDocument(loader, PDF, { name: "notes.pdf", core: session });
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(bundle).not.toHaveBeenCalled();
     expect(opened).toEqual([PDF]);
     expect(attach).toHaveBeenCalledWith({
@@ -213,7 +206,7 @@ describe("openDocument with the core loader", () => {
 describe("enginesFromCdn", () => {
   it("points PDF, Word, and track changes at separate paths", () => {
     const sources = enginesFromCdn("https://cdn.example.com/domdoc/v1/");
-    expect(sources.pdfiumWasm).toBe("https://cdn.example.com/domdoc/v1/pdf/pdfium.wasm");
+    expect("pdfiumWasm" in sources).toBe(false);
     expect(sources.core).toEqual(expect.any(Function));
     expect(sources.pdfiumRender).toEqual(expect.any(Function));
     expect(sources.officeOxide).toEqual(expect.any(Function));

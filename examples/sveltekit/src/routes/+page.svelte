@@ -1,0 +1,42 @@
+<script lang="ts">
+  import { onMount, type Component } from "svelte";
+  import type { ViewerOptions } from "@domdoc/core";
+
+  const bundlesBase = import.meta.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1/";
+  const sampleUrl = "/sdk-docs/samples/hello.pdf";
+
+  // Loaded after mount so adapter-static does not evaluate the viewer during the server build.
+  let Shell = $state<Component | null>(null);
+  let Bar = $state<Component | null>(null);
+  let options = $state<ViewerOptions | null>(null);
+
+  onMount(() => {
+    let stopped = false;
+    void (async () => {
+      const [core, shell, toolbar] = await Promise.all([
+        import("@domdoc/core"),
+        import("$lib/components/domdoc/ViewerShell.svelte"),
+        import("$lib/components/domdoc/Toolbar.svelte"),
+      ]);
+      if (stopped) return;
+      options = { bundles: core.bundlesFromCdn(bundlesBase), toolbar: false };
+      Shell = shell.default;
+      Bar = toolbar.default;
+    })();
+    return () => {
+      stopped = true;
+    };
+  });
+</script>
+
+<svelte:head>
+  <title>domdoc · SvelteKit</title>
+</svelte:head>
+
+<main class="h-dvh">
+  {#if Shell && Bar && options}
+    <svelte:component this={Shell} {options} {sampleUrl}>
+      <svelte:component this={Bar} />
+    </svelte:component>
+  {/if}
+</main>

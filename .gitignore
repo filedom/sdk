@@ -5,5 +5,7 @@ packages/*/dist
 .pnpm-store
 test-results
 playwright-report
+apps/docs/build
+apps/docs/.docusaurus
 vendor/domdoc-pdfium-wasm
 vendor/pdfium-lib-probe

@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://domdoc.io/sdk-docs/schema/registry.schema.json",
+  "title": "domdoc UI registry",
+  "description": "packages/ui/registry.json: every item domdoc add can copy, with its files per registry set.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "items"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": { "const": "domdoc" },
+    "items": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "registrySet": {
+      "enum": ["react", "preact", "vue", "svelte", "angular", "solid", "lit", "astro"]
+    },
+    "kebab": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "target"],
+      "properties": {
+        "path": {
+          "description": "Source path relative to packages/ui, under registry/<set>/.",
+          "type": "string",
+          "pattern": "^registry/[a-z]+/"
+        },
+        "target": {
+          "description": "Path relative to the item's install directory (componentDir, or aliases.lib for type lib).",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "type", "files"],
+      "properties": {
+        "name": { "$ref": "#/$defs/kebab" },
+        "type": { "enum": ["lib", "primitive", "block"] },
+        "description": { "type": "string" },
+        "slots": {
+          "description": "data-slot values the item renders. Must be names from CONTRACTS.md.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/kebab" },
+          "uniqueItems": true
+        },
+        "registryDependencies": {
+          "description": "Other item names domdoc add installs first.",
+          "type": "array",
+          "items": { "$ref": "#/$defs/kebab" },
+          "uniqueItems": true
+        },
+        "files": {
+          "description": "Files per registry set.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/registrySet" },
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/file" }
+          }
+        },
+        "dependencies": {
+          "description": "npm packages per registry set, as name or name@range.",
+          "type": "object",
+          "propertyNames": { "$ref": "#/$defs/registrySet" },
+          "additionalProperties": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+          }
+        }
+      }
+    }
+  }
+}

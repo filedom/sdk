@@ -1,8 +1,9 @@
-import { createCipheriv, createHash } from "node:crypto";
+import { embedPdfium } from "../../../../domdoc-wasm/scripts/pdfium-section.mjs";
 import { describe, expect, it, vi } from "vitest";
 import { BundleLoader } from "./bundles.js";
-import { bundleUrl, bundlesFromCdn, type GlueLoader } from "./cdn.js";
+import { bundleLoadNotice, bundleUrl, bundlesFromCdn, type GlueLoader } from "./cdn.js";
 import type { EngineSession } from "./engine-types.js";
+import { DomdocError } from "./errors.js";
 import { openDocument } from "./open.js";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -78,7 +79,7 @@ describe("CDN bundles", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", load));
+    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load, allowUnsealed: true }));
     const first = await openDocument(loader, PNG, { name: "photo.png" });
     const second = await openDocument(loader, PNG, { name: "other.png" });
     expect(first.format).toBe("png");
@@ -91,8 +92,9 @@ describe("CDN bundles", () => {
     vi.unstubAllGlobals();
   });
 
-  it("fetches pdfium.wasm only when the PDF module initializes", async () => {
+  it("opens PDF from the pdf wasm and does not fetch pdfium.wasm", async () => {
     const requested: string[] = [];
+    const module = embedPdfium(wasmBytes().subarray(0, 8), wasmBytes());
     const load: GlueLoader = async (url) => {
       requested.push(url);
       return {
@@ -102,46 +104,135 @@ describe("CDN bundles", () => {
     };
     vi.stubGlobal("fetch", async (url: string) => {
       requested.push(String(url));
-      return new Response(new Uint8Array([0, 97, 115, 109]));
+      return new Response(module);
     });
-    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", load));
-    await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/initialize_pdfium_render/);
-    expect(requested).toContain("https://cdn.example/v1/pdf/domdoc_pdf.js");
-    expect(requested).toContain("https://cdn.example/v1/pdf/pdfium.wasm");
-    expect(requested.some((url) => url.includes("/png/") || url.includes("/docx/") || url.includes("/svg/"))).toBe(false);
+    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load, allowUnsealed: true }));
+    await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
+    expect(requested).toEqual([
+      "https://cdn.example/v1/pdf/domdoc_pdf.js",
+      "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+    ]);
+    expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
     vi.unstubAllGlobals();
   });
 
-  it("passes plain wasm bytes through when a content key is set", async () => {
+  it("refuses a PDF engine wasm that does not embed its renderer before open", async () => {
+    const requested: string[] = [];
+    const load: GlueLoader = async (url) => {
+      requested.push(url);
+      return {
+        default: async () => {},
+        open: () => session("pdf"),
+        initialize_pdfium_render: () => true,
+      };
+    };
+    vi.stubGlobal("fetch", async (url: string) => {
+      requested.push(String(url));
+      return new Response(wasmBytes(), { headers: { "x-domdoc-license": "trial" } });
+    });
+    try {
+      const loader = new BundleLoader(
+        bundlesFromCdn("https://cdn.example/v1", { load, ticket: "ticket-1" }),
+      );
+      const opening = openDocument(loader, PDF, { name: "notes.pdf" });
+      await expect(opening).rejects.toBeInstanceOf(DomdocError);
+      await expect(opening).rejects.toThrow(/PDF engine bundle is incomplete/);
+      expect(requested).toEqual([
+        "https://cdn.example/v1/pdf/domdoc_pdf.js?ticket=ticket-1",
+        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+      ]);
+      expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("puts the ticket on the glue URL and the wasm request header", async () => {
+    const requested: string[] = [];
+    const tickets: Array<string | null> = [];
+    const module = embedPdfium(wasmBytes().subarray(0, 8), wasmBytes());
+    const load: GlueLoader = async (url) => {
+      requested.push(url);
+      return { default: async () => {}, open: () => session("pdf") };
+    };
+    vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
+      requested.push(String(url));
+      tickets.push(new Headers(init?.headers).get("x-domdoc-ticket"));
+      return new Response(module, { headers: { "x-domdoc-license": "trial" } });
+    });
+    try {
+      const loader = new BundleLoader(
+        bundlesFromCdn("https://cdn.example/v1", { load, ticket: "ticket-1", allowUnsealed: true }),
+      );
+      await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
+      expect(requested).toEqual([
+        "https://cdn.example/v1/pdf/domdoc_pdf.js?ticket=ticket-1",
+        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+      ]);
+      expect(tickets).toEqual(["ticket-1"]);
+      expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("refuses a plaintext pdf wasm unless allowUnsealed is set", async () => {
+    const module = embedPdfium(wasmBytes().subarray(0, 8), wasmBytes());
+    const requested: string[] = [];
+    const load: GlueLoader = async (url) => {
+      requested.push(url);
+      return { default: async () => {}, open: () => session("pdf") };
+    };
+    vi.stubGlobal("fetch", async (url: string) => {
+      requested.push(String(url));
+      return new Response(module);
+    });
+    try {
+      const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
+      await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/plaintext wasm is refused/);
+      expect(requested).toContain("https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm");
+      expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("refuses plaintext wasm unless allowUnsealed is set", async () => {
     const plain = wasmBytes();
-    const opened = await openPng(plain, { key: contentKey() });
+    await expect(openPng(plain, {})).rejects.toBeInstanceOf(DomdocError);
+    await expect(openPng(plain, {})).rejects.toThrow(/plaintext wasm is refused/);
+  });
+
+  it("passes plaintext wasm through only when allowUnsealed is set", async () => {
+    const plain = wasmBytes();
+    const opened = await openPng(plain, { allowUnsealed: true, ticket: "ticket-1" });
     expect(Array.from(opened.module!)).toEqual(Array.from(plain));
     expect(Array.from(opened.module!.subarray(0, 4))).toEqual([0x00, 0x61, 0x73, 0x6d]);
-    expectPngOnly(opened.requested);
+    expectPngOnly(opened.requested, "ticket-1");
     opened.doc.dispose();
   });
 
-  it("decrypts sealed wasm with the content key and does not request other formats", async () => {
+  it("accepts API plaintext for a trial or licensed response and does not unwrap a content key", async () => {
     const plain = wasmBytes();
-    const key = contentKey();
-    const sealed = await sealWasm(plain, key);
+    const sealed = await sealWasm(plain, contentKey());
     expect(String.fromCharCode(sealed[0]!, sealed[1]!, sealed[2]!, sealed[3]!)).toBe("DDW1");
-    const opened = await openPng(sealed, { key });
-    expect(Array.from(opened.module!)).toEqual(Array.from(plain));
-    expectPngOnly(opened.requested);
-    opened.doc.dispose();
-  });
-
-  it("decrypts sealed wasm with the API wrappedContentKey", async () => {
-    const plain = wasmBytes();
-    const key = contentKey();
-    const ticket = "eyJndWVzdCI6dHJ1ZSwiZXhwIjoxfQ.sig";
-    const opened = await openPng(await sealWasm(plain, key), {
-      ticket: { ticket, wrappedContentKey: wrapContentKey(key, ticket) },
-    });
-    expect(Array.from(opened.module!)).toEqual(Array.from(plain));
-    expectPngOnly(opened.requested);
-    opened.doc.dispose();
+    const decrypt = vi.spyOn(crypto.subtle, "decrypt");
+    try {
+      await expect(openPng(sealed, { ticket: "ticket-1" })).rejects.toThrow(/decrypted for one request/);
+      expect(decrypt).not.toHaveBeenCalled();
+      const trial = await openPng(plain, { ticket: "ticket-1", license: "trial" });
+      expect(trial.notice.trial).toBe(true);
+      expect(Array.from(trial.module!)).toEqual(Array.from(plain));
+      expectPngOnly(trial.requested, "ticket-1");
+      trial.doc.dispose();
+      const licensed = await openPng(plain, { ticket: "ticket-1", license: "licensed" });
+      expect(licensed.notice.trial).toBe(false);
+      expect(Array.from(licensed.module!)).toEqual(Array.from(plain));
+      licensed.doc.dispose();
+      expect(decrypt).not.toHaveBeenCalled();
+    } finally {
+      decrypt.mockRestore();
+    }
   });
 });
 
@@ -173,18 +264,10 @@ async function sealWasm(plain: Uint8Array<ArrayBuffer>, key: Uint8Array<ArrayBuf
   return out;
 }
 
-/** Same wrap as `domdoc-api` `wrapContentKey`: base64(iv || ciphertext || tag), key = SHA-256(ticket). */
-function wrapContentKey(key: Uint8Array<ArrayBuffer>, ticket: string): string {
-  const aesKey = createHash("sha256").update(ticket).digest();
-  const iv = Buffer.alloc(12, 4);
-  const cipher = createCipheriv("aes-256-gcm", aesKey, iv);
-  const enc = Buffer.concat([cipher.update(key), cipher.final()]);
-  return Buffer.concat([iv, enc, cipher.getAuthTag()]).toString("base64");
-}
-
-function expectPngOnly(requested: string[]) {
+function expectPngOnly(requested: string[], ticket?: string) {
+  const glue = "https://cdn.example/v1/png/domdoc_png.js";
   expect(requested).toEqual([
-    "https://cdn.example/v1/png/domdoc_png.js",
+    ticket ? `${glue}?ticket=${encodeURIComponent(ticket)}` : glue,
     "https://cdn.example/v1/png/domdoc_png_bg.wasm",
   ]);
   expect(requested.some((url) => /svg|pdf|docx|pdfium|jpeg|gif|webp|xlsx/i.test(url))).toBe(false);
@@ -192,7 +275,11 @@ function expectPngOnly(requested: string[]) {
 
 async function openPng(
   wasm: Uint8Array<ArrayBuffer>,
-  options: { key?: Uint8Array<ArrayBuffer>; ticket?: { ticket: string; wrappedContentKey: string } },
+  options: {
+    ticket?: string;
+    allowUnsealed?: boolean;
+    license?: "trial" | "licensed";
+  },
 ) {
   const requested: string[] = [];
   let module: Uint8Array | undefined;
@@ -209,12 +296,19 @@ async function openPng(
   };
   vi.stubGlobal("fetch", async (url: string) => {
     requested.push(String(url));
-    return new Response(wasm);
+    const headers = new Headers();
+    if (options.license) headers.set("x-domdoc-license", options.license);
+    return new Response(wasm, { headers });
+  });
+  const importers = bundlesFromCdn("https://cdn.example/v1", {
+    load,
+    ticket: options.ticket,
+    allowUnsealed: options.allowUnsealed,
   });
   try {
-    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load, ...options }));
+    const loader = new BundleLoader(importers);
     const doc = await openDocument(loader, PNG, { name: "photo.png" });
-    return { doc, requested, module };
+    return { doc, requested, module, notice: bundleLoadNotice(importers) };
   } finally {
     vi.unstubAllGlobals();
   }

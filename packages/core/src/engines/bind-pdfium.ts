@@ -8,8 +8,8 @@ interface PdfiumCreated {
 }
 
 /**
- * embedpdf starts PDFium with `PDFiumExt_Init`. pdfium-render then asks `ccall`
- * for `PDFium_Init`, which that build does not export as a wasm symbol.
+ * The renderer starts through its init export. The Rust binding then asks `ccall`
+ * for an init symbol this build does not export.
  */
 export function bindPdfiumRender(
   created: PdfiumCreated,

@@ -1,0 +1,40 @@
+---
+interface Item {
+  label: string;
+  value: string;
+  pressed?: boolean;
+}
+
+interface Props {
+  items?: Item[];
+  class?: string;
+  "aria-label"?: string;
+}
+
+const { items = [], class: className, "aria-label": ariaLabel = "Toggle" } = Astro.props;
+---
+
+<div
+  data-slot="toggle-group"
+  role="group"
+  aria-label={ariaLabel}
+  class:list={["inline-flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5", className]}
+>
+  {
+    items.map((item) => (
+      <button
+        type="button"
+        data-slot="toggle-group-item"
+        data-value={item.value}
+        aria-pressed={item.pressed ? "true" : "false"}
+        class:list={[
+          "h-8 rounded-sm px-2.5 text-sm font-medium text-foreground hover:bg-accent",
+          item.pressed && "bg-accent text-accent-foreground",
+        ]}
+      >
+        {item.label}
+      </button>
+    ))
+  }
+  <slot />
+</div>

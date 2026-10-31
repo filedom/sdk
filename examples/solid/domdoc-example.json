@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/domdoc-example.schema.json",
+  "framework": "solid",
+  "label": "Solid",
+  "logo": "logo.svg",
+  "install": "npm install @domdoc/core @domdoc/solid",
+  "add": "npx @domdoc/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/App.tsx", "role": "page" },
+    { "path": "src/index.css", "role": "css" },
+    { "path": "vite.config.ts", "role": "config" }
+  ]
+}

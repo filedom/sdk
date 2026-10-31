@@ -1,0 +1,38 @@
+{
+  "name": "@domdoc/ui",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Copy-in UI kit for the domdoc viewer: theme, per-framework components, and the domdoc CLI",
+  "type": "module",
+  "sideEffects": false,
+  "bin": {
+    "domdoc": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./theme.css": "./theme.css",
+    "./registry.json": "./registry.json",
+    "./schema/*": "./schema/*"
+  },
+  "files": [
+    "dist",
+    "registry",
+    "schema",
+    "theme.css",
+    "registry.json",
+    "CONTRACTS.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@domdoc/core": "workspace:*",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

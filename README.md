@@ -35,8 +35,8 @@ await viewer.open(fileFromInput); // File | Blob | bytes | URL | FileStore id
 viewer.download();
 ```
 
-`bundlesFromCdn` loads `{base}/pdf/domdoc_pdf.js` with `{base}/pdf/pdfium.wasm`,
-or `{base}/office/domdoc_office.js` for DOC, DOCX, XLS, XLSX, PPT and PPTX.
+`bundlesFromCdn` loads `{base}/pdf/domdoc_pdf.js`. The PDF renderer is inside that module's wasm,
+so a PDF open does not fetch a second wasm. Office formats load their own glue module.
 Each `.wasm` file sits beside its glue module. A PDF open does not download
 the office bundle.
 

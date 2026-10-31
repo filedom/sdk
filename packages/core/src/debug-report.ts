@@ -183,7 +183,7 @@ export function debugHints(code: string, detail: string): string[] {
     hints.push("Read-only mode refuses edits from the shell in domdoc-wasm/crates/core/src/shell.rs.");
   } else if (code === "pdf-encrypted" || (code === "pdf-render" && /Decryption|PasswordProtected/.test(detail))) {
     hints.push(
-      "Encrypted PDFs fail in domdoc-wasm/crates/open/src/pdf.rs when PDFium rejects the password.",
+      "Encrypted PDFs fail in domdoc-wasm/crates/open/src/pdf.rs when the engine rejects the password.",
       "The SDK should prompt via openDocument getPassword or pass password in OpenOptions; domdoc-sdk/packages/core/src/password-prompt.ts is the viewer dialog.",
     );
   }

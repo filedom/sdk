@@ -1,0 +1,10 @@
+{
+  "$schema": "https://domdoc.io/sdk-docs/schema/domdoc.schema.json",
+  "framework": "sveltekit",
+  "componentDir": "src/lib/components/domdoc",
+  "css": "src/app.css",
+  "aliases": {
+    "components": "$lib/components/domdoc",
+    "lib": "$lib"
+  }
+}

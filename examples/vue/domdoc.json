@@ -1,0 +1,10 @@
+{
+  "$schema": "https://domdoc.io/sdk-docs/schema/domdoc.schema.json",
+  "framework": "vue",
+  "componentDir": "src/components/domdoc",
+  "css": "src/index.css",
+  "aliases": {
+    "components": "@/components/domdoc",
+    "lib": "@/lib"
+  }
+}

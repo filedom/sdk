@@ -1,0 +1,9 @@
+@import "tailwindcss";
+@import "@domdoc/ui/theme.css";
+@source "..";
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}

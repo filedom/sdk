@@ -25,7 +25,7 @@ export interface OpenOptions {
    */
   getPassword?: (hint: PasswordHint) => Promise<string | null | undefined>;
   /**
-   * When set, the core loads PDFium plus pdfium-render, or office_oxide, from
+   * When set, the core loads the PDF engine or office_oxide from
    * the host switches. The format bundles on `loader` are not fetched.
    */
   core?: CoreLoader;
