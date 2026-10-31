@@ -30,4 +30,19 @@ if (hits.length > 0) {
   console.error(`${RETIRED} is retired; use https://domdoc.io instead:\n  ${hits.join("\n  ")}`);
   process.exit(1);
 }
+
+const config = readFileSync(join(ROOT, "docusaurus.config.ts"), "utf8");
+const absolute = [];
+for (const match of config.matchAll(/href:\s*"([^"]+)"/g)) {
+  const href = match[1];
+  if (/^https?:\/\//.test(href) && !href.startsWith("https://github.com/")) absolute.push(href);
+}
+if (absolute.length > 0) {
+  console.error(`docs links must be relative to the domain:\n  ${absolute.join("\n  ")}`);
+  process.exit(1);
+}
+if (!config.includes('href="/"')) {
+  console.error('the link back to the site must be href="/"');
+  process.exit(1);
+}
 console.log(`check-domains: no ${RETIRED} references in apps/docs`);

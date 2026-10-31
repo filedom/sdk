@@ -38,7 +38,12 @@ const config: Config = {
         { type: "docSidebar", sidebarId: "frameworks", position: "left", label: "Frameworks" },
         { to: "/playground/", label: "Playground", position: "left" },
         { to: "/licensing/", label: "Licensing", position: "left" },
-        { href: "https://domdoc.io/", label: "domdoc Cloud", position: "right" },
+        // Raw HTML: a normal href of "/" is prefixed with /sdk-docs/.
+        {
+          type: "html",
+          position: "right",
+          value: '<a class="navbar__link" href="/">domdoc Cloud</a>',
+        },
         { href: GITHUB, label: "GitHub", position: "right" },
       ],
     },
@@ -62,7 +67,7 @@ const config: Config = {
         {
           title: "More",
           items: [
-            { label: "domdoc Cloud", href: "https://domdoc.io/" },
+            { html: '<a class="footer__link-item" href="/">domdoc Cloud</a>' },
             { label: "GitHub", href: GITHUB },
           ],
         },
