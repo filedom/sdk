@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.4 — 31 Oct 2026
+
+The version moved to 0.0.4 to match the other repos.
+
 ## 0.0.3 — 31 Oct 2026
 
 The docs send you back to the site on this domain.

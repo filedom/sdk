@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/vue",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "description": "domdoc Vue 3 component wrapping @domdoc/core",
   "type": "module",

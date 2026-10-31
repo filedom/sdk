@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/sveltekit-host",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "description": "domdoc SvelteKit browser-only action wrapping @domdoc/core",
   "type": "module",
