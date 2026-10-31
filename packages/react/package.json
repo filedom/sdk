@@ -1,28 +1,35 @@
 {
   "name": "@domdoc/react",
-  "version": "0.0.1-m5-stub",
-  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "domdoc React component wrapping @domdoc/core",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@domdoc/core": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@testing-library/react": "^16.1.0",
-    "@types/react": "^19.0.2",
     "happy-dom": "^15.11.7",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "@types/react": "^19.0.2"
   }
 }

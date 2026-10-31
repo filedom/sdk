@@ -1,418 +1,77 @@
-export {
-  createEngineClient,
-  type EngineClient,
-  type EngineClientOptions,
-  type RenderProjection,
-} from "./rendering/engine-client.js";
-export type { DocumentSessionStub, SessionRevisions } from "./wire/domain-owned.js";
-export { DocumentSession, createDocumentSession } from "./session/document-session.js";
-export {
-  applyDocumentSessionRemoteAcknowledgementReceiptStub,
-  recordRemoteAcknowledgementReceiptStub,
-  type DocumentSessionRemoteAcknowledgementReceiptStub,
-} from "./session/document-session-remote-acknowledgement-receipt-stub.js";
-export {
-  createDomdocPackageBlobIndexStub,
-  createDomdocPackageManifestStub,
-  createDomdocPackagePersistPlanStub,
-  parseDomdocPackageManifestStub,
-  serializeDomdocPackageManifestStub,
-  DOMDOC_CRASH_SAFE_COMMIT_STEPS,
-  DOMDOC_PACKAGE_SCHEMA_VERSION,
-  DOMDOC_REQUIRED_MEMBER_PREFIXES,
-  type DomdocPackageBlobIndexStub,
-  type DomdocPackageManifestStub,
-  type DomdocPackageMemberStub,
-  type DomdocPackagePersistPlanStub,
-  validateDomdocCrashSafeCommitPlan,
-  simulateDomdocCrashSafeStagedWrite,
-  MemoryDomdocBlobStoreStub,
-} from "./persistence/domdoc-package-stub.js";
-export {
-  WIRE_PROTOCOL_VERSION,
-  WIRE_SCHEMA_ID,
-} from "./wire/generated.js";
-export type { RenderWireResponse } from "./wire/generated-response.js";
-export {
-  createPdfWriterSession,
-  sha256 as pdfSourceSha256,
-  type PdfWriterSession,
-} from "./formats/pdf/writer.js";
-export type { PdfWriterCapability, PdfUnsupportedCode } from "./formats/pdf/types.js";
-export { DocxStore } from "./formats/docx/docx-store.js";
-export { buildRenderProjectionFromDocxFlow } from "./formats/docx/docx-flow-projection.js";
-export {
-  buildProseMirrorDocFromOoxmlBody,
-  docxProjectionSchema,
-  proseMirrorParagraphTexts,
-} from "./formats/docx/docx-prosemirror-projection.js";
-export {
-  applyProjectionTransactionStub,
-  prosemirrorDocToTransactionStub,
-  type DocxProjectionTransactionStub,
-} from "./formats/docx/docx-prosemirror-transaction-boundary.js";
-export {
-  exportDocxFromStoreStub,
-  recordDocxExportRevision,
-  DOCX_EXPORT_FEATURE_REGISTRY_ID,
-  type DocxExportStubResult,
-} from "./formats/docx/docx-export-stub.js";
-export {
-  importDocxStoreFromExportedBytes,
-  DOCX_IMPORT_MINIMAL_DETECTION_FEATURE_ID,
-  DOCX_IMPORT_MINIMAL_VIEW_TRANSFORM_FEATURE_ID,
-  type DocxImportMinimalResult,
-} from "./formats/docx/docx-import-minimal.js";
-export {
-  buildDocxExternalReferenceRenderOracleStub,
-  DOCX_EXTERNAL_REFERENCE_RENDER_ORACLE_FEATURE_ID,
-  type DocxExternalReferenceRenderOracleJsonDiffPlaceholder,
-  type DocxExternalReferenceRenderOracleStubResult,
-} from "./formats/docx/docx-external-reference-render-oracle-stub.js";
-export {
-  LAZY_FEATURE_MANIFEST_STUB,
-  LAZY_FEATURE_MANIFEST_STUB_ID,
-  LAZY_FEATURE_MANIFEST_STUB_SCHEMA_VERSION,
-  computeLazyFeatureManifestStubContentHash,
-  listLazyFeatureManifestHostExamples,
-  type LazyFeatureManifestLazyModuleStub,
-  type LazyFeatureManifestStub,
-} from "./session/lazy-feature-manifest-stub.js";
-export {
-  exportDocxTrackChangesFromSessionAfterAcceptStub,
-  exportDocxTrackChangesFromStoreStub,
-  readDocxTrackChangesMarkerSnapshot,
-  DOCX_TRACK_CHANGES_EXPORT_FEATURE_ID,
-  type DocxTrackChangesExportAfterAcceptResult,
-  type DocxTrackChangesExportStubResult,
-  type DocxTrackChangesMarkerSnapshot,
-} from "./formats/docx/docx-track-changes-export-stub.js";
-export {
-  applyReviewSuggestionDecisionStub,
-  parseReviewSuggestionMarksFromDocumentXml,
-  REVIEW_SUGGESTION_FEATURE_REGISTRY_ID,
-  type ReviewSuggestionDecision,
-  type ReviewSuggestionDecisionResult,
-  type ReviewSuggestionMarkStub,
-} from "./formats/docx/review-suggestion-accept-reject-stub.js";
-export {
-  applyReviewSuggestionDecisionFromDocumentXml,
-  applyReviewSuggestionDecisionToOpcPackage,
-  patchDocumentXmlForReviewSuggestionDecision,
-  DOCX_DOCUMENT_PART,
-  type ReviewSuggestionOpcPatchResult,
-} from "./formats/docx/review-suggestion-opc-patch-stub.js";
-export {
-  buildReviewMinimalTrackedDocxZipBytes,
-  REVIEW_MINIMAL_TRACKED_DOCUMENT_XML,
-} from "./formats/docx/review-minimal-docx-fixture.js";
-export {
-  CollaborationProviderOrderedStub,
-  COLLABORATION_ORDERED_STUB_FEATURE_ID,
-  type CollaborationOrderedStubEvent,
-  type CollaborationOrderedStubEventKind,
-  type CollaborationProviderOrderedStubState,
-} from "./collaboration/collaboration-provider-ordered-stub.js";
-export {
-  applyDemoProsemirrorTextReplace,
-  applyDemoProsemirrorTypingReplace,
-  buildDemoDocxZipBytes,
-  openDocxProsemirrorDemoSessionSlice,
-  PROSEMIRROR_DEMO_SLICE_FEATURE_ID,
-  type DocxProsemirrorDemoSessionSlice,
-} from "./session/docx-prosemirror-demo-session-slice.js";
-export {
-  applyProsemirrorDemoTypingTransaction,
-  createProsemirrorDemoDebouncedSaveState,
-  flushProsemirrorDemoDebouncedSave,
-  PROSEMIRROR_DEMO_DEBOUNCED_SAVE_FEATURE_ID,
-  type ProsemirrorDemoDebouncedSaveState,
-} from "./session/prosemirror-demo-debounced-save-stub.js";
-export {
-  dispatchProsemirrorDemoRejectSuggestionStub,
-  PROSEMIRROR_DEMO_REJECT_SUGGESTION_FEATURE_ID,
-  type ProsemirrorDemoRejectSuggestionContext,
-  type ProsemirrorDemoRejectSuggestionResult,
-} from "./session/prosemirror-demo-reject-suggestion-stub.js";
-export {
-  recordProsemirrorDemoExportReceiptStub,
-  recordProsemirrorDemoPersistReceiptStub,
-  revisionReceiptsFromSession,
-  type ProsemirrorDemoRevisionReceiptsStub,
-} from "./session/prosemirror-demo-revision-receipts-stub.js";
-export {
-  DOMDOC_DEMO_DOCX_BLOB_KEY,
-  loadProsemirrorDemoDomdocPackageStub,
-  saveProsemirrorDemoDomdocPackageStub,
-  type ProsemirrorDomdocPackageRoundTripResult,
-} from "./session/docx-prosemirror-domdoc-package-stub.js";
-export {
-  createPdfWriterWorkerClient,
-  type PdfWriterWorkerClient,
-} from "./formats/pdf/pdf-writer-worker-client.js";
-export {
-  PdfiumWasmWriterBackend,
-  tryLoadPdfiumWasmModule,
-} from "./formats/pdf/backends/pdfium-wasm-backend.js";
-export {
-  PDFIUM_RENDER_COMMIT,
-  PDFIUM_SOURCE_COMMIT,
-} from "./formats/pdf/pdfium-pin.js";
-export {
-  createCompositorInputState,
-  onGeometryUpdated,
-  pointerDown,
-  pointerDownWithCaret,
-  type CompositorInputState,
-} from "./compositor/input-hook.js";
-export {
-  caretOffsetFromGeometry,
-  findGlyphRun,
-} from "./editing/caret-map.js";
-export {
-  beginComposition,
-  cancelComposition,
-  commitComposition,
-  updateCompositionPreedit,
-  type CompositionTransaction,
-} from "./editing/composition-stub.js";
-export {
-  validateBreakToken,
-  type BreakToken,
-  type FragmentId,
-} from "./components/fragmentation-types.js";
-export {
-  measureFragmentFromBounds,
-  type FragmentRunBounds,
-  type MeasuredFragment,
-} from "./components/component-measurement-contract.js";
-export {
-  assertStableFragmentMeasurements,
-  type LayoutStabilityOutcome,
-} from "./components/component-measurement-layout-stability.js";
-export {
-  fragmentsEquivalent,
-  runFragmentationConvergenceOracle,
-  type FragmentationEquivalenceVerdict,
-  type FragmentationLayoutPass,
-} from "./components/fragmentation-equivalence-oracle.js";
-export { resolvePdfiumWasmModule } from "./formats/pdf/pdfium-module-resolve.js";
-export {
-  describePdfiumLibProbeLayout,
-  tryLoadPdfiumLibProbeRender,
-  readPdfiumLibProbeManifest,
-  PDFIUM_LIB_PROBE_RENDER_FEATURE_ID,
-  type PdfiumLibProbeRenderStatus,
-  type PdfiumLibProbeLayout,
-} from "./formats/pdf/pdfium-lib-probe-render-stub.js";
-export {
-  describePdfiumLibProbeLayoutNode,
-  tryLoadPdfiumLibProbeRenderNode,
-  tryRenderPdfiumLibProbePageBitmapNode,
-  readPdfiumLibProbeManifestNode,
-  type PdfiumLibProbePageBitmapResult,
-} from "./formats/pdf/pdfium-lib-probe-render-node.js";
-export {
-  PDFIUM_LIB_PROBE_BROWSER_BASE,
-  describePdfiumLibProbeLayoutBrowser,
-  tryLoadPdfiumLibProbeRenderBrowser,
-  tryRenderPdfiumLibProbePageBitmapBrowser,
-} from "./formats/pdf/pdfium-lib-probe-render-browser.js";
-export {
-  loadPdfiumLibProbeViaWorker,
-  renderPdfiumLibProbePageViaWorker,
-} from "./formats/pdf/pdfium-lib-probe-render-worker-client.js";
-export {
-  PDFIUM_WASM_TARGET_UNSUPPORTED_BLOCKED_REASON,
-  isPdfiumNativeProofBlockedByUpstreamGn,
-} from "./formats/pdf/pdfium-g1-blocked-reason.js";
-export {
-  createDomdocPdfiumClassificationTestDouble,
-  runP01P05ClassificationWithTestDouble,
-} from "./formats/pdf/pdfium-classification-test-double.js";
-export {
-  createPdfLibOverlayPageBytes,
-  PDF_LIB_OVERLAY_HELPERS_FEATURE_ID,
-} from "./formats/pdf/pdf-lib-overlay-helpers.js";
-export {
-  applyProsemirrorDemoEditWithToolbarUndo,
-  createProsemirrorDemoToolbarUndoState,
-  flushProsemirrorDemoDebouncedSaveWithToolbarUndo,
-  undoProsemirrorDemoViaToolbar,
-} from "./session/prosemirror-demo-toolbar-undo-bridge.js";
-export {
-  classifyPdfProofOperation,
-  type PdfProofFixtureId,
-} from "./formats/pdf/pdfium-proof-hooks.js";
-export {
-  collectP01P05VendorProofEvidence,
-  P01_P05_FIXTURE_ORDER,
-  type P01P05VendorProofEvidence,
-} from "./formats/pdf/pdfium-p01-p05-runner.js";
-export {
-  applyListRenumberToOpcPackage,
-  DOCX_NUMBERING_PART,
-  patchNumberingXmlForListRenumber,
-} from "./formats/docx/docx-numbering-opc-patch.js";
-export {
-  applyListRenumberWithOoxmlDefinitions,
-  buildNumberingXmlWithListDef,
-  buildWordCompatibleNumberingXml,
-  parseNumberingAbstractNumIds,
-  parseNumberingNumIds,
-  type WordNumberingLevelDef,
-} from "./formats/docx/docx-numbering-ooxml-roundtrip.js";
-export {
-  INPUT_EVIDENCE_FORMAT_VERSION,
-  validateImeEvidenceFile,
-  validateSrEvidenceFile,
-} from "./input/input-evidence-scaffold.js";
-export {
-  IME_LOG_CAPTURE_TEMPLATES,
-  SR_LOG_CAPTURE_TEMPLATES,
-  buildImeEvidenceFileFromSyntheticLog,
-  validateCapturedImeLog,
-  validateCapturedSrLog,
-} from "./input/input-evidence-log-templates.js";
-export {
-  AF_BROWSER_CORPUS,
-  afCorpusAllConverged,
-  evaluateAfBrowserCorpus,
-  type AfBrowserCorpusEntry,
-} from "./components/fragmentation-af-browser-corpus.js";
-export {
-  afIncrementalAllEquivalent,
-  evaluateAfIncrementalVsFullEquivalence,
-  type AfIncrementalEquivalenceVerdict,
-} from "./components/fragmentation-af-incremental-equivalence.js";
-export {
-  buildAfIncrementalGateGradeEvidence,
-  evaluateAfIncrementalGateGrade,
-  type AfIncrementalGateGradeEvidence,
-} from "./components/fragmentation-af-incremental-gate-grade.js";
-export {
-  buildAfAuthoritativeIncrementalEvidence,
-  evaluateAfAuthoritativeIncrementalLayout,
-  type AfAuthoritativeIncrementalEvidence,
-  type AfAuthoritativeIncrementalOptions,
-} from "./components/fragmentation-af-incremental-authoritative.js";
-export {
-  evaluateAfEngineIncrementalVsFullEquivalence,
-} from "./components/fragmentation-af-incremental-engine.js";
-export {
-  buildAfEditBreakpointEvidence,
-  evaluateAfEngineIncrementalAtEditBreakpoints,
-  type AfEditBreakpointEvidence,
-} from "./components/fragmentation-af-incremental-breakpoints.js";
-export {
-  createWasmShapedLayoutHook,
-  type WasmShapedLayoutHook,
-} from "./layout/wasm-shaped-layout-hook.js";
-export {
-  computeListMarkersFromNumberingXml,
-  parseWordNumberingXml,
-} from "./formats/docx/docx-numbering-runtime.js";
-export {
-  REAL_INPUT_LOG_SLOTS,
-  REAL_PLATFORM_LOG_RELATIVE_PATHS,
-  buildRealInputLogSlotManifest,
-  validateRealPlatformInputLog,
-} from "./input/input-evidence-real-log-slots.js";
-export {
-  validateRealPlatformLogPaths,
-} from "./input/input-platform-log-paths.js";
-export {
-  ingestRealPlatformInputLog,
-} from "./input/input-platform-log-ingestion.js";
-export {
-  applyDocxNumberingWriteBackFromSession,
-  writeBodyNumPrFromSessionListState,
-} from "./formats/docx/docx-numbering-body-writeback.js";
-export {
-  detectDocumentKind,
-  type DetectedDocumentKind,
-  type DocumentKindDetection,
-} from "./formats/open/detect-document-kind.js";
-export {
-  FORMAT_MODULE_DESCRIPTORS,
-  type FormatAdapterKind,
-  type FormatModuleDescriptor,
-  type FormatModuleId,
-} from "./loading/format-descriptor.js";
-export {
-  FormatModuleLoader,
-  type FormatModuleImporter,
-  type FormatModuleLoadRecord,
-  type FormatModuleLoadStatus,
-} from "./loading/format-module-loader.js";
-export {
-  DOMDOC_ASSET_MANIFEST_STUB,
-  type DomdocAssetManifestEntryStub,
-  type DomdocAssetManifestStub,
-} from "./loading/asset-manifest-stub.js";
-export {
-  importLegacyDocStub,
-  type LegacyDocImportLossItem,
-  type LegacyDocImportResult,
-} from "./formats/doc/legacy-doc-import-stub.js";
-export {
-  openDocumentFromBlob,
-  openDocumentFromBytes,
-  openDocumentFromUrl,
-  type OpenDocumentResult,
-} from "./formats/open/open-document-bytes.js";
-export {
-  nextSearchHit,
-  previousSearchHit,
-  searchDocumentParagraphs,
-  type DocumentSearchHit,
-} from "./formats/text/document-search.js";
-export { replaceDocumentParagraphs } from "./formats/text/document-find-replace.js";
-export {
-  contentWidthPt,
-  paginateSemanticTable,
-  percentContentWidthPt,
-  placeAtomicCard,
-} from "./components/fragmentation-c01-c04-feasibility.js";
-export {
-  cssPxToPt,
-  fitPageZoom,
-  fitWidthZoom,
-  mapPagePointToCss,
-  ptToCssPx,
-} from "./compositor/view-transform.js";
-export { parseCommentRangesFromDocumentXml } from "./formats/docx/comment-range-stub.js";
-export {
-  COMMENT_PANEL_ACCEPT_ACTION_FEATURE_ID,
-  COMMENT_PANEL_ACCEPT_DEFAULT_SUGGESTION_ID,
-  dispatchCommentPanelAcceptAction,
-  type CommentPanelAcceptActionKind,
-  type CommentPanelAcceptActionResult,
-  type CommentPanelAcceptReviewOpcContext,
-} from "./formats/docx/comment-panel-accept-action-stub.js";
-export {
-  attachMultiBlobMemberKeysToManifestStub,
-  sha256Hex,
-} from "./persistence/domdoc-package-stub.js";
-export type { IncrementalLayoutHooks } from "./components/fragmentation-af-incremental-equivalence.js";
-export {
-  boundedPaintCacheKeys,
-  visiblePageWindow,
-} from "./compositor/visible-page-priority.js";
-export {
-  canvasPaintMetrics,
-  paintRenderWireResponse,
-  paintRgbaBitmapToCanvas,
-  resolveViewerCanvasCssWidth,
-} from "./compositor/canvas-paint.js";
-export {
-  buildDocxRenderProjectionFromStore,
-  type DocxLayoutEngine,
-} from "./viewer/docx-render-projection.js";
-export {
-  renderPdfPageBitmapBrowser,
-  resetPdfiumBrowserModuleCache,
-  type PdfiumBrowserAssets,
-  type PdfiumBrowserModule,
-  type PdfPageBitmap,
-} from "./formats/pdf/pdfium-browser-display.js";
+export * from "./engine-types.js";
+export { BundleLoader, type BundleImporters } from "./bundles.js";
+export { bundleUrl, bundlesFromCdn, type CdnBundleOptions, type CdnBundleTicket } from "./cdn.js";
+export {
+  ComponentRegistry,
+  isFlowMode,
+  sizeBasis,
+  toPoints,
+  type ComponentContext,
+  type ComponentFactory,
+  type ComponentHandle,
+  type FlowMode,
+  type Length,
+  type Placement,
+  type PlacementPosition,
+} from "./components.js";
+export { DomdocDocument, type DocumentChange, type PageRaster } from "./document.js";
+export { DomdocError } from "./errors.js";
+export { Editor, isCollapsed, normalizePaste, samePos, type Selection } from "./editor.js";
+export { FileStore, type AddFileOptions, type FileInput, type FileSource, type StoredFile } from "./file-store.js";
+export { ACCEPT, detectFormat, exportName } from "./formats.js";
+export * as geometry from "./geometry.js";
+export * as navigation from "./navigation.js";
+export {
+  ALL_ENGINES,
+  CoreLoader,
+  bundledEngines,
+  createEngineLoader,
+  enginesFromCdn,
+  loadingLabel,
+  planLoad,
+  usesOfficeOxide,
+  type EngineFormat,
+  type EngineSources,
+  type HostEngineConfig,
+  type LoadPlan,
+  type PlannedModule,
+  type PreparedOpen,
+  type RevisionVisibility,
+  type TrackChangesBinding,
+  type TrackChangesModule,
+} from "./modules.js";
+export { openDocument, type OpenOptions, type OpenSource } from "./open.js";
+export { promptForPassword, type PasswordHint } from "./password-prompt.js";
+export { paintFlowPage, paintRaster } from "./paint.js";
+export { VIEWER_CSS } from "./styles.js";
+export { DomdocViewer, type Annotation, type ChromeDir, type HighlightEvent, type SelectionState, type ThemeConfig, type ThemeName, type ThemePreference, type ThemeToken, type ThemeTokens, type ViewerEvents, type ViewerOptions, type ViewMode } from "./viewer.js";
+export * as zoom from "./zoom.js";
+export { shouldMount, type RenderDecision, type RenderMode, type RenderPolicyInput } from "./render-policy.js";
+export {
+  TOOLBAR_CATALOG,
+  actionAvailability,
+  actionHint,
+  groupAvailability,
+  type CatalogContext,
+  type SelectionKind,
+} from "./toolbar-catalog.js";
+export { createDocumentRequest, exportTargets, openNewFileDialog, A4_PT } from "./new-file.js";
+export {
+  LayersPanel,
+  LayerElementsCache,
+  elementListName,
+  layerElementsForPage,
+  layerElementsKey,
+  type LayerActions,
+  type LayerElementItem,
+} from "./layers.js";
+export { HistoryPanel, type HistoryActions } from "./history.js";
+export { Toolbar, type ToolbarActions, type ToolbarState } from "./toolbar.js";
+// ViewMode stays exported from ./viewer.js.
+
+import { DomdocViewer, type ViewerOptions } from "./viewer.js";
+
+/** Mounts a viewer into an element of the host SPA. */
+export function createViewer(element: HTMLElement, options: ViewerOptions): DomdocViewer {
+  return new DomdocViewer(element, options);
+}

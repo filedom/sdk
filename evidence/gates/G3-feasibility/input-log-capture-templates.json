@@ -1,8 +1,0 @@
-{
-  "formatVersion": 1,
-  "recordedAt": "2026-10-17T12:00:00.000Z",
-  "status": "template-only-not-run",
-  "imeTemplates": ["IME-01", "IME-02"],
-  "srTemplates": ["SR-01"],
-  "note": "G3-INPUT-09 platform capture templates; synthetic validation in input-evidence-log-templates.test.ts"
-}

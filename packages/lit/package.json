@@ -1,25 +1,33 @@
 {
   "name": "@domdoc/lit",
-  "version": "0.0.1-m5-stub",
-  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "domdoc <domdoc-viewer> Lit element wrapping @domdoc/core",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@domdoc/core": "workspace:*"
   },
   "peerDependencies": {
     "lit": "^3.2.0"
   },
   "devDependencies": {
-    "@open-wc/testing": "^4.0.0",
-    "lit": "^3.2.1",
+    "happy-dom": "^15.11.7",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "lit": "^3.2.1"
   }
 }

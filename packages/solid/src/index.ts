@@ -1,13 +1,24 @@
-export {
-  DomdocSolidContext,
-  useDomdocSession,
-  createDomdocSolidSessionContext,
-  domdocSolidAdapterDemoSurface,
-  type DomdocSolidSessionContext,
-} from "./domdoc-context.js";
-export {
-  domdocSolidLazyFeatureManifestStub,
-  domdocSolidLazyFeatureManifestSchemaVersion,
-  listDomdocSolidLazyFeatureHostExamples,
-  type DomdocSolidLazyFeatureManifestStub,
-} from "./lazy-feature-manifest.js";
+import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { onCleanup, onMount } from "solid-js";
+
+export type { Viewer, ViewerOptions };
+
+export interface DomdocViewerProps {
+  options: ViewerOptions;
+  onReady?: (viewer: Viewer) => void;
+  class?: string;
+}
+
+/** Solid component returning its host element: `<DomdocViewer options={options} />` */
+export function DomdocViewer(props: DomdocViewerProps): HTMLDivElement {
+  const host = document.createElement("div");
+  host.style.height = "100%";
+  if (props.class) host.className = props.class;
+  let viewer: Viewer | undefined;
+  onMount(() => {
+    viewer = createViewer(host, props.options);
+    props.onReady?.(viewer);
+  });
+  onCleanup(() => viewer?.destroy());
+  return host;
+}

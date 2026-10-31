@@ -1,0 +1,18 @@
+---
+description: Public SDK — load the viewer, fetch the engine from the CDN
+globs: packages/**
+alwaysApply: false
+---
+This repository is the public SDK. It ships the viewer and the framework adapters
+and nothing else. Format bundles are private and are loaded at runtime with
+`bundlesFromCdn`; do not vendor `.wasm`, fixtures, or engine source here.
+Adapters own lifecycle only (`createViewer` / `destroy`). The page forwards raw
+browser events and applies events the core emits (`selection`, `zoom`, `need`,
+`applied`, `error`, plus paint and embed boxes). It does not hit-test, move
+the caret, interpret keys, detect a format, or compute component boxes. The
+viewer still does some of that; new code must not add more. On `need`, fetch
+that wasm file. Mirror contract changes into `engine-types.ts` in the same
+change, and only if you are the contract lane. Follow `docs/SDK_PROMPT.md` and,
+when the engine repo is checked out beside this one, one ready lane of
+`../domdoc-wasm/docs/Domdoc_Delivery_Workflow.md`. A red lane blocks only lanes
+that name it. Do not raise `VISUAL_MAX_DIFF`.

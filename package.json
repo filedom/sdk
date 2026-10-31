@@ -1,39 +1,14 @@
 {
-  "name": "domdoc-web",
+  "name": "domdoc-sdk",
+  "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "pnpm --filter @domdoc/core build && pnpm -r run build",
-    "test": "pnpm -r run test",
-    "generate:wire-types": "pnpm --filter @domdoc/core run generate:wire-types",
-    "qa:gates": "node ./scripts/qa-gates.mjs",
-    "qa:market": "node ./scripts/qa-market.mjs",
-    "qa:docs": "node ./scripts/qa-docs.mjs",
-    "fetch:pdfium-wasm-stub": "node ./scripts/fetch-pdfium-wasm-stub.mjs",
-    "fetch:pdfium-wasm": "node ./scripts/fetch-pdfium-wasm.mjs",
-    "build:pdfium-wasm": "node ./scripts/build-pdfium-wasm.mjs",
-    "build-wasm": "bash ./packages/domdoc-pdfium-wasm/build/build-wasm.sh",
-    "ci:build-pdfium-wasm": "node ./scripts/ci-build-pdfium-wasm.mjs",
-    "proof:p01-p05": "node --import tsx/esm ./scripts/run-p01-p05-vendor-proofs.mjs",
-    "proof:pdfium-artifact-drop": "node ./scripts/proof-pdfium-artifact-drop.mjs",
-    "proof:host-pdfium-edit-smoke": "node --import tsx/esm ./scripts/proof-host-pdfium-edit-smoke.mjs",
-    "record:layout-visual-diff": "node ./scripts/record-layout-visual-diff.mjs",
-    "generate:layout-visual-baselines": "node ./scripts/generate-layout-visual-baselines.mjs",
-    "approve:layout-visual-baselines": "node ./scripts/approve-layout-visual-baselines.mjs --pin",
-    "sign:layout-human-signoff": "node ./scripts/sign-layout-human-signoff.mjs",
-    "record:layout-independent-png-review": "node ./scripts/record-layout-independent-png-review.mjs",
-    "accept:layout-independent-png-review": "node ./scripts/accept-layout-independent-png-review.mjs",
-    "reconcile:layout-independent-png-visual-attestation": "node ./scripts/reconcile-layout-independent-png-visual-attestation.mjs",
-    "run:physical-host-gate-grade-capture": "node ./scripts/run-physical-host-gate-grade-capture.mjs",
-    "ingest:physical-host-gate-grade-log": "node ./scripts/ingest-physical-host-gate-grade-log.mjs",
-    "generate:synthetic-gate-grade-log": "node ./scripts/generate-synthetic-gate-grade-log.mjs",
-    "proof:g4-authoritative-gate": "node ./scripts/run-g4-authoritative-gate-proof.mjs",
-    "test:e2e": "playwright test"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.51.0",
-    "tsx": "^4.19.2"
+    "build": "pnpm --filter @domdoc/core build && pnpm -r --filter !@domdoc/core run build",
+    "typecheck": "pnpm -r exec tsc --noEmit -p tsconfig.json",
+    "test": "pnpm -r run test"
   },
   "engines": {
     "node": ">=20"

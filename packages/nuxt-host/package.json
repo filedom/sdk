@@ -1,23 +1,40 @@
 {
   "name": "@domdoc/nuxt-host",
-  "version": "0.0.1-m5-stub",
-  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "domdoc Nuxt client-only component wrapping @domdoc/core",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
+  "dependencies": {
+    "@domdoc/core": "workspace:*",
+    "@domdoc/vue": "workspace:*"
+  },
   "peerDependencies": {
-    "nuxt": ">=3.0.0"
+    "nuxt": ">=3.0.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "nuxt": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "happy-dom": "^15.11.7",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "vue": "^3.5.13"
   }
 }

@@ -1,15 +1,14 @@
 {
   "name": "@domdoc/core",
-  "version": "0.0.1-w0",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "domdoc web SDK. The viewer talks to the domdoc WebAssembly bundles. PDF also loads PDFium; Office is linked inside the office bundle.",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./wire": {
-      "types": "./dist/wire/generated.d.ts",
-      "import": "./dist/wire/generated.js"
     }
   },
   "files": [
@@ -17,33 +16,15 @@
     "src"
   ],
   "scripts": {
-    "generate:wire-types": "node ./scripts/generate-wire-types.mjs",
-    "build": "pnpm run generate:wire-types && tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
-  "dependencies": {
-    "fflate": "^0.8.2",
-    "pdf-lib": "^1.17.1",
-    "prosemirror-model": "^1.25.0"
-  },
   "devDependencies": {
-    "@domdoc/angular": "workspace:*",
-    "@domdoc/lit": "workspace:*",
-    "@domdoc/next-host": "workspace:*",
-    "@domdoc/astro-host": "workspace:*",
-    "@domdoc/nuxt-host": "workspace:*",
-    "@domdoc/sveltekit-host": "workspace:*",
-    "@domdoc/preact": "workspace:*",
-    "@domdoc/react": "workspace:*",
-    "@domdoc/solid": "workspace:*",
-    "@domdoc/svelte": "workspace:*",
-    "@domdoc/vue": "workspace:*",
-    "@types/node": "^22.10.2",
-    "domdoc-wasm": "file:../../../domdoc-wasm/pkg-node",
-    "json-schema-to-typescript": "^15.0.3",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
     "happy-dom": "^15.11.7",
+    "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "@embedpdf/pdfium": "^2.15.1"
   }
 }

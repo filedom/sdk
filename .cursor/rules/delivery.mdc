@@ -1,0 +1,5 @@
+---
+description: Execute a ready lane of the domdoc delivery workflow
+alwaysApply: false
+---
+When building a product feature, follow `docs/SDK_PROMPT.md` and one ready lane of `../domdoc-wasm/docs/Domdoc_Delivery_Workflow.md`. A red lane blocks only lanes that name it. Assert the expected result named there. Do not edit `engine-types.ts` unless you are the contract lane. Do not vendor engine source, fixtures, or wasm. Do not raise `VISUAL_MAX_DIFF`. Do not claim gates G1–G5.
