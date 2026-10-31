@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.3 — 31 Oct 2026
+
+The docs send you back to the site on this domain.
+
 ## 0.0.2 — 31 Oct 2026
 
 You can copy a UI kit into a framework app and open files from a versioned CDN.
