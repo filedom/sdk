@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/lit",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "description": "domdoc <domdoc-viewer> Lit element wrapping @domdoc/core",
   "type": "module",
