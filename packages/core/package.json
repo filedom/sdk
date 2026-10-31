@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/core",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "license": "MIT",
   "description": "domdoc web SDK. The viewer talks to the domdoc WebAssembly bundles. PDF also loads PDFium; Office is linked inside the office bundle.",
   "type": "module",
