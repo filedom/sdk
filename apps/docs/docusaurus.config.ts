@@ -5,12 +5,32 @@ import exampleSourcesPlugin from "./src/plugins/example-sources";
 import tailwindPlugin from "./src/plugins/tailwind";
 
 const GITHUB = "https://github.com/domdoc-io/domdoc-sdk";
+const GA_MEASUREMENT_ID = "G-8GT6Y9JSNK";
 
 const config: Config = {
   title: "domdoc SDK",
   tagline: "Embed the shared document editor",
   url: "https://domdoc.io",
   baseUrl: "/sdk-docs/",
+  // Same Google tag as the rest of the site. Docs HTML is served as-is, outside the Next layout.
+  headTags: [
+    {
+      tagName: "script",
+      attributes: {
+        async: true,
+        src: `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`,
+      },
+    },
+    {
+      tagName: "script",
+      attributes: {},
+      innerHTML: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', '${GA_MEASUREMENT_ID}');`,
+    },
+  ],
   trailingSlash: true,
   onBrokenLinks: "throw",
   markdown: { hooks: { onBrokenMarkdownLinks: "warn" } },
