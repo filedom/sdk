@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.6 — 31 Oct 2026
+
+The docs list the file types, the events the viewer emits, and how to place a custom component.
+
+- The playground is the code sample for each framework
+- Bundles load as plaintext from the CDN
+
 ## 0.0.5 — 31 Oct 2026
 
 The SDK docs count visits with Google Analytics.
