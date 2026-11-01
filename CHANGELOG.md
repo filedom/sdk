@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 — 1 Nov 2026
+
+You can trim and join audio and video, and the editor uses a paper and ink theme.
+
+- Select the player in Live or Track to open the timeline
+- A WAV edit is saved; other audio and video play it and refuse export
+- View mode still has play, pause, and mute
+
 ## 0.0.6 — 31 Oct 2026
 
 The docs list the file types, the events the viewer emits, and how to place a custom component.

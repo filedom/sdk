@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/react",
-  "version": "0.0.6",
+  "version": "0.2.0",
   "license": "MIT",
   "description": "domdoc React component wrapping @domdoc/core",
   "type": "module",

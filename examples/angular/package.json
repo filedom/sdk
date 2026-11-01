@@ -1,6 +1,6 @@
 {
   "name": "@domdoc/example-angular",
-  "version": "0.0.6",
+  "version": "0.2.0",
   "private": true,
   "description": "Static Angular example of the domdoc UI kit.",
   "type": "module",
