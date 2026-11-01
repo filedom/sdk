@@ -5,7 +5,7 @@
 //   node scripts/upload-site.mjs [--dry-run] [--root <dir>]
 //
 // Credentials: R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY.
-// Optional: R2_ENDPOINT, R2_BUCKET (defaults in PLANS.md section 6).
+// Optional: R2_ENDPOINT, R2_BUCKET (defaults in this file).
 // --dry-run prints every key, content type, and cache header and sends nothing.
 import { createHash, createHmac } from "node:crypto";
 import { readdirSync, readFileSync, statSync } from "node:fs";

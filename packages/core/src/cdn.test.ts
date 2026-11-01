@@ -41,24 +41,40 @@ function session(format: string): EngineSession {
 describe("CDN bundles", () => {
   it("points each format at its own glue module", () => {
     const base = "https://cdn.example.com/domdoc/v1";
-    for (const format of ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "png", "jpeg", "gif", "webp", "svg", "ai"] as const) {
+    for (const format of ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "png", "jpeg", "gif", "webp", "bmp", "tiff", "svg", "ai"] as const) {
       expect(bundleUrl(`${base}/`, format)).toBe(`${base}/${format}/domdoc_${format}.js`);
     }
     expect(bundleUrl(base, "docx")).not.toContain("office");
+    expect(bundleUrl(base, "7z")).toBe(`${base}/7z/domdoc_7z.js`);
     expect(Object.keys(bundlesFromCdn(base)).sort()).toEqual([
+      "7z",
       "ai",
+      "bmp",
+      "csv",
       "doc",
       "docx",
+      "eml",
       "gif",
+      "gzip",
       "jpeg",
+      "m4a",
+      "mp3",
+      "mp4",
+      "mpeg",
+      "msg",
       "pdf",
       "png",
       "ppt",
       "pptx",
       "svg",
+      "tar",
+      "tiff",
+      "wav",
+      "webm",
       "webp",
       "xls",
       "xlsx",
+      "zip",
     ]);
   });
 
@@ -79,14 +95,17 @@ describe("CDN bundles", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load, allowUnsealed: true }));
+    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
     const first = await openDocument(loader, PNG, { name: "photo.png" });
     const second = await openDocument(loader, PNG, { name: "other.png" });
     expect(first.format).toBe("png");
     expect(second.format).toBe("png");
-    expect(requested).toEqual(["https://cdn.example/v1/png/domdoc_png.js"]);
+    expect(requested).toEqual([
+      "https://cdn.example/v1/png/domdoc_png.js",
+      "https://cdn.example/v1/png/domdoc_png_bg.wasm",
+    ]);
     expect(requested.some((url) => /svg|pdf|docx|pdfium/i.test(url))).toBe(false);
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     first.dispose();
     second.dispose();
     vi.unstubAllGlobals();
@@ -106,7 +125,7 @@ describe("CDN bundles", () => {
       requested.push(String(url));
       return new Response(module);
     });
-    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load, allowUnsealed: true }));
+    const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
     await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
     expect(requested).toEqual([
       "https://cdn.example/v1/pdf/domdoc_pdf.js",
@@ -131,14 +150,12 @@ describe("CDN bundles", () => {
       return new Response(wasmBytes(), { headers: { "x-domdoc-license": "trial" } });
     });
     try {
-      const loader = new BundleLoader(
-        bundlesFromCdn("https://cdn.example/v1", { load, ticket: "ticket-1" }),
-      );
+      const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
       const opening = openDocument(loader, PDF, { name: "notes.pdf" });
       await expect(opening).rejects.toBeInstanceOf(DomdocError);
       await expect(opening).rejects.toThrow(/PDF engine bundle is incomplete/);
       expect(requested).toEqual([
-        "https://cdn.example/v1/pdf/domdoc_pdf.js?ticket=ticket-1",
+        "https://cdn.example/v1/pdf/domdoc_pdf.js",
         "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
       ]);
       expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
@@ -147,7 +164,7 @@ describe("CDN bundles", () => {
     }
   });
 
-  it("puts the ticket on the glue URL and the wasm request header", async () => {
+  it("requests glue and wasm with no ticket", async () => {
     const requested: string[] = [];
     const tickets: Array<string | null> = [];
     const module = embedPdfium(wasmBytes().subarray(0, 8), wasmBytes());
@@ -158,77 +175,37 @@ describe("CDN bundles", () => {
     vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
       requested.push(String(url));
       tickets.push(new Headers(init?.headers).get("x-domdoc-ticket"));
-      return new Response(module, { headers: { "x-domdoc-license": "trial" } });
-    });
-    try {
-      const loader = new BundleLoader(
-        bundlesFromCdn("https://cdn.example/v1", { load, ticket: "ticket-1", allowUnsealed: true }),
-      );
-      await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
-      expect(requested).toEqual([
-        "https://cdn.example/v1/pdf/domdoc_pdf.js?ticket=ticket-1",
-        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
-      ]);
-      expect(tickets).toEqual(["ticket-1"]);
-      expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
-    } finally {
-      vi.unstubAllGlobals();
-    }
-  });
-
-  it("refuses a plaintext pdf wasm unless allowUnsealed is set", async () => {
-    const module = embedPdfium(wasmBytes().subarray(0, 8), wasmBytes());
-    const requested: string[] = [];
-    const load: GlueLoader = async (url) => {
-      requested.push(url);
-      return { default: async () => {}, open: () => session("pdf") };
-    };
-    vi.stubGlobal("fetch", async (url: string) => {
-      requested.push(String(url));
       return new Response(module);
     });
     try {
       const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
-      await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/plaintext wasm is refused/);
-      expect(requested).toContain("https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm");
+      await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
+      expect(requested).toEqual([
+        "https://cdn.example/v1/pdf/domdoc_pdf.js",
+        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+      ]);
+      expect(tickets).toEqual([null]);
+      expect(requested.some((url) => url.includes("ticket="))).toBe(false);
       expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
     } finally {
       vi.unstubAllGlobals();
     }
   });
 
-  it("refuses plaintext wasm unless allowUnsealed is set", async () => {
+  it("accepts plaintext wasm and refuses a buffer that is not a wasm module", async () => {
     const plain = wasmBytes();
-    await expect(openPng(plain, {})).rejects.toBeInstanceOf(DomdocError);
-    await expect(openPng(plain, {})).rejects.toThrow(/plaintext wasm is refused/);
-  });
-
-  it("passes plaintext wasm through only when allowUnsealed is set", async () => {
-    const plain = wasmBytes();
-    const opened = await openPng(plain, { allowUnsealed: true, ticket: "ticket-1" });
+    const opened = await openPng(plain);
     expect(Array.from(opened.module!)).toEqual(Array.from(plain));
     expect(Array.from(opened.module!.subarray(0, 4))).toEqual([0x00, 0x61, 0x73, 0x6d]);
-    expectPngOnly(opened.requested, "ticket-1");
+    expectPngOnly(opened.requested);
+    expect(opened.notice.trial).toBe(false);
     opened.doc.dispose();
-  });
 
-  it("accepts API plaintext for a trial or licensed response and does not unwrap a content key", async () => {
-    const plain = wasmBytes();
     const sealed = await sealWasm(plain, contentKey());
     expect(String.fromCharCode(sealed[0]!, sealed[1]!, sealed[2]!, sealed[3]!)).toBe("DDW1");
     const decrypt = vi.spyOn(crypto.subtle, "decrypt");
     try {
-      await expect(openPng(sealed, { ticket: "ticket-1" })).rejects.toThrow(/decrypted for one request/);
-      expect(decrypt).not.toHaveBeenCalled();
-      const trial = await openPng(plain, { ticket: "ticket-1", license: "trial" });
-      expect(trial.notice.trial).toBe(true);
-      expect(Array.from(trial.module!)).toEqual(Array.from(plain));
-      expectPngOnly(trial.requested, "ticket-1");
-      trial.doc.dispose();
-      const licensed = await openPng(plain, { ticket: "ticket-1", license: "licensed" });
-      expect(licensed.notice.trial).toBe(false);
-      expect(Array.from(licensed.module!)).toEqual(Array.from(plain));
-      licensed.doc.dispose();
+      await expect(openPng(sealed)).rejects.toThrow(/not a wasm module/);
       expect(decrypt).not.toHaveBeenCalled();
     } finally {
       decrypt.mockRestore();
@@ -264,23 +241,15 @@ async function sealWasm(plain: Uint8Array<ArrayBuffer>, key: Uint8Array<ArrayBuf
   return out;
 }
 
-function expectPngOnly(requested: string[], ticket?: string) {
-  const glue = "https://cdn.example/v1/png/domdoc_png.js";
+function expectPngOnly(requested: string[]) {
   expect(requested).toEqual([
-    ticket ? `${glue}?ticket=${encodeURIComponent(ticket)}` : glue,
+    "https://cdn.example/v1/png/domdoc_png.js",
     "https://cdn.example/v1/png/domdoc_png_bg.wasm",
   ]);
-  expect(requested.some((url) => /svg|pdf|docx|pdfium|jpeg|gif|webp|xlsx/i.test(url))).toBe(false);
+  expect(requested.some((url) => /svg|pdf|docx|pdfium|jpeg|gif|webp|xlsx|ticket=/i.test(url))).toBe(false);
 }
 
-async function openPng(
-  wasm: Uint8Array<ArrayBuffer>,
-  options: {
-    ticket?: string;
-    allowUnsealed?: boolean;
-    license?: "trial" | "licensed";
-  },
-) {
+async function openPng(wasm: Uint8Array<ArrayBuffer>) {
   const requested: string[] = [];
   let module: Uint8Array | undefined;
   const load: GlueLoader = async (url) => {
@@ -296,15 +265,9 @@ async function openPng(
   };
   vi.stubGlobal("fetch", async (url: string) => {
     requested.push(String(url));
-    const headers = new Headers();
-    if (options.license) headers.set("x-domdoc-license", options.license);
-    return new Response(wasm, { headers });
+    return new Response(wasm);
   });
-  const importers = bundlesFromCdn("https://cdn.example/v1", {
-    load,
-    ticket: options.ticket,
-    allowUnsealed: options.allowUnsealed,
-  });
+  const importers = bundlesFromCdn("https://cdn.example/v1", { load });
   try {
     const loader = new BundleLoader(importers);
     const doc = await openDocument(loader, PNG, { name: "photo.png" });

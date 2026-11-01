@@ -5,12 +5,20 @@ title: Files
 
 # Files
 
-| Action | Call |
-| --- | --- |
-| New | `createDocument` with kind `text` or `image`, then A4 (text) or pixel width and height (image). Writes `.domdoc`. |
-| Open | `viewer.open(source)` |
-| Save | writes the format that was opened |
-| Store as domdoc | `storeDomdoc` on a native session; keeps the full toolbar set without converting on open |
-| Export | from a `.domdoc`: text → `.docx` or PDF; image → PNG, JPEG, TIFF, or PDF |
+`viewer.open(file)` picks an engine from the extension. The playground has the mount for each framework.
 
-Save of the original and Store as domdoc are separate. Video and audio are specified elsewhere.
+| Kind | Extensions |
+| --- | --- |
+| PDF | `.pdf` |
+| Word | `.doc`, `.docx`, `.docm`, `.dot`, `.dotx`, `.dotm` |
+| Excel | `.xls`, `.xlsx`, `.xlsm`, `.xlt`, `.xltx`, `.xltm`, `.xlsb` |
+| PowerPoint | `.ppt`, `.pptx`, `.pptm`, `.pot`, `.potx`, `.pps`, `.ppsx` |
+| Image | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.tif`, `.tiff` |
+| Vector | `.svg`, `.ai` |
+| CSV | `.csv` |
+| Audio | `.mp3`, `.wav`, `.m4a` |
+| Video | `.mp4`, `.mpeg`, `.mpg`, `.webm` |
+| Archive | `.zip`, `.gz`, `.tgz`, `.tar`, `.7z` |
+| Mail | `.eml`, `.msg` |
+
+A format that cannot do an action reports that it is unsupported. Save writes the format that was opened.

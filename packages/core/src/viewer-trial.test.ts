@@ -75,8 +75,22 @@ function load(): GlueLoader {
 }
 
 async function openViewer(license: "trial" | "licensed") {
-  vi.stubGlobal("fetch", async () => {
-    return new Response(WASM, { headers: { "x-domdoc-license": license, "cache-control": "no-store" } });
+  const opens: string[] = [];
+  vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
+    const target = String(url);
+    if (target.endsWith("/open")) {
+      opens.push(target);
+      expect(init?.method).toBe("POST");
+      expect(init?.credentials).toBe("omit");
+      expect(String(init?.body)).toBe(JSON.stringify({ extension: "png" }));
+      expect(new Headers(init?.headers).get("x-domdoc-license-key")).toBe(
+        license === "licensed" ? "ddk-customer" : null,
+      );
+      return new Response(JSON.stringify({ trial: license === "trial" }), {
+        headers: { "content-type": "application/json" },
+      });
+    }
+    return new Response(WASM);
   });
   const root = document.createElement("div");
   document.body.append(root);
@@ -85,10 +99,13 @@ async function openViewer(license: "trial" | "licensed") {
     stored.push(`${key}=${value}`);
   });
   const viewer = new DomdocViewer(root, {
-    bundles: bundlesFromCdn("https://cdn.example/v1", { load: load(), ticket: "ticket-1" }),
+    bundles: bundlesFromCdn("https://cdn.example/v1", { load: load() }),
     toolbar: false,
+    apiBase: "https://api.example/api",
+    licenseKey: license === "licensed" ? "ddk-customer" : undefined,
   });
   await viewer.open(PNG, { name: "photo.png" });
+  expect(opens).toEqual(["https://api.example/api/open"]);
   return { root, viewer, setItem, stored };
 }
 

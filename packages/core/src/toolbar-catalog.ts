@@ -1,4 +1,4 @@
-import type { Capabilities } from "./engine-types.js";
+import type { Capabilities, FileKind, Format } from "./engine-types.js";
 
 /** Editor chrome modes. */
 export type CatalogMode = "live" | "track" | "view";
@@ -36,6 +36,10 @@ export interface CatalogContext {
   hasSelection?: boolean;
   /** Format can show the given contextual group (PDF text vs image). */
   supportsGroup?: (groupId: string) => boolean;
+  /** Kind of the open file. Audio, video, archive, and email toolbars key off this. */
+  fileKind?: FileKind;
+  /** Open format. The sheet toolbar is CSV, which is still a document. */
+  format?: Format;
 }
 
 const APP: ToolbarGroup[] = [
@@ -78,6 +82,9 @@ const APP: ToolbarGroup[] = [
       { id: "search", label: "Search", hint: "Find text in the document" },
       { id: "findPrev", label: "Previous", hint: "Go to the previous match" },
       { id: "findNext", label: "Next", hint: "Go to the next match" },
+      { id: "replace", label: "Replace with", hint: "Text that replaces a match" },
+      { id: "replaceMatch", label: "Replace", hint: "Replace the current match" },
+      { id: "replaceAll", label: "Replace all", hint: "Replace every match in the file" },
     ],
   },
   {
@@ -180,6 +187,44 @@ const CONTEXTUAL: ToolbarGroup[] = [
       { id: "revertHistory", label: "Revert", hint: "Drop this change" },
     ],
   },
+  {
+    id: "audio",
+    label: "Audio",
+    row: "contextual",
+    actions: [
+      { id: "playMedia", label: "Play", hint: "Play the audio" },
+      { id: "pauseMedia", label: "Pause", hint: "Pause the audio" },
+      { id: "muteMedia", label: "Mute", hint: "Mute or unmute the audio" },
+    ],
+  },
+  {
+    id: "video",
+    label: "Video",
+    row: "contextual",
+    actions: [
+      { id: "playMedia", label: "Play", hint: "Play the video" },
+      { id: "pauseMedia", label: "Pause", hint: "Pause the video" },
+      { id: "muteMedia", label: "Mute", hint: "Mute or unmute the video" },
+    ],
+  },
+  {
+    id: "archive",
+    label: "Archive",
+    row: "contextual",
+    actions: [{ id: "copyListing", label: "Copy", hint: "Copy the archive listing" }],
+  },
+  {
+    id: "email",
+    label: "Message",
+    row: "contextual",
+    actions: [{ id: "copyListing", label: "Copy", hint: "Copy the message" }],
+  },
+  {
+    id: "sheet",
+    label: "Sheet",
+    row: "contextual",
+    actions: [{ id: "copyListing", label: "Copy", hint: "Copy the sheet" }],
+  },
 ];
 
 /** Every toolbar group: app row plus contextual groups. */
@@ -205,6 +250,11 @@ export function catalogTray(id: string): TraySpec | undefined {
 }
 
 function formatAllows(ctx: CatalogContext, groupId: string): boolean {
+  if (groupId === "audio") return ctx.fileKind === "audio";
+  if (groupId === "video") return ctx.fileKind === "video";
+  if (groupId === "archive") return ctx.fileKind === "archive";
+  if (groupId === "email") return ctx.fileKind === "email";
+  if (groupId === "sheet") return ctx.format === "csv";
   if (ctx.isDomdoc) return true;
   if (ctx.supportsGroup) return ctx.supportsGroup(groupId);
   switch (groupId) {
@@ -276,8 +326,20 @@ export function actionAvailability(groupId: string, actionId: string, ctx: Catal
   const group = groupAvailability(groupId, ctx);
   if (group === "hidden") return "hidden";
   if (group === "disabled") return "disabled";
-  if (ctx.mode === "view" && groupId !== "view" && groupId !== "help" && groupId !== "find" && groupId !== "mode" && groupId !== "file") {
-    return "disabled";
+  const usableInView =
+    groupId === "view" ||
+    groupId === "help" ||
+    groupId === "find" ||
+    groupId === "mode" ||
+    groupId === "file" ||
+    groupId === "audio" ||
+    groupId === "video" ||
+    groupId === "archive" ||
+    groupId === "email" ||
+    groupId === "sheet";
+  if (ctx.mode === "view" && !usableInView) return "disabled";
+  if (groupId === "find" && (actionId === "replace" || actionId === "replaceMatch" || actionId === "replaceAll")) {
+    if (ctx.mode === "view" || !ctx.capabilities.editText) return "disabled";
   }
   if (groupId === "history") {
     if (actionId === "undo") return ctx.canUndo && ctx.mode !== "view" ? "shown" : "disabled";

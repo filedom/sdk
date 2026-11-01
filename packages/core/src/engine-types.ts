@@ -2,6 +2,12 @@
 // Units are PDF points; page coordinates have a top-left origin, y grows down.
 // Character offsets count Unicode scalar values (use Array.from(text), not text.length).
 
+/**
+ * Distinct kind of file. A document may later be audio, video, image, or vector.
+ * Read this from `fileKind` instead of branching on the format name.
+ */
+export type FileKind = "document" | "image" | "vector" | "audio" | "video" | "archive" | "email";
+
 export type Format =
   | "pdf"
   | "docx"
@@ -18,7 +24,21 @@ export type Format =
   | "gif"
   | "webp"
   | "svg"
-  | "ai";
+  | "ai"
+  | "bmp"
+  | "tiff"
+  | "mp3"
+  | "wav"
+  | "m4a"
+  | "mp4"
+  | "webm"
+  | "mpeg"
+  | "eml"
+  | "msg"
+  | "zip"
+  | "gzip"
+  | "tar"
+  | "7z";
 
 /** Word's manual line break; `\n` in a `replace` command is a paragraph break. */
 export const LINE_BREAK = "\u000b";
@@ -111,7 +131,7 @@ export interface PageView {
 export interface PageObjectView {
   /** A text unit id, or `p{page}o{index}` for an image, path, or other object. */
   id: string;
-  /** `text`, `image`, `path`, `shading`, `form`, or `object`. */
+  /** `text`, `image`, `path`, `shading`, `form`, `object`, `audio`, or `video`. */
   kind: string;
   xPt: number;
   yPt: number;

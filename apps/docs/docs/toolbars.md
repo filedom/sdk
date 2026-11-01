@@ -5,7 +5,7 @@ title: Toolbars
 
 # Toolbars
 
-The constant bar is a horizontal list of menus: File, History, Insert, Mode, Find, View, and Help. Each menu holds that group's actions. Insert is left off when the open format cannot place elements.
+The constant bar is a horizontal list of menus: File, History, Insert, Mode, Find, View, and Help. Each menu holds that group's actions. Insert is left off when the open format cannot place elements. Find searches the text of the open file, replaces the current match, or replaces every match. Replace stays disabled in view-only mode and when the format cannot edit text.
 
 A toolbar appears only when it applies. Text tools show while editing text, image tools for an image, shape tools for a shape, and layer tools for a group. Track mode adds the track-changes toolbar. With nothing selected, only the menu bar is shown.
 

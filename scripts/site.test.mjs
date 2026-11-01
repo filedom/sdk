@@ -74,7 +74,7 @@ describe("site path mapping", () => {
     assert.equal(sitePathToFile(root, "/sdk-docs/"), join(root, "index.html"));
     assert.equal(sitePathToFile(root, "/sdk-docs/playground/"), join(root, "playground", "index.html"));
     assert.equal(sitePathToFile(root, "/sdk-docs/examples/vue/"), join(root, "examples", "vue", "index.html"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/frameworks/react/"), join(root, "frameworks", "react", "index.html"));
+    assert.equal(sitePathToFile(root, "/sdk-docs/files/"), join(root, "files", "index.html"));
   });
 
   test("other paths map one to one", () => {

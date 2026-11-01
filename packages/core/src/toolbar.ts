@@ -1,5 +1,6 @@
 import { button, type ElementFactory } from "./dom.js";
 import type { Align, Capabilities, DocInfo } from "./engine-types.js";
+import { fileKind } from "./formats.js";
 import { icon, type IconName } from "./icons.js";
 import {
   actionAvailability,
@@ -72,6 +73,10 @@ export interface ToolbarActions {
   setViewMode(mode: ViewMode): void;
   search(query: string): void;
   nextHit(step: number): void;
+  /** Replaces the current search match with `text`. */
+  replaceMatch(text: string): void;
+  /** Replaces every match of the current search with `text`. */
+  replaceAll(text: string): void;
   zoomIn(): void;
   zoomOut(): void;
   setZoom(zoom: number): void;
@@ -94,6 +99,14 @@ export interface ToolbarActions {
   paintShape(part: "fill" | "stroke", color: string): void;
   /** Report of the error on screen, written so it can be pasted into Cursor. */
   debugReport(): string;
+  /** Starts the open audio or video. */
+  playMedia(): void;
+  /** Pauses the open audio or video. */
+  pauseMedia(): void;
+  /** Mutes or unmutes the open audio or video. */
+  muteMedia(): void;
+  /** Copies the archive listing, message, or sheet. */
+  copyListing(): void;
 }
 
 const FONTS = ["Arial", "Calibri", "Georgia", "Times New Roman", "Courier New"];
@@ -467,12 +480,25 @@ export class Toolbar {
         this.actions.search(search.value);
       }
     });
+    const replace = this.field("replace", "input", "Replace with");
+    replace.type = "text";
+    replace.placeholder = "Replace with";
+    replace.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      event.stopPropagation();
+      this.actions.replaceMatch(replace.value);
+    });
     const find = this.appMenu(
       "find",
       "Find",
       search,
       this.menuCommand("findPrev", "Previous", () => this.actions.nextHit(-1), "Previous match", "arrow-up"),
       this.menuCommand("findNext", "Next", () => this.actions.nextHit(1), "Next match", "arrow-down"),
+      this.sep(),
+      replace,
+      this.menuCommand("replaceMatch", "Replace", () => this.actions.replaceMatch(replace.value), "Replace the current match"),
+      this.menuCommand("replaceAll", "Replace all", () => this.actions.replaceAll(replace.value), "Replace every match"),
     );
 
     const view = this.appMenu(
@@ -619,8 +645,34 @@ export class Toolbar {
       this.act("revertHistory", "Revert", () => {}, "Revert"),
     );
 
-    for (const el of [text, image, shape, group, trackHistory]) el.hidden = true;
-    this.contextRow.append(text, image, shape, group, trackHistory);
+    const named = (text: string) => {
+      const label = this.h("span");
+      label.textContent = text;
+      return label;
+    };
+    const audio = this.groupEl("audio", "Audio");
+    audio.append(
+      named("Audio"),
+      this.act("playMedia", "Play", () => this.actions.playMedia(), "Play"),
+      this.act("pauseMedia", "Pause", () => this.actions.pauseMedia(), "Pause"),
+      this.act("muteMedia", "Mute", () => this.actions.muteMedia(), "Mute"),
+    );
+    const video = this.groupEl("video", "Video");
+    video.append(
+      named("Video"),
+      this.act("playMedia", "Play", () => this.actions.playMedia(), "Play"),
+      this.act("pauseMedia", "Pause", () => this.actions.pauseMedia(), "Pause"),
+      this.act("muteMedia", "Mute", () => this.actions.muteMedia(), "Mute"),
+    );
+    const archive = this.groupEl("archive", "Archive");
+    archive.append(named("Archive"), this.act("copyListing", "Copy", () => this.actions.copyListing(), "Copy listing"));
+    const email = this.groupEl("email", "Message");
+    email.append(named("Message"), this.act("copyListing", "Copy", () => this.actions.copyListing(), "Copy message"));
+    const sheet = this.groupEl("sheet", "Sheet");
+    sheet.append(named("Sheet"), this.act("copyListing", "Copy", () => this.actions.copyListing(), "Copy sheet"));
+
+    for (const el of [text, image, shape, group, trackHistory, audio, video, archive, email, sheet]) el.hidden = true;
+    this.contextRow.append(text, image, shape, group, trackHistory, audio, video, archive, email, sheet);
     for (const name of ["bold", "italic", "underline", "strike", "theme", "help"]) {
       this.controls.get(name)?.setAttribute("aria-pressed", "false");
     }
@@ -694,6 +746,8 @@ export class Toolbar {
       canUndo: state.info?.canUndo,
       canRedo: state.info?.canRedo,
       hasSelection: state.hasSelection,
+      fileKind: state.info ? fileKind(state.info.format) : undefined,
+      format: state.info?.format,
       supportsGroup: (groupId) => {
         if (state.isDomdoc) return true;
         if (groupId === "text") return caps.editText || caps.formatText;
@@ -806,6 +860,10 @@ export class Toolbar {
     setDisabled("search", !open);
     setDisabled("findPrev", !open);
     setDisabled("findNext", !open);
+    const canReplace = open && state.viewMode !== "view" && Boolean(state.info?.capabilities.editText);
+    setDisabled("replace", !canReplace);
+    setDisabled("replaceMatch", !canReplace);
+    setDisabled("replaceAll", !canReplace);
 
     const mode = this.controls.get("mode");
     if (mode instanceof HTMLSelectElement) mode.value = state.viewMode;
@@ -829,7 +887,7 @@ export class Toolbar {
     if (textFormat) textFormat.hidden = !ctx.capabilities.formatText;
     const textParagraph = this.el.querySelector<HTMLElement>('[data-group="text-paragraph"]');
     if (textParagraph) textParagraph.hidden = !ctx.capabilities.formatParagraph;
-    const contextual = ["text", "image", "shape", "group", "trackHistory"];
+    const contextual = ["text", "image", "shape", "group", "trackHistory", "audio", "video", "archive", "email", "sheet"];
     this.contextRow.hidden = !contextual.some((id) => {
       const el = this.groups.get(id);
       return Boolean(el && !el.hidden);

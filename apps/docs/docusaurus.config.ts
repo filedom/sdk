@@ -55,7 +55,6 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
       title: "domdoc SDK",
       items: [
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
-        { type: "docSidebar", sidebarId: "frameworks", position: "left", label: "Frameworks" },
         { to: "/playground/", label: "Playground", position: "left" },
         { to: "/licensing/", label: "Licensing", position: "left" },
         // Raw HTML: a normal href of "/" is prefixed with /sdk-docs/.
@@ -73,8 +72,9 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
           title: "Docs",
           items: [
             { label: "Install", to: "/install/" },
-            { label: "UI kit", to: "/ui-kit/" },
-            { label: "Frameworks", to: "/frameworks/react/" },
+            { label: "Files", to: "/files/" },
+            { label: "Events", to: "/events/" },
+            { label: "Components", to: "/components/" },
           ],
         },
         {

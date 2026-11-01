@@ -15,7 +15,13 @@ interface GlueModule {
 /** Loads one glue module. Tests pass a recorder; the browser uses `import()`. */
 export type GlueLoader = (url: string) => Promise<GlueModule>;
 
-const defaultGlueLoad: GlueLoader = (url) => import(/* @vite-ignore */ url);
+const defaultGlueLoad: GlueLoader = async (url) => {
+  try {
+    return await import(/* @vite-ignore */ url);
+  } catch {
+    throw new DomdocError("bundle-missing", "The engine bundle could not be loaded. Try opening the file again.");
+  }
+};
 
 const MODULES: Format[] = [
   "pdf",
@@ -29,8 +35,23 @@ const MODULES: Format[] = [
   "jpeg",
   "gif",
   "webp",
+  "bmp",
+  "tiff",
   "svg",
   "ai",
+  "csv",
+  "mp3",
+  "wav",
+  "m4a",
+  "mp4",
+  "mpeg",
+  "webm",
+  "zip",
+  "gzip",
+  "tar",
+  "7z",
+  "eml",
+  "msg",
 ];
 
 /** Glue module published beside its wasm: `{base}/{format}/domdoc_{format}.js`. */
@@ -39,27 +60,9 @@ export function bundleUrl(base: string, format: Format): string {
   return `${root}/${format}/domdoc_${format}.js`;
 }
 
-/**
- * `POST /bundle-ticket` body. The API decrypts the sealed wasm for one request.
- * This ticket does not carry a content key.
- */
-export interface CdnBundleTicket {
-  ticket: string;
-  expiresAt?: number;
-  version?: string;
-}
-
 /** Second argument of `bundlesFromCdn`. */
 export interface CdnBundleOptions {
   load?: GlueLoader;
-  /** API ticket string, or the ticket JSON. Sent on the wasm request. Not a content key. */
-  ticket?: string | CdnBundleTicket;
-  /**
-   * Dev and tests only. Plaintext wasm (a buffer starting with `\0asm`) is
-   * refused when this is unset, unless the response is a one-request delivery
-   * (`x-domdoc-license: trial` or `licensed`). The website must not set it.
-   */
-  allowUnsealed?: boolean;
 }
 
 interface BundleNotice {
@@ -75,7 +78,6 @@ export function bundleLoadNotice(importers: BundleImporters | undefined): { tria
 }
 
 interface Delivery {
-  ticket: string;
   notice?: BundleNotice;
 }
 
@@ -84,10 +86,8 @@ interface Delivery {
  * Each format loads `{base}/{format}/domdoc_{format}.js` the first time it opens.
  * The PDF renderer is inside the pdf wasm. A PDF open does not fetch a second wasm.
  *
- * Pass a glue loader as the second argument, or `{ ticket }`.
- * The API returns plaintext wasm for that request. This loader does not unwrap
- * a long-lived content key. A buffer that starts with `\0asm` is refused unless
- * `allowUnsealed` is set or the response says the load is `trial` or `licensed`.
+ * Pass a glue loader as the second argument, or `{ load }`.
+ * The CDN returns plaintext wasm. A buffer that does not start with `\0asm` is refused.
  */
 export function bundlesFromCdn(base: string, load?: GlueLoader): BundleImporters;
 export function bundlesFromCdn(base: string, options?: CdnBundleOptions): BundleImporters;
@@ -96,16 +96,12 @@ export function bundlesFromCdn(
   loadOrOptions: GlueLoader | CdnBundleOptions = defaultGlueLoad,
 ): BundleImporters {
   const root = base.replace(/\/$/, "");
-  const { load, delivery, allowUnsealed } = readCdnArgs(loadOrOptions);
+  const { load, delivery } = readCdnArgs(loadOrOptions);
   const importers: BundleImporters = {};
   notices.set(importers, delivery.notice ?? { trial: false });
   for (const format of MODULES) {
-    // import() cannot set headers. The ticket rides on the glue URL.
-    const glue = ticketedUrl(bundleUrl(root, format), delivery.ticket);
-    importers[format] =
-      format === "pdf"
-        ? pdfEngine(glue, load, delivery, allowUnsealed)
-        : formatEngine(glue, load, delivery, allowUnsealed);
+    const glue = bundleUrl(root, format);
+    importers[format] = format === "pdf" ? pdfEngine(glue, load) : formatEngine(glue, load);
   }
   return importers;
 }
@@ -114,69 +110,46 @@ export function bundlesFromCdn(
 export function pdfEngine(
   glueUrl: string,
   load: GlueLoader = defaultGlueLoad,
-  delivery: Delivery = { ticket: "" },
-  allowUnsealed = false,
 ): () => Promise<EngineModule> {
-  return () => load(glueUrl).then((glue) => wrapPdf(glue, glueUrl, delivery, allowUnsealed));
+  return () => load(glueUrl).then((glue) => wrapPdf(glue, glueUrl));
 }
 
 /** One format's glue module. It does not fetch a second renderer wasm. */
 export function formatEngine(
   glueUrl: string,
   load: GlueLoader = defaultGlueLoad,
-  delivery: Delivery = { ticket: "" },
-  allowUnsealed = false,
 ): () => Promise<EngineModule> {
-  return () => load(glueUrl).then((glue) => wrapFormat(glue, glueUrl, delivery, allowUnsealed));
+  return () => load(glueUrl).then((glue) => wrapFormat(glue, glueUrl));
 }
 
 function readCdnArgs(loadOrOptions: GlueLoader | CdnBundleOptions): {
   load: GlueLoader;
   delivery: Delivery;
-  allowUnsealed: boolean;
 } {
   if (typeof loadOrOptions === "function") {
-    return { load: loadOrOptions, delivery: { ticket: "", notice: { trial: false } }, allowUnsealed: false };
+    return { load: loadOrOptions, delivery: { notice: { trial: false } } };
   }
-  const notice = { trial: false };
   return {
     load: loadOrOptions.load ?? defaultGlueLoad,
-    delivery: { ticket: ticketString(loadOrOptions.ticket), notice },
-    allowUnsealed: loadOrOptions.allowUnsealed === true,
+    delivery: { notice: { trial: false } },
   };
 }
 
-function ticketString(ticket: CdnBundleOptions["ticket"]): string {
-  if (!ticket) return "";
-  if (typeof ticket === "string") return ticket;
-  return ticket.ticket;
-}
-
-function wrapFormat(
-  glue: GlueModule,
-  glueUrl: string,
-  delivery: Delivery,
-  allowUnsealed: boolean,
-): EngineModule {
+function wrapFormat(glue: GlueModule, glueUrl: string): EngineModule {
   return {
     format: () => glue.format?.() ?? "domdoc",
-    default: () => startModule(glue, glueUrl, delivery, allowUnsealed),
+    default: () => startModule(glue, glueUrl),
     open: (bytes, password) => glue.open(bytes, password),
   };
 }
 
-function wrapPdf(
-  glue: GlueModule,
-  glueUrl: string,
-  delivery: Delivery,
-  allowUnsealed: boolean,
-): EngineModule {
+function wrapPdf(glue: GlueModule, glueUrl: string): EngineModule {
   let ready: Promise<void> | undefined;
   return {
     format: () => "pdf",
     open: (bytes, password) => glue.open(bytes, password),
     default: () => {
-      ready ??= bind(glue, glueUrl, delivery, allowUnsealed).catch((error: unknown) => {
+      ready ??= bind(glue, glueUrl).catch((error: unknown) => {
         ready = undefined;
         throw error;
       });
@@ -185,24 +158,13 @@ function wrapPdf(
   };
 }
 
-async function startModule(
-  glue: GlueModule,
-  glueUrl: string,
-  delivery: Delivery,
-  allowUnsealed: boolean,
-): Promise<unknown> {
-  if (allowUnsealed && !delivery.ticket) return glue.default();
-  const wasm = await fetchWasm(engineWasmUrl(glueUrl), delivery, allowUnsealed);
+async function startModule(glue: GlueModule, glueUrl: string): Promise<unknown> {
+  const wasm = await fetchWasm(engineWasmUrl(glueUrl));
   return glue.default({ module_or_path: wasm });
 }
 
-async function bind(
-  glue: GlueModule,
-  glueUrl: string,
-  delivery: Delivery,
-  allowUnsealed: boolean,
-): Promise<void> {
-  const wasm = await fetchWasm(engineWasmUrl(glueUrl), delivery, allowUnsealed);
+async function bind(glue: GlueModule, glueUrl: string): Promise<void> {
+  const wasm = await fetchWasm(engineWasmUrl(glueUrl));
   // The renderer must be a custom section of this module. A bare rust wasm fails here
   // before the renderer starts, with an actionable bundle-missing detail.
   const wasmBinary = wasmArrayBuffer(pdfiumBytes(wasm));
@@ -224,16 +186,6 @@ async function bind(
   );
 }
 
-/** Query form so `import()` carries the ticket. Wasm fetch sends the header instead. */
-function ticketedUrl(url: string, ticket: string): string {
-  if (!ticket) return url;
-  const hashAt = url.indexOf("#");
-  const before = hashAt === -1 ? url : url.slice(0, hashAt);
-  const hash = hashAt === -1 ? "" : url.slice(hashAt);
-  const join = before.includes("?") ? "&" : "?";
-  return `${before}${join}ticket=${encodeURIComponent(ticket)}${hash}`;
-}
-
 /** `{base}/{format}/domdoc_{format}.js` sits beside `domdoc_{format}_bg.wasm`. */
 function engineWasmUrl(glueUrl: string): string {
   const path = glueUrl.split("#")[0]?.split("?")[0] ?? glueUrl;
@@ -248,23 +200,11 @@ function hasWasmMagic(bytes: Uint8Array): boolean {
   return true;
 }
 
-/**
- * Fetched wasm bytes. The API has already decrypted them for this request.
- * Plain `\0asm` is refused unless `allowUnsealed` is set or the response is a
- * one-request delivery. Sealed bytes are not unwrapped here.
- */
-async function fetchWasm(url: string, delivery: Delivery, allowUnsealed: boolean): Promise<Uint8Array> {
-  const headers = new Headers();
-  if (delivery.ticket) headers.set("x-domdoc-ticket", delivery.ticket);
-  const response = await fetch(url, { headers, cache: "no-store" });
+/** Plaintext wasm from the CDN. A buffer that does not start with `\0asm` is refused. */
+async function fetchWasm(url: string): Promise<Uint8Array> {
+  const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new DomdocError("bundle-missing", `wasm: ${response.status}`);
   const bytes = new Uint8Array(await response.arrayBuffer());
-  const license = response.headers.get("x-domdoc-license")?.trim() ?? "";
-  const delivered = license === "trial" || license === "licensed";
-  if (delivery.notice && delivered) delivery.notice.trial = license === "trial";
-  if (hasWasmMagic(bytes)) {
-    if (allowUnsealed || delivered) return bytes;
-    throw new DomdocError("bundle-sealed", "plaintext wasm is refused");
-  }
-  throw new DomdocError("bundle-missing", "sealed wasm is decrypted for one request");
+  if (!hasWasmMagic(bytes)) throw new DomdocError("bundle-missing", "The engine bundle is not a wasm module.");
+  return bytes;
 }

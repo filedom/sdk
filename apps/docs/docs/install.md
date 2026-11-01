@@ -22,6 +22,6 @@ const viewer = createViewer(document.querySelector("#viewer")!, {
 await viewer.open(fileFromInput);
 ```
 
-`bundlesFromCdn` loads `{base}/pdf/domdoc_pdf.js` or `{base}/office/domdoc_office.js` when a file of that kind opens. The empty editor mounts only the chrome until a file opens.
+`bundlesFromCdn` loads `{base}/{format}/domdoc_{format}.js` when a file of that kind opens. The empty editor mounts only the chrome until a file opens.
 
-Framework packages take the same options and only mount `createViewer`. See the framework pages for the one-line mount. The UI itself lives in `@domdoc/core` and is documented once here.
+Framework packages take the same options and only mount the viewer. The playground has the source for each one. The UI itself lives in `@domdoc/core`.

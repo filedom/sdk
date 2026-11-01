@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Capabilities } from "./engine-types.js";
+import type { Capabilities, FileKind, Format } from "./engine-types.js";
 import {
   actionAvailability,
   actionHint,
@@ -96,6 +96,21 @@ describe("toolbar catalog", () => {
     expect(
       actionAvailability("text", "highlight", ctx({ selection: "text", hasSelection: true, capabilities: caps({ editText: true }) })),
     ).toBe("shown");
+  });
+
+  it("shows a kind toolbar only for that file and keeps playback available in view mode", () => {
+    expect(groupAvailability("audio", ctx())).toBe("hidden");
+    expect(groupAvailability("audio", ctx({ fileKind: "document" satisfies FileKind }))).toBe("hidden");
+    expect(groupAvailability("audio", ctx({ fileKind: "audio", mode: "view" }))).toBe("shown");
+    expect(actionAvailability("audio", "playMedia", ctx({ fileKind: "audio", mode: "view" }))).toBe("shown");
+    expect(groupAvailability("video", ctx({ fileKind: "audio" }))).toBe("hidden");
+    expect(groupAvailability("video", ctx({ fileKind: "video" }))).toBe("shown");
+    expect(groupAvailability("text", ctx({ fileKind: "audio", selection: "text" }))).toBe("hidden");
+    expect(groupAvailability("archive", ctx({ fileKind: "archive" }))).toBe("shown");
+    expect(groupAvailability("email", ctx({ fileKind: "email" }))).toBe("shown");
+    expect(groupAvailability("sheet", ctx({ format: "csv" satisfies Format }))).toBe("shown");
+    expect(groupAvailability("sheet", ctx({ format: "pdf", fileKind: "document" }))).toBe("hidden");
+    expect(actionAvailability("sheet", "copyListing", ctx({ format: "csv", mode: "view" }))).toBe("shown");
   });
 
   it("hides insert kinds the adapter cannot place", () => {

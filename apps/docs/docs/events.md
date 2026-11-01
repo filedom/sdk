@@ -5,33 +5,29 @@ title: Events
 
 # Events
 
-DOM chrome emits events. Rust stores the file. They do not share objects.
+`viewer.on` subscribes to one event and returns a function that removes that listener. The payload is the only argument.
 
-## Shell (DOM only)
+```ts
+const stop = viewer.on("open", ({ document }) => {
+  document.info();
+});
+```
 
-| Group | Events |
-| --- | --- |
-| View | `setZoom`, `stepZoom`, `fit`, `setTheme`, `setToolbarVisible`, `lockToolbars`, `moveToolbar` |
-| Help | `setHelp` |
-
-## Document (cross the boundary)
-
-| Group | To Rust | From Rust |
+| Event | When it fires | Payload |
 | --- | --- | --- |
-| File | `createDocument`, `open`, `save`, `storeDomdoc`, `export` | `document`, `error` |
-| History | `undo`, `redo`, `restoreHistory` | `history`, `applied` |
-| Mode | `setMode` (`live`, `track`, `view`) | `mode` |
-| Find | `search`, `nextHit` | `hits` |
-| Text | `pointer`, `select`, `selectAll`, `text`, `format`, `setParagraph`, `highlight`, `addComment` | `selection` |
-| Image | `pointer`, `transformObject`, `deleteObject` | `elements` |
-| Shape | `pointer`, `transformObject`, `deleteObject` | `elements` |
-| Insert | `insertElement` | `elements` |
-| Layers | `setLayer` | `layers` |
+| `loading` | `open` has started | `{ name? }` |
+| `open` | The file is open | `{ document }` |
+| `close` | The file is closed | `{}` |
+| `change` | An edit is applied | `{ command, result }` |
+| `selection` | The selection changes | `SelectionState` or `null` |
+| `highlight` | A highlight is applied or cleared | `{ color, text, ranges, anchor, focus }` |
+| `annotation` | A comment is attached to a highlight | `{ id, text, quote, ranges, anchor, focus }` |
+| `replaceImage` | The host can swap the selected image | `{ id, page, file }` |
+| `error` | Open or a command fails | `{ error }` |
+| `export` | The edited file is exported | `{ name, blob }` |
+| `zoom` | The zoom changes | `{ zoom }` |
+| `theme` | The palette on screen changes | `{ theme }` |
+| `viewMode` | The mode changes | `{ mode }` is `live`, `track`, or `view` |
+| `search` | A search moves to a hit | `{ query, hitCount, hitIndex }` |
 
-`pointer` is the shared hit event. The toolbar for the hit kind handles it. `need` means a format bundle is not loaded yet.
-
-## History and layers
-
-- `restoreHistory` jumps to a named history entry; later entries stay available to step forward.
-- `setLayer` shows, hides, or locks a layer. PDF objects carry `layerId` when the file has layers (one default layer when none exist).
-- `createDocument` and `storeDomdoc` are file events: New builds an empty `.domdoc`; Store as domdoc snapshots a native session.
+`hitIndex` is zero-based, or `-1` when there are no hits. `highlight.color` is `null` when the highlight was cleared.

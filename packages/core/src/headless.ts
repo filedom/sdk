@@ -1,4 +1,5 @@
 import type { Align, Capabilities, Format } from "./engine-types.js";
+import { fileKind } from "./formats.js";
 import {
   TOOLBAR_CATALOG,
   actionAvailability,
@@ -134,11 +135,18 @@ const RUNNERS: Record<string, (viewer: DomdocViewer, snapshot: ViewerStoreSnapsh
   outdent: (viewer) => void viewer.setParagraph({ indentByPt: -36 }),
   indent: (viewer) => void viewer.setParagraph({ indentByPt: 36 }),
   replaceImage: (viewer) => viewer.replaceImage(),
+  playMedia: (viewer) => viewer.playMedia(),
+  pauseMedia: (viewer) => viewer.pauseMedia(),
+  muteMedia: (viewer) => viewer.muteMedia(),
+  copyListing: (viewer) => viewer.copyListing(),
 };
 
 /** Shown actions the store cannot run without arguments or the built-in toolbar. */
 const NOT_RUNNABLE: Record<string, string> = {
   search: "Search takes a query: call store.viewer.search(query)",
+  replace: "Replace takes the current search and a replacement: call store.viewer.replaceMatch(text) or store.viewer.replaceAll(text)",
+  replaceMatch: "Replace takes the current search and a replacement: call store.viewer.replaceMatch(text)",
+  replaceAll: "Replace all takes the current search and a replacement: call store.viewer.replaceAll(text)",
 };
 
 function catalogContext(document: ViewerStoreDocument | null, viewMode: ViewMode, selection: SelectionState | null): CatalogContext {
@@ -149,6 +157,8 @@ function catalogContext(document: ViewerStoreDocument | null, viewMode: ViewMode
     canUndo: document?.canUndo ?? false,
     canRedo: document?.canRedo ?? false,
     hasSelection: Boolean(selection?.text),
+    fileKind: document ? fileKind(document.format) : undefined,
+    format: document?.format,
   };
 }
 

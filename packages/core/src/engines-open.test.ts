@@ -3,6 +3,7 @@ import { inflateSync } from "node:zlib";
 import { Window } from "happy-dom";
 import { describe, expect, it, vi } from "vitest";
 import { createViewerStore } from "./headless.js";
+import { replacementOrder } from "./replace-text.js";
 import { createEngineLoader } from "./modules.js";
 import { openDocument } from "./open.js";
 import { storeZip } from "./engines/package-file.js";
@@ -615,6 +616,31 @@ describe("pdfium and office_oxide", () => {
     doc.dispose();
   }, 30_000);
 
+  it("replaces every match in pdf, word, excel, and powerpoint text", async () => {
+    const cases: Array<[string, Uint8Array, string, string]> = [
+      ["sample.pdf", new Uint8Array(readFileSync(new URL("sample.pdf", fixtures))), "Line two", "Second line"],
+      ["report.docx", new Uint8Array(readFileSync(new URL("report.docx", fixtures))), "Quarterly", "Yearly"],
+      ["book.xlsx", sheet(), "Hello sheet", "Hi sheet"],
+      ["deck.pptx", slides(), "Hello slide", "Hi slide"],
+    ];
+    for (const [name, bytes, query, next] of cases) {
+      const doc = await open(bytes, name);
+      const hits = replacementOrder(doc.search(query));
+      expect(hits.length, name).toBeGreaterThan(0);
+      for (const hit of hits) {
+        doc.apply({
+          type: "replace",
+          from: { unit: hit.unit, offset: hit.start },
+          to: { unit: hit.unit, offset: hit.end },
+          text: next,
+        });
+      }
+      expect(doc.search(query), name).toHaveLength(0);
+      expect(doc.search(next).length, name).toBeGreaterThanOrEqual(hits.length);
+      doc.dispose();
+    }
+  }, 60_000);
+
   it("opens xlsx, xls, pptx and ppt through office_oxide", async () => {
     const workbook = await open(sheet(), "book.xlsx");
     expect(workbook.format).toBe("xlsx");
@@ -686,6 +712,12 @@ describe("headless store on a real engine", () => {
       const result = store.run("alignCenter");
       expect(result).toEqual({ status: "unsupported", detail: "Align center is not supported for PDF documents" });
       expect(errors).toEqual([]);
+
+      store.viewer.search("Line two");
+      const replaced = await store.viewer.replaceAll("Second line");
+      expect(replaced).toBe(hits.length);
+      expect(store.viewer.search("Line two")).toHaveLength(0);
+      expect(store.viewer.document!.search("Second line").length).toBeGreaterThan(0);
 
       store.destroy();
       viewer.destroy();

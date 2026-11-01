@@ -1,6 +1,5 @@
 import { AnnotationCard, SelectionMenu, passageEnds, quoteFromRanges, type Annotation, type HighlightEvent } from "./annotate.js";
 import { BundleLoader, type BundleImporters } from "./bundles.js";
-import { bundleLoadNotice } from "./cdn.js";
 import { ComponentLayer } from "./component-layer.js";
 import { ComponentRegistry, type ComponentFactory, type Placement } from "./components.js";
 import {
@@ -26,6 +25,7 @@ import {
   type DebugUnit,
 } from "./debug-report.js";
 import type { DomdocDocument, DocumentChange } from "./document.js";
+import { replacementOrder } from "./replace-text.js";
 import { elementFactory, placeAt, type ElementFactory } from "./dom.js";
 import {
   boxContains,
@@ -59,7 +59,8 @@ import {
 import { upgradeLazyEdit } from "./edit-lazy.js";
 import { DomdocError } from "./errors.js";
 import { FileStore, type StoredFile } from "./file-store.js";
-import { ACCEPT, detectFormat } from "./formats.js";
+import { ACCEPT, detectFormat, fileKind } from "./formats.js";
+import { placeMedia } from "./media-view.js";
 import { isAddressable, rectsForRange, runBox, visibleLength } from "./geometry.js";
 import { icon } from "./icons.js";
 import type { CoreLoader } from "./modules.js";
@@ -134,6 +135,10 @@ export interface ViewerOptions {
   fontsWasmBase?: string;
   /** Unused. Editing is inside the PDF and office bundles. */
   editWasmBase?: string;
+  /** `POST /open` on this API. Omitted: `/api`. */
+  apiBase?: string;
+  /** Sent only on the open ping. A matching key hides the trial banner. */
+  licenseKey?: string;
   /** When false, `attach("edit")` runs as soon as the file opens. */
   lazyEdit?: boolean;
   /**
@@ -183,6 +188,17 @@ type Handler<K extends keyof ViewerEvents> = (event: ViewerEvents[K]) => void;
  * The viewer shell: page stack, caret editor, toolbar and component layer.
  * Document state stays in the Rust session; this class paints it and sends commands.
  */
+function openedName(source: OpenSource, name?: string): string {
+  if (name?.trim()) return name.trim();
+  if (typeof File !== "undefined" && source instanceof File) return source.name;
+  return "";
+}
+
+function fileExtension(name: string): string {
+  const match = /\.([a-z0-9]{1,16})$/i.exec(name.trim());
+  return match?.[1]?.toLowerCase() ?? "";
+}
+
 export class DomdocViewer {
   readonly files: FileStore;
   readonly components: ComponentRegistry;
@@ -206,6 +222,8 @@ export class DomdocViewer {
   private readonly layer: ComponentLayer;
   private readonly handlers = new Map<keyof ViewerEvents, Set<Handler<any>>>();
   private readonly cleanup: Array<() => void> = [];
+  /** Object URL for the open audio or video, revoked on close. */
+  private mediaBlob?: { key: string; url: string };
   /** Edit commands and typed text that led up to the error on screen. */
   private readonly recentEdits: unknown[] = [];
   /** The input or command currently inside the engine. */
@@ -294,8 +312,9 @@ export class DomdocViewer {
   private motionOff?: () => void;
   private fontsModule?: Promise<void>;
   private readonly loadingEl: HTMLDivElement;
-  /** Shown only while the bundle response says this load is a trial. Memory only. */
+  /** Shown when POST /open says this page is a trial. Memory only. */
   private readonly trialEl: HTMLDivElement;
+  private trial = false;
   private readonly loadingText: HTMLParagraphElement;
   /** Image file picker for replacing a selected image. */
   private readonly imageInput: HTMLInputElement;
@@ -595,6 +614,7 @@ export class DomdocViewer {
         doc.attach("edit");
       }
       this.applyViewMode();
+      await this.notifyOpen(openedName(source, options.name));
       this.syncTrialBanner();
       void this.drive({ type: "scan" });
       this.requestRefresh();
@@ -611,11 +631,35 @@ export class DomdocViewer {
     }
   }
 
-  /** Paints the trial banner from the in-memory bundle notice. Nothing is stored. */
+  /** Asks the API whether this page is licensed. A failed call shows the banner and still opens the file. */
+  private async notifyOpen(name: string): Promise<void> {
+    const extension = fileExtension(name);
+    const base = (this.options.apiBase ?? "/api").replace(/\/$/, "");
+    try {
+      const headers = new Headers({ "content-type": "application/json" });
+      const key = this.options.licenseKey?.trim();
+      if (key) headers.set("x-domdoc-license-key", key);
+      const response = await fetch(`${base}/open`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ extension }),
+        credentials: "omit",
+      });
+      if (!response.ok) {
+        this.trial = true;
+        return;
+      }
+      const body = (await response.json()) as { trial?: unknown };
+      this.trial = body.trial === true;
+    } catch {
+      this.trial = true;
+    }
+  }
+
+  /** Paints the trial banner from the last open ping. Nothing is stored. */
   private syncTrialBanner(): void {
-    const trial = bundleLoadNotice(this.options.bundles).trial;
-    this.trialEl.hidden = !trial;
-    this.trialEl.textContent = trial ? "Trial: unlicensed domdoc" : "";
+    this.trialEl.hidden = !this.trial;
+    this.trialEl.textContent = this.trial ? "Trial: unlicensed domdoc" : "";
   }
 
   /** Blank page and spinner. Stays up until the engines for this file finish. */
@@ -783,6 +827,7 @@ export class DomdocViewer {
   }
 
   close(): void {
+    this.releaseMedia();
     const doc = this.doc;
     this.doc = undefined;
     while (this.cleanup.length) this.cleanup.pop()!();
@@ -1137,12 +1182,61 @@ export class DomdocViewer {
   }
 
   search(query: string): SearchHit[] {
+    const hits = this.refreshHits(query);
+    this.setStatus(query.trim() ? `${hits.length} match${hits.length === 1 ? "" : "es"}` : "");
+    return hits;
+  }
+
+  /** Replaces the current search match. */
+  async replaceMatch(text: string): Promise<boolean> {
+    const hit = this.hits[this.hitIndex];
+    if (!hit || !this.canReplaceText()) return false;
+    const replaced = await this.applyReplacement(hit, text);
+    this.refreshHits(this.searchQuery);
+    if (replaced) this.setStatus("Replaced 1");
+    return replaced;
+  }
+
+  /** Replaces every match of the current search, in every text unit of the open file. */
+  async replaceAll(text: string): Promise<number> {
+    if (!this.canReplaceText() || !this.doc || !this.searchQuery.trim()) return 0;
+    const query = this.searchQuery;
+    const hits = replacementOrder(this.doc.search(query));
+    let count = 0;
+    let failed = false;
+    for (const hit of hits) {
+      if (!(await this.applyReplacement(hit, text))) {
+        failed = true;
+        break;
+      }
+      count += 1;
+    }
+    this.refreshHits(query);
+    if (!failed) this.setStatus(count ? `Replaced ${count}` : "0 matches");
+    return count;
+  }
+
+  private canReplaceText(): boolean {
+    if (!this.doc || this.options.readOnly || this.viewModeValue === "view") return false;
+    return this.doc.info().capabilities.editText;
+  }
+
+  private async applyReplacement(hit: SearchHit, text: string): Promise<boolean> {
+    const result = await this.apply({
+      type: "replace",
+      from: { unit: hit.unit, offset: hit.start },
+      to: { unit: hit.unit, offset: hit.end },
+      text,
+    });
+    return result !== undefined;
+  }
+
+  private refreshHits(query: string): SearchHit[] {
     this.hits = query.trim() && this.doc ? this.doc.search(query) : [];
     this.hitIndex = this.hits.length ? 0 : -1;
     this.paintNow("overlay");
     const hit = this.hits[this.hitIndex];
     if (hit) this.revealPos({ unit: hit.unit, offset: hit.start });
-    this.setStatus(query.trim() ? `${this.hits.length} match${this.hits.length === 1 ? "" : "es"}` : "");
     this.searchQuery = query;
     this.emitSearch();
     return this.hits;
@@ -1352,6 +1446,8 @@ export class DomdocViewer {
       setViewMode: (mode) => this.setViewMode(mode),
       search: (query) => this.search(query),
       nextHit: (step) => this.nextHit(step),
+      replaceMatch: (text) => void this.replaceMatch(text),
+      replaceAll: (text) => void this.replaceAll(text),
       zoomIn: () => this.zoomIn(),
       zoomOut: () => this.zoomOut(),
       setZoom: (zoom) => this.setZoom(zoom),
@@ -1390,7 +1486,83 @@ export class DomdocViewer {
         }
       },
       debugReport: () => this.debugReport(),
+      playMedia: () => this.playMedia(),
+      pauseMedia: () => this.pauseMedia(),
+      muteMedia: () => this.muteMedia(),
+      copyListing: () => this.copyListing(),
     };
+  }
+
+  /** Starts the open audio or video. */
+  playMedia(): void {
+    void this.mediaElement()?.play();
+  }
+
+  /** Pauses the open audio or video. */
+  pauseMedia(): void {
+    this.mediaElement()?.pause();
+  }
+
+  /** Mutes or unmutes the open audio or video. */
+  muteMedia(): void {
+    const el = this.mediaElement();
+    if (!el) return;
+    el.muted = !el.muted;
+    const group = el.tagName === "VIDEO" ? "video" : "audio";
+    this.el.querySelector(`[data-group="${group}"] [data-action="muteMedia"]`)?.setAttribute("aria-pressed", String(el.muted));
+  }
+
+  /** Copies the visible listing, message, or sheet. */
+  copyListing(): void {
+    const doc = this.doc;
+    if (!doc) return;
+    const lines: string[] = [];
+    let row: string[] = [];
+    let y = Number.NaN;
+    for (const run of doc.page(0).runs) {
+      if (row.length && Math.abs(run.yPt - y) > 1) {
+        lines.push(row.join("\t"));
+        row = [];
+      }
+      y = run.yPt;
+      row.push(run.text);
+    }
+    if (row.length) lines.push(row.join("\t"));
+    const clip = this.root.ownerDocument.defaultView?.navigator.clipboard;
+    if (clip) void clip.writeText(lines.join("\n"));
+  }
+
+  private mediaElement(): HTMLMediaElement | undefined {
+    const el = this.el.querySelector("audio, video");
+    return el instanceof HTMLMediaElement ? el : undefined;
+  }
+
+  private releaseMedia(): void {
+    if (!this.mediaBlob) return;
+    URL.revokeObjectURL(this.mediaBlob.url);
+    this.mediaBlob = undefined;
+  }
+
+  private mediaSource(): string | undefined {
+    const doc = this.doc;
+    if (!doc) return undefined;
+    const kind = fileKind(doc.format);
+    if (kind !== "audio" && kind !== "video") {
+      this.releaseMedia();
+      return undefined;
+    }
+    const key = `${doc.name}\0${doc.format}\0${doc.revision}`;
+    if (this.mediaBlob?.key === key) return this.mediaBlob.url;
+    this.releaseMedia();
+    try {
+      const bytes = doc.exportBytes();
+      const mime = doc.info().exportMime;
+      const url = URL.createObjectURL(new Blob([bytes as BlobPart], mime ? { type: mime } : undefined));
+      this.mediaBlob = { key, url };
+      return url;
+    } catch {
+      return undefined;
+    }
   }
 
   private openNewFile(): void {
@@ -2160,6 +2332,7 @@ export class DomdocViewer {
       }
       this.drawText(slot, view);
     }
+    placeMedia(slot.el, view, this.doc ? this.mediaSource() : undefined);
     this.drawOverlay(slot, view);
   }
 

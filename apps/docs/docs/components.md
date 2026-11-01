@@ -5,20 +5,51 @@ title: Components
 
 # Components
 
-Every visible control fires one catalog event. Extend a control or register a new one through `ComponentRegistry`:
+Register a component, then place it on the open document. `props` is the input your factory receives.
 
 ```ts
-import { ComponentRegistry, createViewer } from "@domdoc/core";
-
-const components = new ComponentRegistry();
-components.register("my-toolbar-button", (ctx) => {
-  const el = document.createElement("button");
-  el.textContent = "Custom";
-  el.addEventListener("click", () => ctx.emit?.("search", { text: "" }));
-  return { el, destroy() { el.remove(); } };
+viewer.registerComponent("note", ({ container, props }) => {
+  const el = document.createElement("aside");
+  el.textContent = String(props.text ?? "");
+  container.append(el);
+  return {
+    element: el,
+    update(next) {
+      el.textContent = String(next.text ?? "");
+    },
+    destroy() {
+      el.remove();
+    },
+  };
 });
 
-createViewer(host, { bundles, components });
+viewer.on("open", () => {
+  viewer.placeComponent({
+    type: "note",
+    props: { text: "Review" },
+    position: { mode: "page", page: 0, x: 72, y: 72 },
+  });
+});
 ```
 
-There is no second plugin system. Framework wrappers stay thin mounts of `createViewer`.
+`placeComponent` returns an id. `updateComponent(id, patch)` changes that placement. `removeComponent(id)` takes it off the page.
+
+| Field | Meaning |
+| --- | --- |
+| `type` | The name passed to `registerComponent` |
+| `props` | Values your factory reads from `context.props` |
+| `position` | Where it sits. See the modes below |
+| `width`, `height` | A number of points, or `"72pt"`, `"120px"`, `"50%"`. `height: "auto"` measures the element |
+| `zoom` | `scale` (default), `resize`, or `fixed` |
+| `interactive` | `false` lets clicks pass through to the text |
+| `label` | Accessible name of the region |
+
+| `position.mode` | Where it sits |
+| --- | --- |
+| `page` | A fixed point on a page: `{ page, x, y }` |
+| `anchor` | Follows a text position: `{ anchor, dx?, dy? }` |
+| `block` | A band between paragraphs |
+| `inline` | Inside a line, like a character |
+| `float` | Beside the text: `{ anchor, side: "left" \| "right" }` |
+
+`block`, `inline`, and `float` reflow the text when the open format supports it. Otherwise they sit as overlays on the anchor. The factory also receives `context.document` and `context.files`.

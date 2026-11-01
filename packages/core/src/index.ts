@@ -1,6 +1,6 @@
 export * from "./engine-types.js";
 export { BundleLoader, type BundleImporters } from "./bundles.js";
-export { bundleUrl, bundlesFromCdn, type CdnBundleOptions, type CdnBundleTicket, type GlueLoader } from "./cdn.js";
+export { bundleUrl, bundlesFromCdn, type CdnBundleOptions, type GlueLoader } from "./cdn.js";
 export {
   ComponentRegistry,
   isFlowMode,
@@ -18,7 +18,7 @@ export { DomdocDocument, type DocumentChange, type PageRaster } from "./document
 export { DomdocError } from "./errors.js";
 export { Editor, isCollapsed, normalizePaste, samePos, type Selection } from "./editor.js";
 export { FileStore, type AddFileOptions, type FileInput, type FileSource, type StoredFile } from "./file-store.js";
-export { ACCEPT, detectFormat, exportName } from "./formats.js";
+export { ACCEPT, detectFormat, exportName, fileKind, unwiredDetail } from "./formats.js";
 export * as geometry from "./geometry.js";
 export * as navigation from "./navigation.js";
 export {

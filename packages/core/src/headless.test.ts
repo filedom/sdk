@@ -279,6 +279,9 @@ describe("createViewerStore", () => {
     expect(search.status === "unsupported" && search.detail).toContain("store.viewer.search");
 
     fake.openDoc();
+    const replaceAll = store.run("replaceAll");
+    expect(replaceAll.status).toBe("unsupported");
+    expect(replaceAll.status === "unsupported" && replaceAll.detail).toContain("store.viewer.replaceAll");
     fake.emit("selection", SELECTION);
     expect(store.run("alignCenter")).toEqual({
       status: "unsupported",

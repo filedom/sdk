@@ -29,6 +29,8 @@ function actions(): ToolbarActions {
     setViewMode() {},
     search() {},
     nextHit() {},
+    replaceMatch() {},
+    replaceAll() {},
     zoomIn() {},
     zoomOut() {},
     setZoom() {},
@@ -45,6 +47,10 @@ function actions(): ToolbarActions {
     deselect() {},
     paintShape() {},
     debugReport: () => "",
+    playMedia() {},
+    pauseMedia() {},
+    muteMedia() {},
+    copyListing() {},
   };
 }
 
@@ -181,6 +187,11 @@ describe("menu bar", () => {
     ]);
     expect(toolbar.el.querySelector<HTMLElement>(".dd-toolbar-context")!.hidden).toBe(true);
     expect(toolbar.el.querySelector<HTMLElement>('[data-menu-panel="file"]')!.hidden).toBe(true);
+
+    const find = toolbar.el.querySelector<HTMLElement>('[data-menu-panel="find"]')!;
+    expect(find.querySelector("[data-action=replace]")?.getAttribute("aria-label")).toBe("Replace with");
+    expect(find.querySelector("[data-action=replaceMatch]")?.textContent).toContain("Replace");
+    expect(find.querySelector("[data-action=replaceAll]")?.textContent).toContain("Replace all");
 
     toolbar.el.querySelector<HTMLButtonElement>('[data-menu="file"]')!.click();
     expect(toolbar.el.querySelector<HTMLElement>('[data-menu-panel="file"]')!.hidden).toBe(false);
@@ -360,6 +371,56 @@ describe("text format follows the selection", () => {
       sizePt: 20,
       color: "#000000",
     });
+  });
+});
+
+describe("kind toolbars", () => {
+  it("shows audio controls for an mp3 and hides them for a pdf", () => {
+    let played = 0;
+    const sink = actions();
+    sink.playMedia = () => {
+      played += 1;
+    };
+    const toolbar = new Toolbar(elementFactory(document), sink, "#fff59d");
+    const audio = chrome("mp3", "view", "text");
+    audio.info!.capabilities = {
+      editText: false,
+      editStructure: false,
+      formatText: false,
+      formatParagraph: false,
+      flowEmbeds: false,
+      transform: false,
+      layers: false,
+      insert: false,
+    };
+    toolbar.sync(audio);
+    const audioGroup = toolbar.el.querySelector<HTMLElement>('[data-group="audio"]')!;
+    const play = audioGroup.querySelector<HTMLButtonElement>('[data-action="playMedia"]')!;
+    expect(audioGroup.hidden).toBe(false);
+    expect(play.disabled).toBe(false);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="text"]')!.hidden).toBe(true);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="video"]')!.hidden).toBe(true);
+    expect(toolbar.el.querySelector<HTMLElement>(".dd-toolbar-context")!.hidden).toBe(false);
+    play.click();
+    expect(played).toBe(1);
+
+    toolbar.sync(chrome("pdf", "live", "none"));
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="audio"]')!.hidden).toBe(true);
+  });
+
+  it("shows the sheet toolbar for csv and the archive toolbar for zip", () => {
+    const toolbar = new Toolbar(elementFactory(document), actions(), "#fff59d");
+    const sheet = chrome("csv", "view");
+    sheet.info!.capabilities.editText = false;
+    sheet.info!.capabilities.formatText = false;
+    toolbar.sync(sheet);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="sheet"]')!.hidden).toBe(false);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="audio"]')!.hidden).toBe(true);
+
+    toolbar.sync(chrome("zip", "view"));
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="archive"]')!.hidden).toBe(false);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="sheet"]')!.hidden).toBe(true);
+    expect(toolbar.el.querySelector<HTMLElement>('[data-group="email"]')!.hidden).toBe(true);
   });
 });
 

@@ -3,7 +3,7 @@ import { DomdocDocument } from "./document.js";
 import type { DocInfo, EngineModule, Format } from "./engine-types.js";
 import { DomdocError } from "./errors.js";
 import type { FileStore, StoredFile } from "./file-store.js";
-import { detectFormat } from "./formats.js";
+import { detectFormat, unwiredDetail } from "./formats.js";
 import type { CoreLoader } from "./modules.js";
 import type { PasswordHint } from "./password-prompt.js";
 
@@ -81,6 +81,9 @@ function openSession(format: Format, engine: Awaited<ReturnType<BundleLoader["lo
 export async function openDocument(loader: BundleLoader, source: OpenSource, options: OpenOptions = {}) {
   const file = await resolve(source, options);
   const name = options.name ?? file.name;
+  const detected = detectFormat(file.bytes, name);
+  const detail = unwiredDetail(detected);
+  if (detail) throw new DomdocError("unsupported", detail);
   const prepared = options.core ? await options.core.prepare(file.bytes, name) : undefined;
   const sniffed = prepared?.plan.format ?? detectFormat(file.bytes, name);
   const engine: EngineModule = prepared?.engine ?? (await loader.load(sniffed));

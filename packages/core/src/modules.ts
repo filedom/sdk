@@ -1,7 +1,7 @@
 import { bundleUrl, formatEngine, pdfEngine } from "./cdn.js";
 import type { EngineModule, EngineSession } from "./engine-types.js";
 import { DomdocError } from "./errors.js";
-import { detectFormat } from "./formats.js";
+import { detectFormat, unwiredDetail } from "./formats.js";
 
 /**
  * Host switches. A format that is not set is never fetched.
@@ -106,6 +106,8 @@ function isEngineFormat(format: string): format is EngineFormat {
 
 export function planLoad(bytes: Uint8Array, name: string, host: HostEngineConfig): LoadPlan {
   const format = detectFormat(bytes, name);
+  const detail = unwiredDetail(format);
+  if (detail) throw new DomdocError("unsupported", detail);
   if (!isEngineFormat(format)) throw new DomdocError("unsupported-format", format);
   if (!host[format]) throw new DomdocError("format-disabled", format);
 

@@ -121,6 +121,9 @@ export const VIEWER_CSS = `
 .dd-move-handle:focus-visible,.dd-resize-handle:focus-visible,.dd-rotate-handle:focus-visible,.dd-delete-handle:focus-visible,.dd-replace-handle:focus-visible{outline:2px solid var(--dd-accent);outline-offset:1px}
 .dd-element[data-moving] .dd-move-handle,.dd-element[data-moving] .dd-rotate-handle{cursor:grabbing}
 .dd-page canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:multiply}
+.dd-media{position:absolute;z-index:4;display:flex;align-items:center;background:#111;overflow:hidden}
+.dd-media audio,.dd-media video{width:100%;height:100%;display:block}
+.dd-page[data-media]{cursor:default}
 .dd-page[data-oxide] canvas{visibility:hidden}
 .dd-oxide{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--dd-page);pointer-events:none}
 .dd-under,.dd-overlay,.dd-layer{position:absolute;inset:0;pointer-events:none}
