@@ -48,6 +48,8 @@ export interface ToolbarState {
   availableTrays: string[];
   /** Trays currently open beside the pages. */
   shownTrays: string[];
+  /** Speed of the clip the timeline is editing. */
+  clipSpeed?: number;
 }
 
 export interface ToolbarActions {
@@ -105,6 +107,10 @@ export interface ToolbarActions {
   pauseMedia(): void;
   /** Mutes or unmutes the open audio or video. */
   muteMedia(): void;
+  /** Sets the speed of the clip selected on the timeline. */
+  setClipSpeed(speed: number): void;
+  /** Opens a file picker and appends that file to the timeline. */
+  appendClip(): void;
   /** Copies the archive listing, message, or sheet. */
   copyListing(): void;
 }
@@ -155,6 +161,13 @@ function sizeLabel(pt: number): string {
   const rounded = Math.round(pt * 10) / 10;
   return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
 }
+
+/** One line for the bar. The full message, including any URL, stays in the details. */
+export function shortError(message: string): string {
+  const line = (message.split("\n")[0] ?? "").replace(/https?:\/\/\S+/g, " ").replace(/\s+/g, " ").trim();
+  const text = line.replace(/[:\s]+$/, "").trim() || "Something went wrong.";
+  return text.length > 88 ? `${text.slice(0, 87)}…` : text;
+}
 const SPACING = [1, 1.15, 1.5, 2, 2.5];
 
 const ICONS: Partial<Record<string, IconName>> = {
@@ -192,7 +205,10 @@ export class Toolbar {
   private readonly debugErrorButton: HTMLButtonElement;
   private readonly chrome: HTMLDivElement;
   private readonly appRow: HTMLDivElement;
+  private readonly toolsRow: HTMLDivElement;
+  private readonly findCluster: HTMLDivElement;
   private readonly contextRow: HTMLDivElement;
+  private readonly errorSummary: HTMLElement;
   private readonly groups = new Map<string, HTMLElement>();
   private readonly controls = new Map<string, HTMLButtonElement | HTMLInputElement | HTMLSelectElement>();
   private readonly menuTriggers = new Map<string, HTMLButtonElement>();
@@ -214,12 +230,17 @@ export class Toolbar {
     this.appRow.setAttribute("role", "menubar");
     this.appRow.setAttribute("aria-orientation", "horizontal");
     this.appRow.setAttribute("aria-label", "Document");
+    this.toolsRow = h("div", "dd-toolbar dd-toolbar-tools");
+    this.toolsRow.setAttribute("role", "toolbar");
+    this.toolsRow.setAttribute("aria-label", "Tools");
+    this.findCluster = h("div", "dd-find");
+    this.findCluster.hidden = true;
     this.contextRow = h("div", "dd-toolbar dd-toolbar-context");
     this.contextRow.hidden = true;
     this.contextRow.setAttribute("role", "toolbar");
     this.contextRow.setAttribute("aria-label", "Selection");
 
-    for (const row of [this.appRow, this.contextRow]) {
+    for (const row of [this.appRow, this.toolsRow, this.contextRow]) {
       row.addEventListener("keydown", (event) => this.onToolbarKey(event));
       row.addEventListener("mousedown", (event) => {
         if ((event.target as Element | null)?.closest("button, label")) event.preventDefault();
@@ -227,6 +248,7 @@ export class Toolbar {
     }
 
     this.buildApp();
+    this.buildTools();
     this.buildContext(highlightColor);
 
     this.status = h("span", "dd-status");
@@ -239,6 +261,7 @@ export class Toolbar {
     error.hidden = true;
     const summary = h("summary");
     summary.textContent = "Error";
+    this.errorSummary = summary;
     const body = h("div", "dd-error-body");
     const pre = h("pre");
     pre.tabIndex = 0;
@@ -263,7 +286,7 @@ export class Toolbar {
     this.debugErrorButton = debug;
 
     this.appRow.append(this.status, this.error);
-    this.chrome.append(this.appRow, this.contextRow);
+    this.chrome.append(this.appRow, this.toolsRow, this.contextRow);
     this.el = this.chrome;
     const doc = this.chrome.ownerDocument;
     doc.addEventListener("pointerdown", (event) => {
@@ -396,11 +419,11 @@ export class Toolbar {
   }
 
   private setControlLabel(name: string, label: string): void {
-    const el = this.controls.get(name);
-    if (!el) return;
-    const text = el.querySelector(".dd-menu-label");
-    if (text) text.textContent = label;
-    else el.textContent = label;
+    for (const el of this.el.querySelectorAll<HTMLElement>(`[data-action="${name}"]`)) {
+      const text = el.querySelector(".dd-menu-label");
+      if (text) text.textContent = label;
+      else if (!el.querySelector("svg")) el.textContent = label;
+    }
   }
 
   private enableDrag(group: HTMLElement, id: string): void {
@@ -439,13 +462,6 @@ export class Toolbar {
       this.menuCommand("export", "Export", () => this.actions.exportFile()),
     );
 
-    const history = this.appMenu(
-      "history",
-      "History",
-      this.menuCommand("undo", "Undo", () => this.actions.undo(), "Undo", "undo"),
-      this.menuCommand("redo", "Redo", () => this.actions.redo(), "Redo", "redo"),
-    );
-
     const insert = this.appMenu(
       "insert",
       "Insert",
@@ -467,6 +483,31 @@ export class Toolbar {
     });
     const mode = this.appMenu("mode", "Mode", modeSelect);
 
+    const view = this.appMenu(
+      "view",
+      "View",
+      this.menuCommand("deselect", "Deselect", () => this.actions.deselect(), "Deselect", "x"),
+      this.sep(),
+      this.menuCommand("toolbarVisibility", "Panels", () => this.toggleViewMenu(), "Show or hide panels"),
+      this.menuCommand("lockToolbars", "Lock", () => this.actions.lockToolbars(!(this.state?.toolbarsLocked ?? false)), "Lock toolbars"),
+    );
+
+    const help = this.appMenu(
+      "help",
+      "Help",
+      this.menuCommand("help", "Help", () => this.actions.setHelp(!(this.state?.helpOn ?? false)), "Help"),
+    );
+
+    this.appRow.append(file, insert, mode, view, help);
+  }
+
+  /** Daily actions stay on the bar. Find opens its fields beside the button. */
+  private buildTools(): void {
+    const rule = () => {
+      const line = this.h("span", "dd-sep");
+      line.setAttribute("aria-hidden", "true");
+      return line;
+    };
     const search = this.field("search", "input", "Search");
     search.type = "search";
     search.placeholder = "Search";
@@ -489,42 +530,36 @@ export class Toolbar {
       event.stopPropagation();
       this.actions.replaceMatch(replace.value);
     });
-    const find = this.appMenu(
-      "find",
-      "Find",
+    this.findCluster.append(
       search,
-      this.menuCommand("findPrev", "Previous", () => this.actions.nextHit(-1), "Previous match", "arrow-up"),
-      this.menuCommand("findNext", "Next", () => this.actions.nextHit(1), "Next match", "arrow-down"),
-      this.sep(),
+      this.act("findPrev", "Previous", () => this.actions.nextHit(-1), "Previous match", "arrow-up"),
+      this.act("findNext", "Next", () => this.actions.nextHit(1), "Next match", "arrow-down"),
       replace,
-      this.menuCommand("replaceMatch", "Replace", () => this.actions.replaceMatch(replace.value), "Replace the current match"),
-      this.menuCommand("replaceAll", "Replace all", () => this.actions.replaceAll(replace.value), "Replace every match"),
+      this.act("replaceMatch", "Replace", () => this.actions.replaceMatch(replace.value), "Replace the current match"),
+      this.act("replaceAll", "Replace all", () => this.actions.replaceAll(replace.value), "Replace every match"),
     );
-
-    const view = this.appMenu(
-      "view",
-      "View",
-      this.menuCommand("zoomOut", "Zoom out", () => this.actions.zoomOut(), "Zoom out"),
-      this.menuCommand("zoomReset", "100%", () => this.actions.setZoom(1), "Actual size"),
-      this.menuCommand("zoomIn", "Zoom in", () => this.actions.zoomIn(), "Zoom in"),
-      this.sep(),
-      this.menuCommand("fitWidth", "Fit width", () => this.actions.fit("width"), "Fit width", "fit-width"),
-      this.menuCommand("fitPage", "Fit page", () => this.actions.fit("page"), "Fit page", "fit-page"),
-      this.sep(),
-      this.menuCommand("theme", "Dark", () => this.actions.toggleTheme(), "Dark theme", "moon"),
-      this.menuCommand("deselect", "Deselect", () => this.actions.deselect(), "Deselect", "x"),
-      this.sep(),
-      this.menuCommand("toolbarVisibility", "Panels", () => this.toggleViewMenu(), "Show or hide panels"),
-      this.menuCommand("lockToolbars", "Lock", () => this.actions.lockToolbars(!(this.state?.toolbarsLocked ?? false)), "Lock toolbars"),
+    this.toolsRow.append(
+      this.act("open", "Open", () => this.actions.pick(), "Open", "folder"),
+      this.act("save", "Save", () => this.actions.download(), "Save", "download"),
+      rule(),
+      this.act("undo", "Undo", () => this.actions.undo(), "Undo", "undo"),
+      this.act("redo", "Redo", () => this.actions.redo(), "Redo", "redo"),
+      rule(),
+      this.act("zoomOut", "−", () => this.actions.zoomOut(), "Zoom out"),
+      this.act("zoomReset", "100%", () => this.actions.setZoom(1), "Actual size"),
+      this.act("zoomIn", "+", () => this.actions.zoomIn(), "Zoom in"),
+      this.act("fitWidth", "Fit width", () => this.actions.fit("width"), "Fit width", "fit-width"),
+      this.act("fitPage", "Fit page", () => this.actions.fit("page"), "Fit page", "fit-page"),
+      rule(),
+      this.act("find", "Find", () => this.toggleFind(), "Find"),
+      this.findCluster,
+      this.act("theme", "Dark", () => this.actions.toggleTheme(), "Dark theme", "moon"),
     );
+  }
 
-    const help = this.appMenu(
-      "help",
-      "Help",
-      this.menuCommand("help", "Help", () => this.actions.setHelp(!(this.state?.helpOn ?? false)), "Help"),
-    );
-
-    this.appRow.append(file, history, insert, mode, find, view, help);
+  private toggleFind(): void {
+    this.findCluster.hidden = !this.findCluster.hidden;
+    if (!this.findCluster.hidden) this.controls.get("search")?.focus();
   }
 
   private buildContext(highlightColor: string): void {
@@ -670,9 +705,26 @@ export class Toolbar {
     email.append(named("Message"), this.act("copyListing", "Copy", () => this.actions.copyListing(), "Copy message"));
     const sheet = this.groupEl("sheet", "Sheet");
     sheet.append(named("Sheet"), this.act("copyListing", "Copy", () => this.actions.copyListing(), "Copy sheet"));
+    const timeline = this.groupEl("timeline", "Timeline");
+    const speed = this.field("clipSpeed", "select", "Clip speed");
+    for (const value of [0.25, 0.5, 1, 1.5, 2, 4]) {
+      const option = this.h("option");
+      option.value = String(value);
+      option.textContent = `${value}×`;
+      speed.append(option);
+    }
+    speed.value = "1";
+    speed.addEventListener("change", () => {
+      if (!this.echoing) this.actions.setClipSpeed(Number(speed.value));
+    });
+    timeline.append(
+      named("Timeline"),
+      speed,
+      this.act("appendClip", "Add clip", () => this.actions.appendClip(), "Add a file to the track"),
+    );
 
-    for (const el of [text, image, shape, group, trackHistory, audio, video, archive, email, sheet]) el.hidden = true;
-    this.contextRow.append(text, image, shape, group, trackHistory, audio, video, archive, email, sheet);
+    for (const el of [text, image, shape, group, trackHistory, audio, video, archive, email, sheet, timeline]) el.hidden = true;
+    this.contextRow.append(text, image, shape, group, trackHistory, audio, video, archive, email, sheet, timeline);
     for (const name of ["bold", "italic", "underline", "strike", "theme", "help"]) {
       this.controls.get(name)?.setAttribute("aria-pressed", "false");
     }
@@ -761,18 +813,18 @@ export class Toolbar {
 
   /** `true` while the chrome is showing a dark palette. */
   setColorScheme(dark: boolean): void {
-    const theme = this.controls.get("theme");
-    if (!(theme instanceof HTMLButtonElement)) return;
-    theme.setAttribute("aria-pressed", String(dark));
-    const label = dark ? "Light theme" : "Dark theme";
-    theme.title = label;
-    theme.setAttribute("aria-label", label);
-    const glyph = icon(theme.ownerDocument, dark ? "sun" : "moon");
-    const existing = theme.querySelector("svg");
-    if (existing) existing.replaceWith(glyph);
-    else theme.prepend(glyph);
-    const text = theme.querySelector(".dd-menu-label");
-    if (text) text.textContent = dark ? "Light" : "Dark";
+    for (const theme of this.el.querySelectorAll<HTMLButtonElement>('[data-action="theme"]')) {
+      theme.setAttribute("aria-pressed", String(dark));
+      const label = dark ? "Light theme" : "Dark theme";
+      theme.title = label;
+      theme.setAttribute("aria-label", label);
+      const glyph = icon(theme.ownerDocument, dark ? "sun" : "moon");
+      const existing = theme.querySelector("svg");
+      if (existing) existing.replaceWith(glyph);
+      else theme.prepend(glyph);
+      const text = theme.querySelector(".dd-menu-label");
+      if (text) text.textContent = dark ? "Light" : "Dark";
+    }
   }
 
   /** Selects `value`, adding it when the open document uses a face that is not in the catalog. */
@@ -805,8 +857,11 @@ export class Toolbar {
     const ctx = this.catalogContext(state);
     const open = Boolean(state.info);
     const setDisabled = (name: string, disabled: boolean) => {
-      const el = this.controls.get(name);
-      if (el) el.disabled = disabled;
+      for (const el of this.el.querySelectorAll<HTMLButtonElement | HTMLInputElement | HTMLSelectElement>(
+        `[data-action="${name}"]`,
+      )) {
+        el.disabled = disabled;
+      }
     };
 
     for (const group of TOOLBAR_CATALOG) {
@@ -855,6 +910,9 @@ export class Toolbar {
     setDisabled("new", false);
     setDisabled("open", false);
     setDisabled("save", !open);
+    const historyBlocked = !open || state.viewMode === "view";
+    setDisabled("undo", historyBlocked || !state.info?.canUndo);
+    setDisabled("redo", historyBlocked || !state.info?.canRedo);
     setDisabled("storeDomdoc", !open);
     setDisabled("export", !open || !state.isDomdoc);
     setDisabled("search", !open);
@@ -877,6 +935,10 @@ export class Toolbar {
       this.syncChoice("font", state.font, FONTS);
       this.syncChoice("size", state.sizePt === undefined ? undefined : sizeLabel(state.sizePt), SIZES.map(String));
       this.syncColor(state.color);
+      const speed = this.controls.get("clipSpeed");
+      if (speed instanceof HTMLSelectElement && state.clipSpeed !== undefined && [...speed.options].some((option) => option.value === String(state.clipSpeed))) {
+        speed.value = String(state.clipSpeed);
+      }
     } finally {
       this.echoing = false;
     }
@@ -887,7 +949,7 @@ export class Toolbar {
     if (textFormat) textFormat.hidden = !ctx.capabilities.formatText;
     const textParagraph = this.el.querySelector<HTMLElement>('[data-group="text-paragraph"]');
     if (textParagraph) textParagraph.hidden = !ctx.capabilities.formatParagraph;
-    const contextual = ["text", "image", "shape", "group", "trackHistory", "audio", "video", "archive", "email", "sheet"];
+    const contextual = ["text", "image", "shape", "group", "trackHistory", "audio", "video", "archive", "email", "sheet", "timeline"];
     this.contextRow.hidden = !contextual.some((id) => {
       const el = this.groups.get(id);
       return Boolean(el && !el.hidden);
@@ -896,7 +958,7 @@ export class Toolbar {
   }
 
   focusSearch(): void {
-    this.openMenu("find");
+    this.findCluster.hidden = false;
     this.controls.get("search")?.focus();
   }
 
@@ -941,9 +1003,10 @@ export class Toolbar {
   }
 
   setStatus(message: string, tone: "info" | "error" = "info"): void {
-    this.status.textContent = message;
+    const shown = tone === "error" ? shortError(message) : message;
+    this.status.textContent = shown;
     this.status.dataset.message = message;
-    this.status.title = message;
+    this.status.title = shown;
     if (tone === "error") {
       this.status.dataset.tone = "error";
       this.showError(message);
@@ -952,8 +1015,9 @@ export class Toolbar {
 
   showError(message: string): void {
     this.error.hidden = false;
-    this.error.open = true;
+    this.error.open = false;
     this.error.dataset.message = message;
+    this.errorSummary.textContent = shortError(message);
     this.errorText.textContent = message;
     this.errorText.dataset.message = message;
     this.copyErrorButton.textContent = "Copy";
@@ -964,6 +1028,7 @@ export class Toolbar {
     this.error.hidden = true;
     this.error.open = false;
     delete this.error.dataset.message;
+    this.errorSummary.textContent = "Error";
     this.errorText.textContent = "";
     delete this.errorText.dataset.message;
     this.copyErrorButton.textContent = "Copy";

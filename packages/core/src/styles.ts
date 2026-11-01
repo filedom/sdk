@@ -14,6 +14,9 @@ export const VIEWER_CSS = `
 .dd-chrome{display:flex;flex-direction:column;flex:none;background:var(--dd-panel);border-bottom:1px solid var(--dd-border);color:var(--dd-fg)}
 .dd-toolbar{display:flex;flex-wrap:wrap;align-items:center;column-gap:14px;row-gap:4px;padding:6px 12px;min-height:42px}
 .dd-toolbar-app{position:relative;z-index:5;column-gap:2px;row-gap:0;padding:2px 8px;min-height:36px}
+.dd-toolbar-tools{flex-wrap:nowrap;overflow-x:auto;column-gap:2px;padding:2px 8px;min-height:34px;border-top:1px solid var(--dd-border)}
+.dd-find{display:inline-flex;align-items:center;gap:2px;min-width:0}
+.dd-find[hidden]{display:none}
 .dd-toolbar-context{border-top:1px solid color-mix(in srgb,var(--dd-border) 75%,transparent);background:color-mix(in srgb,var(--dd-canvas) 42%,var(--dd-panel))}
 .dd-toolbar-context[hidden]{display:none}
 .dd-toolbar-group{display:inline-flex;flex-wrap:wrap;gap:2px;align-items:center;padding:1px 0;border-radius:8px;position:relative}
@@ -24,7 +27,7 @@ export const VIEWER_CSS = `
 .dd-toolbar-group[data-group]:not([data-group="view"]):not(.dd-menu-item){cursor:grab}
 .dd-viewer[data-toolbars-locked] .dd-toolbar-group{cursor:default}
 .dd-toolbar button,.dd-toolbar label,.dd-toolbar input,.dd-toolbar select{font:inherit;color:var(--dd-fg)}
-.dd-toolbar button{box-sizing:border-box;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;background:transparent;border-radius:7px;padding:0 9px;cursor:pointer;transition:background-color .12s ease,color .12s ease,border-color .12s ease}
+.dd-toolbar button{box-sizing:border-box;height:28px;min-width:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;background:transparent;border-radius:var(--dd-radius);padding:0 9px;cursor:pointer;transition:background-color .12s ease,color .12s ease,border-color .12s ease}
 .dd-toolbar button[hidden],.dd-toolbar select[hidden],.dd-toolbar input[hidden]{display:none}
 .dd-toolbar button:not(.dd-icon){font-weight:550;letter-spacing:-.011em}
 .dd-toolbar button:hover:not(:disabled):not([aria-pressed="true"]){background:var(--dd-hover)}
@@ -42,13 +45,13 @@ export const VIEWER_CSS = `
 .dd-icon{display:inline-flex;align-items:center;justify-content:center;line-height:0;flex:none}
 .dd-toolbar button.dd-icon{width:28px;padding:0}
 .dd-icon svg{display:block;pointer-events:none}
-.dd-toolbar input[type=search],.dd-toolbar select{box-sizing:border-box;height:28px;border:1px solid color-mix(in srgb,var(--dd-border) 88%,transparent);border-radius:7px;background-color:var(--dd-field)}
+.dd-toolbar input[type=search],.dd-toolbar input[type=text],.dd-toolbar select{box-sizing:border-box;height:28px;border:1px solid color-mix(in srgb,var(--dd-border) 88%,transparent);border-radius:var(--dd-radius);background-color:var(--dd-field)}
 .dd-toolbar select{appearance:none;padding:0 22px 0 8px;background-image:linear-gradient(45deg,transparent 50%,var(--dd-muted) 50%),linear-gradient(135deg,var(--dd-muted) 50%,transparent 50%);background-position:calc(100% - 13px) 50%,calc(100% - 8px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;cursor:pointer}
 .dd-toolbar select:hover:not(:disabled),.dd-toolbar input[type=search]:hover:not(:disabled){border-color:color-mix(in srgb,var(--dd-fg) 24%,var(--dd-border))}
 .dd-toolbar [data-action="font"]{width:9.5em;font-weight:520}
 .dd-toolbar [data-action="size"],.dd-toolbar [data-action="spacing"]{width:4.4em;font-variant-numeric:tabular-nums;text-align:start}
 .dd-toolbar [data-action="mode"]{min-width:7.25em}
-.dd-toolbar input[type=search]{width:11em;padding:0 10px}
+.dd-toolbar input[type=search],.dd-find input[type=text]{width:11em;padding:0 10px}
 .dd-toolbar input[type=search]::placeholder{color:var(--dd-muted)}
 .dd-sep{width:1px;align-self:stretch;background:var(--dd-border);margin:0 2px}
 .dd-menu-sep{height:1px;margin:4px 6px;background:var(--dd-border);flex:none}
@@ -81,7 +84,7 @@ export const VIEWER_CSS = `
 .dd-status[data-tone=error]{color:var(--dd-del)}
 .dd-error{flex:1 0 100%;margin-top:4px;border:1px solid var(--dd-del);border-radius:var(--dd-radius);background:var(--dd-error-bg);color:var(--dd-del)}
 .dd-error[hidden]{display:none}
-.dd-error summary{cursor:pointer;padding:4px 8px;user-select:none}
+.dd-error summary{cursor:pointer;padding:4px 8px;user-select:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dd-error-body{display:flex;gap:8px;align-items:flex-start;padding:0 8px 8px}
 .dd-error-actions{display:flex;flex-direction:column;gap:4px;flex:none}
 .dd-error-actions button{white-space:nowrap}
@@ -121,9 +124,19 @@ export const VIEWER_CSS = `
 .dd-move-handle:focus-visible,.dd-resize-handle:focus-visible,.dd-rotate-handle:focus-visible,.dd-delete-handle:focus-visible,.dd-replace-handle:focus-visible{outline:2px solid var(--dd-accent);outline-offset:1px}
 .dd-element[data-moving] .dd-move-handle,.dd-element[data-moving] .dd-rotate-handle{cursor:grabbing}
 .dd-page canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:multiply}
-.dd-media{position:absolute;z-index:4;display:flex;align-items:center;background:#111;overflow:hidden}
-.dd-media audio,.dd-media video{width:100%;height:100%;display:block}
+.dd-media{position:absolute;z-index:4;display:flex;flex-direction:column;align-items:stretch;background:#111;overflow:hidden}
+.dd-media-pick{flex:none;height:22px;border:0;background:transparent;color:#fff;font:12px/22px var(--dd-font);cursor:pointer}
+.dd-viewer[data-mode="view"] .dd-media-pick{display:none}
+.dd-media audio,.dd-media video{width:100%;flex:1;min-height:0;display:block}
+.dd-media[data-selected]{outline:2px solid var(--dd-accent);outline-offset:2px}
 .dd-page[data-media]{cursor:default}
+.dd-timeline{width:min(100%,720px);margin:4px auto 12px;padding:0 8px}
+.dd-timeline[hidden]{display:none}
+.dd-track{position:relative;height:48px;border-radius:8px;background:color-mix(in srgb,var(--dd-muted) 16%,var(--dd-page));border:1px solid var(--dd-border)}
+.dd-clip{position:absolute;top:6px;bottom:6px;display:flex;align-items:stretch;overflow:hidden;min-width:28px;border-radius:6px;border:1px solid var(--dd-accent);background:color-mix(in srgb,var(--dd-accent) 28%,var(--dd-page));box-sizing:border-box}
+.dd-clip[data-active]{box-shadow:inset 0 0 0 1px var(--dd-accent)}
+.dd-clip-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;align-self:center;padding:0 4px;font:12px/1.2 var(--dd-font);pointer-events:none}
+.dd-clip-edge{flex:none;width:8px;padding:0;border:0;background:var(--dd-accent);cursor:ew-resize}
 .dd-page[data-oxide] canvas{visibility:hidden}
 .dd-oxide{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--dd-page);pointer-events:none}
 .dd-under,.dd-overlay,.dd-layer{position:absolute;inset:0;pointer-events:none}
@@ -134,11 +147,11 @@ export const VIEWER_CSS = `
 .dd-abs{position:absolute;left:calc(var(--x) * var(--dd-scale) * 1px);top:calc(var(--y) * var(--dd-scale) * 1px)}
 .dd-mark{width:calc(var(--w) * var(--dd-scale) * 1px);height:calc(var(--h) * var(--dd-scale) * 1px)}
 .dd-sel{background:var(--dd-sel)}
-.dd-menu{z-index:6;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--dd-panel);border:1px solid var(--dd-border);border-radius:10px;box-shadow:0 8px 28px rgb(0 0 0 / 0.12),0 1px 2px rgb(0 0 0 / 0.06);pointer-events:auto}
+.dd-menu{z-index:6;display:flex;flex-direction:column;gap:4px;padding:6px;background:var(--dd-panel);border:1px solid var(--dd-border);border-radius:var(--dd-radius);box-shadow:none;pointer-events:auto}
 .dd-menu[hidden]{display:none}
 .dd-menu-actions{display:flex;gap:4px}
 .dd-menu-actions[hidden]{display:none}
-.dd-menu button{font:inherit;color:var(--dd-fg);border:1px solid transparent;background:transparent;border-radius:7px;height:28px;padding:0 9px;cursor:pointer}
+.dd-menu button{font:inherit;color:var(--dd-fg);border:1px solid transparent;background:transparent;border-radius:var(--dd-radius);height:28px;padding:0 9px;cursor:pointer}
 .dd-menu button.dd-icon{width:28px;padding:0}
 .dd-menu button:hover:not(:disabled){background:var(--dd-hover)}
 .dd-menu button:focus-visible,.dd-menu textarea:focus-visible{outline:2px solid var(--dd-accent);outline-offset:1px}

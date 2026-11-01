@@ -30,13 +30,13 @@ describe("theme.css", () => {
       expect(light.has(token), `:root ${token}`).toBe(true);
       expect(dark.has(token), `.dark ${token}`).toBe(true);
     }
-    expect(light.get("--radius")).toBe("0.5rem");
-    expect(light.get("--font-ui")).toMatch(/^"Inter", ui-sans-serif, system-ui/);
+    expect(light.get("--radius")).toBe("2px");
+    expect(light.get("--font-ui")).toMatch(/^"Source Sans 3", "Avenir Next", "Segoe UI", sans-serif/);
   });
 
-  it("uses one blue primary: #2563eb light, #3b82f6 dark", () => {
-    expect(light.get("--primary")).toBe("#2563eb");
-    expect(dark.get("--primary")).toBe("#3b82f6");
+  it("uses the forest accent: #1a5f4a light, #7dbaa4 dark", () => {
+    expect(light.get("--primary")).toBe("#1a5f4a");
+    expect(dark.get("--primary")).toBe("#7dbaa4");
     expect(light.get("--background")).not.toBe(dark.get("--background"));
   });
 

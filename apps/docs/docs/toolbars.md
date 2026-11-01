@@ -13,6 +13,7 @@ A toolbar appears only when it applies. Text tools show while editing text, imag
 - **Native files** hide groups the format cannot support.
 - **PDF** shows the text toolbar for a text selection and the image toolbar for an image selection.
 - A group that applies but mode or selection blocks it stays **visible and disabled**.
+- **Audio and video** keep Play, Pause, and Mute in view mode. In Live or Track, Select on the player shows the timeline: drag a clip edge to trim it, change its speed, or add another file on the same track. View mode hides that timeline and the Select control. The playback controls stay on the player.
 
 The View menu lists every toolbar and shows or hides each one. The View menu itself cannot be hidden. Lock freezes positions; unlocked, a toolbar can be dragged. `?` toggles short hover hints.
 

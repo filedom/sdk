@@ -96,7 +96,13 @@ for (const group of TOOLBAR_CATALOG) {
 }
 
 /** The selection each contextual group needs before it opens. */
-const GROUP_SELECTION: Record<string, SelectionKind> = { text: "text", image: "image", shape: "shape", group: "group" };
+const GROUP_SELECTION: Record<string, SelectionKind> = {
+  text: "text",
+  image: "image",
+  shape: "shape",
+  group: "group",
+  timeline: "audio",
+};
 
 const align = (value: Align) => (viewer: DomdocViewer) => void viewer.setParagraph({ align: value });
 
@@ -147,6 +153,9 @@ const NOT_RUNNABLE: Record<string, string> = {
   replace: "Replace takes the current search and a replacement: call store.viewer.replaceMatch(text) or store.viewer.replaceAll(text)",
   replaceMatch: "Replace takes the current search and a replacement: call store.viewer.replaceMatch(text)",
   replaceAll: "Replace all takes the current search and a replacement: call store.viewer.replaceAll(text)",
+  trimClip: "Trim a clip with store.viewer.trimClip(id, startMs, endMs)",
+  clipSpeed: "Set the clip speed with store.viewer.setClipSpeed(speed)",
+  appendClip: "Add a clip with store.viewer.appendClip()",
 };
 
 function catalogContext(document: ViewerStoreDocument | null, viewMode: ViewMode, selection: SelectionState | null): CatalogContext {

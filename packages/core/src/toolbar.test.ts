@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { elementFactory } from "./dom.js";
 import type { DocInfo } from "./engine-types.js";
 import type { ToolbarActions, ToolbarState } from "./toolbar.js";
-import { shownTextFormat, Toolbar } from "./toolbar.js";
+import { shortError, shownTextFormat, Toolbar } from "./toolbar.js";
 import { HistoryPanel } from "./history.js";
 
 function actions(): ToolbarActions {
@@ -50,6 +50,8 @@ function actions(): ToolbarActions {
     playMedia() {},
     pauseMedia() {},
     muteMedia() {},
+    setClipSpeed() {},
+    appendClip() {},
     copyListing() {},
   };
 }
@@ -167,6 +169,14 @@ describe("toolbar icons", () => {
     expect(bar.querySelector(".dd-layout")).toBeNull();
     expect(bar.querySelector("[data-action=copy-error]")?.textContent).toBe("Copy");
     expect(bar.querySelector("[data-action=debug-error]")?.textContent).toBe("Debug");
+
+    const full = "engine: Failed to fetch dynamically imported module: https://domdoc.io/api/bundles/x";
+    expect(shortError(full)).toBe("engine: Failed to fetch dynamically imported module");
+    const toolbar = new Toolbar(elementFactory(document), actions(), "#fff59d");
+    toolbar.showError(full);
+    expect(toolbar.el.querySelector("summary")?.textContent).toBe("engine: Failed to fetch dynamically imported module");
+    expect(toolbar.el.querySelector("pre")?.textContent).toContain("https://domdoc.io/api/bundles/x");
+    expect(toolbar.el.querySelector("details")?.hasAttribute("open")).toBe(false);
   });
 });
 
@@ -178,20 +188,27 @@ describe("menu bar", () => {
     expect(bar.getAttribute("role")).toBe("menubar");
     expect([...bar.querySelectorAll(".dd-menu-trigger")].map((el) => el.textContent)).toEqual([
       "File",
-      "History",
       "Insert",
       "Mode",
-      "Find",
       "View",
       "Help",
     ]);
     expect(toolbar.el.querySelector<HTMLElement>(".dd-toolbar-context")!.hidden).toBe(true);
     expect(toolbar.el.querySelector<HTMLElement>('[data-menu-panel="file"]')!.hidden).toBe(true);
 
-    const find = toolbar.el.querySelector<HTMLElement>('[data-menu-panel="find"]')!;
+    const tools = toolbar.el.querySelector(".dd-toolbar-tools")!;
+    for (const action of ["open", "save", "undo", "zoomOut", "zoomReset", "zoomIn", "find"]) {
+      const control = tools.querySelector(`[data-action="${action}"]`);
+      expect(control, action).not.toBeNull();
+      expect(control?.closest("[hidden]")).toBeNull();
+    }
+    const find = toolbar.el.querySelector<HTMLElement>(".dd-find")!;
+    expect(find.hidden).toBe(true);
     expect(find.querySelector("[data-action=replace]")?.getAttribute("aria-label")).toBe("Replace with");
     expect(find.querySelector("[data-action=replaceMatch]")?.textContent).toContain("Replace");
     expect(find.querySelector("[data-action=replaceAll]")?.textContent).toContain("Replace all");
+    tools.querySelector<HTMLButtonElement>("[data-action=find]")!.click();
+    expect(find.hidden).toBe(false);
 
     toolbar.el.querySelector<HTMLButtonElement>('[data-menu="file"]')!.click();
     expect(toolbar.el.querySelector<HTMLElement>('[data-menu-panel="file"]')!.hidden).toBe(false);

@@ -2,8 +2,10 @@ import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
 import { Window } from "happy-dom";
 import { describe, expect, it, vi } from "vitest";
+import { BundleLoader } from "./bundles.js";
 import { createViewerStore } from "./headless.js";
 import { replacementOrder } from "./replace-text.js";
+import { mediaBundles } from "./engines/media-bundles.js";
 import { createEngineLoader } from "./modules.js";
 import { openDocument } from "./open.js";
 import { storeZip } from "./engines/package-file.js";
@@ -727,3 +729,41 @@ describe("headless store on a real engine", () => {
     }
   }, 60_000);
 });
+
+describe("timeline commands", () => {
+  it("trims a WAV shorter and refuses the same command on a PDF", async () => {
+    const wav = tinyWav();
+    const loader = new BundleLoader(mediaBundles());
+    const audio = await openDocument(loader, wav, { name: "tone.wav", core: createEngineLoader() });
+    audio.attach("edit");
+    expect(audio.info().capabilities.timeline).toBe(true);
+    audio.apply({ type: "trimClip", id: "c0", startMs: 0, endMs: 500 });
+    expect(audio.exportBytes().byteLength).toBeLessThan(wav.byteLength);
+
+    const pdf = await open(new Uint8Array(readFileSync(new URL("sample.pdf", fixtures))), "sample.pdf");
+    expect(() => pdf.apply({ type: "trimClip", id: "c0", startMs: 0, endMs: 500 })).toThrow(
+      "unsupported: timeline editing is not supported",
+    );
+  }, 60_000);
+});
+
+/** 8-bit mono PCM, 8000 Hz, one second of silence. */
+function tinyWav(): Uint8Array {
+  const samples = 8000;
+  const bytes = new Uint8Array(44 + samples);
+  const view = new DataView(bytes.buffer);
+  bytes.set([0x52, 0x49, 0x46, 0x46], 0);
+  bytes.set([0x57, 0x41, 0x56, 0x45], 8);
+  bytes.set([0x66, 0x6d, 0x74, 0x20], 12);
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, 8000, true);
+  view.setUint32(28, 8000, true);
+  view.setUint16(32, 1, true);
+  view.setUint16(34, 8, true);
+  bytes.set([0x64, 0x61, 0x74, 0x61], 36);
+  view.setUint32(40, samples, true);
+  view.setUint32(4, bytes.byteLength - 8, true);
+  return bytes;
+}

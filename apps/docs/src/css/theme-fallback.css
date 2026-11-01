@@ -1,45 +1,45 @@
 /* Stand-in for @domdoc/ui/theme.css, used only while that package file is missing. */
 :root {
-  --background: #ffffff;
-  --foreground: #09090b;
+  --background: #f4f0e8;
+  --foreground: #1a1916;
   --card: #ffffff;
-  --card-foreground: #09090b;
+  --card-foreground: #1a1916;
   --popover: #ffffff;
-  --popover-foreground: #09090b;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
-  --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
-  --accent-foreground: #18181b;
+  --popover-foreground: #1a1916;
+  --primary: #1a5f4a;
+  --primary-foreground: #f4f0e8;
+  --secondary: #ebe4d6;
+  --secondary-foreground: #1a1916;
+  --muted: #ebe4d6;
+  --muted-foreground: #5e584e;
+  --accent: #ebe4d6;
+  --accent-foreground: #1a1916;
   --destructive: #dc2626;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
-  --ring: #2563eb;
-  --radius: 0.5rem;
+  --border: rgba(26, 25, 22, 0.14);
+  --input: rgba(26, 25, 22, 0.14);
+  --ring: #1a5f4a;
+  --radius: 2px;
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
+  --background: #141311;
+  --foreground: #f3efe6;
+  --card: #1c1b18;
+  --card-foreground: #f3efe6;
+  --popover: #242220;
+  --popover-foreground: #f3efe6;
+  --primary: #7dbaa4;
+  --primary-foreground: #141311;
+  --secondary: #2a2825;
+  --secondary-foreground: #f3efe6;
+  --muted: #2a2825;
+  --muted-foreground: #a39c90;
+  --accent: #2a2825;
+  --accent-foreground: #f3efe6;
   --destructive: #ef4444;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #3b82f6;
+  --border: rgba(243, 239, 230, 0.14);
+  --input: rgba(243, 239, 230, 0.14);
+  --ring: #7dbaa4;
 }
 
 @theme inline {
@@ -61,10 +61,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: var(--radius);
+  --radius-md: var(--radius);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-xl: var(--radius);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

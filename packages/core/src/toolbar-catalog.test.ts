@@ -113,6 +113,23 @@ describe("toolbar catalog", () => {
     expect(actionAvailability("sheet", "copyListing", ctx({ format: "csv", mode: "view" }))).toBe("shown");
   });
 
+  it("shows the timeline only when the player is selected outside view mode", () => {
+    const timeline = caps({ timeline: true });
+    expect(groupAvailability("timeline", ctx())).toBe("hidden");
+    expect(groupAvailability("timeline", ctx({ selection: "audio", capabilities: timeline }))).toBe("shown");
+    expect(groupAvailability("timeline", ctx({ selection: "video", capabilities: timeline }))).toBe("shown");
+    expect(groupAvailability("timeline", ctx({ selection: "audio", mode: "view", capabilities: timeline }))).toBe("hidden");
+    expect(groupAvailability("timeline", ctx({ selection: "none", capabilities: timeline }))).toBe("hidden");
+    expect(groupAvailability("timeline", ctx({ selection: "audio" }))).toBe("hidden");
+    expect(actionAvailability("audio", "playMedia", ctx({ fileKind: "audio", mode: "view" }))).toBe("shown");
+    expect(actionAvailability("timeline", "appendClip", ctx({ selection: "audio", mode: "view", capabilities: timeline }))).toBe(
+      "hidden",
+    );
+    expect(actionAvailability("timeline", "clipSpeed", ctx({ selection: "audio", mode: "live", capabilities: timeline }))).toBe(
+      "shown",
+    );
+  });
+
   it("hides insert kinds the adapter cannot place", () => {
     const insert = ctx({
       capabilities: caps({ insert: true }),

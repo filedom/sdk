@@ -61,8 +61,12 @@ describe("viewer stylesheet", () => {
   });
 
   it("gives every mode its text color, and leaves pressed controls on the accent tint", () => {
-    expect(themeDefaultDeclarations("light")).toContain("--dd-fg-default:#1f2328");
-    expect(themeDefaultDeclarations("dark")).toContain("--dd-fg-default:#e7ecf3");
+    expect(themeDefaultDeclarations("light")).toContain("--dd-fg-default:#1a1916");
+    expect(themeDefaultDeclarations("dark")).toContain("--dd-fg-default:#f3efe6");
+    expect(THEME_DEFAULTS.light.accent).toBe("#1a5f4a");
+    expect(THEME_DEFAULTS.dark.background).toBe("#141311");
+    expect(THEME_DEFAULTS.light.page).toBe("#fff");
+    expect(THEME_DEFAULTS.dark.page).toBe("#fff");
     expect(themeDefaultDeclarations("high-contrast-light")).toContain("--dd-fg-default:#000");
     expect(themeDefaultDeclarations("high-contrast-dark")).toContain("--dd-fg-default:#fff");
     expect(THEME_DEFAULTS.light["control-down"]).toBeUndefined();

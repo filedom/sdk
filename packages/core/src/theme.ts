@@ -77,7 +77,7 @@ export const TOKEN_VAR: { readonly [Name in ThemeToken]: string } = {
   field: "field",
 };
 
-const FONT = 'system-ui,-apple-system,"Segoe UI",sans-serif';
+const FONT = '"Source Sans 3","Avenir Next","Segoe UI",sans-serif';
 
 /**
  * Mode defaults. `control-down` is omitted for light and dark so the pressed
@@ -88,17 +88,17 @@ export const THEME_DEFAULTS: {
   readonly [Mode in ThemeName]: { readonly [Name in ThemeToken]?: string };
 } = {
   light: {
-    accent: "#0b62d6",
-    background: "#eef0f3",
-    surface: "#fff",
+    accent: "#1a5f4a",
+    background: "#f4f0e8",
+    surface: "#f4f0e8",
     "surface-raised": "#fff",
-    text: "#1f2328",
-    "text-muted": "#59636e",
-    border: "#d0d7de",
-    hover: "#e8eef5",
-    canvas: "#eef0f3",
+    text: "#1a1916",
+    "text-muted": "#5e584e",
+    border: "rgba(26, 25, 22, 0.14)",
+    hover: "#ebe4d6",
+    canvas: "#ebe4d6",
     page: "#fff",
-    radius: "6px",
+    radius: "2px",
     font: FONT,
     ins: "#1565c0",
     del: "#c62828",
@@ -108,17 +108,17 @@ export const THEME_DEFAULTS: {
     field: "#fff",
   },
   dark: {
-    accent: "#4c9aff",
-    background: "#0f1419",
-    surface: "#161b22",
-    "surface-raised": "#1c232c",
-    text: "#e7ecf3",
-    "text-muted": "#9aa4b2",
-    border: "#3d4654",
-    hover: "#2a3340",
-    canvas: "#0d1117",
+    accent: "#7dbaa4",
+    background: "#141311",
+    surface: "#1c1b18",
+    "surface-raised": "#242220",
+    text: "#f3efe6",
+    "text-muted": "#a39c90",
+    border: "rgba(243, 239, 230, 0.14)",
+    hover: "#2a2825",
+    canvas: "#1a1916",
     page: "#fff",
-    radius: "6px",
+    radius: "2px",
     font: FONT,
     ins: "#79b8ff",
     del: "#ff7b72",
@@ -138,7 +138,7 @@ export const THEME_DEFAULTS: {
     hover: "#e5e5e5",
     canvas: "#fff",
     page: "#fff",
-    radius: "6px",
+    radius: "2px",
     font: FONT,
     ins: "#000",
     del: "#000",
@@ -159,7 +159,7 @@ export const THEME_DEFAULTS: {
     hover: "#222",
     canvas: "#000",
     page: "#fff",
-    radius: "6px",
+    radius: "2px",
     font: FONT,
     ins: "#fff",
     del: "#fff",

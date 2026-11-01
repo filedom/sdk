@@ -59,6 +59,8 @@ export interface Capabilities {
   layers: boolean;
   /** `insertElement` for kinds the adapter can place. */
   insert: boolean;
+  /** Audio and video timeline: `trimClip`, `setClipSpeed`, and `appendClip`. */
+  timeline?: boolean;
 }
 
 /** One layer the layers panel can show, hide, or lock. */
@@ -73,6 +75,31 @@ export interface LayerView {
 export interface HistoryEntry {
   id: string;
   label: string;
+}
+
+/** Audio or video timeline. Clips on a track play in order. */
+export interface TimelineView {
+  durationMs: number;
+  tracks: TrackView[];
+}
+
+/** One track. Clips on it play in order and do not overlap. */
+export interface TrackView {
+  id: string;
+  /** `audio` or `video`. */
+  kind: string;
+  clips: ClipView[];
+}
+
+/** One clip. `outMs` of 0 plays through the end of that source. */
+export interface ClipView {
+  id: string;
+  name: string;
+  /** Position on the track, in milliseconds. */
+  startMs: number;
+  inMs: number;
+  outMs: number;
+  speed: number;
 }
 
 export type DocumentKind = "text" | "image";
@@ -102,6 +129,8 @@ export interface DocInfo {
   history?: HistoryEntry[];
   /** Layers for the layers panel. */
   layers?: LayerView[];
+  /** Audio or video timeline. Absent for other files. */
+  timeline?: TimelineView;
 }
 
 export interface Rect {
@@ -333,7 +362,13 @@ export type Command =
   | { type: "addComment"; ranges: UnitRange[]; text: string; quote?: string }
   | { type: "replyComment"; id: string; text: string }
   | { type: "resolveComment"; id: string; resolved: boolean }
-  | { type: "checkpoint"; id: string; op: CheckpointOp };
+  | { type: "checkpoint"; id: string; op: CheckpointOp }
+  /** Trims one timeline clip. `endMs` of 0 keeps the source through its end. */
+  | { type: "trimClip"; id: string; startMs: number; endMs: number }
+  /** Playback and export speed for one clip. `1` is the original speed. */
+  | { type: "setClipSpeed"; id: string; speed: number }
+  /** Appends another file of the same kind onto a track, after the last clip. `bytes` is a JSON number array. */
+  | { type: "appendClip"; track: string; name: string; bytes: number[] };
 
 export type ReviewView = "original" | "final" | "markup";
 export type MarkupKind = "underline" | "strikeout" | "squiggle";

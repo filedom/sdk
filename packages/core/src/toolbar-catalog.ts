@@ -4,7 +4,7 @@ import type { Capabilities, FileKind, Format } from "./engine-types.js";
 export type CatalogMode = "live" | "track" | "view";
 
 /** Selection kind that drives the contextual toolbar row. */
-export type SelectionKind = "none" | "text" | "image" | "shape" | "group";
+export type SelectionKind = "none" | "text" | "image" | "shape" | "group" | "audio" | "video";
 
 export type ActionAvailability = "shown" | "hidden" | "disabled";
 
@@ -225,6 +225,16 @@ const CONTEXTUAL: ToolbarGroup[] = [
     row: "contextual",
     actions: [{ id: "copyListing", label: "Copy", hint: "Copy the sheet" }],
   },
+  {
+    id: "timeline",
+    label: "Timeline",
+    row: "contextual",
+    actions: [
+      { id: "trimClip", label: "Trim", hint: "Crop the selected clip on the timeline" },
+      { id: "clipSpeed", label: "Speed", hint: "Change the selected clip speed" },
+      { id: "appendClip", label: "Add clip", hint: "Add another file on the track" },
+    ],
+  },
 ];
 
 /** Every toolbar group: app row plus contextual groups. */
@@ -252,6 +262,7 @@ export function catalogTray(id: string): TraySpec | undefined {
 function formatAllows(ctx: CatalogContext, groupId: string): boolean {
   if (groupId === "audio") return ctx.fileKind === "audio";
   if (groupId === "video") return ctx.fileKind === "video";
+  if (groupId === "timeline") return ctx.capabilities.timeline === true;
   if (groupId === "archive") return ctx.fileKind === "archive";
   if (groupId === "email") return ctx.fileKind === "email";
   if (groupId === "sheet") return ctx.format === "csv";
@@ -316,6 +327,10 @@ export function groupAvailability(groupId: string, ctx: CatalogContext): ActionA
   if (groupId === "group") {
     if (ctx.selection !== "group") return "hidden";
     if (ctx.mode === "view") return "disabled";
+    return "shown";
+  }
+  if (groupId === "timeline") {
+    if (ctx.mode === "view" || (ctx.selection !== "audio" && ctx.selection !== "video")) return "hidden";
     return "shown";
   }
   return "shown";

@@ -20,13 +20,18 @@ export function placeMedia(page: HTMLElement, view: PageView, url: string | unde
   let media = stage.querySelector(tag);
   if (!media) {
     stage.replaceChildren();
+    const pick = doc.createElement("button");
+    pick.type = "button";
+    pick.className = "dd-media-pick";
+    pick.textContent = "Select";
+    pick.setAttribute("aria-label", "Select player");
     media = doc.createElement(tag);
     if (media instanceof HTMLMediaElement) {
       media.controls = true;
       media.preload = "metadata";
     }
     if (tag === "video") media.setAttribute("playsinline", "");
-    stage.append(media);
+    stage.append(pick, media);
   }
   if (media instanceof HTMLMediaElement && media.getAttribute("src") !== url) media.src = url;
   if (!stage.parentElement) page.append(stage);

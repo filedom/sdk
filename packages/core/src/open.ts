@@ -84,7 +84,17 @@ export async function openDocument(loader: BundleLoader, source: OpenSource, opt
   const detected = detectFormat(file.bytes, name);
   const detail = unwiredDetail(detected);
   if (detail) throw new DomdocError("unsupported", detail);
-  const prepared = options.core ? await options.core.prepare(file.bytes, name) : undefined;
+  let prepared: Awaited<ReturnType<NonNullable<OpenOptions["core"]>["prepare"]>> | undefined;
+  if (options.core) {
+    try {
+      prepared = await options.core.prepare(file.bytes, name);
+    } catch (error) {
+      const failure = DomdocError.from(error);
+      // PDF and Office use the core loader. Audio, video, and the other format
+      // bundles stay on `loader` when the host provided one.
+      if (failure.code !== "unsupported-format" || !loader.supports(detected)) throw failure;
+    }
+  }
   const sniffed = prepared?.plan.format ?? detectFormat(file.bytes, name);
   const engine: EngineModule = prepared?.engine ?? (await loader.load(sniffed));
   let password = options.password;

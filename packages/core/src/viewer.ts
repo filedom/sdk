@@ -45,6 +45,7 @@ import {
   type CaretMove,
   type Command,
   type CommandResult,
+  type ClipView,
   type DocInfo,
   type EngineEvent,
   type EngineInput,
@@ -61,6 +62,7 @@ import { DomdocError } from "./errors.js";
 import { FileStore, type StoredFile } from "./file-store.js";
 import { ACCEPT, detectFormat, fileKind } from "./formats.js";
 import { placeMedia } from "./media-view.js";
+import { renderTimeline } from "./timeline-bar.js";
 import { isAddressable, rectsForRange, runBox, visibleLength } from "./geometry.js";
 import { icon } from "./icons.js";
 import type { CoreLoader } from "./modules.js";
@@ -224,6 +226,12 @@ export class DomdocViewer {
   private readonly cleanup: Array<() => void> = [];
   /** Object URL for the open audio or video, revoked on close. */
   private mediaBlob?: { key: string; url: string };
+  /** Object URLs for clips added after the file was opened. */
+  private readonly clipUrls = new Map<string, string>();
+  private activeClipId?: string;
+  private advancing = false;
+  private readonly timelineEl: HTMLElement;
+  private readonly clipInput: HTMLInputElement;
   /** Edit commands and typed text that led up to the error on screen. */
   private readonly recentEdits: unknown[] = [];
   /** The input or command currently inside the engine. */
@@ -375,6 +383,20 @@ export class DomdocViewer {
       this.imageInput.value = "";
       if (file) this.applyImageReplace(file);
     });
+    this.clipInput = this.h("input");
+    this.clipInput.type = "file";
+    this.clipInput.hidden = true;
+    this.clipInput.addEventListener("change", () => {
+      const file = this.clipInput.files?.[0];
+      this.clipInput.value = "";
+      if (file) void this.addClipFile(file);
+    });
+    this.timelineEl = this.h("div", "dd-timeline");
+    this.timelineEl.dataset.timeline = "";
+    this.timelineEl.hidden = true;
+    this.timelineEl.setAttribute("role", "group");
+    this.timelineEl.setAttribute("aria-label", "Trim");
+    this.timelineEl.addEventListener("pointerdown", (event) => event.stopPropagation());
 
     this.menu = new SelectionMenu(this.h, {
       highlight: () => {
@@ -421,7 +443,7 @@ export class DomdocViewer {
     sheet.append(spinner);
     this.loadingEl.append(sheet, this.loadingText);
     this.editor = new Editor(this.editorHost(), this.h);
-    pagesEl.append(this.empty, this.loadingEl, this.editor.input);
+    pagesEl.append(this.empty, this.loadingEl, this.editor.input, this.timelineEl);
     this.pages = new PageStack(pagesEl, this.h, (slot, mode) => this.paintSlot(slot, mode), this.editor.input);
     this.panel = new HistoryPanel(this.h, {
       restoreHistory: (id) => {
@@ -457,7 +479,7 @@ export class DomdocViewer {
     this.panel.el.hidden = !this.showHistory();
     this.layersPanel.el.hidden = true;
     body.append(pagesEl, this.panel.el, this.layersPanel.el);
-    this.el.append(body, this.fileInput, this.imageInput);
+    this.el.append(body, this.fileInput, this.imageInput, this.clipInput);
     this.capture.append(this.el);
     root.append(this.capture);
 
@@ -909,7 +931,11 @@ export class DomdocViewer {
         return this.doc.apply(command);
       }
     } catch (error) {
-      this.fail(error);
+      const failure = DomdocError.from(error);
+      // Live mode asks every file to record track changes. A format that cannot
+      // does not become an error banner.
+      if (command.type === "setTrackChanges" && failure.code === "unsupported") return undefined;
+      this.fail(failure);
       return undefined;
     } finally {
       this.inflight = previous;
@@ -1489,6 +1515,8 @@ export class DomdocViewer {
       playMedia: () => this.playMedia(),
       pauseMedia: () => this.pauseMedia(),
       muteMedia: () => this.muteMedia(),
+      setClipSpeed: (speed) => this.setClipSpeed(speed),
+      appendClip: () => this.appendClip(),
       copyListing: () => this.copyListing(),
     };
   }
@@ -1510,6 +1538,27 @@ export class DomdocViewer {
     el.muted = !el.muted;
     const group = el.tagName === "VIDEO" ? "video" : "audio";
     this.el.querySelector(`[data-group="${group}"] [data-action="muteMedia"]`)?.setAttribute("aria-pressed", String(el.muted));
+  }
+
+  /** Trims one timeline clip. `endMs` of 0 plays through the end of that source. */
+  trimClip(id: string, startMs: number, endMs: number): void {
+    if (!this.mediaPick()) return;
+    void this.apply({ type: "trimClip", id, startMs: Math.round(startMs), endMs: Math.round(endMs) });
+  }
+
+  /** Sets the speed of the clip selected on the timeline. */
+  setClipSpeed(speed: number): void {
+    const id = this.activeClip()?.id;
+    if (!id || !this.mediaPick()) return;
+    void this.apply({ type: "setClipSpeed", id, speed });
+  }
+
+  /** Opens a file picker and appends that file on the open track. */
+  appendClip(): void {
+    if (!this.mediaPick() || !this.doc) return;
+    const kind = fileKind(this.doc.format);
+    this.clipInput.accept = kind === "video" ? "video/*,.mp4,.webm,.mpeg" : "audio/*,.mp3,.wav,.m4a";
+    this.clipInput.click();
   }
 
   /** Copies the visible listing, message, or sheet. */
@@ -1538,9 +1587,14 @@ export class DomdocViewer {
   }
 
   private releaseMedia(): void {
-    if (!this.mediaBlob) return;
-    URL.revokeObjectURL(this.mediaBlob.url);
-    this.mediaBlob = undefined;
+    if (this.mediaBlob) {
+      URL.revokeObjectURL(this.mediaBlob.url);
+      this.mediaBlob = undefined;
+    }
+    for (const url of this.clipUrls.values()) URL.revokeObjectURL(url);
+    this.clipUrls.clear();
+    this.activeClipId = undefined;
+    this.advancing = false;
   }
 
   private mediaSource(): string | undefined {
@@ -1551,11 +1605,14 @@ export class DomdocViewer {
       this.releaseMedia();
       return undefined;
     }
-    const key = `${doc.name}\0${doc.format}\0${doc.revision}`;
-    if (this.mediaBlob?.key === key) return this.mediaBlob.url;
-    this.releaseMedia();
     try {
-      const bytes = doc.exportBytes();
+      const bytes = doc.sourceBytes() ?? doc.exportBytes();
+      const key = `${doc.name}\0${doc.format}\0${bytes.byteLength}\0${bytes[0] ?? 0}\0${bytes[bytes.byteLength - 1] ?? 0}`;
+      if (this.mediaBlob?.key === key) return this.mediaBlob.url;
+      if (this.mediaBlob) {
+        URL.revokeObjectURL(this.mediaBlob.url);
+        this.mediaBlob = undefined;
+      }
       const mime = doc.info().exportMime;
       const url = URL.createObjectURL(new Blob([bytes as BlobPart], mime ? { type: mime } : undefined));
       this.mediaBlob = { key, url };
@@ -1563,6 +1620,132 @@ export class DomdocViewer {
     } catch {
       return undefined;
     }
+  }
+
+  private timelineClips(): ClipView[] {
+    return this.doc?.info().timeline?.tracks[0]?.clips ?? [];
+  }
+
+  private activeClip(): ClipView | undefined {
+    const clips = this.timelineClips();
+    return clips.find((clip) => clip.id === this.activeClipId) ?? clips[0];
+  }
+
+  /** Live and track can select the player. View cannot. */
+  private mediaPick(): boolean {
+    return Boolean(this.doc?.info().capabilities.timeline) && this.viewModeValue !== "view" && !this.options.readOnly;
+  }
+
+  private playbackUrl(): string | undefined {
+    const clips = this.timelineClips();
+    const clip = this.activeClip();
+    if (clip && clips[0] && clip.id !== clips[0].id) return this.clipUrls.get(clip.id) ?? this.mediaSource();
+    return this.mediaSource();
+  }
+
+  private pickMedia(): void {
+    const doc = this.doc;
+    if (!doc || !this.mediaPick()) return;
+    const object = doc.page(0).objects?.find((item) => item.kind === "audio" || item.kind === "video");
+    if (!object) return;
+    this.picked = { id: object.id, page: 0, kind: object.kind };
+    this.textEditing = false;
+    this.marks = [];
+    this.showCaret(undefined);
+    this.activeClipId ??= this.timelineClips()[0]?.id;
+    this.paintNow("overlay");
+    this.syncChrome(false);
+  }
+
+  private async addClipFile(file: File): Promise<void> {
+    const doc = this.doc;
+    if (!doc || !this.mediaPick()) return;
+    const before = new Set(this.timelineClips().map((clip) => clip.id));
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const track = doc.info().timeline?.tracks[0]?.id ?? "t0";
+    const result = await this.apply({ type: "appendClip", track, name: file.name, bytes: Array.from(bytes) });
+    if (!result) return;
+    const added = this.timelineClips().find((clip) => !before.has(clip.id));
+    if (!added) return;
+    const url = URL.createObjectURL(new Blob([bytes], file.type ? { type: file.type } : undefined));
+    this.clipUrls.set(added.id, url);
+    this.activeClipId = added.id;
+    this.syncChrome(false);
+  }
+
+  private armPlayback(media: HTMLMediaElement): void {
+    if (media.dataset.bound === "1") return;
+    media.dataset.bound = "1";
+    media.addEventListener("timeupdate", () => this.followClip(media));
+    media.addEventListener("ended", () => this.advanceClip(media));
+    media.addEventListener("play", () => this.applyClipRate(media));
+  }
+
+  private applyClipRate(media?: HTMLMediaElement): void {
+    const el = media ?? this.mediaElement();
+    const clip = this.activeClip();
+    if (!el || !clip || !(clip.speed > 0)) return;
+    if (Math.abs(el.playbackRate - clip.speed) < 0.01) return;
+    try {
+      el.playbackRate = clip.speed;
+    } catch {
+      // The browser refused this rate. The timeline still records it.
+    }
+  }
+
+  private followClip(media: HTMLMediaElement): void {
+    if (this.advancing) return;
+    const clip = this.activeClip();
+    if (!clip) return;
+    const start = clip.inMs / 1000;
+    if (media.currentTime + 0.05 < start) media.currentTime = start;
+    if (clip.outMs > clip.inMs && media.currentTime >= clip.outMs / 1000 - 0.03) this.advanceClip(media);
+  }
+
+  private advanceClip(media: HTMLMediaElement): void {
+    if (this.advancing) return;
+    const clips = this.timelineClips();
+    const clip = this.activeClip();
+    if (!clip) return;
+    const next = clips[clips.findIndex((item) => item.id === clip.id) + 1];
+    if (!next) {
+      if (clip.outMs > clip.inMs) {
+        media.pause();
+        media.currentTime = Math.max(clip.inMs / 1000, clip.outMs / 1000 - 0.05);
+      }
+      return;
+    }
+    this.advancing = true;
+    this.activeClipId = next.id;
+    const url = next.id === clips[0]?.id ? this.mediaSource() : this.clipUrls.get(next.id);
+    const start = () => {
+      media.currentTime = next.inMs / 1000;
+      this.applyClipRate(media);
+      void media.play().catch(() => undefined);
+      this.advancing = false;
+      this.syncTimeline();
+    };
+    if (url && media.getAttribute("src") !== url) {
+      media.src = url;
+      media.addEventListener("loadedmetadata", start, { once: true });
+    } else start();
+  }
+
+  private syncTimeline(): void {
+    const open = this.mediaPick() && (this.picked?.kind === "audio" || this.picked?.kind === "video");
+    this.timelineEl.hidden = !open;
+    if (!open) {
+      this.timelineEl.replaceChildren();
+      return;
+    }
+    renderTimeline(this.timelineEl, this.doc?.info().timeline, this.activeClip()?.id, {
+      select: (id) => {
+        this.activeClipId = id;
+        this.syncChrome(false);
+      },
+      trim: (id, startMs, endMs) => this.trimClip(id, startMs, endMs),
+    });
+    this.applyClipRate();
   }
 
   private openNewFile(): void {
@@ -1617,6 +1800,8 @@ export class DomdocViewer {
     if (this.picked.kind === "text") return "text";
     if (this.picked.kind === "image") return "image";
     if (this.picked.kind === "path" || this.picked.kind === "object") return "shape";
+    if (this.picked.kind === "audio") return "audio";
+    if (this.picked.kind === "video") return "video";
     return "group";
   }
 
@@ -1963,12 +2148,14 @@ export class DomdocViewer {
         hiddenGroups: this.hiddenGroups,
         availableTrays: this.availableTrays(),
         shownTrays: this.shownTrays(),
+        clipSpeed: this.activeClip()?.speed,
       });
       delete this.el.dataset.layout;
       this.el.toggleAttribute("data-toolbars-locked", this.toolbarsLocked);
     } finally {
       this.styleSample = undefined;
     }
+    this.syncTimeline();
     if (panel && !this.panel.el.hidden) {
       this.panel.render(info?.history ?? [], info?.history?.at(-1)?.id ?? null);
     }
@@ -2332,7 +2519,14 @@ export class DomdocViewer {
       }
       this.drawText(slot, view);
     }
-    placeMedia(slot.el, view, this.doc ? this.mediaSource() : undefined);
+    placeMedia(slot.el, view, this.doc ? this.playbackUrl() : undefined);
+    const stage = slot.el.querySelector(".dd-media");
+    if (stage instanceof HTMLElement) {
+      const selected = this.mediaPick() && (this.picked?.kind === "audio" || this.picked?.kind === "video");
+      stage.toggleAttribute("data-selected", selected);
+      const media = stage.querySelector("audio, video");
+      if (media instanceof HTMLMediaElement) this.armPlayback(media);
+    }
     this.drawOverlay(slot, view);
   }
 
@@ -2432,7 +2626,9 @@ export class DomdocViewer {
         marks.push(mark);
       }
     }
-    if (this.objectEdit()) this.drawElement(slot, view, marks);
+    if (this.objectEdit() || (this.mediaPick() && (this.picked?.kind === "audio" || this.picked?.kind === "video"))) {
+      this.drawElement(slot, view, marks);
+    }
     slot.overlay.replaceChildren(...marks);
   }
 
@@ -2462,6 +2658,12 @@ export class DomdocViewer {
     frame.dataset.kind = element.kind;
     frame.setAttribute("role", "group");
     frame.setAttribute("aria-label", elementLabel(element));
+    if (element.kind === "audio" || element.kind === "video") {
+      placeAt(frame, overlay);
+      frame.style.setProperty("--rot", `${overlay.cssRotationDeg}deg`);
+      marks.push(frame);
+      return;
+    }
     const move = this.h("button", "dd-move-handle");
     move.type = "button";
     move.dataset.action = "move-element";
@@ -2718,6 +2920,18 @@ export class DomdocViewer {
       this.showCaret(undefined);
     });
     pages.addEventListener("pointerdown", (event) => this.onPointerDown(event));
+    // The player control is a closed shadow tree. A pointer event can stop
+    // before it bubbles, while the click still reaches the page.
+    pages.addEventListener(
+      "click",
+      (event) => {
+        if (event.button !== 0) return;
+        const target = event.target as Element | null;
+        if (!this.mediaPick() || !target?.closest(".dd-media")) return;
+        this.pickMedia();
+      },
+      true,
+    );
     pages.addEventListener("pointermove", (event) => this.onPointerMove(event));
     pages.addEventListener("pointerup", () => this.onPointerUp());
     pages.addEventListener("pointercancel", () => this.onPointerUp());
@@ -2761,6 +2975,19 @@ export class DomdocViewer {
       event.preventDefault();
       const mode = action === "move-element" ? "move" : action === "rotate-element" ? "rotate" : "resize";
       this.beginGesture(event, mode, control?.dataset.corner);
+      return;
+    }
+    if (this.mediaPick() && target?.closest(".dd-media")) {
+      this.pickMedia();
+      return;
+    }
+    if (
+      this.mediaPick() &&
+      !this.objectEdit() &&
+      (this.picked?.kind === "audio" || this.picked?.kind === "video") &&
+      !target?.closest(".dd-timeline, .dd-toolbar, .dd-menu, .dd-media")
+    ) {
+      this.deselect();
       return;
     }
     const point = this.enginePoint(this.pagePoint(event.clientX, event.clientY));
