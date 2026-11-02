@@ -7,7 +7,7 @@ interface CssRoot {
   walkAtRules(name: string, callback: (rule: { params: string }) => void): void;
 }
 
-const THEME_IMPORT = "@domdoc/ui/theme.css";
+const THEME_IMPORT = "@filedom/ui/theme.css";
 
 // Keeps <html class="dark"> equal to Docusaurus' data-theme so `.dark` tokens and the
 // Tailwind `dark:` variant follow the navbar toggle, including before hydration.
@@ -22,12 +22,12 @@ function themeAvailable(siteDir: string): boolean {
   }
 }
 
-// Points the theme import at the local fallback while @domdoc/ui does not ship theme.css.
+// Points the theme import at the local fallback while @filedom/ui does not ship theme.css.
 function themeFallback(siteDir: string) {
   const available = themeAvailable(siteDir);
   const fallback = path.join(siteDir, "src/css/theme-fallback.css");
   return {
-    postcssPlugin: "domdoc-theme-fallback",
+    postcssPlugin: "filedom-theme-fallback",
     Once(root: CssRoot) {
       if (available) return;
       root.walkAtRules("import", (rule) => {
@@ -39,7 +39,7 @@ function themeFallback(siteDir: string) {
 
 export default function tailwindPlugin(context: LoadContext): Plugin {
   return {
-    name: "domdoc-tailwind",
+    name: "filedom-tailwind",
     configurePostCss(postcssOptions) {
       postcssOptions.plugins.unshift(themeFallback(context.siteDir), tailwindcss());
       return postcssOptions;

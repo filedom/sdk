@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bundlesFromCdn, type GlueLoader } from "./cdn.js";
 import type { EngineSession } from "./engine-types.js";
-import { DomdocViewer } from "./viewer.js";
+import { FiledomViewer } from "./viewer.js";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const WASM = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]);
@@ -83,7 +83,7 @@ async function openViewer(license: "trial" | "licensed") {
       expect(init?.method).toBe("POST");
       expect(init?.credentials).toBe("omit");
       expect(String(init?.body)).toBe(JSON.stringify({ extension: "png" }));
-      expect(new Headers(init?.headers).get("x-domdoc-license-key")).toBe(
+      expect(new Headers(init?.headers).get("x-filedom-license-key")).toBe(
         license === "licensed" ? "ddk-customer" : null,
       );
       return new Response(JSON.stringify({ trial: license === "trial" }), {
@@ -98,7 +98,7 @@ async function openViewer(license: "trial" | "licensed") {
   const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation((key: string, value: string) => {
     stored.push(`${key}=${value}`);
   });
-  const viewer = new DomdocViewer(root, {
+  const viewer = new FiledomViewer(root, {
     bundles: bundlesFromCdn("https://cdn.example/v1", { load: load() }),
     toolbar: false,
     apiBase: "https://api.example/api",
@@ -116,14 +116,14 @@ describe("trial banner", () => {
     document.body.replaceChildren();
   });
 
-  it("shows Trial: unlicensed domdoc for a trial response and still renders", async () => {
+  it("shows Trial: unlicensed filedom for a trial response and still renders", async () => {
     const { root, viewer, setItem, stored } = await openViewer("trial");
     const banner = root.querySelector(".dd-trial");
-    expect(banner?.textContent).toBe("Trial: unlicensed domdoc");
+    expect(banner?.textContent).toBe("Trial: unlicensed filedom");
     expect(banner?.hasAttribute("hidden")).toBe(false);
     expect(root.querySelector(".dd-page")).toBeTruthy();
-    expect(stored.join("\n")).not.toContain("Trial: unlicensed domdoc");
-    expect(setItem.mock.calls.some((call) => String(call[1]).includes("Trial: unlicensed domdoc"))).toBe(false);
+    expect(stored.join("\n")).not.toContain("Trial: unlicensed filedom");
+    expect(setItem.mock.calls.some((call) => String(call[1]).includes("Trial: unlicensed filedom"))).toBe(false);
     viewer.destroy();
   });
 
@@ -132,7 +132,7 @@ describe("trial banner", () => {
     const banner = root.querySelector(".dd-trial");
     expect(banner?.hasAttribute("hidden")).toBe(true);
     expect(banner?.textContent).toBe("");
-    expect(root.textContent).not.toContain("Trial: unlicensed domdoc");
+    expect(root.textContent).not.toContain("Trial: unlicensed filedom");
     expect(root.querySelector(".dd-page")).toBeTruthy();
     viewer.destroy();
   });

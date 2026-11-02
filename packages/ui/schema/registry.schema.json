@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://domdoc.io/sdk-docs/schema/registry.schema.json",
-  "title": "domdoc UI registry",
-  "description": "packages/ui/registry.json: every item domdoc add can copy, with its files per registry set.",
+  "$id": "https://filedom.io/sdk-docs/schema/registry.schema.json",
+  "title": "filedom UI registry",
+  "description": "packages/ui/registry.json: every item filedom add can copy, with its files per registry set.",
   "type": "object",
   "additionalProperties": false,
   "required": ["name", "items"],
   "properties": {
     "$schema": { "type": "string" },
-    "name": { "const": "domdoc" },
+    "name": { "const": "filedom" },
     "items": {
       "type": "array",
       "items": { "$ref": "#/$defs/item" }
@@ -54,7 +54,7 @@
           "uniqueItems": true
         },
         "registryDependencies": {
-          "description": "Other item names domdoc add installs first.",
+          "description": "Other item names filedom add installs first.",
           "type": "array",
           "items": { "$ref": "#/$defs/kebab" },
           "uniqueItems": true

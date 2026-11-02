@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "lit",
+  "label": "Lit",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/lit",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/main.ts", "role": "page" },
+    { "path": "src/index.css", "role": "css" },
+    { "path": "vite.config.ts", "role": "config" }
+  ]
+}

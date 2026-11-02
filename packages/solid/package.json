@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/solid",
+  "name": "@filedom/solid",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc Solid component wrapping @domdoc/core",
+  "description": "filedom Solid component wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*"
+    "@filedom/core": "workspace:*"
   },
   "peerDependencies": {
     "solid-js": "^1.9.0"

@@ -1,16 +1,16 @@
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { createElement, Expand, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide";
 import { LitElement, html } from "lit";
-import { button } from "@/components/domdoc/button";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import { separator } from "@/components/domdoc/separator";
-import { tooltip } from "@/components/domdoc/tooltip";
+import { button } from "@/components/filedom/button";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import { separator } from "@/components/filedom/separator";
+import { tooltip } from "@/components/filedom/tooltip";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-4", "aria-hidden": "true" });
 }
 
-export class DomdocZoomControlsElement extends LitElement {
+export class FiledomZoomControlsElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -20,7 +20,7 @@ export class DomdocZoomControlsElement extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -32,7 +32,7 @@ export class DomdocZoomControlsElement extends LitElement {
   }
 
   private run(id: string) {
-    return () => domdocProvider(this)?.store?.run(id);
+    return () => filedomProvider(this)?.store?.run(id);
   }
 
   override render() {
@@ -67,7 +67,7 @@ export class DomdocZoomControlsElement extends LitElement {
           disabled: zoomReset.disabled,
           title: zoomReset.title,
           label: percent,
-          onClick: () => domdocProvider(this)?.store?.viewer.setZoom(1),
+          onClick: () => filedomProvider(this)?.store?.viewer.setZoom(1),
         })}
         ${tooltip(
           zoomIn.title,
@@ -117,4 +117,4 @@ export class DomdocZoomControlsElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-zoom-controls")) customElements.define("domdoc-zoom-controls", DomdocZoomControlsElement);
+if (!customElements.get("filedom-zoom-controls")) customElements.define("filedom-zoom-controls", FiledomZoomControlsElement);

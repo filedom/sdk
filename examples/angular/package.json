@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/example-angular",
+  "name": "@filedom/example-angular",
   "version": "0.2.0",
   "private": true,
-  "description": "Static Angular example of the domdoc UI kit.",
+  "description": "Static Angular example of the filedom UI kit.",
   "type": "module",
   "scripts": {
     "dev": "node build.mjs serve",
@@ -13,9 +13,9 @@
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
-    "@domdoc/angular": "workspace:*",
-    "@domdoc/core": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/angular": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-angular": "^1.0.0",
     "rxjs": "^7.8.1",

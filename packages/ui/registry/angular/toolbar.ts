@@ -1,38 +1,38 @@
 import { Component, computed, inject } from "@angular/core";
 import { LucideAngularModule, Redo2, Undo2 } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocFileButton } from "@/components/domdoc/file-button";
-import { DomdocModeSelect } from "@/components/domdoc/mode-select";
-import { DomdocPageStatus } from "@/components/domdoc/page-status";
-import { DomdocSearchBar } from "@/components/domdoc/search-bar";
-import { DomdocSeparator } from "@/components/domdoc/separator";
-import { DomdocThemeToggle } from "@/components/domdoc/theme-toggle";
-import { DomdocTooltip } from "@/components/domdoc/tooltip";
-import { DomdocZoomControls } from "@/components/domdoc/zoom-controls";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomFileButton } from "@/components/filedom/file-button";
+import { FiledomModeSelect } from "@/components/filedom/mode-select";
+import { FiledomPageStatus } from "@/components/filedom/page-status";
+import { FiledomSearchBar } from "@/components/filedom/search-bar";
+import { FiledomSeparator } from "@/components/filedom/separator";
+import { FiledomThemeToggle } from "@/components/filedom/theme-toggle";
+import { FiledomTooltip } from "@/components/filedom/tooltip";
+import { FiledomZoomControls } from "@/components/filedom/zoom-controls";
 
 @Component({
-  selector: "domdoc-toolbar",
+  selector: "filedom-toolbar",
   standalone: true,
   imports: [
-    DomdocButton,
-    DomdocFileButton,
-    DomdocModeSelect,
-    DomdocPageStatus,
-    DomdocSearchBar,
-    DomdocSeparator,
-    DomdocThemeToggle,
-    DomdocTooltip,
-    DomdocZoomControls,
+    FiledomButton,
+    FiledomFileButton,
+    FiledomModeSelect,
+    FiledomPageStatus,
+    FiledomSearchBar,
+    FiledomSeparator,
+    FiledomThemeToggle,
+    FiledomTooltip,
+    FiledomZoomControls,
     LucideAngularModule,
   ],
   host: { class: "shrink-0" },
   template: `
     <div data-slot="toolbar" class="flex h-toolbar items-center gap-1 overflow-x-auto border-b border-border bg-background px-2 text-foreground">
       @if (!undo().hidden) {
-        <domdoc-tooltip [text]="undo().title">
+        <filedom-tooltip [text]="undo().title">
           <button
-            domdocButton
+            filedomButton
             slot="undo"
             data-action="undo"
             variant="icon"
@@ -43,12 +43,12 @@ import { DomdocZoomControls } from "@/components/domdoc/zoom-controls";
           >
             <lucide-icon [img]="undoIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
       @if (!redo().hidden) {
-        <domdoc-tooltip [text]="redo().title">
+        <filedom-tooltip [text]="redo().title">
           <button
-            domdocButton
+            filedomButton
             slot="redo"
             data-action="redo"
             variant="icon"
@@ -59,24 +59,24 @@ import { DomdocZoomControls } from "@/components/domdoc/zoom-controls";
           >
             <lucide-icon [img]="redoIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
-      <domdoc-separator orientation="vertical" />
-      <domdoc-file-button />
-      <domdoc-separator orientation="vertical" />
-      <domdoc-zoom-controls />
-      <domdoc-separator orientation="vertical" />
-      <domdoc-search-bar />
+      <filedom-separator orientation="vertical" />
+      <filedom-file-button />
+      <filedom-separator orientation="vertical" />
+      <filedom-zoom-controls />
+      <filedom-separator orientation="vertical" />
+      <filedom-search-bar />
       <div class="ml-auto flex shrink-0 items-center gap-1">
-        <domdoc-mode-select />
-        <domdoc-theme-toggle />
-        <domdoc-page-status />
+        <filedom-mode-select />
+        <filedom-theme-toggle />
+        <filedom-page-status />
       </div>
     </div>
   `,
 })
-export class DomdocToolbar {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomToolbar {
+  private readonly ctx = inject(FiledomContext);
   readonly undoIcon = Undo2;
   readonly redoIcon = Redo2;
   readonly undo = computed(() => this.ctx.control("undo", "Undo"));

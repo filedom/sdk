@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { ChevronDown, ChevronUp } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import Input from "@/components/domdoc/Input.vue";
-import Tooltip from "@/components/domdoc/Tooltip.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import Input from "@/components/filedom/Input.vue";
+import Tooltip from "@/components/filedom/Tooltip.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, store, run } = useDomdoc();
+const { snapshot, store, run } = useFiledom();
 const search = computed(() => controlFor(snapshot.value, "search"));
 const findPrev = computed(() => controlFor(snapshot.value, "findPrev"));
 const findNext = computed(() => controlFor(snapshot.value, "findNext"));

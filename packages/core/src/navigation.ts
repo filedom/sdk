@@ -3,7 +3,7 @@ import { hitTest, isAddressable, lineOf, runBox, sameLine, visibleLength, wordBo
 
 export type { CaretMove };
 
-/** The document queries caret movement needs (implemented by `DomdocDocument`). */
+/** The document queries caret movement needs (implemented by `FiledomDocument`). */
 export interface NavigableDocument {
   info(): { pageCount: number };
   page(index: number): PageView;

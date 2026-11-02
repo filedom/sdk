@@ -14,7 +14,7 @@ import { pathToFileURL } from "node:url";
 import { DOCS_BUILD, contentType, isDir } from "./site-lib.mjs";
 
 export const DEFAULT_ENDPOINT = "https://3d28ddc0579eb80dd173c75d55be3768.r2.cloudflarestorage.com";
-export const DEFAULT_BUCKET = "domdoc";
+export const DEFAULT_BUCKET = "filedom";
 export const DOCS_PREFIX = "sdk-docs";
 export const IMMUTABLE_CACHE = "public, max-age=31536000, immutable";
 export const SHORT_CACHE = "public, max-age=60, must-revalidate";

@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://filedom.io/sdk-docs/schema/filedom-example.schema.json",
+  "title": "filedom example manifest",
+  "description": "examples/<fw>/filedom-example.json: what the docs and playground show for one framework.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["framework", "label", "logo", "install", "add", "files"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "framework": {
+      "description": "Must equal the example directory name.",
+      "enum": ["react", "next", "preact", "vue", "nuxt", "svelte", "sveltekit", "angular", "solid", "lit", "astro"]
+    },
+    "label": { "type": "string", "minLength": 1 },
+    "logo": {
+      "description": "SVG file relative to the example directory.",
+      "type": "string",
+      "pattern": "\\.svg$"
+    },
+    "install": {
+      "description": "Shell command that installs the packages, shown verbatim.",
+      "type": "string",
+      "minLength": 1
+    },
+    "add": {
+      "description": "filedom add command, shown verbatim.",
+      "type": "string",
+      "pattern": "filedom(@[^ ]+)? add |@filedom/ui(@[^ ]+)? add "
+    },
+    "files": {
+      "description": "Integration files shown as code tabs, in order. Exactly one has role page.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "role"],
+        "properties": {
+          "path": {
+            "description": "Relative to the example directory. A missing file fails the docs build.",
+            "type": "string",
+            "minLength": 1
+          },
+          "role": { "enum": ["page", "css", "config"] },
+          "label": { "description": "Tab title. Defaults to the file name.", "type": "string" },
+          "language": { "description": "Prism language. Defaults from the extension.", "type": "string" }
+        }
+      },
+      "contains": {
+        "type": "object",
+        "properties": { "role": { "const": "page" } },
+        "required": ["role"]
+      },
+      "minContains": 1,
+      "maxContains": 1
+    }
+  }
+}

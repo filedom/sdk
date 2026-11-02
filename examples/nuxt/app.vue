@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { bundlesFromCdn, type DomdocViewer as Viewer } from "@domdoc/core";
-import { DomdocViewer } from "@domdoc/vue";
-import DomdocProvider from "~/components/domdoc/DomdocProvider.vue";
-import Toolbar from "~/components/domdoc/Toolbar.vue";
-import ViewerShell from "~/components/domdoc/ViewerShell.vue";
+import { bundlesFromCdn, type FiledomViewer as Viewer } from "@filedom/core";
+import { FiledomViewer } from "@filedom/vue";
+import FiledomProvider from "~/components/filedom/FiledomProvider.vue";
+import Toolbar from "~/components/filedom/Toolbar.vue";
+import ViewerShell from "~/components/filedom/ViewerShell.vue";
 
-const bundles = import.meta.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const bundles = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
 
 const options = {
   toolbar: false,
@@ -22,12 +22,12 @@ function onReady(next: Viewer) {
 </script>
 
 <template>
-  <DomdocProvider :viewer="viewer">
+  <FiledomProvider :viewer="viewer">
     <div class="flex h-dvh flex-col bg-background font-sans text-foreground">
       <Toolbar />
       <ViewerShell class="min-h-0 flex-1">
-        <DomdocViewer class="h-full w-full" :options="options" @ready="onReady" />
+        <FiledomViewer class="h-full w-full" :options="options" @ready="onReady" />
       </ViewerShell>
     </div>
-  </DomdocProvider>
+  </FiledomProvider>
 </template>

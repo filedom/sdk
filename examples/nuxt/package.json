@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-nuxt",
+  "name": "@filedom/example-nuxt",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
     "preview": "nuxt preview"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/ui": "workspace:*",
-    "@domdoc/vue": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/ui": "workspace:*",
+    "@filedom/vue": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.469.0",
     "nuxt": "^3.15.0",

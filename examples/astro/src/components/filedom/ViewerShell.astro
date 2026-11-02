@@ -1,0 +1,27 @@
+---
+import { Upload } from "lucide";
+import { lucideSvg } from "@/lib/cn";
+import Button from "@/components/filedom/Button.astro";
+
+const upload = lucideSvg(Upload, "size-7");
+---
+
+<div data-slot="viewer-shell" data-filedom-state="empty" class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-canvas">
+  <div data-slot="viewer-canvas" class="min-h-0 w-full flex-1"></div>
+  <div data-slot="usage-notice" data-filedom-state="empty" role="status" class="pointer-events-none absolute inset-x-0 top-0 z-20"></div>
+  <p data-filedom-loading hidden class="pointer-events-none absolute left-3 top-3 z-20 rounded-md bg-card px-2 py-1 text-xs text-muted-foreground shadow-sm">
+    Opening…
+  </p>
+  <div data-slot="empty-state" class="absolute inset-0 z-10 flex items-center justify-center bg-canvas p-6">
+    <div
+      data-slot="dropzone"
+      class="flex w-full max-w-md flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-card px-8 py-10 text-center text-card-foreground shadow-sm"
+    >
+      <span class="text-muted-foreground" set:html={upload} />
+      <p class="text-sm font-medium">Drop a document here</p>
+      <p class="text-xs text-muted-foreground">PDF or Office file</p>
+      <p data-filedom-error hidden class="text-sm text-destructive"></p>
+      <Button data-slot="open-sample">Open sample</Button>
+    </div>
+  </div>
+</div>

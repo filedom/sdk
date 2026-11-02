@@ -1,0 +1,10 @@
+{
+  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "framework": "nuxt",
+  "componentDir": "components/filedom",
+  "css": "assets/css/main.css",
+  "aliases": {
+    "components": "~/components/filedom",
+    "lib": "~/lib"
+  }
+}

@@ -8,16 +8,16 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
   excludeEngineWasm: () => { name: string };
 };
 
-/** Public path for this example. The site build sets DOMDOC_BASE; local builds use the same default. */
+/** Public path for this example. The site build sets FILEDOM_BASE; local builds use the same default. */
 function publicBase(): string {
-  const value = process.env.DOMDOC_BASE || "/sdk-docs/examples/svelte/";
+  const value = process.env.FILEDOM_BASE || "/sdk-docs/examples/svelte/";
   const withLeading = value.startsWith("/") ? value : `/${value}`;
   return withLeading.endsWith("/") ? withLeading : `${withLeading}/`;
 }
 
 export default defineConfig({
   base: publicBase(),
-  envPrefix: ["VITE_", "DOMDOC_"],
+  envPrefix: ["VITE_", "FILEDOM_"],
   plugins: [excludeEngineWasm(), tailwindcss(), svelte()],
   resolve: {
     alias: {

@@ -3,4 +3,4 @@ description: Bump the shared version and write each repo's changelog when commit
 alwaysApply: true
 ---
 
-When the user asks to commit, ship, or release a change, read and follow `.cursor/skills/release-commit/SKILL.md` before committing. Set the shared version with `node scripts/release.mjs --shared` from `.cursor/skills/release-commit`. Pick patch, minor, or major, or the version they named. `domdoc-sdk`, `domdoc-wasm`, `domdoc-api`, `domdoc-website`, and `domdoc-benchmarks` share that version number and keep separate changelogs. Commit only when they asked to commit.
+When the user asks to commit, ship, or release a change, read and follow `.cursor/skills/release-commit/SKILL.md` before committing. Set the shared version with `node scripts/release.mjs --shared` from `.cursor/skills/release-commit`. Pick patch, minor, or major, or the version they named. `sdk`, `wasm`, `api`, `website`, and `benchmarks` share that version number and keep separate changelogs. Commit only when they asked to commit.

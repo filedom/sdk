@@ -1,12 +1,12 @@
 <script lang="ts">
   import { ChevronDown, ChevronUp } from "lucide-svelte";
-  import Button from "@/components/domdoc/Button.svelte";
-  import Input from "@/components/domdoc/Input.svelte";
-  import Tooltip from "@/components/domdoc/Tooltip.svelte";
-  import { control, getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Button from "@/components/filedom/Button.svelte";
+  import Input from "@/components/filedom/Input.svelte";
+  import Tooltip from "@/components/filedom/Tooltip.svelte";
+  import { control, getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const search = $derived(control(snapshot, "search", "Search"));
   const findPrev = $derived(control(snapshot, "findPrev", "Previous"));
@@ -17,7 +17,7 @@
 
   function onSearch(event: Event) {
     if (search.disabled) return;
-    domdoc.viewer.search((event.currentTarget as HTMLInputElement).value);
+    filedom.viewer.search((event.currentTarget as HTMLInputElement).value);
   }
 </script>
 
@@ -48,7 +48,7 @@
         aria-label="Previous"
         disabled={findPrev.disabled}
         title={findPrev.disabled ? findPrev.title : undefined}
-        onclick={() => domdoc.run("findPrev")}
+        onclick={() => filedom.run("findPrev")}
       >
         <ChevronUp class="size-4" />
       </Button>
@@ -63,7 +63,7 @@
         aria-label="Next"
         disabled={findNext.disabled}
         title={findNext.disabled ? findNext.title : undefined}
-        onclick={() => domdoc.run("findNext")}
+        onclick={() => filedom.run("findNext")}
       >
         <ChevronDown class="size-4" />
       </Button>

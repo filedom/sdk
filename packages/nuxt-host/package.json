@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/nuxt-host",
+  "name": "@filedom/nuxt-host",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc Nuxt client-only component wrapping @domdoc/core",
+  "description": "filedom Nuxt client-only component wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,8 +19,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/vue": "workspace:*"
+    "@filedom/core": "workspace:*",
+    "@filedom/vue": "workspace:*"
   },
   "peerDependencies": {
     "nuxt": ">=3.0.0",

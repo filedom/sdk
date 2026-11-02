@@ -104,7 +104,7 @@ export interface ClipView {
 
 export type DocumentKind = "text" | "image";
 
-/** Page size for a new `.domdoc`. Text uses A4; image uses pixel width and height. */
+/** Page size for a new `.filedom`. Text uses A4; image uses pixel width and height. */
 export type DocumentLayout = { type: "a4" } | { type: "pixels"; width: number; height: number };
 
 export interface CreateDocumentRequest {
@@ -324,10 +324,10 @@ export type Command =
   | { type: "restoreHistory"; id: string }
   /** Places an image, text box, or shape. */
   | { type: "insertElement"; kind: string; page: number; xPt?: number; yPt?: number }
-  /** Creates an empty `.domdoc` of the given kind and layout. */
+  /** Creates an empty `.filedom` of the given kind and layout. */
   | { type: "createDocument"; kind: DocumentKind; layout: DocumentLayout }
-  /** Writes the open native session as a generic `.domdoc` snapshot. */
-  | { type: "storeDomdoc" }
+  /** Writes the open native session as a generic `.filedom` snapshot. */
+  | { type: "storeFiledom" }
   /** Display only. The file stays unchanged until accept or reject. */
   | { type: "setView"; view: ReviewView }
   | { type: "deletePage"; index: number }
@@ -525,7 +525,7 @@ export type EngineEvent =
   | { type: "applied"; result: CommandResult }
   | { type: "error"; code: string; detail: string };
 
-/** Shape of the wasm-bindgen `DomdocSession` class exported by every format bundle. */
+/** Shape of the wasm-bindgen `FiledomSession` class exported by every format bundle. */
 export interface EngineSession {
   info(): string;
   page(index: number): string;
@@ -564,7 +564,7 @@ export interface EngineRaster {
   free(): void;
 }
 
-/** A per-format engine module loaded from the CDN (`{base}/{format}/domdoc_{format}.js`). */
+/** A per-format engine module loaded from the CDN (`{base}/{format}/filedom_{format}.js`). */
 export interface EngineModule {
   default: (init?: unknown) => Promise<unknown>;
   /** PDF bundles accept an optional user password; other formats ignore it. */

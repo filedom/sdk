@@ -27,16 +27,16 @@ export interface CliIo {
   stderr?: (text: string) => void;
 }
 
-const USAGE = `Usage: domdoc <command> [options]
+const USAGE = `Usage: filedom <command> [options]
 
 Commands:
-  init                 Detect the framework, write domdoc.json, and import the theme in your CSS
+  init                 Detect the framework, write filedom.json, and import the theme in your CSS
   add <items...>       Copy registry items and the items they depend on into componentDir
 
 Options:
   --cwd <dir>          Project root (default: current directory)
   --dry-run            Print what would change without writing
-  --overwrite          Replace existing files (add) or an existing domdoc.json (init)
+  --overwrite          Replace existing files (add) or an existing filedom.json (init)
   --framework <id>     init only: skip detection (${FRAMEWORKS.join(", ")})
   -h, --help           Show this help
 `;
@@ -80,7 +80,7 @@ function readJson(path: string): unknown {
     throw new CliError(`cannot read ${path}: ${(error as Error).message}`);
   }
 }
-const projectSchema = () => readJson(join(PACKAGE_ROOT, "schema/domdoc.schema.json")) as JsonSchema;
+const projectSchema = () => readJson(join(PACKAGE_ROOT, "schema/filedom.schema.json")) as JsonSchema;
 
 function checkConfig(config: unknown, label: string): ProjectConfig {
   const errors = validateJson(projectSchema(), config);
@@ -117,7 +117,7 @@ class Writer {
 
 function init(options: Options, cwd: string, out: (text: string) => void): void {
   const pkg = readPackageJson(cwd);
-  if (!pkg) throw new CliError(`no package.json in ${cwd}. Run domdoc init in your project root or pass --cwd.`);
+  if (!pkg) throw new CliError(`no package.json in ${cwd}. Run filedom init in your project root or pass --cwd.`);
   const writer = new Writer(cwd, options.dryRun, out);
   const configPath = join(cwd, PROJECT_CONFIG);
 
@@ -149,21 +149,21 @@ function init(options: Options, cwd: string, out: (text: string) => void): void 
   const cssPath = inside(cwd, config.css);
   if (existsSync(cssPath)) {
     const next = withThemeImport(readFileSync(cssPath, "utf8"));
-    if (next === null) out(`${config.css} already imports @domdoc/ui/theme.css\n`);
+    if (next === null) out(`${config.css} already imports @filedom/ui/theme.css\n`);
     else writer.write(cssPath, next, "update");
   } else {
     writer.write(cssPath, `@import "tailwindcss";\n${THEME_IMPORT}\n`, "create");
   }
 
-  const missing = missingPackages(pkg, ["@domdoc/ui", "tailwindcss"]);
+  const missing = missingPackages(pkg, ["@filedom/ui", "tailwindcss"]);
   if (missing.length) out(`\nInstall the packages the theme needs:\n  ${installCommand(cwd, missing)}\n`);
   out(`\nImports in copied files use ${config.aliases.components} and ${config.aliases.lib}; make sure your bundler resolves them.\n`);
 }
 
 function add(options: Options, cwd: string, registryRoot: string, out: (text: string) => void): void {
-  if (!options.positionals.length) throw new CliError("name at least one item: domdoc add <items...>");
+  if (!options.positionals.length) throw new CliError("name at least one item: filedom add <items...>");
   const configPath = join(cwd, PROJECT_CONFIG);
-  if (!existsSync(configPath)) throw new CliError(`no ${PROJECT_CONFIG} in ${cwd}. Run domdoc init first.`);
+  if (!existsSync(configPath)) throw new CliError(`no ${PROJECT_CONFIG} in ${cwd}. Run filedom init first.`);
   const config = checkConfig(readJson(configPath), PROJECT_CONFIG);
   const set = FRAMEWORK_REGISTRY_SET[config.framework];
 
@@ -233,7 +233,7 @@ export function run(argv: readonly string[], io: CliIo = {}): number {
     return 0;
   } catch (error) {
     if (!(error instanceof CliError) && !(error instanceof SyntaxError)) throw error;
-    err(`domdoc: ${error.message}\n`);
+    err(`filedom: ${error.message}\n`);
     return 1;
   }
 }

@@ -16,7 +16,7 @@ importers:
       '@docusaurus/preset-classic':
         specifier: ^3.7.0
         version: 3.10.2(@algolia/client-search@5.61.0)(@mdx-js/react@3.1.1(@types/react@19.3.0)(react@18.3.1))(@types/react@19.3.0)(postcss@8.5.30)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)(typescript@5.8.3)
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       prism-react-renderer:
@@ -62,13 +62,13 @@ importers:
       '@angular/platform-browser':
         specifier: ^20.3.0
         version: 20.3.34(@angular/common@20.3.34(@angular/core@20.3.34(@angular/compiler@20.3.34)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@20.3.34(@angular/compiler@20.3.34)(rxjs@7.8.2)(zone.js@0.15.1))
-      '@domdoc/angular':
+      '@filedom/angular':
         specifier: workspace:*
         version: link:../../packages/angular
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -108,13 +108,13 @@ importers:
 
   examples/astro:
     dependencies:
-      '@domdoc/astro-host':
+      '@filedom/astro-host':
         specifier: workspace:*
         version: link:../../packages/astro-host
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -145,13 +145,13 @@ importers:
 
   examples/lit:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/lit':
+      '@filedom/lit':
         specifier: workspace:*
         version: link:../../packages/lit
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -182,13 +182,13 @@ importers:
 
   examples/next:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/react':
+      '@filedom/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -231,13 +231,13 @@ importers:
 
   examples/nuxt:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@domdoc/vue':
+      '@filedom/vue':
         specifier: workspace:*
         version: link:../../packages/vue
       clsx:
@@ -268,13 +268,13 @@ importers:
 
   examples/preact:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/preact':
+      '@filedom/preact':
         specifier: workspace:*
         version: link:../../packages/preact
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -308,13 +308,13 @@ importers:
 
   examples/react:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/react':
+      '@filedom/react':
         specifier: workspace:*
         version: link:../../packages/react
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -357,13 +357,13 @@ importers:
 
   examples/solid:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/solid':
+      '@filedom/solid':
         specifier: workspace:*
         version: link:../../packages/solid
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -397,13 +397,13 @@ importers:
 
   examples/svelte:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/svelte':
+      '@filedom/svelte':
         specifier: workspace:*
         version: link:../../packages/svelte
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -437,13 +437,13 @@ importers:
 
   examples/sveltekit:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/svelte':
+      '@filedom/svelte':
         specifier: workspace:*
         version: link:../../packages/svelte
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       clsx:
@@ -483,13 +483,13 @@ importers:
 
   examples/vue:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@domdoc/ui':
+      '@filedom/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@domdoc/vue':
+      '@filedom/vue':
         specifier: workspace:*
         version: link:../../packages/vue
       clsx:
@@ -523,7 +523,7 @@ importers:
 
   packages/angular:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -545,7 +545,7 @@ importers:
 
   packages/astro-host:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
       astro:
@@ -580,7 +580,7 @@ importers:
 
   packages/lit:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -599,10 +599,10 @@ importers:
 
   packages/next-host:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
-      '@domdoc/react':
+      '@filedom/react':
         specifier: workspace:*
         version: link:../react
       next:
@@ -630,10 +630,10 @@ importers:
 
   packages/nuxt-host:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
-      '@domdoc/vue':
+      '@filedom/vue':
         specifier: workspace:*
         version: link:../vue
       nuxt:
@@ -655,7 +655,7 @@ importers:
 
   packages/preact:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -674,7 +674,7 @@ importers:
 
   packages/react:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -699,7 +699,7 @@ importers:
 
   packages/solid:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -718,7 +718,7 @@ importers:
 
   packages/svelte:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
       svelte:
@@ -737,10 +737,10 @@ importers:
 
   packages/sveltekit-host:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
-      '@domdoc/svelte':
+      '@filedom/svelte':
         specifier: workspace:*
         version: link:../svelte
       '@sveltejs/kit':
@@ -759,7 +759,7 @@ importers:
 
   packages/ui:
     devDependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
       '@types/node':
@@ -774,7 +774,7 @@ importers:
 
   packages/vue:
     dependencies:
-      '@domdoc/core':
+      '@filedom/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:

@@ -1,0 +1,39 @@
+---
+import { Expand, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide";
+import { lucideSvg } from "@/lib/cn";
+import Button from "@/components/filedom/Button.astro";
+import Separator from "@/components/filedom/Separator.astro";
+import Tooltip from "@/components/filedom/Tooltip.astro";
+
+const zoomOut = lucideSvg(ZoomOut);
+const zoomIn = lucideSvg(ZoomIn);
+const fitWidth = lucideSvg(UnfoldHorizontal);
+const fitPage = lucideSvg(Expand);
+---
+
+<div data-slot="zoom-controls" class="flex items-center gap-0.5">
+  <Tooltip label="Zoom out">
+    <Button variant="icon" data-slot="zoom-out" data-action="zoomOut" data-label="Zoom out" title="Zoom out" aria-label="Zoom out">
+      <span class="contents" set:html={zoomOut} />
+    </Button>
+  </Tooltip>
+  <Button variant="ghost" data-slot="zoom-label" data-action="zoomReset" data-label="Actual size" title="Actual size" class="h-8 min-w-14 px-2 text-xs tabular-nums">
+    100%
+  </Button>
+  <Tooltip label="Zoom in">
+    <Button variant="icon" data-slot="zoom-in" data-action="zoomIn" data-label="Zoom in" title="Zoom in" aria-label="Zoom in">
+      <span class="contents" set:html={zoomIn} />
+    </Button>
+  </Tooltip>
+  <Separator orientation="vertical" />
+  <Tooltip label="Fit width">
+    <Button variant="icon" data-slot="fit-width" data-action="fitWidth" data-label="Fit width" title="Fit width" aria-label="Fit width">
+      <span class="contents" set:html={fitWidth} />
+    </Button>
+  </Tooltip>
+  <Tooltip label="Fit page">
+    <Button variant="icon" data-slot="fit-page" data-action="fitPage" data-label="Fit page" title="Fit page" aria-label="Fit page">
+      <span class="contents" set:html={fitPage} />
+    </Button>
+  </Tooltip>
+</div>

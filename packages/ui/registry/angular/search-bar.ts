@@ -1,20 +1,20 @@
 import { Component, ElementRef, computed, effect, inject, viewChild } from "@angular/core";
 import { ChevronDown, ChevronUp, LucideAngularModule } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocInput } from "@/components/domdoc/input";
-import { DomdocTooltip } from "@/components/domdoc/tooltip";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomInput } from "@/components/filedom/input";
+import { FiledomTooltip } from "@/components/filedom/tooltip";
 
 @Component({
-  selector: "domdoc-search-bar",
+  selector: "filedom-search-bar",
   standalone: true,
-  imports: [DomdocButton, DomdocInput, DomdocTooltip, LucideAngularModule],
+  imports: [FiledomButton, FiledomInput, FiledomTooltip, LucideAngularModule],
   template: `
     <div data-slot="search-bar" class="flex items-center gap-0.5">
       @if (!search().hidden) {
         <input
           #field
-          domdocInput
+          filedomInput
           slot="search-input"
           data-action="search"
           class="w-40"
@@ -29,9 +29,9 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
       }
       <span data-slot="search-count" class="min-w-10 px-1 text-center text-xs text-muted-foreground tabular-nums">{{ count() }}</span>
       @if (!findPrev().hidden) {
-        <domdoc-tooltip [text]="findPrev().title">
+        <filedom-tooltip [text]="findPrev().title">
           <button
-            domdocButton
+            filedomButton
             slot="search-prev"
             data-action="findPrev"
             variant="icon"
@@ -42,12 +42,12 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="prevIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
       @if (!findNext().hidden) {
-        <domdoc-tooltip [text]="findNext().title">
+        <filedom-tooltip [text]="findNext().title">
           <button
-            domdocButton
+            filedomButton
             slot="search-next"
             data-action="findNext"
             variant="icon"
@@ -58,13 +58,13 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="nextIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
     </div>
   `,
 })
-export class DomdocSearchBar {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomSearchBar {
+  private readonly ctx = inject(FiledomContext);
   private readonly field = viewChild<ElementRef<HTMLInputElement>>("field");
   readonly prevIcon = ChevronUp;
   readonly nextIcon = ChevronDown;

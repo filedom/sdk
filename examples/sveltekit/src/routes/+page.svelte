@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount, type Component } from "svelte";
-  import type { ViewerOptions } from "@domdoc/core";
+  import type { ViewerOptions } from "@filedom/core";
 
-  const bundlesBase = import.meta.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1/";
+  const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1/";
   const sampleUrl = "/sdk-docs/samples/hello.pdf";
 
   // Loaded after mount so adapter-static does not evaluate the viewer during the server build.
@@ -14,9 +14,9 @@
     let stopped = false;
     void (async () => {
       const [core, shell, toolbar] = await Promise.all([
-        import("@domdoc/core"),
-        import("$lib/components/domdoc/ViewerShell.svelte"),
-        import("$lib/components/domdoc/Toolbar.svelte"),
+        import("@filedom/core"),
+        import("$lib/components/filedom/ViewerShell.svelte"),
+        import("$lib/components/filedom/Toolbar.svelte"),
       ]);
       if (stopped) return;
       options = { bundles: core.bundlesFromCdn(bundlesBase), toolbar: false };
@@ -30,7 +30,7 @@
 </script>
 
 <svelte:head>
-  <title>domdoc · SvelteKit</title>
+  <title>filedom · SvelteKit</title>
 </svelte:head>
 
 <main class="h-dvh">

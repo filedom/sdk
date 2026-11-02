@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "sveltekit",
+  "label": "SvelteKit",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/svelte",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/routes/+page.svelte", "role": "page", "label": "+page.svelte", "language": "svelte" },
+    { "path": "src/app.css", "role": "css", "label": "app.css", "language": "css" },
+    { "path": "svelte.config.js", "role": "config", "label": "svelte.config.js", "language": "js" }
+  ]
+}

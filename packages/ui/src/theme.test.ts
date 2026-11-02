@@ -81,7 +81,7 @@ describe("theme.css", () => {
     expect(bridge.has("--dd-page")).toBe(false);
   });
 
-  it("is exported as @domdoc/ui/theme.css", () => {
+  it("is exported as @filedom/ui/theme.css", () => {
     expect(pkg.exports["./theme.css"]).toBe("./theme.css");
     expect(pkg.files).toContain("theme.css");
   });

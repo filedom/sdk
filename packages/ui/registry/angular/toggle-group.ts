@@ -2,15 +2,15 @@ import { Component, Directive, Input } from "@angular/core";
 import { cn } from "@/lib/cn";
 
 @Component({
-  selector: "domdoc-toggle-group",
+  selector: "filedom-toggle-group",
   standalone: true,
   template: `<div data-slot="toggle-group" role="group" class="inline-flex items-center gap-0.5"><ng-content /></div>`,
 })
-export class DomdocToggleGroup {}
+export class FiledomToggleGroup {}
 
 /** Pressed-state button. `aria-pressed` follows the `pressed` input. */
 @Directive({
-  selector: "button[domdocToggleItem]",
+  selector: "button[filedomToggleItem]",
   standalone: true,
   host: {
     type: "button",
@@ -19,7 +19,7 @@ export class DomdocToggleGroup {}
     "[class]": "hostClass",
   },
 })
-export class DomdocToggleItem {
+export class FiledomToggleItem {
   @Input() pressed = false;
 
   get hostClass(): string {

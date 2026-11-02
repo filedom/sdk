@@ -1,18 +1,18 @@
 <script lang="ts">
   import { Redo2, Undo2 } from "lucide-svelte";
-  import Button from "@/components/domdoc/Button.svelte";
-  import FileButton from "@/components/domdoc/FileButton.svelte";
-  import ModeSelect from "@/components/domdoc/ModeSelect.svelte";
-  import PageStatus from "@/components/domdoc/PageStatus.svelte";
-  import SearchBar from "@/components/domdoc/SearchBar.svelte";
-  import Separator from "@/components/domdoc/Separator.svelte";
-  import ThemeToggle from "@/components/domdoc/ThemeToggle.svelte";
-  import Tooltip from "@/components/domdoc/Tooltip.svelte";
-  import ZoomControls from "@/components/domdoc/ZoomControls.svelte";
-  import { control, getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Button from "@/components/filedom/Button.svelte";
+  import FileButton from "@/components/filedom/FileButton.svelte";
+  import ModeSelect from "@/components/filedom/ModeSelect.svelte";
+  import PageStatus from "@/components/filedom/PageStatus.svelte";
+  import SearchBar from "@/components/filedom/SearchBar.svelte";
+  import Separator from "@/components/filedom/Separator.svelte";
+  import ThemeToggle from "@/components/filedom/ThemeToggle.svelte";
+  import Tooltip from "@/components/filedom/Tooltip.svelte";
+  import ZoomControls from "@/components/filedom/ZoomControls.svelte";
+  import { control, getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const undo = $derived(control(snapshot, "undo", "Undo"));
   const redo = $derived(control(snapshot, "redo", "Redo"));
@@ -33,7 +33,7 @@
         aria-label="Undo"
         disabled={undo.disabled}
         title={undo.disabled ? undo.title : undefined}
-        onclick={() => domdoc.run("undo")}
+        onclick={() => filedom.run("undo")}
       >
         <Undo2 class="size-4" />
       </Button>
@@ -48,7 +48,7 @@
         aria-label="Redo"
         disabled={redo.disabled}
         title={redo.disabled ? redo.title : undefined}
-        onclick={() => domdoc.run("redo")}
+        onclick={() => filedom.run("redo")}
       >
         <Redo2 class="size-4" />
       </Button>

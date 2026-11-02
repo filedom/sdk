@@ -1,0 +1,14 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "angular",
+  "label": "Angular",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/angular",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/app/app.ts", "role": "page", "language": "typescript" },
+    { "path": "src/styles.css", "role": "css" },
+    { "path": "angular.json", "role": "config", "label": "angular.json" },
+    { "path": "tsconfig.json", "role": "config", "label": "tsconfig.json" }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "framework": "sveltekit",
+  "componentDir": "src/lib/components/filedom",
+  "css": "src/app.css",
+  "aliases": {
+    "components": "$lib/components/filedom",
+    "lib": "$lib"
+  }
+}

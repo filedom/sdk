@@ -1,11 +1,11 @@
-import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { createViewer, type FiledomViewer as Viewer, type ViewerOptions } from "@filedom/core";
 import { defineComponent, h, onBeforeUnmount, onMounted, ref, shallowRef, watch, type PropType } from "vue";
 
 export type { Viewer, ViewerOptions };
 
-/** `<DomdocViewer :options="options" @ready="(viewer) => ..." />` */
-export const DomdocViewer = defineComponent({
-  name: "DomdocViewer",
+/** `<FiledomViewer :options="options" @ready="(viewer) => ..." />` */
+export const FiledomViewer = defineComponent({
+  name: "FiledomViewer",
   props: {
     options: { type: Object as PropType<ViewerOptions>, required: true },
   },

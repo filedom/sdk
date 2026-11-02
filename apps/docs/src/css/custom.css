@@ -4,10 +4,10 @@
 @import "tailwindcss/utilities.css" source(none);
 @source "../";
 
-@import "@domdoc/ui/theme.css";
+@import "@filedom/ui/theme.css";
 
 /*
- * Infima reads the @domdoc/ui tokens. Docusaurus sets data-theme on <html>, and the
+ * Infima reads the @filedom/ui tokens. Docusaurus sets data-theme on <html>, and the
  * tailwind plugin mirrors it to the `.dark` class, so these values follow the toggle.
  */
 :root,

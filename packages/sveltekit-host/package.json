@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/sveltekit-host",
+  "name": "@filedom/sveltekit-host",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc SvelteKit browser-only action wrapping @domdoc/core",
+  "description": "filedom SvelteKit browser-only action wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,8 +19,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/svelte": "workspace:*"
+    "@filedom/core": "workspace:*",
+    "@filedom/svelte": "workspace:*"
   },
   "peerDependencies": {
     "@sveltejs/kit": ">=2.0.0"

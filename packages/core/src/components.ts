@@ -1,6 +1,6 @@
-import type { DomdocDocument } from "./document.js";
+import type { FiledomDocument } from "./document.js";
 import type { Pos, Rect } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import type { FileStore } from "./file-store.js";
 import { PX_PER_PT } from "./zoom.js";
 
@@ -64,7 +64,7 @@ export interface ComponentContext<P = Record<string, unknown>> {
   /** The SPA's shared file store: list, read and subscribe to loaded files. */
   files: FileStore;
   /** The open document (`unitText`, `search`, `revisions`, `span`, ...). */
-  document: DomdocDocument;
+  document: FiledomDocument;
   /** The element the viewer positions; append your UI here or return one. */
   container: HTMLElement;
 }
@@ -105,11 +105,11 @@ const LENGTH = /^(-?\d+(?:\.\d+)?)(pt|px|%)$/;
 /** Points for `length`; `%` is relative to `basis` points. */
 export function toPoints(length: Length, basis: number): number {
   if (typeof length === "number") {
-    if (!Number.isFinite(length)) throw new DomdocError("bad-length", String(length));
+    if (!Number.isFinite(length)) throw new FiledomError("bad-length", String(length));
     return length;
   }
   const match = LENGTH.exec(length.trim());
-  if (!match) throw new DomdocError("bad-length", length);
+  if (!match) throw new FiledomError("bad-length", length);
   const value = Number(match[1]);
   switch (match[2]) {
     case "pt":

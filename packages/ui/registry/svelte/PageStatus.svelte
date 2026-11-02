@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import { getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const document = $derived(snapshot?.document ?? null);
 </script>

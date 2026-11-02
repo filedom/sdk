@@ -9,5 +9,5 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
 
 export default defineConfig({
   plugins: [excludeEngineWasm(), tailwindcss(), sveltekit()],
-  envPrefix: ["VITE_", "DOMDOC_"],
+  envPrefix: ["VITE_", "FILEDOM_"],
 });

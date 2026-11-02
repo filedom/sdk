@@ -35,7 +35,7 @@ export type NewFileExportTarget =
   | { kind: "text"; format: "docx" | "pdf" }
   | { kind: "image"; format: "png" | "jpeg" | "tiff" | "pdf" };
 
-/** Export formats offered for a `.domdoc` of the given kind. */
+/** Export formats offered for a `.filedom` of the given kind. */
 export function exportTargets(kind: DocumentKind): NewFileExportTarget[] {
   if (kind === "text") {
     return [

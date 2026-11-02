@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { cn } from "@/lib/cn";
 
 @Component({
-  selector: "domdoc-separator",
+  selector: "filedom-separator",
   standalone: true,
   template: "",
   host: {
@@ -12,7 +12,7 @@ import { cn } from "@/lib/cn";
     "[class]": "hostClass",
   },
 })
-export class DomdocSeparator {
+export class FiledomSeparator {
   @Input() orientation: "horizontal" | "vertical" = "horizontal";
 
   get hostClass(): string {

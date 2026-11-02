@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-preact",
+  "name": "@filedom/example-preact",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/preact": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/preact": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-preact": "^0.469.0",
     "preact": "^10.25.4",

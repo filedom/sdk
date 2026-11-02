@@ -1,9 +1,9 @@
-import type { ViewMode, ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewMode, ViewerStoreSnapshot } from "@filedom/core";
 import { LitElement, html } from "lit";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import { select } from "@/components/domdoc/select";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import { select } from "@/components/filedom/select";
 
-export class DomdocModeSelectElement extends LitElement {
+export class FiledomModeSelectElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -13,7 +13,7 @@ export class DomdocModeSelectElement extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -27,7 +27,7 @@ export class DomdocModeSelectElement extends LitElement {
   private onChange = (event: Event) => {
     const value = (event.target as HTMLSelectElement).value;
     if (value === "live" || value === "track" || value === "view") {
-      domdocProvider(this)?.store?.viewer.setViewMode(value as ViewMode);
+      filedomProvider(this)?.store?.viewer.setViewMode(value as ViewMode);
     }
   };
 
@@ -51,4 +51,4 @@ export class DomdocModeSelectElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-mode-select")) customElements.define("domdoc-mode-select", DomdocModeSelectElement);
+if (!customElements.get("filedom-mode-select")) customElements.define("filedom-mode-select", FiledomModeSelectElement);

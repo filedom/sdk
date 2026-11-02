@@ -1,12 +1,12 @@
 import { Show } from "solid-js";
 import { ChevronDown, ChevronUp, Search } from "lucide-solid";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Input } from "@/components/domdoc/input";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Input } from "@/components/filedom/input";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 export function SearchBar() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const search = useAction("search", "Search");
   const prev = useAction("findPrev", "Previous match");
   const next = useAction("findNext", "Next match");

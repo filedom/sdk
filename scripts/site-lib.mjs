@@ -14,13 +14,13 @@ export const FRAMEWORKS = ["react", "next", "preact", "vue", "nuxt", "svelte", "
 export const SITE_BASE = "/sdk-docs/";
 export const SAMPLE_PDF_PATH = "/sdk-docs/samples/hello.pdf";
 export const BUNDLES_BASE = "/api/bundles/";
-export const BUNDLES_ENV = "DOMDOC_EXAMPLES_BUNDLES";
-export const DEFAULT_CDN = "https://domdoc.io/api/bundles";
+export const BUNDLES_ENV = "FILEDOM_EXAMPLES_BUNDLES";
+export const DEFAULT_CDN = "https://filedom.io/api/bundles";
 export const FORBIDDEN_PREFIX = "/wasm/";
 /** CONTRACTS.md section 8: `serve-examples` returns 404 for `/wasm/`. */
 export const FORBIDDEN_STATUS = 404;
 /** Env var each example build reads for its public base path. */
-export const BASE_ENV = "DOMDOC_BASE";
+export const BASE_ENV = "FILEDOM_BASE";
 
 export function exampleBase(fw) {
   return `${SITE_BASE}examples/${fw}/`;
@@ -200,9 +200,9 @@ export function parseBundlePath(pathname) {
 }
 
 /**
- * Bundle request to a file in `--bundles <dir>`. The local `domdoc-wasm/pkg`
+ * Bundle request to a file in `--bundles <dir>`. The local `wasm/pkg`
  * layout is `<dir>/<format>/<file>` with no version folder; a `<dir>/<version>/`
- * folder (the API's `DOMDOC_BUNDLE_DIR` layout) wins when it exists.
+ * folder (the API's `FILEDOM_BUNDLE_DIR` layout) wins when it exists.
  * A reserved renderer filename is not served. The renderer is inside the pdf wasm.
  */
 export function bundlePathToFile(bundlesDir, pathname) {
@@ -244,11 +244,11 @@ export function filesContaining(root, needle, { extensions = [".html", ".js", ".
 }
 
 /**
- * A one-page PDF with "Hello, domdoc" in Helvetica, built in code so no fixture
+ * A one-page PDF with "Hello, filedom" in Helvetica, built in code so no fixture
  * is committed. The xref offsets are exact.
  */
 export function helloPdf() {
-  const text = "BT /F1 36 Tf 72 700 Td (Hello, domdoc) Tj ET\n";
+  const text = "BT /F1 36 Tf 72 700 Td (Hello, filedom) Tj ET\n";
   const objects = [
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",

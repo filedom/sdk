@@ -10,7 +10,7 @@ import { detectFramework, libDir, withThemeImport } from "./project.js";
 import { resolveItems, rewriteAliases, type Registry } from "./registry.js";
 
 const projectSchema = JSON.parse(
-  readFileSync(fileURLToPath(new URL("../schema/domdoc.schema.json", import.meta.url)), "utf8"),
+  readFileSync(fileURLToPath(new URL("../schema/filedom.schema.json", import.meta.url)), "utf8"),
 ) as JsonSchema;
 
 const temps: string[] = [];
@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 function tempDir(): string {
-  const dir = mkdtempSync(join(tmpdir(), "domdoc-ui-"));
+  const dir = mkdtempSync(join(tmpdir(), "filedom-ui-"));
   temps.push(dir);
   return dir;
 }
@@ -55,7 +55,7 @@ function project(framework: FrameworkId, extra: Record<string, string> = {}): st
 /** A source file the way registry authors write it: canonical aliases and quoted slot names. */
 function source(name: string, deps: string[], slots: string[]): string {
   return [
-    ...deps.map((dep) => `import { ${dep} } from "@/components/domdoc/${dep}";`),
+    ...deps.map((dep) => `import { ${dep} } from "@/components/filedom/${dep}";`),
     `import { cn } from "@/lib/cn";`,
     `import "@/library-not-an-alias";`,
     `export const ${name.replace(/-/g, "_")} = ${JSON.stringify(slots)};`,
@@ -87,9 +87,9 @@ function fixtureRegistry(): string {
       put(root, file.path, item.type === "lib" ? "export const cn = () => '';\n" : source(item.name, item.registryDependencies?.filter((d) => d !== "cn") ?? [], item.slots ?? []));
     }
     byName(items, "cn").dependencies![set] = ["clsx", "tailwind-merge@^3.0.0"];
-    byName(items, "zoom-controls").dependencies![set] = [`lucide-${set}`, `@domdoc/${set}`];
+    byName(items, "zoom-controls").dependencies![set] = [`lucide-${set}`, `@filedom/${set}`];
   }
-  put(root, "registry.json", JSON.stringify({ name: "domdoc", items }));
+  put(root, "registry.json", JSON.stringify({ name: "filedom", items }));
   return root;
 }
 
@@ -120,67 +120,67 @@ describe("framework detection", () => {
   });
 });
 
-describe("domdoc init", () => {
-  it.each(FRAMEWORKS)("writes a valid domdoc.json and imports the theme for %s", (fw) => {
+describe("filedom init", () => {
+  it.each(FRAMEWORKS)("writes a valid filedom.json and imports the theme for %s", (fw) => {
     const dir = project(fw);
     const { code, stdout, stderr } = cli(["init", "--cwd", dir]);
     expect(stderr).toBe("");
     expect(code).toBe(0);
     expect(stdout).toContain(`detected ${fw}`);
-    const config = JSON.parse(read(dir, "domdoc.json"));
+    const config = JSON.parse(read(dir, "filedom.json"));
     expect(validateJson(projectSchema, config)).toEqual([]);
     expect(config.framework).toBe(fw);
     const css = read(dir, config.css);
-    expect(css).toBe('@import "tailwindcss";\n@import "@domdoc/ui/theme.css";\n');
-    expect(stdout).toContain("@domdoc/ui tailwindcss");
+    expect(css).toBe('@import "tailwindcss";\n@import "@filedom/ui/theme.css";\n');
+    expect(stdout).toContain("@filedom/ui tailwindcss");
   });
 
   it("uses the framework's conventional paths and aliases", () => {
     const kit = project("sveltekit");
     cli(["init", "--cwd", kit]);
-    expect(JSON.parse(read(kit, "domdoc.json"))).toMatchObject({
-      componentDir: "src/lib/components/domdoc",
+    expect(JSON.parse(read(kit, "filedom.json"))).toMatchObject({
+      componentDir: "src/lib/components/filedom",
       css: "src/app.css",
-      aliases: { components: "$lib/components/domdoc", lib: "$lib" },
+      aliases: { components: "$lib/components/filedom", lib: "$lib" },
     });
     const nuxt = project("nuxt");
     cli(["init", "--cwd", nuxt]);
-    expect(JSON.parse(read(nuxt, "domdoc.json"))).toMatchObject({ componentDir: "components/domdoc", css: "assets/css/main.css", aliases: { components: "~/components/domdoc" } });
+    expect(JSON.parse(read(nuxt, "filedom.json"))).toMatchObject({ componentDir: "components/filedom", css: "assets/css/main.css", aliases: { components: "~/components/filedom" } });
     const next = project("next");
     mkdirSync(join(next, "src/app"), { recursive: true });
     cli(["init", "--cwd", next]);
-    expect(JSON.parse(read(next, "domdoc.json"))).toMatchObject({ componentDir: "src/components/domdoc", css: "src/app/globals.css" });
+    expect(JSON.parse(read(next, "filedom.json"))).toMatchObject({ componentDir: "src/components/filedom", css: "src/app/globals.css" });
   });
 
   it("adds the import after Tailwind in an existing stylesheet, once", () => {
     const dir = project("vue");
     put(dir, "src/style.css", '@import "tailwindcss";\n\nbody { margin: 0; }\n');
     expect(cli(["init", "--cwd", dir]).code).toBe(0);
-    expect(JSON.parse(read(dir, "domdoc.json")).css).toBe("src/style.css");
+    expect(JSON.parse(read(dir, "filedom.json")).css).toBe("src/style.css");
     const once = read(dir, "src/style.css");
-    expect(once).toBe('@import "tailwindcss";\n@import "@domdoc/ui/theme.css";\n\nbody { margin: 0; }\n');
+    expect(once).toBe('@import "tailwindcss";\n@import "@filedom/ui/theme.css";\n\nbody { margin: 0; }\n');
     const again = cli(["init", "--cwd", dir]);
     expect(again.code).toBe(0);
-    expect(again.stdout).toContain("kept domdoc.json");
+    expect(again.stdout).toContain("kept filedom.json");
     expect(again.stdout).toContain("already imports");
     expect(read(dir, "src/style.css")).toBe(once);
   });
 
   it("puts the import first when the stylesheet has no Tailwind import", () => {
-    expect(withThemeImport('@charset "utf-8";\nbody{}\n')).toBe('@charset "utf-8";\n@import "@domdoc/ui/theme.css";\nbody{}\n');
-    expect(withThemeImport("body{}\n")).toBe('@import "@domdoc/ui/theme.css";\nbody{}\n');
-    expect(withThemeImport("@import 'tailwindcss';")).toBe("@import 'tailwindcss';\n@import \"@domdoc/ui/theme.css\";\n");
+    expect(withThemeImport('@charset "utf-8";\nbody{}\n')).toBe('@charset "utf-8";\n@import "@filedom/ui/theme.css";\nbody{}\n');
+    expect(withThemeImport("body{}\n")).toBe('@import "@filedom/ui/theme.css";\nbody{}\n');
+    expect(withThemeImport("@import 'tailwindcss';")).toBe("@import 'tailwindcss';\n@import \"@filedom/ui/theme.css\";\n");
   });
 
   it("does not list packages the project already has", () => {
-    const dir = project("react", { "@domdoc/ui": "^0.1.0", tailwindcss: "^4.0.0" });
+    const dir = project("react", { "@filedom/ui": "^0.1.0", tailwindcss: "^4.0.0" });
     expect(cli(["init", "--cwd", dir]).stdout).not.toContain("Install the packages");
   });
 
   it("honours --framework and rejects unknown ids", () => {
     const dir = project("react");
     expect(cli(["init", "--cwd", dir, "--framework", "preact"]).code).toBe(0);
-    expect(JSON.parse(read(dir, "domdoc.json")).framework).toBe("preact");
+    expect(JSON.parse(read(dir, "filedom.json")).framework).toBe("preact");
     const bad = cli(["init", "--cwd", project("react"), "--framework", "ember"]);
     expect(bad.code).toBe(1);
     expect(bad.stderr).toContain("unknown framework ember");
@@ -199,19 +199,19 @@ describe("domdoc init", () => {
     const dir = project("svelte");
     const { code, stdout } = cli(["init", "--cwd", dir, "--dry-run"]);
     expect(code).toBe(0);
-    expect(stdout).toContain("would create domdoc.json");
+    expect(stdout).toContain("would create filedom.json");
     expect(stdout).toContain("would create src/index.css");
-    expect(existsSync(join(dir, "domdoc.json"))).toBe(false);
+    expect(existsSync(join(dir, "filedom.json"))).toBe(false);
     expect(existsSync(join(dir, "src"))).toBe(false);
   });
 });
 
-describe("domdoc add", () => {
+describe("filedom add", () => {
   it.each(FRAMEWORKS)("copies an item and its registry dependencies for %s with aliases rewritten", (fw) => {
     const registry = fixtureRegistry();
     const dir = project(fw);
     expect(cli(["init", "--cwd", dir]).code).toBe(0);
-    const config = JSON.parse(read(dir, "domdoc.json"));
+    const config = JSON.parse(read(dir, "filedom.json"));
     const set = FRAMEWORK_REGISTRY_SET[fw];
     const ext = set === "vue" ? "vue" : set === "svelte" ? "svelte" : set === "astro" ? "astro" : "tsx";
 
@@ -232,15 +232,15 @@ describe("domdoc add", () => {
     expect(zoom.startsWith('"use client";')).toBe(fw === "next");
     expect(read(dir, `${libDir(config)}/cn.ts`)).not.toContain("use client");
 
-    expect(stdout).toContain(`clsx tailwind-merge@^3.0.0 lucide-${set} @domdoc/${set}`);
+    expect(stdout).toContain(`clsx tailwind-merge@^3.0.0 lucide-${set} @filedom/${set}`);
   });
 
   it("places lib items under the directory aliases.lib points at", () => {
     const base = { $schema: "", framework: "react" as const, css: "x.css" };
-    expect(libDir({ ...base, componentDir: "src/components/domdoc", aliases: { components: "@/components/domdoc", lib: "@/lib" } })).toBe("src/lib");
-    expect(libDir({ ...base, componentDir: "src/lib/components/domdoc", aliases: { components: "$lib/components/domdoc", lib: "$lib" } })).toBe("src/lib");
-    expect(libDir({ ...base, componentDir: "components/domdoc", aliases: { components: "~/components/domdoc", lib: "~/utils" } })).toBe("utils");
-    expect(() => libDir({ ...base, componentDir: "src/ui", aliases: { components: "@/components/domdoc", lib: "@/lib" } })).toThrow(/aliases.lib/);
+    expect(libDir({ ...base, componentDir: "src/components/filedom", aliases: { components: "@/components/filedom", lib: "@/lib" } })).toBe("src/lib");
+    expect(libDir({ ...base, componentDir: "src/lib/components/filedom", aliases: { components: "$lib/components/filedom", lib: "$lib" } })).toBe("src/lib");
+    expect(libDir({ ...base, componentDir: "components/filedom", aliases: { components: "~/components/filedom", lib: "~/utils" } })).toBe("utils");
+    expect(() => libDir({ ...base, componentDir: "src/ui", aliases: { components: "@/components/filedom", lib: "@/lib" } })).toThrow(/aliases.lib/);
   });
 
   it("resolves transitive registry dependencies once, dependencies first", () => {
@@ -248,7 +248,7 @@ describe("domdoc add", () => {
     expect(resolveItems(registry, ["toolbar", "button"]).map((i) => i.name)).toEqual(["cn", "button", "zoom-controls", "toolbar"]);
     expect(() => resolveItems(registry, ["nope"])).toThrow(/unknown item nope/);
     const cyclic: Registry = {
-      name: "domdoc",
+      name: "filedom",
       items: [
         { name: "a", type: "block", registryDependencies: ["b"], files: {} },
         { name: "b", type: "block", registryDependencies: ["a"], files: {} },
@@ -259,7 +259,7 @@ describe("domdoc add", () => {
 
   it("rewrites only whole alias specifiers", () => {
     const aliases = { components: "~/ui", lib: "~/utils" };
-    expect(rewriteAliases(`import a from '@/components/domdoc/a';\nimport b from "@/lib";\nimport c from \`@/lib/c\`;\n"@/libs"`, aliases)).toBe(
+    expect(rewriteAliases(`import a from '@/components/filedom/a';\nimport b from "@/lib";\nimport c from \`@/lib/c\`;\n"@/libs"`, aliases)).toBe(
       `import a from '~/ui/a';\nimport b from "~/utils";\nimport c from \`~/utils/c\`;\n"@/libs"`,
     );
   });
@@ -268,19 +268,19 @@ describe("domdoc add", () => {
     const registry = fixtureRegistry();
     const dir = project("react");
     cli(["init", "--cwd", dir]);
-    put(dir, "src/components/domdoc/button.tsx", "// my edits\n");
+    put(dir, "src/components/filedom/button.tsx", "// my edits\n");
     const first = cli(["add", "button", "--cwd", dir], registry);
     expect(first.code).toBe(0);
-    expect(first.stdout).toContain("skipped src/components/domdoc/button.tsx (exists)");
+    expect(first.stdout).toContain("skipped src/components/filedom/button.tsx (exists)");
     expect(first.stdout).toContain("--overwrite");
-    expect(read(dir, "src/components/domdoc/button.tsx")).toBe("// my edits\n");
+    expect(read(dir, "src/components/filedom/button.tsx")).toBe("// my edits\n");
 
     const same = cli(["add", "button", "--cwd", dir], registry);
     expect(same.stdout).toContain("unchanged src/lib/cn.ts");
 
     const forced = cli(["add", "button", "--cwd", dir, "--overwrite"], registry);
-    expect(forced.stdout).toContain("overwrote src/components/domdoc/button.tsx");
-    expect(read(dir, "src/components/domdoc/button.tsx")).toContain('"button"');
+    expect(forced.stdout).toContain("overwrote src/components/filedom/button.tsx");
+    expect(read(dir, "src/components/filedom/button.tsx")).toContain('"button"');
   });
 
   it("writes nothing on --dry-run but reports the plan and missing packages", () => {
@@ -289,7 +289,7 @@ describe("domdoc add", () => {
     cli(["init", "--cwd", dir]);
     const { code, stdout } = cli(["add", "toolbar", "--cwd", dir, "--dry-run"], registry);
     expect(code).toBe(0);
-    expect(stdout).toContain("would create src/components/domdoc/toolbar.vue");
+    expect(stdout).toContain("would create src/components/filedom/toolbar.vue");
     expect(stdout).toContain("would create src/lib/cn.ts");
     expect(stdout).toContain("Missing npm packages");
     expect(existsSync(join(dir, "src/components"))).toBe(false);
@@ -302,7 +302,7 @@ describe("domdoc add", () => {
     put(dir, "pnpm-lock.yaml", "");
     cli(["init", "--cwd", dir]);
     const { stdout } = cli(["add", "zoom-controls", "--cwd", dir], registry);
-    expect(stdout).toContain("pnpm add tailwind-merge@^3.0.0 lucide-svelte @domdoc/svelte");
+    expect(stdout).toContain("pnpm add tailwind-merge@^3.0.0 lucide-svelte @filedom/svelte");
     expect(stdout).not.toMatch(/add clsx/);
   });
 
@@ -313,13 +313,13 @@ describe("domdoc add", () => {
     const io = { cwd: parent, registryRoot: registry, stdout: () => {}, stderr: () => {} };
     expect(run(["init", "--cwd", "app"], io)).toBe(0);
     expect(run(["add", "button", "--cwd=app"], io)).toBe(0);
-    expect(existsSync(join(parent, "app/src/components/domdoc/button.tsx"))).toBe(true);
+    expect(existsSync(join(parent, "app/src/components/filedom/button.tsx"))).toBe(true);
   });
 
-  it("fails without domdoc.json, items, or a known item", () => {
+  it("fails without filedom.json, items, or a known item", () => {
     const registry = fixtureRegistry();
     const dir = project("react");
-    expect(cli(["add", "button", "--cwd", dir], registry).stderr).toContain("Run domdoc init first");
+    expect(cli(["add", "button", "--cwd", dir], registry).stderr).toContain("Run filedom init first");
     cli(["init", "--cwd", dir]);
     expect(cli(["add", "--cwd", dir], registry).stderr).toContain("name at least one item");
     const unknown = cli(["add", "nope", "--cwd", dir], registry);
@@ -338,18 +338,18 @@ describe("domdoc add", () => {
     expect(existsSync(join(dir, "src/components"))).toBe(false);
   });
 
-  it("rejects an invalid domdoc.json", () => {
+  it("rejects an invalid filedom.json", () => {
     const dir = project("react");
-    put(dir, "domdoc.json", JSON.stringify({ framework: "ember" }));
+    put(dir, "filedom.json", JSON.stringify({ framework: "ember" }));
     const result = cli(["add", "button", "--cwd", dir], fixtureRegistry());
     expect(result.code).toBe(1);
-    expect(result.stderr).toContain("domdoc.json is invalid");
+    expect(result.stderr).toContain("filedom.json is invalid");
   });
 });
 
-describe("domdoc command line", () => {
+describe("filedom command line", () => {
   it("prints help, and rejects unknown commands and options", () => {
-    expect(cli(["--help"])).toMatchObject({ code: 0, stdout: expect.stringContaining("Usage: domdoc") });
+    expect(cli(["--help"])).toMatchObject({ code: 0, stdout: expect.stringContaining("Usage: filedom") });
     expect(cli([]).code).toBe(1);
     expect(cli(["publish"]).stderr).toContain("unknown command publish");
     expect(cli(["add", "--force"]).stderr).toContain("unknown option --force");

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "framework": "angular",
+  "componentDir": "src/app/components/filedom",
+  "css": "src/styles.css",
+  "aliases": {
+    "components": "@/components/filedom",
+    "lib": "@/lib"
+  }
+}

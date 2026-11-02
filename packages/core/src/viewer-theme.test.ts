@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { DomdocViewer } from "./viewer.js";
+import { FiledomViewer } from "./viewer.js";
 
 describe("viewer theme", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     document.body.replaceChildren();
-    document.head.querySelector("style[data-domdoc]")?.remove();
+    document.head.querySelector("style[data-filedom]")?.remove();
   });
 
   it("starts light and switches palette, tokens, and the OS scheme in place", () => {
@@ -22,7 +22,7 @@ describe("viewer theme", () => {
 
     const root = document.createElement("div");
     document.body.append(root);
-    const viewer = new DomdocViewer(root, { bundles: {} });
+    const viewer = new FiledomViewer(root, { bundles: {} });
     const themes: string[] = [];
     viewer.on("theme", (event) => themes.push(event.theme));
     const shell = root.querySelector<HTMLElement>(".dd-viewer")!;

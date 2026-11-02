@@ -1,12 +1,12 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { DomdocViewer } from "./viewer.js";
+import { FiledomViewer } from "./viewer.js";
 
 describe("highlight and comment", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     document.body.replaceChildren();
-    document.head.querySelector("style[data-domdoc]")?.remove();
+    document.head.querySelector("style[data-filedom]")?.remove();
   });
 
   it("offers highlight and comment on a selection, and emits nothing until a passage is chosen", () => {
@@ -17,7 +17,7 @@ describe("highlight and comment", () => {
     }));
     const root = document.createElement("div");
     document.body.append(root);
-    const viewer = new DomdocViewer(root, { bundles: {} });
+    const viewer = new FiledomViewer(root, { bundles: {} });
     const highlights: unknown[] = [];
     const annotations: unknown[] = [];
     viewer.on("highlight", (event) => highlights.push(event));

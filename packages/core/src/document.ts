@@ -15,7 +15,7 @@ import type {
   SearchHit,
   TextSpan,
 } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { exportName } from "./formats.js";
 
 export interface PageRaster {
@@ -35,7 +35,7 @@ function call<T>(fn: () => T): T {
   try {
     return fn();
   } catch (error) {
-    throw DomdocError.from(error);
+    throw FiledomError.from(error);
   }
 }
 
@@ -43,7 +43,7 @@ function call<T>(fn: () => T): T {
  * One open file backed by its format bundle's wasm session. All state (content, undo
  * history, highlights, revisions) lives in Rust; this wrapper caches views per version.
  */
-export class DomdocDocument {
+export class FiledomDocument {
   private version = 0;
   /** Views and queries of the current version; cleared on every change. */
   private readonly cache = new Map<string, unknown>();
@@ -220,7 +220,7 @@ export class DomdocDocument {
 
   /** Swaps the wasm session after a lazy edit bundle reload. */
   replaceSession(session: EngineSession): void {
-    if (this.disposed) throw new DomdocError("disposed", this.name);
+    if (this.disposed) throw new FiledomError("disposed", this.name);
     this.session.free();
     this.session = session;
     this.cache.clear();
@@ -249,7 +249,7 @@ export class DomdocDocument {
   }
 
   private live(): EngineSession {
-    if (this.disposed) throw new DomdocError("disposed", this.name);
+    if (this.disposed) throw new FiledomError("disposed", this.name);
     return this.session;
   }
 }

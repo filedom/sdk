@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 function isDark(theme: string | undefined): boolean {
   return theme === "dark" || theme === "high-contrast-dark";
 }
 
 export function ThemeToggle() {
-  const { store, snapshot } = useDomdoc();
+  const { store, snapshot } = useFiledom();
   const action = useAction("theme");
   const dark = isDark(snapshot?.theme);
 

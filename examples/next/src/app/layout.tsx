@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 
-export const metadata = { title: "domdoc Next.js" };
+export const metadata = { title: "filedom Next.js" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

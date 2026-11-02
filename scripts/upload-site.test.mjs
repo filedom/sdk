@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { authorizationHeader, createR2Client, uploadSite } from "./upload-site.mjs";
 
 const script = fileURLToPath(new URL("./upload-site.mjs", import.meta.url));
-const scratch = mkdtempSync(join(tmpdir(), "domdoc-upload-docs-"));
+const scratch = mkdtempSync(join(tmpdir(), "filedom-upload-docs-"));
 after(() => rmSync(scratch, { recursive: true, force: true }));
 
 const SHORT = "public, max-age=60, must-revalidate";
@@ -97,7 +97,7 @@ describe("docs upload", () => {
     for (const command of client.commands) {
       assert.equal(command.name, "PutObject");
       assert.equal(command.input.Key.startsWith("sdk-docs/"), true);
-      assert.equal(command.input.Bucket, "domdoc");
+      assert.equal(command.input.Bucket, "filedom");
     }
     assert.equal(client.objects.get("sdk-docs/retired.html").toString(), "old");
     assert.equal(client.commands.some((command) => command.input.Key === "sdk-docs/retired.html"), false);
@@ -186,7 +186,7 @@ describe("docs upload", () => {
     });
     assert.equal(calls.length, 1);
     assert.equal(calls[0].method, "PUT");
-    assert.equal(calls[0].url, "https://3d28ddc0579eb80dd173c75d55be3768.r2.cloudflarestorage.com/domdoc/sdk-docs/a%20b.html");
+    assert.equal(calls[0].url, "https://3d28ddc0579eb80dd173c75d55be3768.r2.cloudflarestorage.com/filedom/sdk-docs/a%20b.html");
     assert.equal(calls[0].body.toString(), "<html>a</html>");
     assert.equal(calls[0].headers["content-type"], "text/html; charset=utf-8");
     assert.equal(calls[0].headers["cache-control"], SHORT);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { unwrapWasm } from "./bundle-cipher.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 const ENVELOPE = new Uint8Array([0x44, 0x44, 0x57, 0x31]);
 
@@ -19,7 +19,7 @@ describe("unwrapWasm", () => {
     const plain = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]);
     const key = new Uint8Array(32);
     const refused = unwrapWasm(plain, key);
-    await expect(refused).rejects.toBeInstanceOf(DomdocError);
+    await expect(refused).rejects.toBeInstanceOf(FiledomError);
     await expect(refused).rejects.toThrow(/plaintext wasm is refused/);
     const out = await unwrapWasm(plain, key, { allowUnsealed: true });
     expect(out).toBe(plain);

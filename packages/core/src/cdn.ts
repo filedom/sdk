@@ -3,7 +3,7 @@ import type { BundleImporters } from "./bundles.js";
 import type { EngineModule, EngineSession, Format } from "./engine-types.js";
 import { bindPdfiumRender } from "./engines/bind-pdfium.js";
 import { pdfiumBytes, wasmArrayBuffer } from "./engines/pdfium-section.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 interface GlueModule {
   default: (arg?: unknown) => Promise<unknown>;
@@ -19,7 +19,7 @@ const defaultGlueLoad: GlueLoader = async (url) => {
   try {
     return await import(/* @vite-ignore */ url);
   } catch {
-    throw new DomdocError("bundle-missing", "The engine bundle could not be loaded. Try opening the file again.");
+    throw new FiledomError("bundle-missing", "The engine bundle could not be loaded. Try opening the file again.");
   }
 };
 
@@ -54,10 +54,10 @@ const MODULES: Format[] = [
   "msg",
 ];
 
-/** Glue module published beside its wasm: `{base}/{format}/domdoc_{format}.js`. */
+/** Glue module published beside its wasm: `{base}/{format}/filedom_{format}.js`. */
 export function bundleUrl(base: string, format: Format): string {
   const root = base.replace(/\/$/, "");
-  return `${root}/${format}/domdoc_${format}.js`;
+  return `${root}/${format}/filedom_${format}.js`;
 }
 
 /** Second argument of `bundlesFromCdn`. */
@@ -82,8 +82,8 @@ interface Delivery {
 }
 
 /**
- * Lazy importers for the domdoc bundles on a CDN.
- * Each format loads `{base}/{format}/domdoc_{format}.js` the first time it opens.
+ * Lazy importers for the filedom bundles on a CDN.
+ * Each format loads `{base}/{format}/filedom_{format}.js` the first time it opens.
  * The PDF renderer is inside the pdf wasm. A PDF open does not fetch a second wasm.
  *
  * Pass a glue loader as the second argument, or `{ load }`.
@@ -106,7 +106,7 @@ export function bundlesFromCdn(
   return importers;
 }
 
-/** Domdoc PDF bundle. The renderer is a custom section of `domdoc_pdf_bg.wasm`. */
+/** Filedom PDF bundle. The renderer is a custom section of `filedom_pdf_bg.wasm`. */
 export function pdfEngine(
   glueUrl: string,
   load: GlueLoader = defaultGlueLoad,
@@ -137,7 +137,7 @@ function readCdnArgs(loadOrOptions: GlueLoader | CdnBundleOptions): {
 
 function wrapFormat(glue: GlueModule, glueUrl: string): EngineModule {
   return {
-    format: () => glue.format?.() ?? "domdoc",
+    format: () => glue.format?.() ?? "filedom",
     default: () => startModule(glue, glueUrl),
     open: (bytes, password) => glue.open(bytes, password),
   };
@@ -170,7 +170,7 @@ async function bind(glue: GlueModule, glueUrl: string): Promise<void> {
   const wasmBinary = wasmArrayBuffer(pdfiumBytes(wasm));
   const initialize = glue.initialize_pdfium_render;
   if (!initialize) {
-    throw new DomdocError(
+    throw new FiledomError(
       "bundle-missing",
       "The PDF engine module is incomplete. Serve the published pdf bundle.",
     );
@@ -186,7 +186,7 @@ async function bind(glue: GlueModule, glueUrl: string): Promise<void> {
   );
 }
 
-/** `{base}/{format}/domdoc_{format}.js` sits beside `domdoc_{format}_bg.wasm`. */
+/** `{base}/{format}/filedom_{format}.js` sits beside `filedom_{format}_bg.wasm`. */
 function engineWasmUrl(glueUrl: string): string {
   const path = glueUrl.split("#")[0]?.split("?")[0] ?? glueUrl;
   return path.endsWith(".js") ? `${path.slice(0, -3)}_bg.wasm` : `${path}_bg.wasm`;
@@ -203,8 +203,8 @@ function hasWasmMagic(bytes: Uint8Array): boolean {
 /** Plaintext wasm from the CDN. A buffer that does not start with `\0asm` is refused. */
 async function fetchWasm(url: string): Promise<Uint8Array> {
   const response = await fetch(url, { cache: "no-store" });
-  if (!response.ok) throw new DomdocError("bundle-missing", `wasm: ${response.status}`);
+  if (!response.ok) throw new FiledomError("bundle-missing", `wasm: ${response.status}`);
   const bytes = new Uint8Array(await response.arrayBuffer());
-  if (!hasWasmMagic(bytes)) throw new DomdocError("bundle-missing", "The engine bundle is not a wasm module.");
+  if (!hasWasmMagic(bytes)) throw new FiledomError("bundle-missing", "The engine bundle is not a wasm module.");
   return bytes;
 }

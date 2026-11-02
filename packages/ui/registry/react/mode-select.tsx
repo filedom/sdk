@@ -1,10 +1,10 @@
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Select } from "@/components/domdoc/select";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Select } from "@/components/filedom/select";
 
 const MODES = ["live", "track", "view"] as const;
 
 export function ModeSelect() {
-  const { store, snapshot } = useDomdoc();
+  const { store, snapshot } = useFiledom();
   const live = useAction("live");
   const track = useAction("track");
   const view = useAction("view");

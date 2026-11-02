@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Maximize2, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import Tooltip from "@/components/domdoc/Tooltip.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import Tooltip from "@/components/filedom/Tooltip.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, run } = useDomdoc();
+const { snapshot, run } = useFiledom();
 const zoomOut = computed(() => controlFor(snapshot.value, "zoomOut"));
 const zoomReset = computed(() => controlFor(snapshot.value, "zoomReset"));
 const zoomIn = computed(() => controlFor(snapshot.value, "zoomIn"));

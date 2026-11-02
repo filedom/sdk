@@ -1,5 +1,5 @@
 import type { EngineModule, Format } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 /**
  * One dynamic import per format so a PDF-only session never downloads the DOCX/DOC
@@ -26,7 +26,7 @@ export class BundleLoader {
     let pending = this.ready.get(format);
     if (!pending) {
       const importer = this.importers[format];
-      if (!importer) return Promise.reject(new DomdocError("bundle-missing", format));
+      if (!importer) return Promise.reject(new FiledomError("bundle-missing", format));
       pending = importer().then(async (module) => {
         await module.default();
         return module;

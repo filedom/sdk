@@ -14,8 +14,8 @@ export {
   type Placement,
   type PlacementPosition,
 } from "./components.js";
-export { DomdocDocument, type DocumentChange, type PageRaster } from "./document.js";
-export { DomdocError } from "./errors.js";
+export { FiledomDocument, type DocumentChange, type PageRaster } from "./document.js";
+export { FiledomError } from "./errors.js";
 export { Editor, isCollapsed, normalizePaste, samePos, type Selection } from "./editor.js";
 export { FileStore, type AddFileOptions, type FileInput, type FileSource, type StoredFile } from "./file-store.js";
 export { ACCEPT, detectFormat, exportName, fileKind, unwiredDetail } from "./formats.js";
@@ -44,7 +44,7 @@ export { openDocument, type OpenOptions, type OpenSource } from "./open.js";
 export { promptForPassword, type PasswordHint } from "./password-prompt.js";
 export { paintFlowPage, paintRaster } from "./paint.js";
 export { VIEWER_CSS } from "./styles.js";
-export { DomdocViewer, type Annotation, type ChromeDir, type HighlightEvent, type SelectionState, type ThemeConfig, type ThemeName, type ThemePreference, type ThemeToken, type ThemeTokens, type ViewerEvents, type ViewerOptions, type ViewMode } from "./viewer.js";
+export { FiledomViewer, type Annotation, type ChromeDir, type HighlightEvent, type SelectionState, type ThemeConfig, type ThemeName, type ThemePreference, type ThemeToken, type ThemeTokens, type ViewerEvents, type ViewerOptions, type ViewMode } from "./viewer.js";
 export * as zoom from "./zoom.js";
 export { shouldMount, type RenderDecision, type RenderMode, type RenderPolicyInput } from "./render-policy.js";
 export {
@@ -79,9 +79,9 @@ export {
 export { Toolbar, type ToolbarActions, type ToolbarState } from "./toolbar.js";
 // ViewMode stays exported from ./viewer.js.
 
-import { DomdocViewer, type ViewerOptions } from "./viewer.js";
+import { FiledomViewer, type ViewerOptions } from "./viewer.js";
 
 /** Mounts a viewer into an element of the host SPA. */
-export function createViewer(element: HTMLElement, options: ViewerOptions): DomdocViewer {
-  return new DomdocViewer(element, options);
+export function createViewer(element: HTMLElement, options: ViewerOptions): FiledomViewer {
+  return new FiledomViewer(element, options);
 }

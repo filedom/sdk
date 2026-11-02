@@ -1,18 +1,18 @@
 import { Component, computed, inject } from "@angular/core";
 import { LucideAngularModule, Moon, Sun } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocTooltip } from "@/components/domdoc/tooltip";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomTooltip } from "@/components/filedom/tooltip";
 
 @Component({
-  selector: "domdoc-theme-toggle",
+  selector: "filedom-theme-toggle",
   standalone: true,
-  imports: [DomdocButton, DomdocTooltip, LucideAngularModule],
+  imports: [FiledomButton, FiledomTooltip, LucideAngularModule],
   template: `
     @if (!theme().hidden) {
-      <domdoc-tooltip [text]="theme().title">
+      <filedom-tooltip [text]="theme().title">
         <button
-          domdocButton
+          filedomButton
           slot="theme-toggle"
           data-action="theme"
           variant="icon"
@@ -27,12 +27,12 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
             <lucide-icon [img]="moonIcon" [size]="16" aria-hidden="true" />
           }
         </button>
-      </domdoc-tooltip>
+      </filedom-tooltip>
     }
   `,
 })
-export class DomdocThemeToggle {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomThemeToggle {
+  private readonly ctx = inject(FiledomContext);
   readonly sunIcon = Sun;
   readonly moonIcon = Moon;
   readonly dark = computed(() => {

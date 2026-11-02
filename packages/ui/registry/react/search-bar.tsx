@@ -1,12 +1,12 @@
 import type { FormEvent } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Input } from "@/components/domdoc/input";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Input } from "@/components/filedom/input";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 export function SearchBar() {
-  const { store, snapshot } = useDomdoc();
+  const { store, snapshot } = useFiledom();
   const search = useAction("search");
   const previous = useAction("findPrev");
   const next = useAction("findNext");

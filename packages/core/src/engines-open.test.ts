@@ -9,9 +9,9 @@ import { mediaBundles } from "./engines/media-bundles.js";
 import { createEngineLoader } from "./modules.js";
 import { openDocument } from "./open.js";
 import { storeZip } from "./engines/package-file.js";
-import { DomdocViewer } from "./viewer.js";
+import { FiledomViewer } from "./viewer.js";
 
-const fixtures = new URL("../../../../domdoc-wasm/fixtures/", import.meta.url);
+const fixtures = new URL("../../../../wasm/fixtures/", import.meta.url);
 const text = new TextEncoder();
 
 function xml(name: string, body: string) {
@@ -395,7 +395,7 @@ describe("pdfium and office_oxide", () => {
     doc.dispose();
   }, 60_000);
 
-  it("lists a PDF layer, formats text, and stores a domdoc snapshot", async () => {
+  it("lists a PDF layer, formats text, and stores a filedom snapshot", async () => {
     const bytes = new Uint8Array(readFileSync(new URL("sample.pdf", fixtures)));
     const doc = await open(bytes, "sample.pdf");
     const info = doc.info();
@@ -432,10 +432,10 @@ describe("pdfium and office_oxide", () => {
         rotateDeg: 0,
       });
     }
-    doc.apply({ type: "storeDomdoc" });
-    expect(doc.info().exportExtension).toBe("domdoc");
+    doc.apply({ type: "storeFiledom" });
+    expect(doc.info().exportExtension).toBe("filedom");
     const saved = doc.export().bytes;
-    expect(new TextDecoder().decode(saved.slice(0, 6))).toBe("DOMDOC");
+    expect(new TextDecoder().decode(saved.slice(0, 6))).toBe("FILEDOM");
     doc.dispose();
   }, 60_000);
 
@@ -504,7 +504,7 @@ describe("pdfium and office_oxide", () => {
       .page(0)
       .runs.filter((run) => run.unit === line.unit)
       .sort((left, right) => left.unitStart - right.unitStart);
-    expect(after.map((run) => run.text).join("")).toContain("Hello domdoc PDF");
+    expect(after.map((run) => run.text).join("")).toContain("Hello filedom PDF");
     const highlighted = after.filter(
       (run) => run.unitStart < hello + 5 && run.unitStart + Array.from(run.text).length > hello,
     );
@@ -514,7 +514,7 @@ describe("pdfium and office_oxide", () => {
       expect(run.color).toBe("#c00000");
     }
     const rest = after.filter((run) => run.unitStart >= hello + 5);
-    expect(rest.map((run) => run.text).join("")).toContain("domdoc PDF");
+    expect(rest.map((run) => run.text).join("")).toContain("filedom PDF");
     for (const run of rest) {
       expect(run.fontSizePt).toBeCloseTo(14, 0);
       expect(run.color ?? "#000000").not.toBe("#c00000");
@@ -550,7 +550,7 @@ describe("pdfium and office_oxide", () => {
     doc.apply({ type: "format", ranges: [whole(second)], style: { sizePt: 9 } });
     doc.apply({ type: "format", ranges: [whole(first)], style: { italic: true } });
     const hello = doc.page(0).runs.filter((run) => run.unit === first.unit);
-    expect(hello.map((run) => run.text).join("")).toBe("Hello domdoc PDF");
+    expect(hello.map((run) => run.text).join("")).toBe("Hello filedom PDF");
     expect(hello.every((run) => run.italic)).toBe(true);
     for (const run of hello) expect(run.fontSizePt).toBeCloseTo(18, 0);
     const lineTwo = doc.page(0).runs.filter((run) => run.unit === second.unit);
@@ -578,7 +578,7 @@ describe("pdfium and office_oxide", () => {
     doc.apply({ type: "format", ranges: [dom], style: { italic: false } });
     doc.apply({ type: "format", ranges: [dom], style: { underline: true } });
     let runs = doc.page(0).runs.filter((run) => run.unit === line.unit);
-    expect(runs.map((run) => run.text).join("")).toBe("Hello domdoc PDF");
+    expect(runs.map((run) => run.text).join("")).toBe("Hello filedom PDF");
     expect(runs.find((run) => run.text === "dom")).toMatchObject({ underline: true, italic: false });
     expect(runs.filter((run) => run.text !== "dom").every((run) => run.italic && !run.underline)).toBe(true);
     doc.apply({ type: "format", ranges: [dom], style: { strike: true } });
@@ -680,7 +680,7 @@ describe("headless store on a real engine", () => {
     try {
       const root = window.document.createElement("div");
       window.document.body.append(root);
-      const viewer = new DomdocViewer(root as unknown as HTMLElement, {
+      const viewer = new FiledomViewer(root as unknown as HTMLElement, {
         bundles: {},
         core: createEngineLoader(),
         toolbar: false,

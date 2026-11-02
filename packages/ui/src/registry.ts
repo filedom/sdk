@@ -20,7 +20,7 @@ export interface RegistryItem {
 
 export interface Registry {
   $schema?: string;
-  name: "domdoc";
+  name: "filedom";
   items: RegistryItem[];
 }
 
@@ -32,10 +32,10 @@ export function readRegistry(root: string = PACKAGE_ROOT): Registry {
 }
 
 /**
- * Import specifiers the registry sources are written with. `domdoc add` replaces them
- * with `aliases.components` and `aliases.lib` from the project's `domdoc.json`.
+ * Import specifiers the registry sources are written with. `filedom add` replaces them
+ * with `aliases.components` and `aliases.lib` from the project's `filedom.json`.
  */
-export const REGISTRY_ALIASES = { components: "@/components/domdoc", lib: "@/lib" } as const;
+export const REGISTRY_ALIASES = { components: "@/components/filedom", lib: "@/lib" } as const;
 
 /**
  * The named items and everything they need, dependencies first, each once.

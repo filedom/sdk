@@ -1,22 +1,22 @@
 import { createElement, Redo2, Undo2 } from "lucide";
 import { LitElement, html } from "lit";
-import type { ViewerStoreSnapshot } from "@domdoc/core";
-import { button } from "@/components/domdoc/button";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import "@/components/domdoc/file-button";
-import "@/components/domdoc/mode-select";
-import "@/components/domdoc/page-status";
-import "@/components/domdoc/search-bar";
-import { separator } from "@/components/domdoc/separator";
-import "@/components/domdoc/theme-toggle";
-import { tooltip } from "@/components/domdoc/tooltip";
-import "@/components/domdoc/zoom-controls";
+import type { ViewerStoreSnapshot } from "@filedom/core";
+import { button } from "@/components/filedom/button";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import "@/components/filedom/file-button";
+import "@/components/filedom/mode-select";
+import "@/components/filedom/page-status";
+import "@/components/filedom/search-bar";
+import { separator } from "@/components/filedom/separator";
+import "@/components/filedom/theme-toggle";
+import { tooltip } from "@/components/filedom/tooltip";
+import "@/components/filedom/zoom-controls";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-4", "aria-hidden": "true" });
 }
 
-export class DomdocToolbarElement extends LitElement {
+export class FiledomToolbarElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -26,7 +26,7 @@ export class DomdocToolbarElement extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -38,7 +38,7 @@ export class DomdocToolbarElement extends LitElement {
   }
 
   private run(id: string) {
-    return () => domdocProvider(this)?.store?.run(id);
+    return () => filedomProvider(this)?.store?.run(id);
   }
 
   override render() {
@@ -80,18 +80,18 @@ export class DomdocToolbarElement extends LitElement {
           }),
         )}
         ${separator("vertical")}
-        <domdoc-file-button></domdoc-file-button>
+        <filedom-file-button></filedom-file-button>
         ${separator("vertical")}
-        <domdoc-zoom-controls></domdoc-zoom-controls>
+        <filedom-zoom-controls></filedom-zoom-controls>
         ${separator("vertical")}
-        <domdoc-search-bar></domdoc-search-bar>
-        <domdoc-mode-select></domdoc-mode-select>
+        <filedom-search-bar></filedom-search-bar>
+        <filedom-mode-select></filedom-mode-select>
         <div class="min-w-0 flex-1"></div>
-        <domdoc-page-status></domdoc-page-status>
-        <domdoc-theme-toggle></domdoc-theme-toggle>
+        <filedom-page-status></filedom-page-status>
+        <filedom-theme-toggle></filedom-theme-toggle>
       </div>
     `;
   }
 }
 
-if (!customElements.get("domdoc-toolbar")) customElements.define("domdoc-toolbar", DomdocToolbarElement);
+if (!customElements.get("filedom-toolbar")) customElements.define("filedom-toolbar", FiledomToolbarElement);

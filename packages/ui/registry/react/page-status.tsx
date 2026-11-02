@@ -1,7 +1,7 @@
-import { useDomdoc } from "@/components/domdoc/domdoc-provider";
+import { useFiledom } from "@/components/filedom/filedom-provider";
 
 export function PageStatus() {
-  const { snapshot } = useDomdoc();
+  const { snapshot } = useFiledom();
   const doc = snapshot?.document;
   const label =
     snapshot?.status === "loading"

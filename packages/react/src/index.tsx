@@ -1,9 +1,9 @@
-import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { createViewer, type FiledomViewer as Viewer, type ViewerOptions } from "@filedom/core";
 import { useEffect, useRef, type CSSProperties } from "react";
 
 export type { Viewer, ViewerOptions };
 
-export interface DomdocViewerProps {
+export interface FiledomViewerProps {
   /** Memoize this object: a new identity remounts the viewer. */
   options: ViewerOptions;
   onReady?: (viewer: Viewer) => void;
@@ -11,7 +11,7 @@ export interface DomdocViewerProps {
   style?: CSSProperties;
 }
 
-export function DomdocViewer({ options, onReady, className, style }: DomdocViewerProps) {
+export function FiledomViewer({ options, onReady, className, style }: FiledomViewerProps) {
   const host = useRef<HTMLDivElement>(null);
   const ready = useRef(onReady);
   ready.current = onReady;

@@ -245,10 +245,10 @@ export const VIEWER_CSS = `
 `;
 
 export function injectStyles(doc: Document): void {
-  let style = doc.querySelector<HTMLStyleElement>("style[data-domdoc]");
+  let style = doc.querySelector<HTMLStyleElement>("style[data-filedom]");
   if (!style) {
     style = doc.createElement("style");
-    style.dataset.domdoc = "";
+    style.dataset.filedom = "";
     doc.head.appendChild(style);
   }
   if (style.textContent !== VIEWER_CSS) style.textContent = VIEWER_CSS;

@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 import { describe, expect, it, vi } from "vitest";
 import { BundleLoader } from "./bundles.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { openDocument } from "./open.js";
 
 const ascii = (text: string) => Uint8Array.from(text, (char) => char.charCodeAt(0));
@@ -50,7 +50,7 @@ describe("openDocument password retry", () => {
         name: "locked.pdf",
         getPassword: async () => null,
       }),
-    ).rejects.toMatchObject({ code: "pdf-encrypted" } satisfies Partial<DomdocError>);
+    ).rejects.toMatchObject({ code: "pdf-encrypted" } satisfies Partial<FiledomError>);
   });
 
   it("opens audio, video, archive, email, and csv through their bundles", async () => {

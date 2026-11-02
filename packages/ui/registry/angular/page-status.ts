@@ -1,8 +1,8 @@
 import { Component, computed, inject } from "@angular/core";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
 
 @Component({
-  selector: "domdoc-page-status",
+  selector: "filedom-page-status",
   standalone: true,
   template: `
     <span data-slot="page-status" class="max-w-48 truncate px-2 text-xs text-muted-foreground" [attr.title]="label()">
@@ -10,8 +10,8 @@ import { DomdocContext } from "@/components/domdoc/domdoc-provider";
     </span>
   `,
 })
-export class DomdocPageStatus {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomPageStatus {
+  private readonly ctx = inject(FiledomContext);
   readonly label = computed(() => {
     const document = this.ctx.snapshot()?.document;
     if (!document) return "No document";

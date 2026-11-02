@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildDebugReport, caretUnits, unitsInAction, unitsMentioned, type DebugSnapshot } from "./debug-report.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 function snapshot(patch: Partial<DebugSnapshot> = {}): DebugSnapshot {
   return {
@@ -50,8 +50,8 @@ describe("debug report", () => {
     const report = buildDebugReport(snapshot());
     expect(report.startsWith("Debug and fix this error")).toBe(true);
     expect(report).toContain("paragraph t0r31 contains native content that is preserved but not editable");
-    expect(report).toContain("domdoc-wasm/crates/core/src/flow/edit.rs");
-    expect(report).toContain("domdoc-wasm/crates/open/src/office.rs");
+    expect(report).toContain("wasm/crates/core/src/flow/edit.rs");
+    expect(report).toContain("wasm/crates/open/src/office.rs");
     expect(report).toContain("mergeable");
     expect(report).toContain("report.docx");
     expect(report).toContain('"type": "text"');
@@ -68,7 +68,7 @@ describe("debug report", () => {
 
   it("keeps the original stack when an engine message is wrapped", () => {
     const cause = new Error("read-only: p3 cannot be edited");
-    const error = DomdocError.from(cause);
+    const error = FiledomError.from(cause);
     expect(error.stack).toBe(cause.stack);
     expect(error.code).toBe("read-only");
   });

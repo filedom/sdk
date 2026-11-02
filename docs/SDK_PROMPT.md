@@ -1,8 +1,8 @@
-# domdoc-sdk — SDK prompt
+# sdk — SDK prompt
 
 Revision: **18 October 2026**.
 
-This repository is the public viewer and the framework adapters. The engine, fixtures, visual corpus and delivery lanes live in the sibling `domdoc-wasm` repository. When both trees are checked out, execute one ready lane of `../domdoc-wasm/docs/Domdoc_Delivery_Workflow.md`. A red lane blocks only lanes that name it. The feature list is `../domdoc-wasm/docs/Domdoc_Feature_Programme.md`. Do not copy engine source, fixtures, or `pkg/` into this repo. Do not edit `engine-types.ts` unless you are the contract lane. Do not raise `VISUAL_MAX_DIFF`.
+This repository is the public viewer and the framework adapters. The engine, fixtures, visual corpus and delivery lanes live in the sibling `wasm` repository. When both trees are checked out, execute one ready lane of `../wasm/docs/Filedom_Delivery_Workflow.md`. A red lane blocks only lanes that name it. The feature list is `../wasm/docs/Filedom_Feature_Programme.md`. Do not copy engine source, fixtures, or `pkg/` into this repo. Do not edit `engine-types.ts` unless you are the contract lane. Do not raise `VISUAL_MAX_DIFF`.
 
 ## What this repo owns
 
@@ -23,7 +23,7 @@ This repository is the public viewer and the framework adapters. The engine, fix
 
 ## Tests that count
 
-A change a user can see needs a test that asserts the expected result from the active lane. In this repo that is a vitest which does not need the private fixtures: lifecycle, capability flags, event forwarding, chrome presets once they exist. Browser journeys and visual diffs run in `domdoc-wasm/host` against local bundles.
+A change a user can see needs a test that asserts the expected result from the active lane. In this repo that is a vitest which does not need the private fixtures: lifecycle, capability flags, event forwarding, chrome presets once they exist. Browser journeys and visual diffs run in `wasm/host` against local bundles.
 
 ```bash
 pnpm install && pnpm build && pnpm test

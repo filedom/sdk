@@ -1,16 +1,16 @@
 ---
 name: release-commit
 description: >-
-  Set the shared domdoc version (patch, minor, major, or an exact number) and
+  Set the shared filedom version (patch, minor, major, or an exact number) and
   write a short changelog in each repo, then commit when asked. Use when the
   user asks to commit, ship, release, bump a version, or add a changelog entry.
 ---
 
 # Release commit
 
-When the user asks to commit, ship, or release work, set one version on every domdoc repo and record a short changelog in each repo. Do this before the version commit. If they did not ask to commit, stop after the version and changelog update.
+When the user asks to commit, ship, or release work, set one version on every filedom repo and record a short changelog in each repo. Do this before the version commit. If they did not ask to commit, stop after the version and changelog update.
 
-`domdoc-sdk`, `domdoc-wasm`, `domdoc-api`, `domdoc-website`, and `domdoc-benchmarks` share one version number. Each repo keeps its own `CHANGELOG.md`. The note in a repo lists only commits in that repo since its previous changelog version. A repo with no code commits still gets the new version: one sentence that the version moved to match the other repos, and no feature bullets.
+`sdk`, `wasm`, `api`, `website`, and `benchmarks` share one version number. Each repo keeps its own `CHANGELOG.md`. The note in a repo lists only commits in that repo since its previous changelog version. A repo with no code commits still gets the new version: one sentence that the version moved to match the other repos, and no feature bullets.
 
 The shared command refuses a repo with uncommitted changes and names that repo. Uncommitted files are not a changelog. If repos that already have a version are not on the same version, it prints each version and stops. A missing version field is printed as `(none)` in that list. When the other repos agree, that repo still receives the shared number. Do not guess, and do not bump one repo on its own.
 
@@ -75,10 +75,10 @@ The version moved to 0.2.0 to match the other repos.
 ```bash
 node scripts/release.mjs \
   --shared \
-  --root /absolute/path/to/domdoc \
+  --root /absolute/path/to/filedom \
   --bump patch \
-  --repo-summary domdoc-sdk "The caret stays visible after a format switch." \
-  --repo-summary domdoc-wasm "A long word without spaces wraps onto the next line."
+  --repo-summary sdk "The caret stays visible after a format switch." \
+  --repo-summary wasm "A long word without spaces wraps onto the next line."
 ```
 
 An exact version:
@@ -86,14 +86,14 @@ An exact version:
 ```bash
 node scripts/release.mjs \
   --shared \
-  --root /absolute/path/to/domdoc \
+  --root /absolute/path/to/filedom \
   --version 0.2.0 \
-  --repo-summary domdoc-sdk "The caret stays visible after a format switch."
+  --repo-summary sdk "The caret stays visible after a format switch."
 ```
 
 The script checks that every existing repo is clean. Repos that already have a version must share it. If they do not, it prints each version, including `(none)` where a repo has no version field, and stops.
 
-`domdoc-benchmarks` may have no `version` field yet. When the other repos agree, the script adds `version` to its `package.json` and writes the same number there. It also sets each root `package.json` `version` to that number, and any other `package.json` `version` still on the current version. In `domdoc-wasm` the release version is the Cargo workspace version: the script sets `[workspace.package]` `version` to the same number, plus crate `version = "…"` lines and `domdoc-*` entries in `Cargo.lock` that are still on the current version. It inserts each note at the top of that repo's `CHANGELOG.md`.
+`benchmarks` may have no `version` field yet. When the other repos agree, the script adds `version` to its `package.json` and writes the same number there. It also sets each root `package.json` `version` to that number, and any other `package.json` `version` still on the current version. In `wasm` the release version is the Cargo workspace version: the script sets `[workspace.package]` `version` to the same number, plus crate `version = "…"` lines and `filedom-*` entries in `Cargo.lock` that are still on the current version. It inserts each note at the top of that repo's `CHANGELOG.md`.
 
 Read the printed sections. If the wording is rejected, put every repo back on the previous number, then run the command again. Do not hand-edit a subset of the version files.
 
@@ -110,3 +110,26 @@ Subject is the version, an em dash, and that repo's summary. The body is the bul
 ```
 
 Follow the usual git safety rules: no config changes, no `--no-verify`, no force push, no amend unless the user asked and the amend rules allow it. Do not push. Say the shared version and the bump in the reply.
+
+## Install wasm bundles
+
+Run this only when the user asked to release or ship, and only after the version commit in `wasm`. A commit, a changelog edit, or a version bump on its own does not install bundles.
+
+The shared version is `[workspace.package] version` in `wasm/Cargo.toml`. `package.json` `version` matches it. `upload-bundles.mjs` reads that Cargo field.
+
+From `wasm`:
+
+```bash
+node scripts/build-bundles.mjs
+node scripts/publish-cdn.mjs
+node scripts/upload-bundles.mjs --dry-run
+node scripts/upload-bundles.mjs
+```
+
+`publish-cdn.mjs` copies plaintext wasm. It does not seal, and it does not write a content key. It does not upload.
+
+Read the dry-run. It prints each object key, including `<version>/pdf/filedom_pdf.js` and `latest.json` last, and uploads nothing. Then run the upload. `upload-bundles.mjs` puts those objects in the Cloudflare R2 bucket `filedom`. Versioned objects are `<version>/<format>/filedom_<format>.js` and `filedom_<format>_bg.wasm`. `latest.json` is written last. An existing version prefix is refused. Older versions are not deleted.
+
+A real upload reads `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment. If one is missing, the script stops and names it. Stop with it. Do not skip the upload and continue. A version bump that is not a release does not upload.
+
+The CDN worker serves `https://cdn.filedom.io`. The API does not serve wasm. Website and docs deploys are separate steps in those repos. This section is only the wasm bundles.

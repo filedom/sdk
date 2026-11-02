@@ -24,7 +24,7 @@ import {
   type DebugSnapshot,
   type DebugUnit,
 } from "./debug-report.js";
-import type { DomdocDocument, DocumentChange } from "./document.js";
+import type { FiledomDocument, DocumentChange } from "./document.js";
 import { replacementOrder } from "./replace-text.js";
 import { elementFactory, placeAt, type ElementFactory } from "./dom.js";
 import {
@@ -58,7 +58,7 @@ import {
   type UnitRange,
 } from "./engine-types.js";
 import { upgradeLazyEdit } from "./edit-lazy.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { FileStore, type StoredFile } from "./file-store.js";
 import { ACCEPT, detectFormat, fileKind } from "./formats.js";
 import { placeMedia } from "./media-view.js";
@@ -133,7 +133,7 @@ export interface ViewerOptions {
    * document's runs are not Helvetica or Arial.
    */
   fontsBase?: string;
-  /** Lazy `domdoc_fonts.wasm` glue directory. Omitted: that module is not fetched. */
+  /** Lazy `filedom_fonts.wasm` glue directory. Omitted: that module is not fetched. */
   fontsWasmBase?: string;
   /** Unused. Editing is inside the PDF and office bundles. */
   editWasmBase?: string;
@@ -162,7 +162,7 @@ export interface SelectionState {
 }
 
 export interface ViewerEvents {
-  open: { document: DomdocDocument };
+  open: { document: FiledomDocument };
   close: Record<string, never>;
   change: { command: Command; result: CommandResult };
   selection: SelectionState | null;
@@ -172,7 +172,7 @@ export interface ViewerEvents {
   annotation: Annotation;
   /** The host can swap bytes for the selected image. */
   replaceImage: { id: string; page: number; file: File };
-  error: { error: DomdocError };
+  error: { error: FiledomError };
   export: { name: string; blob: Blob };
   zoom: { zoom: number };
   /** The palette on screen. `system` reports the light or dark it resolved to. */
@@ -201,7 +201,7 @@ function fileExtension(name: string): string {
   return match?.[1]?.toLowerCase() ?? "";
 }
 
-export class DomdocViewer {
+export class FiledomViewer {
   readonly files: FileStore;
   readonly components: ComponentRegistry;
   private readonly loader: BundleLoader;
@@ -239,10 +239,10 @@ export class DomdocViewer {
   /** Frozen when the error was raised, so a later click still describes that failure. */
   private lastReport?: DebugSnapshot;
   /** The error already written into `lastReport`, so a rethrow does not capture it again. */
-  private reportedError?: DomdocError;
+  private reportedError?: FiledomError;
   /** True until `open` has swapped in the new document, so a rejected file is not described as the one on screen. */
   private hideOpenDocument = false;
-  private doc?: DomdocDocument;
+  private doc?: FiledomDocument;
   private zoomValue: number;
   private author: string;
   private highlightColor: string;
@@ -334,9 +334,9 @@ export class DomdocViewer {
     private readonly options: ViewerOptions,
   ) {
     const host = globalThis as typeof globalThis & {
-      __domdoc?: { rasterGlyph?: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined };
+      __filedom?: { rasterGlyph?: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined };
     };
-    if (!host.__domdoc) host.__domdoc = { rasterGlyph: () => undefined };
+    if (!host.__filedom) host.__filedom = { rasterGlyph: () => undefined };
     injectStyles(root.ownerDocument);
     this.h = elementFactory(root.ownerDocument);
     this.files = options.files ?? new FileStore();
@@ -346,7 +346,7 @@ export class DomdocViewer {
     }
     this.loader = new BundleLoader(options.bundles ?? {});
     this.zoomValue = clampZoom(options.zoom ?? 1);
-    this.author = options.author ?? "domdoc";
+    this.author = options.author ?? "filedom";
     this.highlightColor = options.highlightColor ?? "#ffeb3b";
     this.viewModeValue = options.readOnly ? "view" : (options.viewMode ?? "live");
     this.modePinned = Boolean(options.readOnly || options.viewMode);
@@ -565,7 +565,7 @@ export class DomdocViewer {
     this.el.dir = dir;
   }
 
-  get document(): DomdocDocument | undefined {
+  get document(): FiledomDocument | undefined {
     return this.doc;
   }
 
@@ -610,7 +610,7 @@ export class DomdocViewer {
   }
 
   /** Opens a picked/dropped file, bytes, URL, FileStore id or StoredFile. */
-  async open(source: OpenSource, options: { name?: string } = {}): Promise<DomdocDocument> {
+  async open(source: OpenSource, options: { name?: string } = {}): Promise<FiledomDocument> {
     this.toolbar?.clearError();
     this.recentEdits.length = 0;
     const previous = this.inflight;
@@ -660,7 +660,7 @@ export class DomdocViewer {
     try {
       const headers = new Headers({ "content-type": "application/json" });
       const key = this.options.licenseKey?.trim();
-      if (key) headers.set("x-domdoc-license-key", key);
+      if (key) headers.set("x-filedom-license-key", key);
       const response = await fetch(`${base}/open`, {
         method: "POST",
         headers,
@@ -681,7 +681,7 @@ export class DomdocViewer {
   /** Paints the trial banner from the last open ping. Nothing is stored. */
   private syncTrialBanner(): void {
     this.trialEl.hidden = !this.trial;
-    this.trialEl.textContent = this.trial ? "Trial: unlicensed domdoc" : "";
+    this.trialEl.textContent = this.trial ? "Trial: unlicensed filedom" : "";
   }
 
   /** Blank page and spinner. Stays up until the engines for this file finish. */
@@ -730,7 +730,7 @@ export class DomdocViewer {
     return "Loading";
   }
 
-  /** Loads `fonts.wasm` and wires `globalThis.__domdoc.rasterGlyph` for cold DOCX/DOC bundles. */
+  /** Loads `fonts.wasm` and wires `globalThis.__filedom.rasterGlyph` for cold DOCX/DOC bundles. */
   private async ensureFontsModule(): Promise<void> {
     if (this.fontsModule) return this.fontsModule;
     const base = this.options.fontsWasmBase;
@@ -738,16 +738,16 @@ export class DomdocViewer {
     const root = base.endsWith("/") ? base : `${base}/`;
     this.fontsModule = (async () => {
       try {
-        const mod = (await import(/* @vite-ignore */ `${root}domdoc_fonts.js`)) as {
+        const mod = (await import(/* @vite-ignore */ `${root}filedom_fonts.js`)) as {
           default: () => Promise<void>;
           rasterGlyph: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined;
         };
         await mod.default();
         const raster = mod.rasterGlyph.bind(mod);
         const host = globalThis as typeof globalThis & {
-          __domdoc: { rasterGlyph: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined };
+          __filedom: { rasterGlyph: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined };
         };
-        host.__domdoc = {
+        host.__filedom = {
           rasterGlyph(face: Uint8Array, ch: string, sizePx: number) {
             return raster(face, ch, sizePx);
           },
@@ -764,7 +764,7 @@ export class DomdocViewer {
    * before the first paint. A fixed-layout page already carries its own fonts.
    * Serif metrics stay off the cold path until a run actually asks for them.
    */
-  private async ensureFonts(doc: DomdocDocument): Promise<void> {
+  private async ensureFonts(doc: FiledomDocument): Promise<void> {
     const base = this.options.fontsBase;
     if (!base || !doc.info().capabilities.flowEmbeds) return;
     await this.ensureFontsModule();
@@ -789,7 +789,7 @@ export class DomdocViewer {
     const root = base.endsWith("/") ? base : `${base}/`;
     const bytes = async (file: string) => {
       const response = await fetch(`${root}${file}`);
-      if (!response.ok) throw new DomdocError("bad-command", file);
+      if (!response.ok) throw new FiledomError("bad-command", file);
       return new Uint8Array(await response.arrayBuffer());
     };
     const outline = async (slot: string, file: string) => {
@@ -923,7 +923,7 @@ export class DomdocViewer {
       try {
         return this.doc.apply(command);
       } catch (error) {
-        const failure = DomdocError.from(error);
+        const failure = FiledomError.from(error);
         if (failure.code !== "need" || failure.detail !== "edit") throw failure;
         await upgradeLazyEdit(this.doc);
         await this.ensureFonts(this.doc);
@@ -931,7 +931,7 @@ export class DomdocViewer {
         return this.doc.apply(command);
       }
     } catch (error) {
-      const failure = DomdocError.from(error);
+      const failure = FiledomError.from(error);
       // Live mode asks every file to record track changes. A format that cannot
       // does not become an error banner.
       if (command.type === "setTrackChanges" && failure.code === "unsupported") return undefined;
@@ -1012,7 +1012,7 @@ export class DomdocViewer {
     if (!this.doc.info().capabilities.formatText) {
       const action = { type: "format" as const, ranges: ranges.length ? ranges : this.activeRanges(), style };
       this.noteEdit(action);
-      this.fail(new DomdocError("unsupported", "text formatting"), action);
+      this.fail(new FiledomError("unsupported", "text formatting"), action);
       return undefined;
     }
     if (!ranges.length) {
@@ -1036,7 +1036,7 @@ export class DomdocViewer {
     if (!this.doc.info().capabilities.formatParagraph) {
       const action = { type: "setParagraph" as const, units, style };
       this.noteEdit(action);
-      this.fail(new DomdocError("unsupported", "paragraph formatting"), action);
+      this.fail(new FiledomError("unsupported", "paragraph formatting"), action);
       return undefined;
     }
     return this.apply({ type: "setParagraph", units, style });
@@ -1378,7 +1378,7 @@ export class DomdocViewer {
     try {
       doc.exportBytes();
     } catch (error) {
-      const failure = DomdocError.from(error);
+      const failure = FiledomError.from(error);
       if (failure.code !== "need" || failure.detail !== "edit") throw failure;
       await upgradeLazyEdit(doc);
       await this.ensureFonts(doc);
@@ -1444,7 +1444,7 @@ export class DomdocViewer {
       pick: () => this.pick(),
       newFile: () => this.openNewFile(),
       download: () => this.download(),
-      storeDomdoc: () => this.apply({ type: "storeDomdoc" }),
+      storeFiledom: () => this.apply({ type: "storeFiledom" }),
       exportFile: () => this.download(),
       undo: () => this.undo(),
       redo: () => this.redo(),
@@ -1920,7 +1920,7 @@ export class DomdocViewer {
     return this.shownRect(page.runs, line);
   }
 
-  private gestureFromDrag(drag: NonNullable<DomdocViewer["drag"]>): ElementGesture {
+  private gestureFromDrag(drag: NonNullable<FiledomViewer["drag"]>): ElementGesture {
     return {
       mode: drag.mode,
       xPt: drag.x,
@@ -2142,7 +2142,7 @@ export class DomdocViewer {
           : this.doc?.info().capabilities.insert
             ? ["text-box", "shape"]
             : [],
-        isDomdoc: this.doc?.name.toLowerCase().endsWith(".domdoc") ?? false,
+        isFiledom: this.doc?.name.toLowerCase().endsWith(".filedom") ?? false,
         helpOn: this.helpOn,
         toolbarsLocked: this.toolbarsLocked,
         hiddenGroups: this.hiddenGroups,
@@ -2181,8 +2181,8 @@ export class DomdocViewer {
     this.toolbar?.setStatus(message, tone);
   }
 
-  private fail(error: unknown, action?: unknown): DomdocError {
-    const failure = DomdocError.from(error);
+  private fail(error: unknown, action?: unknown): FiledomError {
+    const failure = FiledomError.from(error);
     if (failure === this.reportedError) return failure;
     this.reportedError = failure;
     this.lastReport = this.captureReport(failure, action ?? this.inflight);
@@ -2199,12 +2199,12 @@ export class DomdocViewer {
   private debugReport(): string {
     return buildDebugReport(
       this.lastReport ??
-        this.captureReport(new DomdocError("engine", "unknown error")),
+        this.captureReport(new FiledomError("engine", "unknown error")),
     );
   }
 
   /** State Cursor needs for the error on screen. Collection never hides the original failure. */
-  private captureReport(failure: DomdocError, action?: unknown): DebugSnapshot {
+  private captureReport(failure: FiledomError, action?: unknown): DebugSnapshot {
     const opening = action && typeof action === "object" && (action as { type?: string }).type === "open";
     const snapshot: DebugSnapshot = {
       error: {
@@ -2236,7 +2236,7 @@ export class DomdocViewer {
     return snapshot;
   }
 
-  private fillReport(snapshot: DebugSnapshot, failure: DomdocError, action?: unknown): void {
+  private fillReport(snapshot: DebugSnapshot, failure: FiledomError, action?: unknown): void {
     const doc = this.doc;
     if (!doc) return;
     const stored = doc.fileId ? this.files.get(doc.fileId) : undefined;
@@ -2489,13 +2489,13 @@ export class DomdocViewer {
     this.placeAnnotationCard();
   }
 
-  private canvasKey(view: ReturnType<DomdocDocument["page"]>, scale: number): string {
+  private canvasKey(view: ReturnType<FiledomDocument["page"]>, scale: number): string {
     const face = this.markup();
     if (!view.rasterized) return `${face}@${flowPaintKey(view, scale)}`;
     return `pdf@${face}@${scale.toFixed(3)}@${this.highlightKey(view)}@${flowPaintKey(view, 1)}@${objectPaintKey(view)}`;
   }
 
-  private highlightKey(view: ReturnType<DomdocDocument["page"]>): string {
+  private highlightKey(view: ReturnType<FiledomDocument["page"]>): string {
     return view.highlights.map((mark) => `${mark.xPt},${mark.yPt},${mark.widthPt},${mark.heightPt},${mark.color}`).join(";");
   }
 
@@ -2530,7 +2530,7 @@ export class DomdocViewer {
     this.drawOverlay(slot, view);
   }
 
-  private drawCanvas(slot: PageSlot, view: ReturnType<DomdocDocument["page"]>, scale: number): boolean {
+  private drawCanvas(slot: PageSlot, view: ReturnType<FiledomDocument["page"]>, scale: number): boolean {
     const doc = this.doc;
     if (!doc) return false;
     try {
@@ -2549,7 +2549,7 @@ export class DomdocViewer {
   }
 
   /** Paints the PDF page from its own fonts. Edited glyphs are drawn over that raster; the bitmap itself is not shifted, so a picture on the same band stays put. */
-  private drawRaster(slot: PageSlot, view: ReturnType<DomdocDocument["page"]>, scale: number): boolean {
+  private drawRaster(slot: PageSlot, view: ReturnType<FiledomDocument["page"]>, scale: number): boolean {
     const doc = this.doc;
     if (!doc) return false;
     const raster = doc.raster(slot.index, scale);
@@ -2571,7 +2571,7 @@ export class DomdocViewer {
     return true;
   }
 
-  private drawText(slot: PageSlot, view: ReturnType<DomdocDocument["page"]>): void {
+  private drawText(slot: PageSlot, view: ReturnType<FiledomDocument["page"]>): void {
     const markup = this.markup();
     const key = `${markup}:${textLayerKey(view)}`;
     if (slot.textKey === key) return;
@@ -2581,7 +2581,7 @@ export class DomdocViewer {
 
   /** Strike for removed characters and an underline for added ones, on the glyphs themselves. */
   private drawDiff(
-    view: ReturnType<DomdocDocument["page"]>,
+    view: ReturnType<FiledomDocument["page"]>,
     add: (rect: { xPt: number; yPt: number; widthPt: number; heightPt: number }, className: string) => HTMLElement,
   ): void {
     for (const run of view.runs) {
@@ -2591,7 +2591,7 @@ export class DomdocViewer {
     }
   }
 
-  private drawOverlay(slot: PageSlot, view: ReturnType<DomdocDocument["page"]>): void {
+  private drawOverlay(slot: PageSlot, view: ReturnType<FiledomDocument["page"]>): void {
     const doc = this.doc;
     const marks: HTMLElement[] = [];
     const add = (rect: { xPt: number; yPt: number; widthPt: number; heightPt: number }, className: string) => {
@@ -2635,7 +2635,7 @@ export class DomdocViewer {
   /** Frame, move grip, resize corners, and rotate handle for the selected element. */
   private drawElement(
     slot: PageSlot,
-    view: ReturnType<DomdocDocument["page"]>,
+    view: ReturnType<FiledomDocument["page"]>,
     marks: HTMLElement[],
   ): void {
     if (!this.picked || this.picked.page !== slot.index) return;
@@ -3425,7 +3425,7 @@ export class DomdocViewer {
         } else if (!edited) this.scheduleChrome();
         this.emit("selection", this.selectionEvent());
       } else if (event.type === "error") {
-        this.fail(new DomdocError(event.code, event.detail));
+        this.fail(new FiledomError(event.code, event.detail));
       }
     }
   }

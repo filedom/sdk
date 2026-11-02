@@ -88,7 +88,7 @@ export function bindInk(library: InkLibrary, faces: InkSlot): void {
   slots = faces;
   cache.clear();
   generation += 1;
-  (globalThis as typeof globalThis & { __domdocInkGeneration?: () => number }).__domdocInkGeneration =
+  (globalThis as typeof globalThis & { __filedomInkGeneration?: () => number }).__filedomInkGeneration =
     inkGeneration;
 }
 

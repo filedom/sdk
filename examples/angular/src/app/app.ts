@@ -1,14 +1,14 @@
 import { Component } from "@angular/core";
-import { bundlesFromCdn, type ViewerOptions } from "@domdoc/core";
-import { DomdocProvider } from "@/components/domdoc/domdoc-provider";
-import { DomdocToolbar } from "@/components/domdoc/toolbar";
-import { DomdocViewerShell } from "@/components/domdoc/viewer-shell";
+import { bundlesFromCdn, type ViewerOptions } from "@filedom/core";
+import { FiledomProvider } from "@/components/filedom/filedom-provider";
+import { FiledomToolbar } from "@/components/filedom/toolbar";
+import { FiledomViewerShell } from "@/components/filedom/viewer-shell";
 
-declare const DOMDOC_EXAMPLES_BUNDLES: string;
+declare const FILEDOM_EXAMPLES_BUNDLES: string;
 
 /** Bundle root fixed by the Angular `define` option. */
 function bundleBase(): string {
-  const configured = typeof DOMDOC_EXAMPLES_BUNDLES === "string" ? DOMDOC_EXAMPLES_BUNDLES.trim() : "";
+  const configured = typeof FILEDOM_EXAMPLES_BUNDLES === "string" ? FILEDOM_EXAMPLES_BUNDLES.trim() : "";
   return `${(configured || "/api/bundles/0.0.1/").replace(/\/+$/, "")}/`;
 }
 
@@ -17,12 +17,12 @@ const bundles = bundleBase();
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [DomdocProvider, DomdocToolbar, DomdocViewerShell],
+  imports: [FiledomProvider, FiledomToolbar, FiledomViewerShell],
   template: `
-    <domdoc-provider class="flex h-dvh flex-col bg-background font-sans text-foreground antialiased">
-      <domdoc-toolbar />
-      <domdoc-viewer-shell class="min-h-0 flex-1" [options]="options" />
-    </domdoc-provider>
+    <filedom-provider class="flex h-dvh flex-col bg-background font-sans text-foreground antialiased">
+      <filedom-toolbar />
+      <filedom-viewer-shell class="min-h-0 flex-1" [options]="options" />
+    </filedom-provider>
   `,
 })
 export class App {

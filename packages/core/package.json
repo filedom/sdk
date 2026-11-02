@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/core",
+  "name": "@filedom/core",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc web SDK. The viewer talks to the domdoc WebAssembly bundles. The pdf renderer is inside the pdf wasm; Office is linked inside the office bundle.",
+  "description": "filedom web SDK. The viewer talks to the filedom WebAssembly bundles. The pdf renderer is inside the pdf wasm; Office is linked inside the office bundle.",
   "type": "module",
   "sideEffects": false,
   "exports": {

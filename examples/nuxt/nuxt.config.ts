@@ -10,21 +10,21 @@ function withSlash(path: string): string {
   return path.endsWith("/") ? path : `${path}/`;
 }
 
-const baseURL = withSlash(process.env.DOMDOC_BASE || "/sdk-docs/examples/nuxt/");
+const baseURL = withSlash(process.env.FILEDOM_BASE || "/sdk-docs/examples/nuxt/");
 
 export default defineNuxtConfig({
   ssr: false,
   compatibilityDate: "2026-10-31",
   app: {
     baseURL,
-    head: { title: "domdoc Nuxt" },
+    head: { title: "filedom Nuxt" },
   },
   css: ["~/assets/css/main.css"],
   vite: {
     plugins: [excludeEngineWasm(), tailwindcss()],
-    envPrefix: ["VITE_", "DOMDOC_"],
+    envPrefix: ["VITE_", "FILEDOM_"],
     define: {
-      "import.meta.env.DOMDOC_EXAMPLES_BUNDLES": JSON.stringify(process.env.DOMDOC_EXAMPLES_BUNDLES ?? ""),
+      "import.meta.env.FILEDOM_EXAMPLES_BUNDLES": JSON.stringify(process.env.FILEDOM_EXAMPLES_BUNDLES ?? ""),
     },
   },
 });

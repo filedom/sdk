@@ -1,5 +1,5 @@
 /**
- * Reads examples/<fw>/domdoc-example.json at build time and publishes the
+ * Reads examples/<fw>/filedom-example.json at build time and publishes the
  * manifest plus the integration files it lists. A framework with no manifest
  * is skipped. A manifest that names a missing file fails the build.
  */
@@ -23,7 +23,7 @@ interface LoadedUi {
   validateJson: UiModule["validateJson"];
 }
 
-export const EXAMPLE_SOURCES_PLUGIN_NAME = "domdoc-example-sources";
+export const EXAMPLE_SOURCES_PLUGIN_NAME = "filedom-example-sources";
 
 const FILE_ROLES = ["page", "css", "config"] as const;
 
@@ -109,10 +109,10 @@ export function loadExampleSources(siteDir: string, examplesDir = defaultExample
 }
 
 // Docusaurus loads plugins inside a vm and with jiti, which rewrites imports to require().
-// @domdoc/ui is ESM-only, so the contract values are read from its built files.
+// @filedom/ui is ESM-only, so the contract values are read from its built files.
 function loadUi(siteDir: string): LoadedUi {
   const require = createRequire(path.join(siteDir, "package.json"));
-  const schemaPath = require.resolve("@domdoc/ui/schema/domdoc-example.schema.json");
+  const schemaPath = require.resolve("@filedom/ui/schema/filedom-example.schema.json");
   const packageRoot = path.resolve(path.dirname(schemaPath), "..");
   const schema = JSON.parse(readFileSync(schemaPath, "utf8")) as JsonSchema;
   const contracts = evaluateModule(path.join(packageRoot, "dist", "contracts.js"), ["FRAMEWORKS", "EXAMPLE_MANIFEST"]);
@@ -136,7 +136,7 @@ export default function exampleSourcesPlugin(context: LoadContext): Plugin {
     async loadContent(): Promise<ExampleSourcesData> {
       const content = loadExampleSources(context.siteDir);
       const names = content.examples.map((example) => example.framework);
-      console.log(`[domdoc-example-sources] ${names.length} manifest${names.length === 1 ? "" : "s"}: ${names.join(", ") || "none"}`);
+      console.log(`[filedom-example-sources] ${names.length} manifest${names.length === 1 ? "" : "s"}: ${names.join(", ") || "none"}`);
       return content;
     },
     async contentLoaded({ content, actions }) {

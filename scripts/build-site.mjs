@@ -6,7 +6,7 @@
 // 1. `pnpm run build` in apps/docs (skipped with --skip-docs; the build must exist).
 // 2. build-examples for the chosen frameworks (skipped with --skip-examples; staging is reused).
 // 3. Copy <staging>/<fw>/ to apps/docs/build/examples/<fw>/ and write samples/hello.pdf.
-// 4. Fail if the build mentions domdoc.dev or an example references /wasm/.
+// 4. Fail if the build mentions filedom.dev or an example references /wasm/.
 // --strict also fails when any chosen example has no staged output.
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
@@ -30,7 +30,7 @@ import {
   readFlag,
 } from "./site-lib.mjs";
 
-export const RETIRED_HOST = "domdoc.dev";
+export const RETIRED_HOST = "filedom.dev";
 
 /** Copy staged examples and the sample into `buildDir`, then scan it. */
 export function composeSite({ buildDir = DOCS_BUILD, staging = DEFAULT_STAGING, frameworks = FRAMEWORKS } = {}) {

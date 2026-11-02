@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 
 /** Hover and focus label. The trigger is projected; the bubble is visual only. */
 @Component({
-  selector: "domdoc-tooltip",
+  selector: "filedom-tooltip",
   standalone: true,
   template: `
     <span data-slot="tooltip" class="group relative inline-flex">
@@ -18,6 +18,6 @@ import { Component, Input } from "@angular/core";
     </span>
   `,
 })
-export class DomdocTooltip {
+export class FiledomTooltip {
   @Input() text = "";
 }

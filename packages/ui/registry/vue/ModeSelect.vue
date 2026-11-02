@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import Select from "@/components/domdoc/Select.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Select from "@/components/filedom/Select.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, run } = useDomdoc();
+const { snapshot, run } = useFiledom();
 const live = computed(() => controlFor(snapshot.value, "live"));
 const track = computed(() => controlFor(snapshot.value, "track"));
 const view = computed(() => controlFor(snapshot.value, "view"));

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { FolderOpen } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import Tooltip from "@/components/domdoc/Tooltip.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import Tooltip from "@/components/filedom/Tooltip.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, run } = useDomdoc();
+const { snapshot, run } = useFiledom();
 const open = computed(() => controlFor(snapshot.value, "open"));
 </script>
 

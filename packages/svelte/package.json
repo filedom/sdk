@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/svelte",
+  "name": "@filedom/svelte",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc Svelte action wrapping @domdoc/core",
+  "description": "filedom Svelte action wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*"
+    "@filedom/core": "workspace:*"
   },
   "peerDependencies": {
     "svelte": "^4.0.0 || ^5.0.0"

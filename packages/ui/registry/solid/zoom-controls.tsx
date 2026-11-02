@@ -1,12 +1,12 @@
 import { Show } from "solid-js";
 import { Expand, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide-solid";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Separator } from "@/components/domdoc/separator";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Separator } from "@/components/filedom/separator";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 export function ZoomControls() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const zoomOut = useAction("zoomOut", "Zoom out");
   const zoomReset = useAction("zoomReset", "Actual size");
   const zoomIn = useAction("zoomIn", "Zoom in");

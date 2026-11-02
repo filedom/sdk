@@ -1,9 +1,9 @@
 import type { DragEvent, ReactNode } from "react";
 import { useState } from "react";
-import { Button } from "@/components/domdoc/button";
-import { useDomdoc } from "@/components/domdoc/domdoc-provider";
+import { Button } from "@/components/filedom/button";
+import { useFiledom } from "@/components/filedom/filedom-provider";
 import { cn, plainClass } from "@/lib/cn";
-import type { ViewerStore, ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStore, ViewerStoreSnapshot } from "@filedom/core";
 
 const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
 
@@ -25,7 +25,7 @@ async function openSample(store: ViewerStore): Promise<void> {
 }
 
 export function ViewerShell({ children, className }: { children?: ReactNode; className?: string }) {
-  const { store, snapshot } = useDomdoc();
+  const { store, snapshot } = useFiledom();
   const state = shellState(snapshot);
   const [sampleError, setSampleError] = useState<string | null>(null);
   const showEmpty = state === "empty" || state === "error";
@@ -44,7 +44,7 @@ export function ViewerShell({ children, className }: { children?: ReactNode; cla
   return (
     <div
       data-slot="viewer-shell"
-      data-domdoc-state={state}
+      data-filedom-state={state}
       className={cn("relative flex min-h-0 flex-1 flex-col bg-canvas text-foreground", plainClass(className))}
       onDragOver={onDragOver}
       onDrop={onDrop}

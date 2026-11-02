@@ -1,16 +1,16 @@
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { createElement, ChevronDown, ChevronUp, Search } from "lucide";
 import { LitElement, html } from "lit";
-import { button } from "@/components/domdoc/button";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import { textInput } from "@/components/domdoc/input";
-import { tooltip } from "@/components/domdoc/tooltip";
+import { button } from "@/components/filedom/button";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import { textInput } from "@/components/filedom/input";
+import { tooltip } from "@/components/filedom/tooltip";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-4", "aria-hidden": "true" });
 }
 
-export class DomdocSearchBarElement extends LitElement {
+export class FiledomSearchBarElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -20,7 +20,7 @@ export class DomdocSearchBarElement extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -38,13 +38,13 @@ export class DomdocSearchBarElement extends LitElement {
   }
 
   private onInput = (event: Event) => {
-    domdocProvider(this)?.store?.viewer.search((event.target as HTMLInputElement).value);
+    filedomProvider(this)?.store?.viewer.search((event.target as HTMLInputElement).value);
   };
 
   private onKeyDown = (event: KeyboardEvent) => {
     if (event.key !== "Enter") return;
     event.preventDefault();
-    domdocProvider(this)?.store?.run(event.shiftKey ? "findPrev" : "findNext");
+    filedomProvider(this)?.store?.run(event.shiftKey ? "findPrev" : "findNext");
   };
 
   override render() {
@@ -82,7 +82,7 @@ export class DomdocSearchBarElement extends LitElement {
             title: prev.title,
             ariaLabel: "Previous match",
             label: icon(ChevronUp),
-            onClick: () => domdocProvider(this)?.store?.run("findPrev"),
+            onClick: () => filedomProvider(this)?.store?.run("findPrev"),
           }),
         )}
         <span data-slot="search-count" class="min-w-12 px-1 text-center text-xs tabular-nums text-muted-foreground">${count}</span>
@@ -97,7 +97,7 @@ export class DomdocSearchBarElement extends LitElement {
             title: next.title,
             ariaLabel: "Next match",
             label: icon(ChevronDown),
-            onClick: () => domdocProvider(this)?.store?.run("findNext"),
+            onClick: () => filedomProvider(this)?.store?.run("findNext"),
           }),
         )}
       </div>
@@ -105,4 +105,4 @@ export class DomdocSearchBarElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-search-bar")) customElements.define("domdoc-search-bar", DomdocSearchBarElement);
+if (!customElements.get("filedom-search-bar")) customElements.define("filedom-search-bar", FiledomSearchBarElement);

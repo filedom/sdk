@@ -1,21 +1,21 @@
 import { Component, computed, inject } from "@angular/core";
-import { ACCEPT } from "@domdoc/core";
+import { ACCEPT } from "@filedom/core";
 import { FolderOpen, LucideAngularModule } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocTooltip } from "@/components/domdoc/tooltip";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomTooltip } from "@/components/filedom/tooltip";
 
 @Component({
-  selector: "domdoc-file-button",
+  selector: "filedom-file-button",
   standalone: true,
-  imports: [DomdocButton, DomdocTooltip, LucideAngularModule],
+  imports: [FiledomButton, FiledomTooltip, LucideAngularModule],
   host: { class: "relative inline-flex" },
   template: `
     <input #picker class="sr-only" type="file" tabindex="-1" [hidden]="open().hidden" [accept]="accept" (change)="openFile($event)" />
     @if (!open().hidden) {
-      <domdoc-tooltip [text]="open().title">
+      <filedom-tooltip [text]="open().title">
         <button
-          domdocButton
+          filedomButton
           slot="file-button"
           data-action="open"
           variant="icon"
@@ -26,12 +26,12 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
         >
           <lucide-icon [img]="openIcon" [size]="16" aria-hidden="true" />
         </button>
-      </domdoc-tooltip>
+      </filedom-tooltip>
     }
   `,
 })
-export class DomdocFileButton {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomFileButton {
+  private readonly ctx = inject(FiledomContext);
   readonly accept = ACCEPT;
   readonly openIcon = FolderOpen;
   readonly open = computed(() => this.ctx.control("open", "Open"));

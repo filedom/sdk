@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { ZoomIn, ZoomOut } from "lucide-react";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 function ZoomButton({
   actionId,
@@ -37,7 +37,7 @@ function ZoomButton({
 }
 
 export function ZoomControls() {
-  const { snapshot } = useDomdoc();
+  const { snapshot } = useFiledom();
   const reset = useAction("zoomReset");
   const percent = `${Math.round((snapshot?.zoom ?? 1) * 100)}%`;
   return (

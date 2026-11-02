@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { EngineModule } from "./engine-types.js";
 import { CoreLoader, type EngineSources } from "./modules.js";
-import { DomdocViewer } from "./viewer.js";
+import { FiledomViewer } from "./viewer.js";
 
 const PDF = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d]);
 
@@ -35,7 +35,7 @@ describe("empty layout while engines load", () => {
 
     const root = document.createElement("div");
     document.body.append(root);
-    const viewer = new DomdocViewer(root, {
+    const viewer = new FiledomViewer(root, {
       bundles: {},
       core: new CoreLoader({ pdf: true, docx: true }, sources),
     });

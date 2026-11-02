@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { Redo2, Undo2 } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import FileButton from "@/components/domdoc/FileButton.vue";
-import ModeSelect from "@/components/domdoc/ModeSelect.vue";
-import PageStatus from "@/components/domdoc/PageStatus.vue";
-import SearchBar from "@/components/domdoc/SearchBar.vue";
-import Separator from "@/components/domdoc/Separator.vue";
-import ThemeToggle from "@/components/domdoc/ThemeToggle.vue";
-import Tooltip from "@/components/domdoc/Tooltip.vue";
-import ZoomControls from "@/components/domdoc/ZoomControls.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import FileButton from "@/components/filedom/FileButton.vue";
+import ModeSelect from "@/components/filedom/ModeSelect.vue";
+import PageStatus from "@/components/filedom/PageStatus.vue";
+import SearchBar from "@/components/filedom/SearchBar.vue";
+import Separator from "@/components/filedom/Separator.vue";
+import ThemeToggle from "@/components/filedom/ThemeToggle.vue";
+import Tooltip from "@/components/filedom/Tooltip.vue";
+import ZoomControls from "@/components/filedom/ZoomControls.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, run } = useDomdoc();
+const { snapshot, run } = useFiledom();
 const undo = computed(() => controlFor(snapshot.value, "undo"));
 const redo = computed(() => controlFor(snapshot.value, "redo"));
 </script>

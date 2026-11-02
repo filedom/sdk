@@ -29,7 +29,7 @@ import {
   sitePathToFile,
 } from "./site-lib.mjs";
 
-const scratch = mkdtempSync(join(tmpdir(), "domdoc-site-"));
+const scratch = mkdtempSync(join(tmpdir(), "filedom-site-"));
 after(() => rmSync(scratch, { recursive: true, force: true }));
 
 function write(file, body = "") {
@@ -100,40 +100,40 @@ describe("site path mapping", () => {
 
 describe("/wasm/ is never served", () => {
   test("isForbiddenPath", () => {
-    for (const path of ["/wasm/", "/wasm", "/wasm/0.1.0/pdf/domdoc_pdf_bg.wasm", "/WASM/latest.json", "/%77asm/x", "/sdk-docs/../wasm/x", "/sdk-docs/%2e%2e/wasm/x"]) {
+    for (const path of ["/wasm/", "/wasm", "/wasm/0.1.0/pdf/filedom_pdf_bg.wasm", "/WASM/latest.json", "/%77asm/x", "/sdk-docs/../wasm/x", "/sdk-docs/%2e%2e/wasm/x"]) {
       assert.ok(isForbiddenPath(path), path);
     }
-    for (const path of ["/sdk-docs/", "/sdk-docs/wasm/notes/", "/wasmish", "/api/bundles/0.1.0/pdf/domdoc_pdf_bg.wasm"]) {
+    for (const path of ["/sdk-docs/", "/sdk-docs/wasm/notes/", "/wasmish", "/api/bundles/0.1.0/pdf/filedom_pdf_bg.wasm"]) {
       assert.ok(!isForbiddenPath(path), path);
     }
   });
 
   test("routeRequest refuses /wasm/ with 404 even with --bundles", () => {
-    assert.deepEqual(routeRequest("/wasm/0.1.0/pdf/domdoc_pdf.js", { bundles: "/tmp" }), { kind: "forbidden", status: 404 });
+    assert.deepEqual(routeRequest("/wasm/0.1.0/pdf/filedom_pdf.js", { bundles: "/tmp" }), { kind: "forbidden", status: 404 });
   });
 });
 
 describe("bundle route", () => {
   const pkg = dir("pkg");
-  const glue = write(join(pkg, "pdf", "domdoc_pdf.js"), "export default 1;");
-  const wasm = write(join(pkg, "pdf", "domdoc_pdf_bg.wasm"), "\0asm");
+  const glue = write(join(pkg, "pdf", "filedom_pdf.js"), "export default 1;");
+  const wasm = write(join(pkg, "pdf", "filedom_pdf_bg.wasm"), "\0asm");
   write(join(pkg, "pdf", "content-key.json"), "{}");
-  write(join(pkg, "pdf", "domdoc_pdf.d.ts"), "");
-  const office = write(join(pkg, "office", "domdoc_office.js"), "");
+  write(join(pkg, "pdf", "filedom_pdf.d.ts"), "");
+  const office = write(join(pkg, "office", "filedom_office.js"), "");
   write(join(pkg, "pdf", "pdfium.wasm"), "\0asm");
   const versioned = dir("bundle-dir");
-  const v2 = write(join(versioned, "2.0.0", "pdf", "domdoc_pdf.js"), "");
+  const v2 = write(join(versioned, "2.0.0", "pdf", "filedom_pdf.js"), "");
 
   test("--bundles maps /api/bundles/<version>/<format>/<file> onto the pkg layout", () => {
-    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/domdoc_pdf.js"), glue);
-    assert.equal(bundlePathToFile(pkg, "/api/bundles/latest/pdf/domdoc_pdf_bg.wasm"), wasm);
-    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/office/domdoc_office.js"), office);
-    assert.equal(routeRequest("/api/bundles/0.1.0/pdf/domdoc_pdf.js?ticket=t", { bundles: pkg }).file, glue);
+    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/filedom_pdf.js"), glue);
+    assert.equal(bundlePathToFile(pkg, "/api/bundles/latest/pdf/filedom_pdf_bg.wasm"), wasm);
+    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/office/filedom_office.js"), office);
+    assert.equal(routeRequest("/api/bundles/0.1.0/pdf/filedom_pdf.js?ticket=t", { bundles: pkg }).file, glue);
   });
 
   test("a <dir>/<version>/ folder wins when it exists", () => {
-    assert.equal(bundlePathToFile(versioned, "/api/bundles/2.0.0/pdf/domdoc_pdf.js"), v2);
-    assert.equal(bundlePathToFile(versioned, "/api/bundles/3.0.0/pdf/domdoc_pdf.js"), null);
+    assert.equal(bundlePathToFile(versioned, "/api/bundles/2.0.0/pdf/filedom_pdf.js"), v2);
+    assert.equal(bundlePathToFile(versioned, "/api/bundles/3.0.0/pdf/filedom_pdf.js"), null);
   });
 
   test("a file named pdfium.wasm is not served", () => {
@@ -144,28 +144,28 @@ describe("bundle route", () => {
 
   test("content keys, type stubs, bad versions, and escapes are refused", () => {
     assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/content-key.json"), null);
-    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/domdoc_pdf.d.ts"), null);
+    assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/filedom_pdf.d.ts"), null);
     assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/pdf/missing.js"), null);
     assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/"), null);
-    assert.equal(bundlePathToFile(pkg, "/api/bundles/%2e%2e/pdf/domdoc_pdf.js"), null);
+    assert.equal(bundlePathToFile(pkg, "/api/bundles/%2e%2e/pdf/filedom_pdf.js"), null);
     assert.equal(bundlePathToFile(pkg, "/api/bundles/0.1.0/..%2f..%2fsecret"), null);
     assert.deepEqual(routeRequest("/api/bundles/0.1.0/pdf/content-key.json", { bundles: pkg }), { kind: "missing" });
   });
 
-  test("without --bundles the route proxies DOMDOC_CDN", () => {
-    assert.equal(bundleProxyUrl(DEFAULT_CDN, "/api/bundles/0.1.0/pdf/domdoc_pdf.js"), "https://domdoc.io/api/bundles/0.1.0/pdf/domdoc_pdf.js");
-    assert.equal(bundleProxyUrl("http://cdn.test/b/", "/api/bundles/latest/pdf/domdoc_pdf_bg.wasm", "?ticket=x"), "http://cdn.test/b/latest/pdf/domdoc_pdf_bg.wasm?ticket=x");
-    assert.deepEqual(routeRequest("/api/bundles/1.2.3/office/domdoc_office.js?ticket=t", { cdn: "http://cdn.test" }), {
+  test("without --bundles the route proxies FILEDOM_CDN", () => {
+    assert.equal(bundleProxyUrl(DEFAULT_CDN, "/api/bundles/0.1.0/pdf/filedom_pdf.js"), "https://filedom.io/api/bundles/0.1.0/pdf/filedom_pdf.js");
+    assert.equal(bundleProxyUrl("http://cdn.test/b/", "/api/bundles/latest/pdf/filedom_pdf_bg.wasm", "?ticket=x"), "http://cdn.test/b/latest/pdf/filedom_pdf_bg.wasm?ticket=x");
+    assert.deepEqual(routeRequest("/api/bundles/1.2.3/office/filedom_office.js?ticket=t", { cdn: "http://cdn.test" }), {
       kind: "proxy",
-      url: "http://cdn.test/1.2.3/office/domdoc_office.js?ticket=t",
+      url: "http://cdn.test/1.2.3/office/filedom_office.js?ticket=t",
     });
   });
 });
 
 describe("content types", () => {
   test("wasm, javascript, pdf, html, css, json", () => {
-    assert.equal(contentType("a/domdoc_pdf_bg.wasm"), "application/wasm");
-    assert.equal(contentType("a/domdoc_pdf.js"), "text/javascript; charset=utf-8");
+    assert.equal(contentType("a/filedom_pdf_bg.wasm"), "application/wasm");
+    assert.equal(contentType("a/filedom_pdf.js"), "text/javascript; charset=utf-8");
     assert.equal(contentType("a/x.mjs"), "text/javascript; charset=utf-8");
     assert.equal(contentType("samples/hello.pdf"), "application/pdf");
     assert.equal(contentType("index.html"), "text/html; charset=utf-8");
@@ -205,12 +205,12 @@ describe("serve-examples over HTTP", () => {
   write(join(root, "examples", "vue", "assets", "index-abc.js"), "console.log(1)");
   write(join(root, "samples", "hello.pdf"), helloPdf());
   const bundles = dir("serve-pkg");
-  write(join(bundles, "pdf", "domdoc_pdf.js"), "export default 1;");
-  write(join(bundles, "pdf", "domdoc_pdf_bg.wasm"), "\0asm");
+  write(join(bundles, "pdf", "filedom_pdf.js"), "export default 1;");
+  write(join(bundles, "pdf", "filedom_pdf_bg.wasm"), "\0asm");
   write(join(bundles, "pdf", "pdfium.wasm"), "\0asm");
   const proxied = [];
   const fakeFetch = async (url, init) => {
-    proxied.push({ url, ticket: init.headers["x-domdoc-ticket"] });
+    proxied.push({ url, ticket: init.headers["x-filedom-ticket"] });
     return new Response("glue", { status: 200, headers: { "content-type": "text/javascript; charset=utf-8" } });
   };
   let local;
@@ -246,10 +246,10 @@ describe("serve-examples over HTTP", () => {
     const pdf = await get(local, "/sdk-docs/samples/hello.pdf");
     assert.equal(pdf.headers.get("content-type"), "application/pdf");
     assert.ok(Buffer.from(await pdf.arrayBuffer()).equals(helloPdf()));
-    const wasm = await get(local, "/api/bundles/0.1.0/pdf/domdoc_pdf_bg.wasm");
+    const wasm = await get(local, "/api/bundles/0.1.0/pdf/filedom_pdf_bg.wasm");
     assert.equal(wasm.status, 200);
     assert.equal(wasm.headers.get("content-type"), "application/wasm");
-    const glue = await get(local, "/api/bundles/0.1.0/pdf/domdoc_pdf.js");
+    const glue = await get(local, "/api/bundles/0.1.0/pdf/filedom_pdf.js");
     assert.equal(glue.headers.get("content-type"), "text/javascript; charset=utf-8");
     const pdfium = await get(local, "/api/bundles/0.1.0/pdf/pdfium.wasm");
     assert.equal(pdfium.status, 404);
@@ -258,7 +258,7 @@ describe("serve-examples over HTTP", () => {
 
   test("/wasm/* is 404 on both servers", async () => {
     for (const server of [local, proxy]) {
-      for (const path of ["/wasm/0.1.0/pdf/domdoc_pdf_bg.wasm", "/wasm/latest.json", "/%77asm/x"]) {
+      for (const path of ["/wasm/0.1.0/pdf/filedom_pdf_bg.wasm", "/wasm/latest.json", "/%77asm/x"]) {
         const res = await get(server, path);
         assert.equal(res.status, 404, path);
         assert.notEqual(res.headers.get("content-type"), "application/wasm");
@@ -274,19 +274,19 @@ describe("serve-examples over HTTP", () => {
     assert.equal((await get(local, "/sdk-docs/", { method: "POST" })).status, 405);
   });
 
-  test("the proxy forwards path, query, and ticket header to DOMDOC_CDN", async () => {
-    const res = await get(proxy, "/api/bundles/0.2.0/pdf/domdoc_pdf.js?ticket=q", { headers: { "x-domdoc-ticket": "h" } });
+  test("the proxy forwards path, query, and ticket header to FILEDOM_CDN", async () => {
+    const res = await get(proxy, "/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q", { headers: { "x-filedom-ticket": "h" } });
     assert.equal(res.status, 200);
     assert.equal(await res.text(), "glue");
-    assert.deepEqual(proxied.at(-1), { url: "http://cdn.test/api/bundles/0.2.0/pdf/domdoc_pdf.js?ticket=q", ticket: "h" });
+    assert.deepEqual(proxied.at(-1), { url: "http://cdn.test/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q", ticket: "h" });
   });
 });
 
 describe("build-examples", () => {
   const examples = dir("examples");
-  const shell = (fw, build) => write(join(examples, fw, "package.json"), JSON.stringify({ name: `@domdoc/example-${fw}`, scripts: build ? { build } : {} }));
+  const shell = (fw, build) => write(join(examples, fw, "package.json"), JSON.stringify({ name: `@filedom/example-${fw}`, scripts: build ? { build } : {} }));
   shell("react", "vite build");
-  shell("vue", "node -e \"console.log('@domdoc/example-vue: no app yet')\"");
+  shell("vue", "node -e \"console.log('@filedom/example-vue: no app yet')\"");
   shell("svelte");
   shell("angular", "ng build");
   shell("lit", "vite build");
@@ -299,11 +299,11 @@ describe("build-examples", () => {
     assert.throws(() => parseOnly(["--only"]), /--only needs a framework id/);
   });
 
-  test("each build gets DOMDOC_BASE and output is staged; placeholders report not built yet", () => {
+  test("each build gets FILEDOM_BASE and output is staged; placeholders report not built yet", () => {
     const staging = dir("staging-ok");
     const calls = [];
     const run = (cwd, env) => {
-      calls.push({ cwd, base: env.DOMDOC_BASE, bundles: env.DOMDOC_EXAMPLES_BUNDLES });
+      calls.push({ cwd, base: env.FILEDOM_BASE, bundles: env.FILEDOM_EXAMPLES_BUNDLES });
       if (cwd.endsWith("react")) write(join(cwd, "dist", "index.html"), "react");
       if (cwd.endsWith("angular")) write(join(cwd, "dist", "app", "browser", "index.html"), "angular");
       return { code: 0 };
@@ -312,7 +312,7 @@ describe("build-examples", () => {
       frameworks: ["react", "vue", "svelte", "angular"],
       examplesRoot: examples,
       staging,
-      env: { DOMDOC_EXAMPLES_BUNDLES: "/api/bundles/9.9.9" },
+      env: { FILEDOM_EXAMPLES_BUNDLES: "/api/bundles/9.9.9" },
       run,
       log: () => {},
     });
@@ -358,7 +358,7 @@ describe("build-site composition", () => {
     write(join(build, "examples", "vue", "stale.html"), "old");
     const staging = dir("compose-staging");
     write(join(staging, "react", "index.html"), "react");
-    write(join(staging, "react", "assets", "a.js"), "fetch('/api/bundles/0.1.0/pdf/domdoc_pdf.js')");
+    write(join(staging, "react", "assets", "a.js"), "fetch('/api/bundles/0.1.0/pdf/filedom_pdf.js')");
 
     const { copied, missing, sample, violations } = composeSite({ buildDir: build, staging, frameworks: FRAMEWORKS });
     assert.deepEqual(copied, ["react"]);
@@ -372,13 +372,13 @@ describe("build-site composition", () => {
     assert.equal(sitePathToFile(build, SAMPLE_PDF_PATH), sample);
   });
 
-  test("domdoc.dev anywhere and /wasm/ in an example fail the scan", () => {
+  test("filedom.dev anywhere and /wasm/ in an example fail the scan", () => {
     const build = dir("scan-build");
-    write(join(build, "index.html"), '<link rel="canonical" href="https://domdoc.dev/">');
-    write(join(build, "examples", "lit", "assets", "a.js"), "fetch('/wasm/0.1.0/pdf/domdoc_pdf.js')");
+    write(join(build, "index.html"), '<link rel="canonical" href="https://filedom.dev/">');
+    write(join(build, "examples", "lit", "assets", "a.js"), "fetch('/wasm/0.1.0/pdf/filedom_pdf.js')");
     write(join(build, "docs", "bundles", "index.html"), "Nothing loads from /wasm/ in production.");
     const violations = scanSite(build);
-    assert.deepEqual(violations.map((v) => v.needle), ["domdoc.dev", "/wasm/"]);
+    assert.deepEqual(violations.map((v) => v.needle), ["filedom.dev", "/wasm/"]);
     assert.deepEqual(violations[0].files, [join(build, "index.html")]);
     assert.deepEqual(violations[1].files, [join(build, "examples", "lit", "assets", "a.js")]);
   });

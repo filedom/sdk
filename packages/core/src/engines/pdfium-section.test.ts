@@ -1,6 +1,6 @@
-import { embedPdfium, pdfiumBytes as embedderBytes } from "../../../../../domdoc-wasm/scripts/pdfium-section.mjs";
+import { embedPdfium, pdfiumBytes as embedderBytes } from "../../../../../wasm/scripts/pdfium-section.mjs";
 import { describe, expect, it } from "vitest";
-import { DomdocError } from "../errors.js";
+import { FiledomError } from "../errors.js";
 import { PDFIUM_MISSING_DETAIL, pdfiumBytes } from "./pdfium-section.js";
 
 const empty = new Uint8Array([0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00]);
@@ -19,14 +19,14 @@ describe("pdfium section", () => {
   });
 
   it("rejects an engine wasm that does not carry its renderer, before the file opens", () => {
-    expect(() => pdfiumBytes(empty)).toThrow(DomdocError);
+    expect(() => pdfiumBytes(empty)).toThrow(FiledomError);
     expect(() => pdfiumBytes(empty)).toThrow(/PDF engine bundle is incomplete/);
     try {
       pdfiumBytes(empty);
     } catch (error) {
-      expect(error).toBeInstanceOf(DomdocError);
-      expect((error as DomdocError).code).toBe("bundle-missing");
-      expect((error as DomdocError).detail).toBe(PDFIUM_MISSING_DETAIL);
+      expect(error).toBeInstanceOf(FiledomError);
+      expect((error as FiledomError).code).toBe("bundle-missing");
+      expect((error as FiledomError).detail).toBe(PDFIUM_MISSING_DETAIL);
     }
   });
 });

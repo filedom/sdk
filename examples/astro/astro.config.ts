@@ -7,7 +7,7 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
   excludeEngineWasm: () => { name: string };
 };
 
-const base = process.env.DOMDOC_BASE || "/sdk-docs/examples/astro/";
+const base = process.env.FILEDOM_BASE || "/sdk-docs/examples/astro/";
 
 export default defineConfig({
   output: "static",
@@ -19,7 +19,7 @@ export default defineConfig({
       alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
     },
     define: {
-      "import.meta.env.DOMDOC_EXAMPLES_BUNDLES": JSON.stringify(process.env.DOMDOC_EXAMPLES_BUNDLES ?? ""),
+      "import.meta.env.FILEDOM_EXAMPLES_BUNDLES": JSON.stringify(process.env.FILEDOM_EXAMPLES_BUNDLES ?? ""),
     },
   },
 });

@@ -167,24 +167,24 @@ export function debugHints(code: string, detail: string): string[] {
   const hints = [`Search the workspace for this exact text: ${JSON.stringify(detail)}`];
   if (detail.includes("native content that is preserved but not editable")) {
     hints.push(
-      "That sentence is built in domdoc-wasm/crates/core/src/flow/edit.rs when a newline crosses a paragraph with mergeable set to false, and in domdoc-wasm/crates/core/src/flow/mod.rs editable_index when editable is false.",
-      "Office text is read by office_oxide in domdoc-wasm/crates/open/src/office.rs. Drawings and fields stay in the extracted paragraph text.",
+      "That sentence is built in wasm/crates/core/src/flow/edit.rs when a newline crosses a paragraph with mergeable set to false, and in wasm/crates/core/src/flow/mod.rs editable_index when editable is false.",
+      "Office text is read by office_oxide in wasm/crates/open/src/office.rs. Drawings and fields stay in the extracted paragraph text.",
       "Page runs expose editable only. mergeable is not in the view. If every listed run is editable and the failed action is a newline across more than one unit, the edit.rs check is the one that fired.",
     );
   } else if (code === "unsupported" && (detail === "text formatting" || detail === "paragraph formatting")) {
     hints.push(
-      "The viewer raises this in domdoc-sdk/packages/core/src/viewer.ts when capabilities.formatText or capabilities.formatParagraph is false.",
+      "The viewer raises this in sdk/packages/core/src/viewer.ts when capabilities.formatText or capabilities.formatParagraph is false.",
     );
   } else if (code === "unknown-unit") {
     hints.push(
-      "unknown-unit is raised by domdoc-wasm/crates/open/src/flow.rs when the caret names a unit that is not in the open document.",
+      "unknown-unit is raised by wasm/crates/open/src/flow.rs when the caret names a unit that is not in the open document.",
     );
   } else if (code === "read-only") {
-    hints.push("Read-only mode refuses edits from the shell in domdoc-wasm/crates/core/src/shell.rs.");
+    hints.push("Read-only mode refuses edits from the shell in wasm/crates/core/src/shell.rs.");
   } else if (code === "pdf-encrypted" || (code === "pdf-render" && /Decryption|PasswordProtected/.test(detail))) {
     hints.push(
-      "Encrypted PDFs fail in domdoc-wasm/crates/open/src/pdf.rs when the engine rejects the password.",
-      "The SDK should prompt via openDocument getPassword or pass password in OpenOptions; domdoc-sdk/packages/core/src/password-prompt.ts is the viewer dialog.",
+      "Encrypted PDFs fail in wasm/crates/open/src/pdf.rs when the engine rejects the password.",
+      "The SDK should prompt via openDocument getPassword or pass password in OpenOptions; sdk/packages/core/src/password-prompt.ts is the viewer dialog.",
     );
   }
   return hints;
@@ -194,7 +194,7 @@ export function debugHints(code: string, detail: string): string[] {
 export function buildDebugReport(snapshot: DebugSnapshot): string {
   const { error } = snapshot;
   const lines: string[] = [
-    "Debug and fix this error in the domdoc workspace (domdoc-sdk and domdoc-wasm). The viewer raised it while a document was open. Reproduce it from the failed action, the selection, and the unit snapshot below. Search the workspace for the error text, then change the engine or the SDK so this edit either applies or is refused before the command with a reason the user can act on. Keep native content lossless.",
+    "Debug and fix this error in the filedom workspace (sdk and wasm). The viewer raised it while a document was open. Reproduce it from the failed action, the selection, and the unit snapshot below. Search the workspace for the error text, then change the engine or the SDK so this edit either applies or is refused before the command with a reason the user can act on. Keep native content lossless.",
     "",
     "## Error",
     `code: ${error.code}`,

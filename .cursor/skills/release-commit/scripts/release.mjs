@@ -20,11 +20,11 @@ const SKIP_DIRS = new Set([
 ]);
 
 const KNOWN_REPOS = [
-  "domdoc-sdk",
-  "domdoc-wasm",
-  "domdoc-api",
-  "domdoc-website",
-  "domdoc-benchmarks",
+  "sdk",
+  "wasm",
+  "api",
+  "website",
+  "benchmarks",
 ];
 
 function usage() {
@@ -256,7 +256,7 @@ function replaceLockVersions(text, from, to) {
   let changed = false;
   const next = parts.map((block) => {
     const name = block.match(/^name = "([^"]+)"/m);
-    if (!name || !name[1].startsWith("domdoc-")) return block;
+    if (!name || !name[1].startsWith("filedom-")) return block;
     const pattern = new RegExp(`^version = "${escapeReg(from)}"$`, "m");
     if (!pattern.test(block)) return block;
     changed = true;
@@ -419,7 +419,7 @@ function lockHunksAreOwnVersion(section) {
     if (lines.length === 0) continue;
     if (!lines.every(isCargoVersionLine)) return false;
     const names = [...hunk.matchAll(/^[ +]name = "([^"]+)"/gm)].map((match) => match[1]);
-    if (names.length === 0 || names.some((name) => !name.startsWith("domdoc-"))) return false;
+    if (names.length === 0 || names.some((name) => !name.startsWith("filedom-"))) return false;
   }
   return true;
 }
@@ -487,7 +487,7 @@ function findWorkspace(explicit) {
       dir = parent;
     }
   }
-  fail("Pass --root, the folder that contains the domdoc repos.");
+  fail("Pass --root, the folder that contains the filedom repos.");
 }
 
 function existingRepos(root) {
@@ -498,7 +498,7 @@ function existingRepos(root) {
     if (!fs.existsSync(path.join(dir, ".git"))) fail(`${name} exists but is not a git root: ${dir}`);
     found.push({ name, dir });
   }
-  if (found.length === 0) fail(`No domdoc repos under ${root}.`);
+  if (found.length === 0) fail(`No filedom repos under ${root}.`);
   return found;
 }
 

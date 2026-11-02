@@ -1,15 +1,15 @@
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { createElement, Moon, Sun } from "lucide";
 import { LitElement, html } from "lit";
-import { button } from "@/components/domdoc/button";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import { tooltip } from "@/components/domdoc/tooltip";
+import { button } from "@/components/filedom/button";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import { tooltip } from "@/components/filedom/tooltip";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-4", "aria-hidden": "true" });
 }
 
-export class DomdocThemeToggleElement extends LitElement {
+export class FiledomThemeToggleElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -19,7 +19,7 @@ export class DomdocThemeToggleElement extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -38,7 +38,7 @@ export class DomdocThemeToggleElement extends LitElement {
   private toggle = () => {
     const next = this.dark() ? "light" : "dark";
     document.documentElement.classList.toggle("dark", next === "dark");
-    domdocProvider(this)?.store?.viewer.setTheme(next);
+    filedomProvider(this)?.store?.viewer.setTheme(next);
   };
 
   override render() {
@@ -61,4 +61,4 @@ export class DomdocThemeToggleElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-theme-toggle")) customElements.define("domdoc-theme-toggle", DomdocThemeToggleElement);
+if (!customElements.get("filedom-theme-toggle")) customElements.define("filedom-theme-toggle", FiledomThemeToggleElement);

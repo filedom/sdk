@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-astro",
+  "name": "@filedom/example-astro",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,9 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@domdoc/astro-host": "workspace:*",
-    "@domdoc/core": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/astro-host": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide": "^1.66.0",
     "tailwind-merge": "^3.0.0"

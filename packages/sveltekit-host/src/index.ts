@@ -1,21 +1,21 @@
-import type { DomdocActionParams } from "@domdoc/svelte";
+import type { FiledomActionParams } from "@filedom/svelte";
 
-export type { DomdocActionParams, Viewer, ViewerOptions } from "@domdoc/svelte";
+export type { FiledomActionParams, Viewer, ViewerOptions } from "@filedom/svelte";
 
 /**
  * SvelteKit-safe action: the SDK is imported on mount, so SSR bundles never include
- * DOM or wasm code. `<div use:domdocClient={{ options }} style="height:100%"></div>`
+ * DOM or wasm code. `<div use:filedomClient={{ options }} style="height:100%"></div>`
  */
-export function domdocClient(node: HTMLElement, params: DomdocActionParams) {
+export function filedomClient(node: HTMLElement, params: FiledomActionParams) {
   let current = params;
-  let action: ReturnType<typeof import("@domdoc/svelte").domdoc> | undefined;
+  let action: ReturnType<typeof import("@filedom/svelte").filedom> | undefined;
   let destroyed = false;
-  const ready = import("@domdoc/svelte").then(({ domdoc }) => {
-    if (!destroyed) action = domdoc(node, current);
+  const ready = import("@filedom/svelte").then(({ filedom }) => {
+    if (!destroyed) action = filedom(node, current);
   });
   return {
     ready,
-    update(next: DomdocActionParams) {
+    update(next: FiledomActionParams) {
       current = next;
       action?.update(next);
     },

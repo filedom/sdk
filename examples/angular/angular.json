@@ -21,7 +21,7 @@
             "baseHref": "/sdk-docs/examples/angular/",
             "styles": ["src/styles.css"],
             "define": {
-              "DOMDOC_EXAMPLES_BUNDLES": "\"/api/bundles/0.0.1/\""
+              "FILEDOM_EXAMPLES_BUNDLES": "\"/api/bundles/0.0.1/\""
             }
           },
           "configurations": {

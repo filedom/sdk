@@ -56,26 +56,26 @@ describe("toolbar catalog", () => {
     ).toBe("disabled");
   });
 
-  it("shows every group on .domdoc and text toolbar for a text selection", () => {
-    const domdoc = ctx({
-      isDomdoc: true,
+  it("shows every group on .filedom and text toolbar for a text selection", () => {
+    const filedom = ctx({
+      isFiledom: true,
       selection: "text",
       capabilities: caps({ editText: true, formatText: true }),
     });
-    expect(groupAvailability("text", domdoc)).toBe("shown");
-    expect(groupAvailability("image", { ...domdoc, selection: "image" })).toBe("shown");
-    expect(groupAvailability("insert", { ...domdoc, selection: "none", insertKinds: ["image"] })).toBe(
+    expect(groupAvailability("text", filedom)).toBe("shown");
+    expect(groupAvailability("image", { ...filedom, selection: "image" })).toBe("shown");
+    expect(groupAvailability("insert", { ...filedom, selection: "none", insertKinds: ["image"] })).toBe(
       "shown",
     );
     expect(
       groupAvailability("insert", {
-        ...domdoc,
+        ...filedom,
         selection: "text",
         insertKinds: ["image"],
         capabilities: caps({ insert: true, editText: true, formatText: true }),
       }),
     ).toBe("shown");
-    expect(groupAvailability("text", { ...domdoc, selection: "none" })).toBe("hidden");
+    expect(groupAvailability("text", { ...filedom, selection: "none" })).toBe("hidden");
   });
 
   it("hides track history outside track mode and disables undo without canUndo", () => {

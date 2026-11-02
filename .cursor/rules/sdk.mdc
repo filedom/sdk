@@ -14,5 +14,5 @@ viewer still does some of that; new code must not add more. On `need`, fetch
 that wasm file. Mirror contract changes into `engine-types.ts` in the same
 change, and only if you are the contract lane. Follow `docs/SDK_PROMPT.md` and,
 when the engine repo is checked out beside this one, one ready lane of
-`../domdoc-wasm/docs/Domdoc_Delivery_Workflow.md`. A red lane blocks only lanes
+`../wasm/docs/Filedom_Delivery_Workflow.md`. A red lane blocks only lanes
 that name it. Do not raise `VISUAL_MAX_DIFF`.

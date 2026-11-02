@@ -1,9 +1,9 @@
-import type { ViewMode } from "@domdoc/core";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { Select } from "@/components/domdoc/select";
+import type { ViewMode } from "@filedom/core";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { Select } from "@/components/filedom/select";
 
 export function ModeSelect() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const live = useAction("live", "Live");
   const track = useAction("track", "Track");
   const view = useAction("view", "View");

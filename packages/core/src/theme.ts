@@ -188,11 +188,11 @@ function declarations(tokens: ThemeTokens | undefined, slot: "config" | "dark"):
   const parts = Object.entries(tokens).filter(([name, value]) => {
     if (value === undefined) return false;
     if (!isThemeToken(name)) {
-      console.warn(`[domdoc] theme: "${name}" isn't a token, ignored`);
+      console.warn(`[filedom] theme: "${name}" isn't a token, ignored`);
       return false;
     }
     if (typeof value !== "string" || value.trim() === "" || UNSAFE_VALUE.test(value)) {
-      console.warn(`[domdoc] theme: ignoring the invalid value of "${name}"`);
+      console.warn(`[filedom] theme: ignoring the invalid value of "${name}"`);
       return false;
     }
     return true;

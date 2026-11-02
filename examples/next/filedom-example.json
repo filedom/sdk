@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "next",
+  "label": "Next.js",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/react",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/app/page.tsx", "role": "page" },
+    { "path": "src/app/globals.css", "role": "css" },
+    { "path": "next.config.ts", "role": "config" }
+  ]
+}

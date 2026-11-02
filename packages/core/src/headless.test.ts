@@ -1,11 +1,11 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Capabilities, DocInfo } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { createViewerStore as fromIndex } from "./index.js";
 import { createViewerStore } from "./headless.js";
 import { TOOLBAR_CATALOG } from "./toolbar-catalog.js";
-import { DomdocViewer, type SelectionState, type ThemeName, type ViewMode } from "./viewer.js";
+import { FiledomViewer, type SelectionState, type ThemeName, type ViewMode } from "./viewer.js";
 
 const CAPS: Capabilities = {
   editText: true,
@@ -23,7 +23,7 @@ function info(patch: Partial<DocInfo> = {}): DocInfo {
     format: "pdf",
     pageCount: 3,
     trackChanges: false,
-    author: "domdoc",
+    author: "filedom",
     pendingRevisions: 0,
     exportExtension: "pdf",
     exportMime: "application/pdf",
@@ -99,7 +99,7 @@ class FakeViewer {
 
 function setup() {
   const fake = new FakeViewer();
-  const store = createViewerStore(fake as unknown as DomdocViewer);
+  const store = createViewerStore(fake as unknown as FiledomViewer);
   return { fake, store };
 }
 
@@ -211,11 +211,11 @@ describe("createViewerStore", () => {
   it("reports a failed open as error and keeps ready for an edit error", () => {
     const { fake, store } = setup();
     fake.emit("loading", { name: "bad.pdf" });
-    fake.emit("error", { error: new DomdocError("bad-file", "not a pdf") });
+    fake.emit("error", { error: new FiledomError("bad-file", "not a pdf") });
     expect(store.getSnapshot()).toMatchObject({ status: "error", error: { code: "bad-file", detail: "not a pdf" } });
     fake.openDoc();
     expect(store.getSnapshot()).toMatchObject({ status: "ready", error: null });
-    fake.emit("error", { error: new DomdocError("unsupported", "paragraph formatting") });
+    fake.emit("error", { error: new FiledomError("unsupported", "paragraph formatting") });
     expect(store.getSnapshot()).toMatchObject({ status: "ready", error: { code: "unsupported" } });
   });
 
@@ -307,18 +307,18 @@ describe("createViewerStore", () => {
   });
 });
 
-describe("createViewerStore on a DomdocViewer", () => {
+describe("createViewerStore on a FiledomViewer", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     document.body.replaceChildren();
-    document.head.querySelector("style[data-domdoc]")?.remove();
+    document.head.querySelector("style[data-filedom]")?.remove();
   });
 
   it("follows the viewer's zoom, theme, view mode and search events", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener() {}, removeEventListener() {} }));
     const root = document.createElement("div");
     document.body.append(root);
-    const viewer = new DomdocViewer(root, { bundles: {}, toolbar: false });
+    const viewer = new FiledomViewer(root, { bundles: {}, toolbar: false });
     const store = createViewerStore(viewer);
     expect(store.viewer).toBe(viewer);
     expect(store.getSnapshot()).toMatchObject({ status: "empty", zoom: 1, theme: "light", viewMode: "live" });

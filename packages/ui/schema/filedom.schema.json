@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "title": "filedom project config",
+  "description": "filedom.json at the consumer project root, written by filedom init and read by filedom add.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["framework", "componentDir", "css", "aliases"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "framework": {
+      "enum": ["react", "next", "preact", "vue", "nuxt", "svelte", "sveltekit", "angular", "solid", "lit", "astro"]
+    },
+    "componentDir": {
+      "description": "Directory, relative to the project root, where blocks and primitives are copied.",
+      "type": "string",
+      "minLength": 1
+    },
+    "css": {
+      "description": "Stylesheet, relative to the project root, that imports @filedom/ui/theme.css.",
+      "type": "string",
+      "minLength": 1
+    },
+    "aliases": {
+      "description": "Import specifiers written into copied files.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components", "lib"],
+      "properties": {
+        "components": { "type": "string", "minLength": 1 },
+        "lib": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

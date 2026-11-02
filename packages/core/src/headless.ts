@@ -7,9 +7,9 @@ import {
   type CatalogContext,
   type SelectionKind,
 } from "./toolbar-catalog.js";
-import type { DomdocViewer, SelectionState, ThemeName, ViewMode } from "./viewer.js";
+import type { FiledomViewer, SelectionState, ThemeName, ViewMode } from "./viewer.js";
 
-/** Shell lifecycle, mirrored on the UI kit shell as `data-domdoc-state`. */
+/** Shell lifecycle, mirrored on the UI kit shell as `data-filedom-state`. */
 export type ViewerStoreStatus = "empty" | "loading" | "ready" | "error";
 
 /** The open document as the store reports it. */
@@ -62,7 +62,7 @@ export interface ViewerStore {
   /** Runs a `TOOLBAR_CATALOG` action id. An action that is not `shown` returns `unsupported`. */
   run(actionId: string): ViewerStoreRunResult;
   /** For calls that take arguments: `search`, `setZoom`, `setTheme`, `open`. */
-  readonly viewer: DomdocViewer;
+  readonly viewer: FiledomViewer;
   /** Detaches from the viewer's events. Does not destroy the viewer. */
   destroy(): void;
 }
@@ -104,14 +104,14 @@ const GROUP_SELECTION: Record<string, SelectionKind> = {
   timeline: "audio",
 };
 
-const align = (value: Align) => (viewer: DomdocViewer) => void viewer.setParagraph({ align: value });
+const align = (value: Align) => (viewer: FiledomViewer) => void viewer.setParagraph({ align: value });
 
 /** Catalog actions that map onto a public viewer call with no arguments. */
-const RUNNERS: Record<string, (viewer: DomdocViewer, snapshot: ViewerStoreSnapshot) => void> = {
+const RUNNERS: Record<string, (viewer: FiledomViewer, snapshot: ViewerStoreSnapshot) => void> = {
   open: (viewer) => viewer.pick(),
   save: (viewer) => void viewer.download(),
   export: (viewer) => void viewer.download(),
-  storeDomdoc: (viewer) => void viewer.apply({ type: "storeDomdoc" }),
+  storeFiledom: (viewer) => void viewer.apply({ type: "storeFiledom" }),
   undo: (viewer) => void viewer.undo(),
   redo: (viewer) => void viewer.redo(),
   live: (viewer) => viewer.setViewMode("live"),
@@ -246,7 +246,7 @@ function share<T>(prev: T, next: T): T {
 }
 
 /** Wraps a viewer created with `toolbar: false` in a framework-neutral store. */
-export function createViewerStore(viewer: DomdocViewer): ViewerStore {
+export function createViewerStore(viewer: FiledomViewer): ViewerStore {
   const listeners = new Set<() => void>();
   let status: ViewerStoreStatus = viewer.document ? "ready" : "empty";
   let error: ViewerStoreSnapshot["error"] = null;

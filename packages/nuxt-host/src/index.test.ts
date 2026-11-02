@@ -1,12 +1,12 @@
 import { expect, it, vi } from "vitest";
 import { createApp, h, nextTick } from "vue";
-import { DomdocClientViewer } from "./index.js";
+import { FiledomClientViewer } from "./index.js";
 
 it("lazy-loads the Vue viewer on the client", async () => {
   const container = document.createElement("div");
-  const app = createApp({ render: () => h(DomdocClientViewer, { options: { bundles: {} } }) });
+  const app = createApp({ render: () => h(FiledomClientViewer, { options: { bundles: {} } }) });
   app.mount(container);
-  await import("@domdoc/vue");
+  await import("@filedom/vue");
   await vi.waitFor(
     async () => {
       await nextTick();

@@ -15,7 +15,7 @@ export type ButtonVariant = keyof typeof VARIANTS;
 
 /** Button primitive. A block's `slot` input replaces the default `button` slot. */
 @Directive({
-  selector: "button[domdocButton]",
+  selector: "button[filedomButton]",
   standalone: true,
   host: {
     type: "button",
@@ -23,7 +23,7 @@ export type ButtonVariant = keyof typeof VARIANTS;
     "[class]": "hostClass",
   },
 })
-export class DomdocButton {
+export class FiledomButton {
   @Input() slot = "button";
   @Input() variant: ButtonVariant = "default";
 

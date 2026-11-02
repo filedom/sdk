@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { FileStore } from "./file-store.js";
 import { detectFormat, exportName, fileKind, unwiredDetail } from "./formats.js";
 
@@ -24,7 +24,7 @@ describe("formats", () => {
     expect(detectFormat(new Uint8Array([0xff, 0xd8, 0xff]), "photo.jpg")).toBe("jpeg");
     expect(detectFormat(ascii("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>"), "drawing.svg")).toBe("svg");
     expect(detectFormat(ascii("%PDF-1.4\n%%Creator: Adobe Illustrator\n"), "art.ai")).toBe("ai");
-    expect(() => detectFormat(new Uint8Array([1, 2]), "x.txt")).toThrow(DomdocError);
+    expect(() => detectFormat(new Uint8Array([1, 2]), "x.txt")).toThrow(FiledomError);
     expect(exportName("Report.final.doc", "docx")).toBe("Report.final.docx");
   });
 
@@ -68,7 +68,7 @@ describe("formats", () => {
   });
 
   it("parses engine error messages", () => {
-    const error = DomdocError.from(new Error("read-only: p3 cannot be edited"));
+    const error = FiledomError.from(new Error("read-only: p3 cannot be edited"));
     expect([error.code, error.detail]).toEqual(["read-only", "p3 cannot be edited"]);
   });
 });

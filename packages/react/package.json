@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/react",
+  "name": "@filedom/react",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc React component wrapping @domdoc/core",
+  "description": "filedom React component wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*"
+    "@filedom/core": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

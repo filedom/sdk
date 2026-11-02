@@ -6,12 +6,12 @@
 // URLs so they stay runtime resolutions, and drop any engine wasm that
 // still lands in the bundle.
 
-const ENGINE_PACKAGE = /(?:^|[\\/])(?:domdoc-wasm[\\/]pkg|@embedpdf[\\/]pdfium|@domdoc[\\/]core|packages[\\/]core)(?:[\\/]|$)/;
+const ENGINE_PACKAGE = /(?:^|[\\/])(?:wasm[\\/]pkg|@embedpdf[\\/]pdfium|@filedom[\\/]core|packages[\\/]core)(?:[\\/]|$)/;
 
 function isEngineWasmSpecifier(url) {
   const normalized = String(url).replace(/\\/g, "/");
   if (/(^|\/)pdfium\.wasm$/i.test(normalized)) return true;
-  if (/(^|\/)domdoc_[a-z0-9]+_bg\.wasm$/i.test(normalized)) return true;
+  if (/(^|\/)filedom_[a-z0-9]+_bg\.wasm$/i.test(normalized)) return true;
   if (normalized.includes("/pkg/") && normalized.toLowerCase().endsWith(".wasm")) return true;
   if (normalized.includes("@embedpdf/pdfium") && normalized.toLowerCase().endsWith(".wasm")) return true;
   return false;
@@ -19,7 +19,7 @@ function isEngineWasmSpecifier(url) {
 
 function isEngineWasmAsset(name) {
   const base = String(name).split(/[/\\]/).pop() || "";
-  return /^(?:pdfium|domdoc_[a-z0-9]+_bg)(?:[.-][A-Za-z0-9_]+)?\.wasm$/i.test(base);
+  return /^(?:pdfium|filedom_[a-z0-9]+_bg)(?:[.-][A-Za-z0-9_]+)?\.wasm$/i.test(base);
 }
 
 function isWasmMagic(source) {

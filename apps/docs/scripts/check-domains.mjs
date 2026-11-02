@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const RETIRED = ["domdoc", "dev"].join(".");
+const RETIRED = ["filedom", "dev"].join(".");
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const SKIP = new Set(["node_modules", "build", ".docusaurus", ".cache-loader"]);
 
@@ -27,7 +27,7 @@ for (const file of walk(ROOT)) {
 }
 
 if (hits.length > 0) {
-  console.error(`${RETIRED} is retired; use https://domdoc.io instead:\n  ${hits.join("\n  ")}`);
+  console.error(`${RETIRED} is retired; use https://filedom.io instead:\n  ${hits.join("\n  ")}`);
   process.exit(1);
 }
 

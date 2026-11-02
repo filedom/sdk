@@ -1,9 +1,9 @@
-import { embedPdfium } from "../../../../domdoc-wasm/scripts/pdfium-section.mjs";
+import { embedPdfium } from "../../../../wasm/scripts/pdfium-section.mjs";
 import { describe, expect, it, vi } from "vitest";
 import { BundleLoader } from "./bundles.js";
 import { bundleLoadNotice, bundleUrl, bundlesFromCdn, type GlueLoader } from "./cdn.js";
 import type { EngineSession } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { openDocument } from "./open.js";
 
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -40,12 +40,12 @@ function session(format: string): EngineSession {
 
 describe("CDN bundles", () => {
   it("points each format at its own glue module", () => {
-    const base = "https://cdn.example.com/domdoc/v1";
+    const base = "https://cdn.example.com/filedom/v1";
     for (const format of ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "png", "jpeg", "gif", "webp", "bmp", "tiff", "svg", "ai"] as const) {
-      expect(bundleUrl(`${base}/`, format)).toBe(`${base}/${format}/domdoc_${format}.js`);
+      expect(bundleUrl(`${base}/`, format)).toBe(`${base}/${format}/filedom_${format}.js`);
     }
     expect(bundleUrl(base, "docx")).not.toContain("office");
-    expect(bundleUrl(base, "7z")).toBe(`${base}/7z/domdoc_7z.js`);
+    expect(bundleUrl(base, "7z")).toBe(`${base}/7z/filedom_7z.js`);
     expect(Object.keys(bundlesFromCdn(base)).sort()).toEqual([
       "7z",
       "ai",
@@ -101,8 +101,8 @@ describe("CDN bundles", () => {
     expect(first.format).toBe("png");
     expect(second.format).toBe("png");
     expect(requested).toEqual([
-      "https://cdn.example/v1/png/domdoc_png.js",
-      "https://cdn.example/v1/png/domdoc_png_bg.wasm",
+      "https://cdn.example/v1/png/filedom_png.js",
+      "https://cdn.example/v1/png/filedom_png_bg.wasm",
     ]);
     expect(requested.some((url) => /svg|pdf|docx|pdfium/i.test(url))).toBe(false);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -128,8 +128,8 @@ describe("CDN bundles", () => {
     const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
     await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
     expect(requested).toEqual([
-      "https://cdn.example/v1/pdf/domdoc_pdf.js",
-      "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+      "https://cdn.example/v1/pdf/filedom_pdf.js",
+      "https://cdn.example/v1/pdf/filedom_pdf_bg.wasm",
     ]);
     expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
     vi.unstubAllGlobals();
@@ -147,16 +147,16 @@ describe("CDN bundles", () => {
     };
     vi.stubGlobal("fetch", async (url: string) => {
       requested.push(String(url));
-      return new Response(wasmBytes(), { headers: { "x-domdoc-license": "trial" } });
+      return new Response(wasmBytes(), { headers: { "x-filedom-license": "trial" } });
     });
     try {
       const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
       const opening = openDocument(loader, PDF, { name: "notes.pdf" });
-      await expect(opening).rejects.toBeInstanceOf(DomdocError);
+      await expect(opening).rejects.toBeInstanceOf(FiledomError);
       await expect(opening).rejects.toThrow(/PDF engine bundle is incomplete/);
       expect(requested).toEqual([
-        "https://cdn.example/v1/pdf/domdoc_pdf.js",
-        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+        "https://cdn.example/v1/pdf/filedom_pdf.js",
+        "https://cdn.example/v1/pdf/filedom_pdf_bg.wasm",
       ]);
       expect(requested.some((url) => url.endsWith("pdfium.wasm"))).toBe(false);
     } finally {
@@ -174,15 +174,15 @@ describe("CDN bundles", () => {
     };
     vi.stubGlobal("fetch", async (url: string, init?: RequestInit) => {
       requested.push(String(url));
-      tickets.push(new Headers(init?.headers).get("x-domdoc-ticket"));
+      tickets.push(new Headers(init?.headers).get("x-filedom-ticket"));
       return new Response(module);
     });
     try {
       const loader = new BundleLoader(bundlesFromCdn("https://cdn.example/v1", { load }));
       await expect(openDocument(loader, PDF, { name: "notes.pdf" })).rejects.toThrow(/PDF engine module is incomplete/);
       expect(requested).toEqual([
-        "https://cdn.example/v1/pdf/domdoc_pdf.js",
-        "https://cdn.example/v1/pdf/domdoc_pdf_bg.wasm",
+        "https://cdn.example/v1/pdf/filedom_pdf.js",
+        "https://cdn.example/v1/pdf/filedom_pdf_bg.wasm",
       ]);
       expect(tickets).toEqual([null]);
       expect(requested.some((url) => url.includes("ticket="))).toBe(false);
@@ -243,8 +243,8 @@ async function sealWasm(plain: Uint8Array<ArrayBuffer>, key: Uint8Array<ArrayBuf
 
 function expectPngOnly(requested: string[]) {
   expect(requested).toEqual([
-    "https://cdn.example/v1/png/domdoc_png.js",
-    "https://cdn.example/v1/png/domdoc_png_bg.wasm",
+    "https://cdn.example/v1/png/filedom_png.js",
+    "https://cdn.example/v1/png/filedom_png_bg.wasm",
   ]);
   expect(requested.some((url) => /svg|pdf|docx|pdfium|jpeg|gif|webp|xlsx|ticket=/i.test(url))).toBe(false);
 }

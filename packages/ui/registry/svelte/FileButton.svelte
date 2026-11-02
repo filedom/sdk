@@ -1,11 +1,11 @@
 <script lang="ts">
   import { FolderOpen } from "lucide-svelte";
-  import Button from "@/components/domdoc/Button.svelte";
-  import Tooltip from "@/components/domdoc/Tooltip.svelte";
-  import { control, getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Button from "@/components/filedom/Button.svelte";
+  import Tooltip from "@/components/filedom/Tooltip.svelte";
+  import { control, getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const open = $derived(control(snapshot, "open", "Open"));
 </script>
@@ -19,7 +19,7 @@
       aria-label="Open"
       disabled={open.disabled}
       title={open.disabled ? open.title : undefined}
-      onclick={() => domdoc.run("open")}
+      onclick={() => filedom.run("open")}
     >
       <FolderOpen class="size-4" />
     </Button>

@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-next",
+  "name": "@filedom/example-next",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -8,9 +8,9 @@
     "build": "next build"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/react": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/react": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
     "next": "^15.5.4",

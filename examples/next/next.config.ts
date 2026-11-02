@@ -9,7 +9,7 @@ const { applyWebpack } = createRequire(path.join(process.cwd(), "package.json"))
 };
 
 function publicBase(): string {
-  const raw = process.env.DOMDOC_BASE || "/sdk-docs/examples/next/";
+  const raw = process.env.FILEDOM_BASE || "/sdk-docs/examples/next/";
   return raw.endsWith("/") ? raw.slice(0, -1) : raw;
 }
 
@@ -21,13 +21,13 @@ const nextConfig: NextConfig = {
   assetPrefix: base,
   trailingSlash: true,
   env: {
-    DOMDOC_EXAMPLES_BUNDLES: process.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1",
+    FILEDOM_EXAMPLES_BUNDLES: process.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1",
   },
   webpack: (config) => {
     applyWebpack(config);
-    // domdoc-wasm is "type": "commonjs", but the glue files are ESM.
+    // wasm is "type": "commonjs", but the glue files are ESM.
     config.module.rules.push({
-      test: /[\\/]domdoc-wasm[\\/]pkg[\\/].+\.js$/,
+      test: /[\\/]wasm[\\/]pkg[\\/].+\.js$/,
       type: "javascript/esm",
     });
     // Core imports node:fs/promises only when process.versions.node is set.

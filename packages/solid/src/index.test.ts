@@ -1,11 +1,11 @@
 import { createRoot } from "solid-js";
 import { expect, it } from "vitest";
-import { DomdocViewer, type Viewer } from "./index.js";
+import { FiledomViewer, type Viewer } from "./index.js";
 
 it("mounts the core viewer in a reactive root and destroys it on dispose", async () => {
   let viewer: Viewer | undefined;
   const { host, dispose } = createRoot((dispose) => ({
-    host: DomdocViewer({ options: { bundles: {} }, onReady: (v) => (viewer = v) }),
+    host: FiledomViewer({ options: { bundles: {} }, onReady: (v) => (viewer = v) }),
     dispose,
   }));
   await Promise.resolve();

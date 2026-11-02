@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly DOMDOC_EXAMPLES_BUNDLES?: string;
-  readonly DOMDOC_BASE?: string;
+  readonly FILEDOM_EXAMPLES_BUNDLES?: string;
+  readonly FILEDOM_BASE?: string;
 }
 
 interface ImportMeta {

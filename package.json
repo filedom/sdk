@@ -1,12 +1,12 @@
 {
-  "name": "domdoc-sdk",
+  "name": "sdk",
   "version": "0.2.0",
   "license": "MIT",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "build": "pnpm --filter @domdoc/core build && pnpm -r --filter !@domdoc/core run build",
+    "build": "pnpm --filter @filedom/core build && pnpm -r --filter !@filedom/core run build",
     "typecheck": "pnpm -r exec tsc --noEmit -p tsconfig.json",
     "test": "pnpm -r run test"
   },

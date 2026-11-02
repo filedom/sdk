@@ -9,13 +9,13 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
 };
 
 function publicBase(fallback: string): string {
-  const raw = process.env.DOMDOC_BASE || fallback;
+  const raw = process.env.FILEDOM_BASE || fallback;
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
 export default defineConfig({
   base: publicBase("/sdk-docs/examples/preact/"),
-  envPrefix: ["VITE_", "DOMDOC_"],
+  envPrefix: ["VITE_", "FILEDOM_"],
   plugins: [excludeEngineWasm(), preact(), tailwindcss()],
   resolve: {
     alias: {

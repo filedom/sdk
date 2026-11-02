@@ -4,7 +4,7 @@ declare global {
   namespace App {}
 
   interface ImportMetaEnv {
-    readonly DOMDOC_EXAMPLES_BUNDLES?: string;
+    readonly FILEDOM_EXAMPLES_BUNDLES?: string;
   }
 }
 

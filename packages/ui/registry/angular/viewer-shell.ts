@@ -1,23 +1,23 @@
 import { AfterViewInit, Component, DestroyRef, ElementRef, Input, ViewChild, computed, inject, signal } from "@angular/core";
-import { mountDomdocViewer } from "@domdoc/angular";
-import type { ViewerOptions } from "@domdoc/core";
+import { mountFiledomViewer } from "@filedom/angular";
+import type { ViewerOptions } from "@filedom/core";
 import { FileText, LucideAngularModule } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext, shellState, usageNotice } from "@/components/domdoc/domdoc-provider";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext, shellState, usageNotice } from "@/components/filedom/filedom-provider";
 
 const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
 
 @Component({
-  selector: "domdoc-viewer-shell",
+  selector: "filedom-viewer-shell",
   standalone: true,
-  imports: [DomdocButton, LucideAngularModule],
+  imports: [FiledomButton, LucideAngularModule],
   host: { class: "relative flex min-h-0 flex-1 flex-col" },
   template: `
-    <div data-slot="viewer-shell" class="relative min-h-0 flex-1" [attr.data-domdoc-state]="state()">
+    <div data-slot="viewer-shell" class="relative min-h-0 flex-1" [attr.data-filedom-state]="state()">
       <div
         data-slot="usage-notice"
         class="absolute inset-x-0 top-0 z-20 border-b border-border bg-card px-3 py-1 text-center text-xs text-muted-foreground"
-        [attr.data-domdoc-state]="state()"
+        [attr.data-filedom-state]="state()"
         [hidden]="!notice()"
       >
         {{ notice() }}
@@ -35,7 +35,7 @@ const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
             <p class="text-sm font-medium text-foreground">{{ heading() }}</p>
             <p class="text-sm text-muted-foreground">{{ message() }}</p>
             <button
-              domdocButton
+              filedomButton
               slot="open-sample"
               variant="default"
               [disabled]="!canOpenSample()"
@@ -49,8 +49,8 @@ const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
     </div>
   `,
 })
-export class DomdocViewerShell implements AfterViewInit {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomViewerShell implements AfterViewInit {
+  private readonly ctx = inject(FiledomContext);
   private readonly destroyRef = inject(DestroyRef);
   private readonly failure = signal<string | null>(null);
   readonly fileIcon = FileText;
@@ -75,7 +75,7 @@ export class DomdocViewerShell implements AfterViewInit {
     const element = this.canvas?.nativeElement;
     if (!element) return;
     const dark = document.documentElement.classList.contains("dark");
-    const viewer = mountDomdocViewer(element, { ...this.options, toolbar: false, theme: dark ? "dark" : "light" }, this.destroyRef);
+    const viewer = mountFiledomViewer(element, { ...this.options, toolbar: false, theme: dark ? "dark" : "light" }, this.destroyRef);
     this.ctx.bind(viewer);
     this.destroyRef.onDestroy(() => this.ctx.release());
   }

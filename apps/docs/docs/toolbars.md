@@ -9,7 +9,7 @@ The constant bar is a horizontal list of menus: File, History, Insert, Mode, Fin
 
 A toolbar appears only when it applies. Text tools show while editing text, image tools for an image, shape tools for a shape, and layer tools for a group. Track mode adds the track-changes toolbar. With nothing selected, only the menu bar is shown.
 
-- **`.domdoc`** shows every toolbar group.
+- **`.filedom`** shows every toolbar group.
 - **Native files** hide groups the format cannot support.
 - **PDF** shows the text toolbar for a text selection and the image toolbar for an image selection.
 - A group that applies but mode or selection blocks it stays **visible and disabled**.

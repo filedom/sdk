@@ -1,16 +1,16 @@
 import { Show, onCleanup } from "solid-js";
-import type { ViewerOptions } from "@domdoc/core";
-import { DomdocViewer as DomdocHost } from "@domdoc/solid";
+import type { ViewerOptions } from "@filedom/core";
+import { FiledomViewer as FiledomHost } from "@filedom/solid";
 import { Upload } from "lucide-solid";
-import { Button } from "@/components/domdoc/button";
-import { shellState, useDomdoc } from "@/components/domdoc/domdoc-provider";
+import { Button } from "@/components/filedom/button";
+import { shellState, useFiledom } from "@/components/filedom/filedom-provider";
 
 const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
 
 export function ViewerShell() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const options: ViewerOptions = { ...api.options(), toolbar: false };
-  const canvas = DomdocHost({
+  const canvas = FiledomHost({
     class: "min-h-0 w-full flex-1",
     options,
     onReady: (viewer) => api.attach(viewer),
@@ -43,13 +43,13 @@ export function ViewerShell() {
   return (
     <div
       data-slot="viewer-shell"
-      data-domdoc-state={status()}
+      data-filedom-state={status()}
       class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-canvas"
       onDragOver={onDragOver}
       onDrop={onDrop}
     >
       {canvas}
-      <div data-slot="usage-notice" data-domdoc-state={status()} role="status" class="pointer-events-none absolute inset-x-0 top-0 z-20" />
+      <div data-slot="usage-notice" data-filedom-state={status()} role="status" class="pointer-events-none absolute inset-x-0 top-0 z-20" />
       <Show when={status() === "loading"}>
         <p class="pointer-events-none absolute left-3 top-3 z-20 rounded-md bg-card px-2 py-1 text-xs text-muted-foreground shadow-sm">Opening…</p>
       </Show>

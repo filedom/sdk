@@ -1,14 +1,14 @@
 import { Component, computed, inject } from "@angular/core";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocSelect } from "@/components/domdoc/select";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomSelect } from "@/components/filedom/select";
 
 @Component({
-  selector: "domdoc-mode-select",
+  selector: "filedom-mode-select",
   standalone: true,
-  imports: [DomdocSelect],
+  imports: [FiledomSelect],
   template: `
     <select
-      domdocSelect
+      filedomSelect
       slot="mode-select"
       aria-label="View mode"
       [value]="mode()"
@@ -20,8 +20,8 @@ import { DomdocSelect } from "@/components/domdoc/select";
     </select>
   `,
 })
-export class DomdocModeSelect {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomModeSelect {
+  private readonly ctx = inject(FiledomContext);
   readonly mode = computed(() => this.ctx.snapshot()?.viewMode ?? "live");
   readonly live = computed(() => this.ctx.control("live", "Live"));
   readonly track = computed(() => this.ctx.control("track", "Track changes"));

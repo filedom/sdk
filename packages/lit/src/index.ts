@@ -1,13 +1,13 @@
-import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { createViewer, type FiledomViewer as Viewer, type ViewerOptions } from "@filedom/core";
 import { LitElement, type PropertyValues } from "lit";
 
 export type { Viewer, ViewerOptions };
 
 /**
- * `<domdoc-viewer .options=${options} @domdoc-ready=${(e) => e.detail}>`. Renders in
+ * `<filedom-viewer .options=${options} @filedom-ready=${(e) => e.detail}>`. Renders in
  * light DOM so the viewer's document-level styles apply.
  */
-export class DomdocViewerElement extends LitElement {
+export class FiledomViewerElement extends LitElement {
   static override properties = { options: { attribute: false } };
   declare options?: ViewerOptions;
   viewer?: Viewer;
@@ -20,7 +20,7 @@ export class DomdocViewerElement extends LitElement {
     if (!changed.has("options")) return;
     this.viewer?.destroy();
     this.viewer = this.options ? createViewer(this, this.options) : undefined;
-    if (this.viewer) this.dispatchEvent(new CustomEvent("domdoc-ready", { detail: this.viewer }));
+    if (this.viewer) this.dispatchEvent(new CustomEvent("filedom-ready", { detail: this.viewer }));
   }
 
   override disconnectedCallback(): void {
@@ -30,10 +30,10 @@ export class DomdocViewerElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-viewer")) customElements.define("domdoc-viewer", DomdocViewerElement);
+if (!customElements.get("filedom-viewer")) customElements.define("filedom-viewer", FiledomViewerElement);
 
 declare global {
   interface HTMLElementTagNameMap {
-    "domdoc-viewer": DomdocViewerElement;
+    "filedom-viewer": FiledomViewerElement;
   }
 }

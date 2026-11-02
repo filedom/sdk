@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   BLOCK_SLOTS,
   DATA_SLOTS,
-  DOMDOC_STATES,
+  FILEDOM_STATES,
   FRAMEWORKS,
   FRAMEWORK_REGISTRY_SET,
   PRIMITIVE_SLOTS,
@@ -41,7 +41,7 @@ describe("frameworks", () => {
       const path = sdk(`examples/${fw}/package.json`);
       expect(existsSync(path), path).toBe(true);
       const pkg = json(path);
-      expect(pkg.name).toBe(`@domdoc/example-${fw}`);
+      expect(pkg.name).toBe(`@filedom/example-${fw}`);
       expect(pkg.private).toBe(true);
     }
   });
@@ -66,7 +66,7 @@ describe("data-slot names", () => {
   });
 
   it("bind only to TOOLBAR_CATALOG action ids", async () => {
-    const { TOOLBAR_CATALOG } = await import("@domdoc/core");
+    const { TOOLBAR_CATALOG } = await import("@filedom/core");
     const ids = new Set(TOOLBAR_CATALOG.flatMap((group) => group.actions.map((action) => action.id)));
     for (const action of Object.values(BLOCK_SLOTS)) if (action) expect(ids).toContain(action);
   });
@@ -77,11 +77,11 @@ describe("data-slot names", () => {
 });
 
 describe("readiness marker and URLs", () => {
-  it("freeze data-domdoc-state=ready on the shell", () => {
-    expect(STATE_ATTRIBUTE).toBe("data-domdoc-state");
+  it("freeze data-filedom-state=ready on the shell", () => {
+    expect(STATE_ATTRIBUTE).toBe("data-filedom-state");
     expect(READY_STATE).toBe("ready");
-    expect(DOMDOC_STATES).toContain("ready");
-    expect(contracts).toContain('data-domdoc-state="ready"');
+    expect(FILEDOM_STATES).toContain("ready");
+    expect(contracts).toContain('data-filedom-state="ready"');
   });
 
   it("put everything under /sdk-docs/ and bundles under /api/bundles/<version>/", () => {
@@ -97,13 +97,13 @@ describe("readiness marker and URLs", () => {
 
 describe("schemas", () => {
   const registry = json(ui("schema/registry.schema.json"));
-  const project = json(ui("schema/domdoc.schema.json"));
-  const example = json(ui("schema/domdoc-example.schema.json"));
+  const project = json(ui("schema/filedom.schema.json"));
+  const example = json(ui("schema/filedom-example.schema.json"));
 
   it("are draft 2020-12 with an id", () => {
     for (const schema of [registry, project, example]) {
       expect(schema.$schema).toBe("https://json-schema.org/draft/2020-12/schema");
-      expect(schema.$id).toMatch(/^https:\/\/domdoc\.io\/sdk-docs\/schema\//);
+      expect(schema.$id).toMatch(/^https:\/\/filedom\.io\/sdk-docs\/schema\//);
     }
   });
 

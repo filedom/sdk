@@ -1,11 +1,11 @@
 import { ElementRef } from "@angular/core";
 import { expect, it } from "vitest";
-import { mountDomdocViewer } from "./index.js";
+import { mountFiledomViewer } from "./index.js";
 
 it("mounts into an ElementRef and destroys with the DestroyRef", () => {
   const element = document.createElement("div");
   const callbacks: Array<() => void> = [];
-  const viewer = mountDomdocViewer(new ElementRef(element), { bundles: {} }, {
+  const viewer = mountFiledomViewer(new ElementRef(element), { bundles: {} }, {
     onDestroy: (fn) => {
       callbacks.push(fn);
       return () => undefined;

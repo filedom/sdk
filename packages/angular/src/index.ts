@@ -1,4 +1,4 @@
-import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { createViewer, type FiledomViewer as Viewer, type ViewerOptions } from "@filedom/core";
 import {
   Directive,
   ElementRef,
@@ -17,7 +17,7 @@ export type { Viewer, ViewerOptions };
  * AOT-safe helper for components: call from `afterNextRender` (or `ngAfterViewInit`)
  * with the host element; the viewer is destroyed with the `DestroyRef`.
  */
-export function mountDomdocViewer(
+export function mountFiledomViewer(
   host: ElementRef<HTMLElement> | HTMLElement,
   options: ViewerOptions,
   destroyRef?: Pick<DestroyRef, "onDestroy">,
@@ -28,18 +28,18 @@ export function mountDomdocViewer(
   return viewer;
 }
 
-/** `<div [domdocViewer]="options" (domdocReady)="onReady($event)"></div>` (JIT builds). */
-@Directive({ selector: "[domdocViewer]", standalone: true, exportAs: "domdocViewer" })
-export class DomdocViewerDirective implements OnChanges, OnDestroy {
-  @Input({ required: true }) domdocViewer!: ViewerOptions;
-  @Output() readonly domdocReady = new EventEmitter<Viewer>();
+/** `<div [filedomViewer]="options" (filedomReady)="onReady($event)"></div>` (JIT builds). */
+@Directive({ selector: "[filedomViewer]", standalone: true, exportAs: "filedomViewer" })
+export class FiledomViewerDirective implements OnChanges, OnDestroy {
+  @Input({ required: true }) filedomViewer!: ViewerOptions;
+  @Output() readonly filedomReady = new EventEmitter<Viewer>();
   viewer?: Viewer;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
 
   ngOnChanges(): void {
     this.viewer?.destroy();
-    this.viewer = createViewer(this.host.nativeElement, this.domdocViewer);
-    this.domdocReady.emit(this.viewer);
+    this.viewer = createViewer(this.host.nativeElement, this.filedomViewer);
+    this.filedomReady.emit(this.viewer);
   }
 
   ngOnDestroy(): void {

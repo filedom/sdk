@@ -1,4 +1,4 @@
-/* Stand-in for @domdoc/ui/theme.css, used only while that package file is missing. */
+/* Stand-in for @filedom/ui/theme.css, used only while that package file is missing. */
 :root {
   --background: #f4f0e8;
   --foreground: #1a1916;

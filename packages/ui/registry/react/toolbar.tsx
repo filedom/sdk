@@ -1,15 +1,15 @@
 import type { ReactNode } from "react";
 import { Redo2, Undo2 } from "lucide-react";
-import { Button } from "@/components/domdoc/button";
-import { useAction } from "@/components/domdoc/domdoc-provider";
-import { FileButton } from "@/components/domdoc/file-button";
-import { ModeSelect } from "@/components/domdoc/mode-select";
-import { PageStatus } from "@/components/domdoc/page-status";
-import { SearchBar } from "@/components/domdoc/search-bar";
-import { Separator } from "@/components/domdoc/separator";
-import { ThemeToggle } from "@/components/domdoc/theme-toggle";
-import { Tooltip } from "@/components/domdoc/tooltip";
-import { ZoomControls } from "@/components/domdoc/zoom-controls";
+import { Button } from "@/components/filedom/button";
+import { useAction } from "@/components/filedom/filedom-provider";
+import { FileButton } from "@/components/filedom/file-button";
+import { ModeSelect } from "@/components/filedom/mode-select";
+import { PageStatus } from "@/components/filedom/page-status";
+import { SearchBar } from "@/components/filedom/search-bar";
+import { Separator } from "@/components/filedom/separator";
+import { ThemeToggle } from "@/components/filedom/theme-toggle";
+import { Tooltip } from "@/components/filedom/tooltip";
+import { ZoomControls } from "@/components/filedom/zoom-controls";
 
 function HistoryButton({
   actionId,

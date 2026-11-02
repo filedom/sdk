@@ -7,14 +7,14 @@ import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "@docusaurus/Link";
 import { useLocation } from "@docusaurus/router";
 import { usePluginData } from "@docusaurus/useGlobalData";
-import { FRAMEWORKS, examplePath, type FrameworkId } from "@domdoc/ui";
+import { FRAMEWORKS, examplePath, type FrameworkId } from "@filedom/ui";
 import CodeBlock from "@theme/CodeBlock";
 import Layout from "@theme/Layout";
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
 
 /** Plugin name in src/plugins/example-sources.ts. Global data uses this key. */
-const EXAMPLE_SOURCES_PLUGIN_NAME = "domdoc-example-sources";
+const EXAMPLE_SOURCES_PLUGIN_NAME = "filedom-example-sources";
 
 /**
  * The server bundle has no window, so the first render stays on react and
@@ -143,7 +143,7 @@ export default function Playground(): React.JSX.Element {
   const label = example?.label || FRAMEWORK_LABELS[framework];
 
   return (
-    <Layout title="Playground" description="Try the domdoc viewer in every supported framework" noFooter>
+    <Layout title="Playground" description="Try the filedom viewer in every supported framework" noFooter>
       <div className="flex w-full flex-1 flex-col border-t border-border md:min-h-[calc(100vh_-_var(--ifm-navbar-height))] md:flex-row">
         <nav
           aria-labelledby="playground-frameworks"

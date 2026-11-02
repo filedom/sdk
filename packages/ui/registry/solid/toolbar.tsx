@@ -1,18 +1,18 @@
 import { Show } from "solid-js";
 import { Redo2, Undo2 } from "lucide-solid";
-import { Button } from "@/components/domdoc/button";
-import { useAction, useDomdoc } from "@/components/domdoc/domdoc-provider";
-import { FileButton } from "@/components/domdoc/file-button";
-import { ModeSelect } from "@/components/domdoc/mode-select";
-import { PageStatus } from "@/components/domdoc/page-status";
-import { SearchBar } from "@/components/domdoc/search-bar";
-import { Separator } from "@/components/domdoc/separator";
-import { ThemeToggle } from "@/components/domdoc/theme-toggle";
-import { Tooltip } from "@/components/domdoc/tooltip";
-import { ZoomControls } from "@/components/domdoc/zoom-controls";
+import { Button } from "@/components/filedom/button";
+import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
+import { FileButton } from "@/components/filedom/file-button";
+import { ModeSelect } from "@/components/filedom/mode-select";
+import { PageStatus } from "@/components/filedom/page-status";
+import { SearchBar } from "@/components/filedom/search-bar";
+import { Separator } from "@/components/filedom/separator";
+import { ThemeToggle } from "@/components/filedom/theme-toggle";
+import { Tooltip } from "@/components/filedom/tooltip";
+import { ZoomControls } from "@/components/filedom/zoom-controls";
 
 export function Toolbar() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const undo = useAction("undo", "Undo");
   const redo = useAction("redo", "Redo");
 

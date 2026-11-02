@@ -20,10 +20,10 @@ function rejectWasm(value, label) {
   }
 }
 
-const baseHref = withSlash(process.env.DOMDOC_BASE || "/sdk-docs/examples/angular/");
-const bundles = withSlash(process.env.DOMDOC_EXAMPLES_BUNDLES || `/api/bundles/${pkg.version}/`);
-rejectWasm(baseHref, "DOMDOC_BASE");
-rejectWasm(bundles, "DOMDOC_EXAMPLES_BUNDLES");
+const baseHref = withSlash(process.env.FILEDOM_BASE || "/sdk-docs/examples/angular/");
+const bundles = withSlash(process.env.FILEDOM_EXAMPLES_BUNDLES || `/api/bundles/${pkg.version}/`);
+rejectWasm(baseHref, "FILEDOM_BASE");
+rejectWasm(bundles, "FILEDOM_EXAMPLES_BUNDLES");
 
 const ng = join(root, "node_modules/@angular/cli/bin/ng.js");
 if (!existsSync(ng)) {
@@ -38,7 +38,7 @@ const angular = JSON.parse(original);
 const options = angular.projects.angular.architect.build.options;
 options.baseHref = baseHref;
 options.outputMode = "static";
-options.define = { ...(options.define ?? {}), DOMDOC_EXAMPLES_BUNDLES: JSON.stringify(bundles) };
+options.define = { ...(options.define ?? {}), FILEDOM_EXAMPLES_BUNDLES: JSON.stringify(bundles) };
 // Core reads wasm from disk only under Node. The browser bundle must not resolve that builtin.
 options.externalDependencies = [...new Set([...(options.externalDependencies ?? []), "node:fs/promises"])];
 
@@ -68,12 +68,12 @@ try {
   restore();
 }
 
-/** Engine bytes come from `DOMDOC_EXAMPLES_BUNDLES` at runtime, not from this build. */
+/** Engine bytes come from `FILEDOM_EXAMPLES_BUNDLES` at runtime, not from this build. */
 function assertNoEngineWasm() {
   const out = join(root, "dist");
   const found = existsSync(out) ? wasmFiles(out) : [];
   if (!found.length) return;
-  console.error("Angular output must not include engine wasm. Load bundles from DOMDOC_EXAMPLES_BUNDLES at runtime.");
+  console.error("Angular output must not include engine wasm. Load bundles from FILEDOM_EXAMPLES_BUNDLES at runtime.");
   for (const file of found) console.error(`  ${file}`);
   process.exitCode = 1;
 }

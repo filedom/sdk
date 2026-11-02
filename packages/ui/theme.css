@@ -1,8 +1,8 @@
 /*
- * @domdoc/ui theme for Tailwind v4. Import it after Tailwind:
+ * @filedom/ui theme for Tailwind v4. Import it after Tailwind:
  *
  *   @import "tailwindcss";
- *   @import "@domdoc/ui/theme.css";
+ *   @import "@filedom/ui/theme.css";
  *
  * Paper and ink, one forest accent, 2px radius, hairline borders.
  * Put `.dark` on <html> (or any ancestor) for dark mode. The bridge at the end

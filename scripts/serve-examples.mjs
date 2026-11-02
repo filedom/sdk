@@ -4,8 +4,8 @@
 //   node scripts/serve-examples.mjs [--port 5180] [--host 127.0.0.1] [--root apps/docs/build] [--bundles <dir>] [--cdn <url>]
 //
 //   /sdk-docs/*                 the build-site tree; a path ending in / gets index.html
-//   /api/bundles/<version>/*    files from --bundles <dir>, else proxied to --cdn / DOMDOC_CDN
-//                               (default https://domdoc.io/api/bundles)
+//   /api/bundles/<version>/*    files from --bundles <dir>, else proxied to --cdn / FILEDOM_CDN
+//                               (default https://filedom.io/api/bundles)
 //   /wasm/*                     always 404, as in CONTRACTS.md section 8
 //   /                           redirects to /sdk-docs/
 import { createReadStream } from "node:fs";
@@ -30,7 +30,7 @@ import {
 } from "./site-lib.mjs";
 
 export const DEFAULT_PORT = 5180;
-const FORWARDED_HEADERS = ["x-domdoc-ticket", "accept", "if-none-match", "if-modified-since"];
+const FORWARDED_HEADERS = ["x-filedom-ticket", "accept", "if-none-match", "if-modified-since"];
 
 /**
  * Where a request goes, without touching the network. `file` targets may not exist yet;
@@ -136,7 +136,7 @@ function main(argv) {
   const root = rootFlag ? resolve(rootFlag) : DOCS_BUILD;
   const bundlesFlag = readFlag(argv, "--bundles");
   const bundles = bundlesFlag ? resolve(bundlesFlag) : undefined;
-  const cdn = readFlag(argv, "--cdn") ?? process.env.DOMDOC_CDN ?? DEFAULT_CDN;
+  const cdn = readFlag(argv, "--cdn") ?? process.env.FILEDOM_CDN ?? DEFAULT_CDN;
   if (!isDir(root)) throw new Error(`site root ${root} does not exist; run node scripts/build-site.mjs first`);
   if (bundles && !isDir(bundles)) throw new Error(`--bundles ${bundles} is not a directory`);
 

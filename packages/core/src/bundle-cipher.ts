@@ -1,5 +1,5 @@
 /**
- * Unwrap a sealed domdoc engine module before compile.
+ * Unwrap a sealed filedom engine module before compile.
  *
  * CDN bytes are an envelope:
  *
@@ -12,7 +12,7 @@
  * is not in the object. The caller supplies it for this decrypt and does not
  * keep the raw key afterward.
  */
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 const WASM_MAGIC = [0x00, 0x61, 0x73, 0x6d] as const;
 const ENVELOPE = [0x44, 0x44, 0x57, 0x31] as const;
@@ -64,11 +64,11 @@ export async function unwrapWasm(
   const view = toUint8(bytes);
   if (hasPrefix(view, WASM_MAGIC)) {
     if (options?.allowUnsealed) return view;
-    throw new DomdocError("bundle-sealed", "plaintext wasm is refused");
+    throw new FiledomError("bundle-sealed", "plaintext wasm is refused");
   }
-  if (!key) throw new DomdocError("bundle-missing", "sealed wasm needs a content key");
+  if (!key) throw new FiledomError("bundle-missing", "sealed wasm needs a content key");
   if (view.length < ENVELOPE.length + IV_BYTES + TAG_BYTES || !hasPrefix(view, ENVELOPE)) {
-    throw new Error("domdoc wasm ciphertext is not sealed");
+    throw new Error("filedom wasm ciphertext is not sealed");
   }
   const cryptoKey = await importAesKey(key);
   const iv = view.subarray(ENVELOPE.length, ENVELOPE.length + IV_BYTES) as Uint8Array<ArrayBuffer>;
@@ -77,6 +77,6 @@ export async function unwrapWasm(
     const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, cryptoKey, data);
     return new Uint8Array(plain);
   } catch {
-    throw new Error("domdoc wasm ciphertext did not decrypt");
+    throw new Error("filedom wasm ciphertext did not decrypt");
   }
 }

@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { FileUp } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import { useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import { useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
 const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
 
-const { store, snapshot } = useDomdoc();
+const { store, snapshot } = useFiledom();
 const dragging = ref(false);
 const opening = ref(false);
 const sampleError = ref("");
@@ -83,7 +83,7 @@ async function openSample() {
   <div
     data-slot="viewer-shell"
     class="relative flex min-h-0 w-full flex-1 flex-col bg-canvas text-foreground"
-    :data-domdoc-state="state"
+    :data-filedom-state="state"
     @dragenter.prevent="onDragEnter"
     @dragover.prevent
     @dragleave.prevent="onDragLeave"
@@ -100,10 +100,10 @@ async function openSample() {
       "
     >
       <div v-if="usageNotice === 'blocked'" class="max-w-md rounded-lg border border-border bg-card px-8 py-10 text-center shadow-sm">
-        <p class="text-sm font-medium text-foreground">{{ snapshot?.error?.detail || "domdoc is blocked for this site." }}</p>
+        <p class="text-sm font-medium text-foreground">{{ snapshot?.error?.detail || "filedom is blocked for this site." }}</p>
         <p class="mt-1 text-sm text-muted-foreground">The document stays closed.</p>
       </div>
-      <template v-else>Trial: unlicensed domdoc</template>
+      <template v-else>Trial: unlicensed filedom</template>
     </div>
 
     <div v-show="state !== 'blocked'" data-slot="viewer-canvas" class="relative flex min-h-0 flex-1 flex-col">

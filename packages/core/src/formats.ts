@@ -1,5 +1,5 @@
 import type { FileKind, Format } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 
 export const ACCEPT =
   ".pdf,.docx,.doc,.docm,.dot,.dotx,.dotm,.xlsx,.xls,.xlsm,.xlt,.xltx,.xltm,.xlam,.xlsb,.xla,.pptx,.ppt,.pptm,.pot,.potx,.potm,.pps,.ppsx,.ppsm,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tif,.tiff,.svg,.ai,.csv,.mp3,.wav,.m4a,.mp4,.mpeg,.mpg,.webm,.zip,.gz,.tgz,.tar,.7z,.eml,.msg,application/pdf,application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml,text/csv,audio/mpeg,audio/wav,audio/mp4,video/mp4,video/mpeg,video/webm,application/zip,application/gzip,application/x-tar,application/x-7z-compressed,message/rfc822,application/vnd.ms-outlook";
@@ -271,7 +271,7 @@ export function detectFormat(bytes: Uint8Array, name = ""): Format {
   if (startsWith(bytes, [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1])) return sniffOle(bytes, ext);
   if (isEmail(bytes, ext)) return "eml";
   if (ext && BY_EXTENSION[ext]) return BY_EXTENSION[ext];
-  throw new DomdocError("unsupported-format", name || "unknown file");
+  throw new FiledomError("unsupported-format", name || "unknown file");
 }
 
 /** `report.doc` + `docx` → `report.docx`. */

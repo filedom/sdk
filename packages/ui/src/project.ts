@@ -11,9 +11,9 @@ export interface ProjectConfig {
   aliases: { components: string; lib: string };
 }
 
-export const PROJECT_SCHEMA_URL = "https://domdoc.io/sdk-docs/schema/domdoc.schema.json";
+export const PROJECT_SCHEMA_URL = "https://filedom.io/sdk-docs/schema/filedom.schema.json";
 
-export const THEME_IMPORT = '@import "@domdoc/ui/theme.css";';
+export const THEME_IMPORT = '@import "@filedom/ui/theme.css";';
 
 type PackageJson = Partial<Record<"dependencies" | "devDependencies" | "peerDependencies", Record<string, string>>>;
 
@@ -80,29 +80,29 @@ export function defaultConfig(framework: FrameworkId, cwd: string): Omit<Project
   switch (framework) {
     case "next":
       return existsSync(join(cwd, "src"))
-        ? { ...base, componentDir: "src/components/domdoc", aliases: { components: "@/components/domdoc", lib: "@/lib" } }
-        : { ...base, componentDir: "components/domdoc", aliases: { components: "@/components/domdoc", lib: "@/lib" } };
+        ? { ...base, componentDir: "src/components/filedom", aliases: { components: "@/components/filedom", lib: "@/lib" } }
+        : { ...base, componentDir: "components/filedom", aliases: { components: "@/components/filedom", lib: "@/lib" } };
     case "nuxt":
       return {
         ...base,
-        componentDir: existsSync(join(cwd, "app")) ? "app/components/domdoc" : "components/domdoc",
-        aliases: { components: "~/components/domdoc", lib: "~/lib" },
+        componentDir: existsSync(join(cwd, "app")) ? "app/components/filedom" : "components/filedom",
+        aliases: { components: "~/components/filedom", lib: "~/lib" },
       };
     case "sveltekit":
-      return { ...base, componentDir: "src/lib/components/domdoc", aliases: { components: "$lib/components/domdoc", lib: "$lib" } };
+      return { ...base, componentDir: "src/lib/components/filedom", aliases: { components: "$lib/components/filedom", lib: "$lib" } };
     case "angular":
-      return { ...base, componentDir: "src/app/components/domdoc", aliases: { components: "@/components/domdoc", lib: "@/lib" } };
+      return { ...base, componentDir: "src/app/components/filedom", aliases: { components: "@/components/filedom", lib: "@/lib" } };
     default:
-      return { ...base, componentDir: "src/components/domdoc", aliases: { components: "@/components/domdoc", lib: "@/lib" } };
+      return { ...base, componentDir: "src/components/filedom", aliases: { components: "@/components/filedom", lib: "@/lib" } };
   }
 }
 
 const segments = (path: string) => posix.normalize(path.replace(/\\/g, "/")).split("/").filter((s) => s && s !== ".");
 
 /**
- * The directory `aliases.lib` points at. `domdoc.json` has no lib directory, so it is
+ * The directory `aliases.lib` points at. `filedom.json` has no lib directory, so it is
  * derived from `componentDir` and `aliases.components`: their shared tail gives the
- * alias root (`@/components/domdoc` in `src/components/domdoc` means `@` is `src`).
+ * alias root (`@/components/filedom` in `src/components/filedom` means `@` is `src`).
  */
 export function libDir(config: ProjectConfig): string {
   const dir = segments(config.componentDir);
@@ -150,7 +150,7 @@ export function installCommand(cwd: string, specs: readonly string[]): string {
  * otherwise first (after `@charset`). Returns null when it is already there.
  */
 export function withThemeImport(css: string): string | null {
-  if (/@import\s+(url\()?["']@domdoc\/ui\/theme\.css["']/.test(css)) return null;
+  if (/@import\s+(url\()?["']@filedom\/ui\/theme\.css["']/.test(css)) return null;
   const tailwind = /^[ \t]*@import\s+["']tailwindcss["'][^;\n]*;[ \t]*\r?\n?/m.exec(css);
   if (tailwind) {
     const end = tailwind.index + tailwind[0].length;

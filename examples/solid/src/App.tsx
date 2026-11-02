@@ -1,9 +1,9 @@
-import { bundlesFromCdn } from "@domdoc/core";
-import { DomdocProvider } from "@/components/domdoc/domdoc-provider";
-import { Toolbar } from "@/components/domdoc/toolbar";
-import { ViewerShell } from "@/components/domdoc/viewer-shell";
+import { bundlesFromCdn } from "@filedom/core";
+import { FiledomProvider } from "@/components/filedom/filedom-provider";
+import { Toolbar } from "@/components/filedom/toolbar";
+import { ViewerShell } from "@/components/filedom/viewer-shell";
 
-const bundlesBase = import.meta.env.DOMDOC_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
 
 const options = {
   bundles: bundlesFromCdn(bundlesBase),
@@ -13,11 +13,11 @@ const options = {
 
 export function App() {
   return (
-    <DomdocProvider options={options}>
+    <FiledomProvider options={options}>
       <div class="flex h-dvh min-h-0 flex-col overflow-hidden bg-background font-sans text-foreground">
         <Toolbar />
         <ViewerShell />
       </div>
-    </DomdocProvider>
+    </FiledomProvider>
   );
 }

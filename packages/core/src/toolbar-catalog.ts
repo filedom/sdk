@@ -27,8 +27,8 @@ export interface CatalogContext {
   capabilities: Capabilities;
   mode: CatalogMode;
   selection: SelectionKind;
-  /** True when the open file is a generic `.domdoc` store. */
-  isDomdoc?: boolean;
+  /** True when the open file is a generic `.filedom` store. */
+  isFiledom?: boolean;
   /** Insert kinds the open adapter can place. Empty hides Insert. */
   insertKinds?: string[];
   canUndo?: boolean;
@@ -48,10 +48,10 @@ const APP: ToolbarGroup[] = [
     label: "File",
     row: "app",
     actions: [
-      { id: "new", label: "New", hint: "Create a new .domdoc file" },
+      { id: "new", label: "New", hint: "Create a new .filedom file" },
       { id: "open", label: "Open", hint: "Open a document" },
       { id: "save", label: "Save", hint: "Save in the open format" },
-      { id: "storeDomdoc", label: "Store as domdoc", hint: "Write this session as a .domdoc file" },
+      { id: "storeFiledom", label: "Store as filedom", hint: "Write this session as a .filedom file" },
       { id: "export", label: "Export", hint: "Export to another format" },
     ],
   },
@@ -266,7 +266,7 @@ function formatAllows(ctx: CatalogContext, groupId: string): boolean {
   if (groupId === "archive") return ctx.fileKind === "archive";
   if (groupId === "email") return ctx.fileKind === "email";
   if (groupId === "sheet") return ctx.format === "csv";
-  if (ctx.isDomdoc) return true;
+  if (ctx.isFiledom) return true;
   if (ctx.supportsGroup) return ctx.supportsGroup(groupId);
   switch (groupId) {
     case "text":

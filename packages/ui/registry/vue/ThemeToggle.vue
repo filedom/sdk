@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
 import { Moon, Sun } from "lucide-vue-next";
-import Button from "@/components/domdoc/Button.vue";
-import Tooltip from "@/components/domdoc/Tooltip.vue";
-import { controlFor, useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import Button from "@/components/filedom/Button.vue";
+import Tooltip from "@/components/filedom/Tooltip.vue";
+import { controlFor, useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot, store } = useDomdoc();
+const { snapshot, store } = useFiledom();
 const theme = computed(() => controlFor(snapshot.value, "theme"));
 const dark = computed(() => {
   const name = snapshot.value?.theme;

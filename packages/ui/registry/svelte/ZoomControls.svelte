@@ -1,11 +1,11 @@
 <script lang="ts">
   import { Expand, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide-svelte";
-  import Button from "@/components/domdoc/Button.svelte";
-  import Tooltip from "@/components/domdoc/Tooltip.svelte";
-  import { control, getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Button from "@/components/filedom/Button.svelte";
+  import Tooltip from "@/components/filedom/Tooltip.svelte";
+  import { control, getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const zoomOut = $derived(control(snapshot, "zoomOut", "Zoom out"));
   const zoomReset = $derived(control(snapshot, "zoomReset", "Actual size"));
@@ -25,7 +25,7 @@
         aria-label="Zoom out"
         disabled={zoomOut.disabled}
         title={zoomOut.disabled ? zoomOut.title : undefined}
-        onclick={() => domdoc.run("zoomOut")}
+        onclick={() => filedom.run("zoomOut")}
       >
         <ZoomOut class="size-4" />
       </Button>
@@ -41,7 +41,7 @@
         aria-label="Actual size"
         disabled={zoomReset.disabled}
         title={zoomReset.disabled ? zoomReset.title : undefined}
-        onclick={() => domdoc.run("zoomReset")}
+        onclick={() => filedom.run("zoomReset")}
       >
         {percent}
       </Button>
@@ -56,7 +56,7 @@
         aria-label="Zoom in"
         disabled={zoomIn.disabled}
         title={zoomIn.disabled ? zoomIn.title : undefined}
-        onclick={() => domdoc.run("zoomIn")}
+        onclick={() => filedom.run("zoomIn")}
       >
         <ZoomIn class="size-4" />
       </Button>
@@ -71,7 +71,7 @@
         aria-label="Fit width"
         disabled={fitWidth.disabled}
         title={fitWidth.disabled ? fitWidth.title : undefined}
-        onclick={() => domdoc.run("fitWidth")}
+        onclick={() => filedom.run("fitWidth")}
       >
         <UnfoldHorizontal class="size-4" />
       </Button>
@@ -86,7 +86,7 @@
         aria-label="Fit page"
         disabled={fitPage.disabled}
         title={fitPage.disabled ? fitPage.title : undefined}
-        onclick={() => domdoc.run("fitPage")}
+        onclick={() => filedom.run("fitPage")}
       >
         <Expand class="size-4" />
       </Button>

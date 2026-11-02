@@ -1,19 +1,19 @@
 import { Component, computed, inject } from "@angular/core";
 import { LucideAngularModule, Maximize2, UnfoldHorizontal, ZoomIn, ZoomOut } from "lucide-angular";
-import { DomdocButton } from "@/components/domdoc/button";
-import { DomdocContext } from "@/components/domdoc/domdoc-provider";
-import { DomdocTooltip } from "@/components/domdoc/tooltip";
+import { FiledomButton } from "@/components/filedom/button";
+import { FiledomContext } from "@/components/filedom/filedom-provider";
+import { FiledomTooltip } from "@/components/filedom/tooltip";
 
 @Component({
-  selector: "domdoc-zoom-controls",
+  selector: "filedom-zoom-controls",
   standalone: true,
-  imports: [DomdocButton, DomdocTooltip, LucideAngularModule],
+  imports: [FiledomButton, FiledomTooltip, LucideAngularModule],
   template: `
     <div data-slot="zoom-controls" class="flex items-center gap-0.5">
       @if (!zoomOut().hidden) {
-        <domdoc-tooltip [text]="zoomOut().title">
+        <filedom-tooltip [text]="zoomOut().title">
           <button
-            domdocButton
+            filedomButton
             slot="zoom-out"
             data-action="zoomOut"
             variant="icon"
@@ -24,11 +24,11 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="zoomOutIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
       @if (!zoomReset().hidden) {
         <button
-          domdocButton
+          filedomButton
           slot="zoom-label"
           data-action="zoomReset"
           variant="ghost"
@@ -41,9 +41,9 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
         </button>
       }
       @if (!zoomIn().hidden) {
-        <domdoc-tooltip [text]="zoomIn().title">
+        <filedom-tooltip [text]="zoomIn().title">
           <button
-            domdocButton
+            filedomButton
             slot="zoom-in"
             data-action="zoomIn"
             variant="icon"
@@ -54,12 +54,12 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="zoomInIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
       @if (!fitWidth().hidden) {
-        <domdoc-tooltip [text]="fitWidth().title">
+        <filedom-tooltip [text]="fitWidth().title">
           <button
-            domdocButton
+            filedomButton
             slot="fit-width"
             data-action="fitWidth"
             variant="icon"
@@ -70,12 +70,12 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="fitWidthIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
       @if (!fitPage().hidden) {
-        <domdoc-tooltip [text]="fitPage().title">
+        <filedom-tooltip [text]="fitPage().title">
           <button
-            domdocButton
+            filedomButton
             slot="fit-page"
             data-action="fitPage"
             variant="icon"
@@ -86,13 +86,13 @@ import { DomdocTooltip } from "@/components/domdoc/tooltip";
           >
             <lucide-icon [img]="fitPageIcon" [size]="16" aria-hidden="true" />
           </button>
-        </domdoc-tooltip>
+        </filedom-tooltip>
       }
     </div>
   `,
 })
-export class DomdocZoomControls {
-  private readonly ctx = inject(DomdocContext);
+export class FiledomZoomControls {
+  private readonly ctx = inject(FiledomContext);
   readonly zoomOutIcon = ZoomOut;
   readonly zoomInIcon = ZoomIn;
   readonly fitWidthIcon = UnfoldHorizontal;

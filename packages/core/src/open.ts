@@ -1,7 +1,7 @@
 import type { BundleLoader } from "./bundles.js";
-import { DomdocDocument } from "./document.js";
+import { FiledomDocument } from "./document.js";
 import type { DocInfo, EngineModule, Format } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import type { FileStore, StoredFile } from "./file-store.js";
 import { detectFormat, unwiredDetail } from "./formats.js";
 import type { CoreLoader } from "./modules.js";
@@ -43,7 +43,7 @@ async function resolve(source: OpenSource, options: OpenOptions): Promise<Stored
     const url = typeof source === "string" ? source : source.url;
     if (files) return files.fetch(url);
     const response = await fetch(url);
-    if (!response.ok) throw new DomdocError("open-failed", `${url}: ${response.status}`);
+    if (!response.ok) throw new FiledomError("open-failed", `${url}: ${response.status}`);
     const name = decodeURIComponent(url.split(/[?#]/)[0]!.split("/").pop() || "document");
     return {
       id: "",
@@ -73,7 +73,7 @@ function openSession(format: Format, engine: Awaited<ReturnType<BundleLoader["lo
   try {
     return format === "pdf" ? engine.open(bytes, password) : engine.open(bytes);
   } catch (error) {
-    throw DomdocError.from(error);
+    throw FiledomError.from(error);
   }
 }
 
@@ -83,13 +83,13 @@ export async function openDocument(loader: BundleLoader, source: OpenSource, opt
   const name = options.name ?? file.name;
   const detected = detectFormat(file.bytes, name);
   const detail = unwiredDetail(detected);
-  if (detail) throw new DomdocError("unsupported", detail);
+  if (detail) throw new FiledomError("unsupported", detail);
   let prepared: Awaited<ReturnType<NonNullable<OpenOptions["core"]>["prepare"]>> | undefined;
   if (options.core) {
     try {
       prepared = await options.core.prepare(file.bytes, name);
     } catch (error) {
-      const failure = DomdocError.from(error);
+      const failure = FiledomError.from(error);
       // PDF and Office use the core loader. Audio, video, and the other format
       // bundles stay on `loader` when the host provided one.
       if (failure.code !== "unsupported-format" || !loader.supports(detected)) throw failure;
@@ -115,9 +115,9 @@ export async function openDocument(loader: BundleLoader, source: OpenSource, opt
         }
       }
       const format = (JSON.parse(session.info()) as DocInfo).format;
-      return new DomdocDocument(session, name, format, file.id || undefined);
+      return new FiledomDocument(session, name, format, file.id || undefined);
     } catch (error) {
-      const failure = DomdocError.from(error);
+      const failure = FiledomError.from(error);
       if (!needsPassword(failure.code, sniffed)) throw failure;
       if (!options.getPassword) throw failure;
       const hint: PasswordHint = {

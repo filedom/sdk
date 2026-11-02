@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-react",
+  "name": "@filedom/example-react",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/react": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/react": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
     "react": "^19.0.0",

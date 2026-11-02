@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Select from "@/components/domdoc/Select.svelte";
-  import { control, getDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Select from "@/components/filedom/Select.svelte";
+  import { control, getFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
-  const domdoc = getDomdoc();
-  const snapshotStore = domdoc.snapshot;
+  const filedom = getFiledom();
+  const snapshotStore = filedom.snapshot;
   const snapshot = $derived($snapshotStore);
   const live = $derived(control(snapshot, "live", "Live"));
   const track = $derived(control(snapshot, "track", "Track changes"));
@@ -11,7 +11,7 @@
 
   function onChange(event: Event) {
     const mode = (event.currentTarget as HTMLSelectElement).value;
-    if (mode === "live" || mode === "track" || mode === "view") domdoc.run(mode);
+    if (mode === "live" || mode === "track" || mode === "view") filedom.run(mode);
   }
 </script>
 

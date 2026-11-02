@@ -38,8 +38,8 @@ export interface ToolbarState {
   selectionKind: SelectionKind;
   /** Insert kinds the open adapter can place. */
   insertKinds: string[];
-  /** True when the open file is a generic `.domdoc` store. */
-  isDomdoc: boolean;
+  /** True when the open file is a generic `.filedom` store. */
+  isFiledom: boolean;
   helpOn: boolean;
   toolbarsLocked: boolean;
   /** Group ids the View menu has hidden. View itself cannot be hidden. */
@@ -56,7 +56,7 @@ export interface ToolbarActions {
   pick(): void;
   newFile(): void;
   download(): void;
-  storeDomdoc(): void;
+  storeFiledom(): void;
   exportFile(): void;
   undo(): void;
   redo(): void;
@@ -458,7 +458,7 @@ export class Toolbar {
       this.menuCommand("open", "Open", () => this.actions.pick(), "Open", "folder"),
       this.menuCommand("save", "Save", () => this.actions.download(), "Save", "download"),
       this.sep(),
-      this.menuCommand("storeDomdoc", "Store as domdoc", () => this.actions.storeDomdoc()),
+      this.menuCommand("storeFiledom", "Store as filedom", () => this.actions.storeFiledom()),
       this.menuCommand("export", "Export", () => this.actions.exportFile()),
     );
 
@@ -793,7 +793,7 @@ export class Toolbar {
       capabilities: caps,
       mode: state.viewMode,
       selection: state.selectionKind,
-      isDomdoc: state.isDomdoc,
+      isFiledom: state.isFiledom,
       insertKinds: state.insertKinds,
       canUndo: state.info?.canUndo,
       canRedo: state.info?.canRedo,
@@ -801,7 +801,7 @@ export class Toolbar {
       fileKind: state.info ? fileKind(state.info.format) : undefined,
       format: state.info?.format,
       supportsGroup: (groupId) => {
-        if (state.isDomdoc) return true;
+        if (state.isFiledom) return true;
         if (groupId === "text") return caps.editText || caps.formatText;
         if (groupId === "image" || groupId === "shape") return caps.transform;
         if (groupId === "insert") return caps.insert && state.insertKinds.length > 0;
@@ -913,8 +913,8 @@ export class Toolbar {
     const historyBlocked = !open || state.viewMode === "view";
     setDisabled("undo", historyBlocked || !state.info?.canUndo);
     setDisabled("redo", historyBlocked || !state.info?.canRedo);
-    setDisabled("storeDomdoc", !open);
-    setDisabled("export", !open || !state.isDomdoc);
+    setDisabled("storeFiledom", !open);
+    setDisabled("export", !open || !state.isFiledom);
     setDisabled("search", !open);
     setDisabled("findPrev", !open);
     setDisabled("findNext", !open);

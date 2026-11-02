@@ -11,7 +11,7 @@ function actions(): ToolbarActions {
     pick() {},
     newFile() {},
     download() {},
-    storeDomdoc() {},
+    storeFiledom() {},
     exportFile() {},
     undo() {},
     redo() {},
@@ -95,7 +95,7 @@ function chrome(
     hasSelection: false,
     selectionKind,
     insertKinds: format === "docx" || format === "doc" ? ["image", "text-box", "shape"] : [],
-    isDomdoc: false,
+    isFiledom: false,
     helpOn: false,
     toolbarsLocked: false,
     hiddenGroups: [],
@@ -170,12 +170,12 @@ describe("toolbar icons", () => {
     expect(bar.querySelector("[data-action=copy-error]")?.textContent).toBe("Copy");
     expect(bar.querySelector("[data-action=debug-error]")?.textContent).toBe("Debug");
 
-    const full = "engine: Failed to fetch dynamically imported module: https://domdoc.io/api/bundles/x";
+    const full = "engine: Failed to fetch dynamically imported module: https://filedom.io/api/bundles/x";
     expect(shortError(full)).toBe("engine: Failed to fetch dynamically imported module");
     const toolbar = new Toolbar(elementFactory(document), actions(), "#fff59d");
     toolbar.showError(full);
     expect(toolbar.el.querySelector("summary")?.textContent).toBe("engine: Failed to fetch dynamically imported module");
-    expect(toolbar.el.querySelector("pre")?.textContent).toContain("https://domdoc.io/api/bundles/x");
+    expect(toolbar.el.querySelector("pre")?.textContent).toContain("https://filedom.io/api/bundles/x");
     expect(toolbar.el.querySelector("details")?.hasAttribute("open")).toBe(false);
   });
 });

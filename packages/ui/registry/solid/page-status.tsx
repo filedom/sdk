@@ -1,7 +1,7 @@
-import { useDomdoc } from "@/components/domdoc/domdoc-provider";
+import { useFiledom } from "@/components/filedom/filedom-provider";
 
 export function PageStatus() {
-  const api = useDomdoc();
+  const api = useFiledom();
   const label = () => {
     const doc = api.snapshot()?.document;
     if (!doc) return "No document";

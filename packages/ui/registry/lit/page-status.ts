@@ -1,8 +1,8 @@
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { LitElement, html } from "lit";
-import { watchDomdoc } from "@/components/domdoc/domdoc-provider";
+import { watchFiledom } from "@/components/filedom/filedom-provider";
 
-export class DomdocPageStatusElement extends LitElement {
+export class FiledomPageStatusElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -13,7 +13,7 @@ export class DomdocPageStatusElement extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback();
     this.classList.add("min-w-0", "max-w-[40%]");
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -33,4 +33,4 @@ export class DomdocPageStatusElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-page-status")) customElements.define("domdoc-page-status", DomdocPageStatusElement);
+if (!customElements.get("filedom-page-status")) customElements.define("filedom-page-status", FiledomPageStatusElement);

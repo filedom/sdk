@@ -7,5 +7,5 @@ test-results
 playwright-report
 apps/docs/build
 apps/docs/.docusaurus
-vendor/domdoc-pdfium-wasm
+vendor/filedom-pdfium-wasm
 vendor/pdfium-lib-probe

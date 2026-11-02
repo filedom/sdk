@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "svelte",
+  "label": "Svelte",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/svelte",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/App.svelte", "role": "page", "label": "App.svelte", "language": "svelte" },
+    { "path": "src/index.css", "role": "css", "label": "index.css", "language": "css" },
+    { "path": "vite.config.ts", "role": "config", "label": "vite.config.ts", "language": "ts" }
+  ]
+}

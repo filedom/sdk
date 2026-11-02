@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "astro",
+  "label": "Astro",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/astro-host",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "src/pages/index.astro", "role": "page" },
+    { "path": "src/styles/global.css", "role": "css" },
+    { "path": "astro.config.ts", "role": "config" }
+  ]
+}

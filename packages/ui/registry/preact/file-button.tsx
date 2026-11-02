@@ -1,7 +1,7 @@
 import { FolderOpen } from "lucide-preact";
-import { Button } from "@/components/domdoc/button";
-import { useAction } from "@/components/domdoc/domdoc-provider";
-import { Tooltip } from "@/components/domdoc/tooltip";
+import { Button } from "@/components/filedom/button";
+import { useAction } from "@/components/filedom/filedom-provider";
+import { Tooltip } from "@/components/filedom/tooltip";
 
 export function FileButton() {
   const action = useAction("open");

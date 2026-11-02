@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-vue",
+  "name": "@filedom/example-vue",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/ui": "workspace:*",
-    "@domdoc/vue": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/ui": "workspace:*",
+    "@filedom/vue": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.469.0",
     "tailwind-merge": "^3.3.1",

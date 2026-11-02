@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { BundleLoader } from "./bundles.js";
 import type { EngineModule } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { CoreLoader, enginesFromCdn, loadingLabel, planLoad, type EngineSources, type TrackChangesModule } from "./modules.js";
 import { openDocument } from "./open.js";
 
@@ -51,14 +51,14 @@ describe("planLoad", () => {
   });
 
   it("does not plan a format the host left off", () => {
-    expect(() => planLoad(PDF, "notes.pdf", { docx: true })).toThrow(DomdocError);
+    expect(() => planLoad(PDF, "notes.pdf", { docx: true })).toThrow(FiledomError);
     expect(() => planLoad(PDF, "notes.pdf", { docx: true })).toThrow(/format-disabled/);
   });
 
-  it("adds track changes on the original file, domdoc-only for PDF", () => {
+  it("adds track changes on the original file, filedom-only for PDF", () => {
     const pdf = planLoad(PDF, "notes.pdf", { pdf: true, trackChanges: true });
     const docx = planLoad(DOCX, "a.docx", { docx: true, trackChanges: true });
-    expect(pdf.modules.at(-1)).toEqual({ id: "track-changes", role: "revisions", visibleIn: "domdoc" });
+    expect(pdf.modules.at(-1)).toEqual({ id: "track-changes", role: "revisions", visibleIn: "filedom" });
     expect(docx.modules.at(-1)).toEqual({ id: "track-changes", role: "revisions", visibleIn: "file" });
     expect(pdf.source).toBe("original");
   });
@@ -194,7 +194,7 @@ describe("openDocument with the core loader", () => {
     expect(attach).toHaveBeenCalledWith({
       format: "pdf",
       original: PDF,
-      visibleIn: "domdoc",
+      visibleIn: "filedom",
       session: expect.anything(),
     });
     expect(doc.format).toBe("pdf");
@@ -205,7 +205,7 @@ describe("openDocument with the core loader", () => {
 
 describe("enginesFromCdn", () => {
   it("points PDF, Word, and track changes at separate paths", () => {
-    const sources = enginesFromCdn("https://cdn.example.com/domdoc/v1/");
+    const sources = enginesFromCdn("https://cdn.example.com/filedom/v1/");
     expect("pdfiumWasm" in sources).toBe(false);
     expect(sources.core).toEqual(expect.any(Function));
     expect(sources.pdfiumRender).toEqual(expect.any(Function));

@@ -1,6 +1,6 @@
 import type { BundleImporters } from "../bundles.js";
 import type { EngineModule, Format } from "../engine-types.js";
-import { DomdocError } from "../errors.js";
+import { FiledomError } from "../errors.js";
 
 const MEDIA: Format[] = ["wav", "mp3", "m4a", "mp4", "webm", "mpeg"];
 
@@ -8,14 +8,14 @@ type Glue = EngineModule & {
   initSync?: (input: { module: Uint8Array }) => unknown;
 };
 
-/** Format bundles built into `domdoc-wasm/pkg`. Loaded only when that file is opened. */
+/** Format bundles built into `wasm/pkg`. Loaded only when that file is opened. */
 export function mediaBundles(): BundleImporters {
   return Object.fromEntries(MEDIA.map((format) => [format, importer(format)])) as BundleImporters;
 }
 
 function importer(format: Format): () => Promise<EngineModule> {
-  const jsUrl = new URL(`../../../../../domdoc-wasm/pkg/${format}/domdoc_${format}.js`, import.meta.url);
-  const wasmUrl = new URL(`../../../../../domdoc-wasm/pkg/${format}/domdoc_${format}_bg.wasm`, import.meta.url);
+  const jsUrl = new URL(`../../../../../wasm/pkg/${format}/filedom_${format}.js`, import.meta.url);
+  const wasmUrl = new URL(`../../../../../wasm/pkg/${format}/filedom_${format}_bg.wasm`, import.meta.url);
   return async () => {
     const glue = (await import(/* @vite-ignore */ jsUrl.href)) as Glue;
     let booted: Promise<unknown> | undefined;
@@ -34,7 +34,7 @@ async function boot(glue: Glue, wasmUrl: URL): Promise<unknown> {
   const runtime = globalThis as { process?: { versions?: { node?: string } } };
   const wasm = await wasmBytes(wasmUrl);
   if (runtime.process?.versions?.node) {
-    if (!glue.initSync) throw new DomdocError("bundle-missing", "initSync");
+    if (!glue.initSync) throw new FiledomError("bundle-missing", "initSync");
     return glue.initSync({ module: wasm });
   }
   return glue.default({ module_or_path: wasm });
@@ -48,6 +48,6 @@ async function wasmBytes(wasmUrl: URL): Promise<Uint8Array> {
     return new Uint8Array(await readFile(wasmUrl));
   }
   const response = await fetch(wasmUrl);
-  if (!response.ok) throw new DomdocError("bundle-missing", `wasm: ${response.status}`);
+  if (!response.ok) throw new FiledomError("bundle-missing", `wasm: ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());
 }

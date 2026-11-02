@@ -1,12 +1,12 @@
 {
-  "name": "@domdoc/ui",
+  "name": "@filedom/ui",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "Copy-in UI kit for the domdoc viewer: theme, per-framework components, and the domdoc CLI",
+  "description": "Copy-in UI kit for the filedom viewer: theme, per-framework components, and the filedom CLI",
   "type": "module",
   "sideEffects": false,
   "bin": {
-    "domdoc": "./dist/cli.js"
+    "filedom": "./dist/cli.js"
   },
   "exports": {
     ".": {
@@ -30,7 +30,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "@domdoc/core": "workspace:*",
+    "@filedom/core": "workspace:*",
     "@types/node": "^22.0.0",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

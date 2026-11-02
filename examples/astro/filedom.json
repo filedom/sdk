@@ -1,0 +1,10 @@
+{
+  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "framework": "astro",
+  "componentDir": "src/components/filedom",
+  "css": "src/styles/global.css",
+  "aliases": {
+    "components": "@/components/filedom",
+    "lib": "@/lib"
+  }
+}

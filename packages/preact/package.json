@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/preact",
+  "name": "@filedom/preact",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc Preact component wrapping @domdoc/core",
+  "description": "filedom Preact component wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,7 +19,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*"
+    "@filedom/core": "workspace:*"
   },
   "peerDependencies": {
     "preact": "^10.25.0"

@@ -1,0 +1,13 @@
+{
+  "$schema": "../../packages/ui/schema/filedom-example.schema.json",
+  "framework": "nuxt",
+  "label": "Nuxt",
+  "logo": "logo.svg",
+  "install": "npm install @filedom/core @filedom/vue",
+  "add": "npx @filedom/ui add viewer-shell toolbar",
+  "files": [
+    { "path": "app.vue", "role": "page" },
+    { "path": "assets/css/main.css", "role": "css" },
+    { "path": "nuxt.config.ts", "role": "config" }
+  ]
+}

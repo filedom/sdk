@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useDomdoc } from "@/components/domdoc/DomdocProvider.vue";
+import { useFiledom } from "@/components/filedom/FiledomProvider.vue";
 
-const { snapshot } = useDomdoc();
+const { snapshot } = useFiledom();
 const label = computed(() => {
   const doc = snapshot.value?.document;
   if (!doc) return "No document";

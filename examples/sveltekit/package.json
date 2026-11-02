@@ -1,5 +1,5 @@
 {
-  "name": "@domdoc/example-sveltekit",
+  "name": "@filedom/example-sveltekit",
   "version": "0.2.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,9 @@
     "prepare": "svelte-kit sync || echo ''"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/svelte": "workspace:*",
-    "@domdoc/ui": "workspace:*",
+    "@filedom/core": "workspace:*",
+    "@filedom/svelte": "workspace:*",
+    "@filedom/ui": "workspace:*",
     "clsx": "^2.1.1",
     "lucide-svelte": ">=0.469.0 <1",
     "svelte": "^5.0.0",

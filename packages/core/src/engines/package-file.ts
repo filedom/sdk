@@ -1,7 +1,7 @@
 /** Store-only ZIP plus the revision ledger each format can carry inside the file. */
 
-const PDF_MARK = "\n% DOMDOC-REVISIONS ";
-const ZIP_MARK = "DOMDOC-REVISIONS ";
+const PDF_MARK = "\n% FILEDOM-REVISIONS ";
+const ZIP_MARK = "FILEDOM-REVISIONS ";
 
 export interface ZipEntry {
   name: string;

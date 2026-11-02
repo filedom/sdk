@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { Snippet } from "svelte";
-  import type { ViewerStoreSnapshot } from "@domdoc/core";
-  import { domdoc, type DomdocActionParams, type Viewer, type ViewerOptions } from "@domdoc/svelte";
+  import type { ViewerStoreSnapshot } from "@filedom/core";
+  import { filedom, type FiledomActionParams, type Viewer, type ViewerOptions } from "@filedom/svelte";
   import { FileUp } from "lucide-svelte";
-  import Button from "@/components/domdoc/Button.svelte";
-  import { provideDomdoc } from "@/components/domdoc/DomdocProvider.svelte";
+  import Button from "@/components/filedom/Button.svelte";
+  import { provideFiledom } from "@/components/filedom/FiledomProvider.svelte";
 
   const SHELL_STATES = ["empty", "loading", "ready", "error", "blocked"] as const;
   type ShellState = (typeof SHELL_STATES)[number];
@@ -25,7 +25,7 @@
   let viewer = $state<Viewer | null>(null);
   let openError = $state<string | null>(null);
 
-  const binding = provideDomdoc();
+  const binding = provideFiledom();
   const snapshotStore = binding.snapshot;
   const snapshot = $derived($snapshotStore ?? null);
 
@@ -33,7 +33,7 @@
     viewer = next;
   }
 
-  const actionParams: DomdocActionParams = { options: viewerOptions, onReady };
+  const actionParams: FiledomActionParams = { options: viewerOptions, onReady };
 
   $effect(() => {
     if (!viewer) return;
@@ -83,13 +83,13 @@
 
 <div
   data-slot="viewer-shell"
-  data-domdoc-state={state}
+  data-filedom-state={state}
   class="relative flex h-full min-h-0 flex-col overflow-hidden bg-background font-sans text-foreground"
 >
   {@render children?.()}
 
   <div class="relative min-h-0 flex-1 bg-canvas">
-    <div data-slot="viewer-canvas" class="absolute inset-0" hidden={state === "blocked"} use:domdoc={actionParams}></div>
+    <div data-slot="viewer-canvas" class="absolute inset-0" hidden={state === "blocked"} use:filedom={actionParams}></div>
 
     {#if state === "empty" || state === "error"}
       <div data-slot="empty-state" class="absolute inset-0 z-10 flex items-center justify-center p-6">
@@ -115,14 +115,14 @@
         data-state="blocked"
         class="absolute inset-0 z-20 flex items-center justify-center bg-background p-6 text-center"
       >
-        <p class="text-sm text-foreground">Usage of domdoc is blocked.</p>
+        <p class="text-sm text-foreground">Usage of filedom is blocked.</p>
       </div>
     {/if}
   </div>
 
   {#if notice === "trial"}
     <div data-slot="usage-notice" data-state="trial" class="pointer-events-none absolute inset-x-0 top-0 z-30 flex justify-center p-1">
-      <p class="rounded-md border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground shadow-sm">Trial: unlicensed domdoc</p>
+      <p class="rounded-md border border-border bg-card px-2 py-0.5 text-xs text-muted-foreground shadow-sm">Trial: unlicensed filedom</p>
     </div>
   {/if}
 </div>

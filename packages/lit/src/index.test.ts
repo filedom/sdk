@@ -2,8 +2,8 @@ import { expect, it } from "vitest";
 import "./index.js";
 
 it("creates the viewer when options are set and destroys it when removed", async () => {
-  const el = document.createElement("domdoc-viewer");
-  const ready = new Promise<CustomEvent>((resolve) => el.addEventListener("domdoc-ready", (e) => resolve(e as CustomEvent)));
+  const el = document.createElement("filedom-viewer");
+  const ready = new Promise<CustomEvent>((resolve) => el.addEventListener("filedom-ready", (e) => resolve(e as CustomEvent)));
   document.body.append(el);
   el.options = { bundles: {} };
   const event = await ready;

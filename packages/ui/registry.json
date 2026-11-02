@@ -1,6 +1,6 @@
 {
   "$schema": "./schema/registry.schema.json",
-  "name": "domdoc",
+  "name": "filedom",
   "items": [
     {
       "name": "cn",
@@ -130,28 +130,28 @@
       }
     },
     {
-      "name": "domdoc-provider",
+      "name": "filedom-provider",
       "type": "block",
       "description": "Creates the headless store for a viewer and shares it with the blocks",
       "files": {
-        "react": [{ "path": "registry/react/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
-        "preact": [{ "path": "registry/preact/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
-        "vue": [{ "path": "registry/vue/DomdocProvider.vue", "target": "DomdocProvider.vue" }],
-        "svelte": [{ "path": "registry/svelte/DomdocProvider.svelte", "target": "DomdocProvider.svelte" }],
-        "angular": [{ "path": "registry/angular/domdoc-provider.ts", "target": "domdoc-provider.ts" }],
-        "solid": [{ "path": "registry/solid/domdoc-provider.tsx", "target": "domdoc-provider.tsx" }],
-        "lit": [{ "path": "registry/lit/domdoc-provider.ts", "target": "domdoc-provider.ts" }],
-        "astro": [{ "path": "registry/astro/DomdocProvider.astro", "target": "DomdocProvider.astro" }]
+        "react": [{ "path": "registry/react/filedom-provider.tsx", "target": "filedom-provider.tsx" }],
+        "preact": [{ "path": "registry/preact/filedom-provider.tsx", "target": "filedom-provider.tsx" }],
+        "vue": [{ "path": "registry/vue/FiledomProvider.vue", "target": "FiledomProvider.vue" }],
+        "svelte": [{ "path": "registry/svelte/FiledomProvider.svelte", "target": "FiledomProvider.svelte" }],
+        "angular": [{ "path": "registry/angular/filedom-provider.ts", "target": "filedom-provider.ts" }],
+        "solid": [{ "path": "registry/solid/filedom-provider.tsx", "target": "filedom-provider.tsx" }],
+        "lit": [{ "path": "registry/lit/filedom-provider.ts", "target": "filedom-provider.ts" }],
+        "astro": [{ "path": "registry/astro/FiledomProvider.astro", "target": "FiledomProvider.astro" }]
       },
       "dependencies": {
-        "react": ["@domdoc/core", "@domdoc/react"],
-        "preact": ["@domdoc/core", "@domdoc/preact"],
-        "vue": ["@domdoc/core", "@domdoc/vue"],
-        "svelte": ["@domdoc/core", "@domdoc/svelte"],
-        "angular": ["@domdoc/core", "@domdoc/angular"],
-        "solid": ["@domdoc/core", "@domdoc/solid"],
-        "lit": ["@domdoc/core", "@domdoc/lit"],
-        "astro": ["@domdoc/core", "@domdoc/astro-host"]
+        "react": ["@filedom/core", "@filedom/react"],
+        "preact": ["@filedom/core", "@filedom/preact"],
+        "vue": ["@filedom/core", "@filedom/vue"],
+        "svelte": ["@filedom/core", "@filedom/svelte"],
+        "angular": ["@filedom/core", "@filedom/angular"],
+        "solid": ["@filedom/core", "@filedom/solid"],
+        "lit": ["@filedom/core", "@filedom/lit"],
+        "astro": ["@filedom/core", "@filedom/astro-host"]
       }
     },
     {
@@ -159,7 +159,7 @@
       "type": "block",
       "description": "Layout around the viewer canvas, with the empty state, dropzone, and open-sample button",
       "slots": ["viewer-shell", "viewer-canvas", "empty-state", "dropzone", "open-sample"],
-      "registryDependencies": ["button", "cn", "domdoc-provider"],
+      "registryDependencies": ["button", "cn", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/viewer-shell.tsx", "target": "viewer-shell.tsx" }],
         "preact": [{ "path": "registry/preact/viewer-shell.tsx", "target": "viewer-shell.tsx" }],
@@ -186,7 +186,7 @@
       "type": "block",
       "description": "40px toolbar: undo, redo, file, zoom, search, mode, theme, and page status",
       "slots": ["toolbar", "undo", "redo"],
-      "registryDependencies": ["button", "separator", "tooltip", "domdoc-provider", "zoom-controls", "search-bar", "mode-select", "theme-toggle", "file-button", "page-status"],
+      "registryDependencies": ["button", "separator", "tooltip", "filedom-provider", "zoom-controls", "search-bar", "mode-select", "theme-toggle", "file-button", "page-status"],
       "files": {
         "react": [{ "path": "registry/react/toolbar.tsx", "target": "toolbar.tsx" }],
         "preact": [{ "path": "registry/preact/toolbar.tsx", "target": "toolbar.tsx" }],
@@ -213,7 +213,7 @@
       "type": "block",
       "description": "Zoom out, zoom label, zoom in, fit width, fit page",
       "slots": ["zoom-controls", "zoom-out", "zoom-label", "zoom-in", "fit-width", "fit-page"],
-      "registryDependencies": ["button", "domdoc-provider"],
+      "registryDependencies": ["button", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/zoom-controls.tsx", "target": "zoom-controls.tsx" }],
         "preact": [{ "path": "registry/preact/zoom-controls.tsx", "target": "zoom-controls.tsx" }],
@@ -240,7 +240,7 @@
       "type": "block",
       "description": "Search input with previous, next, and hit count",
       "slots": ["search-bar", "search-input", "search-prev", "search-next", "search-count"],
-      "registryDependencies": ["button", "input", "domdoc-provider"],
+      "registryDependencies": ["button", "input", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/search-bar.tsx", "target": "search-bar.tsx" }],
         "preact": [{ "path": "registry/preact/search-bar.tsx", "target": "search-bar.tsx" }],
@@ -267,7 +267,7 @@
       "type": "block",
       "description": "View mode select: live, track, view",
       "slots": ["mode-select"],
-      "registryDependencies": ["select", "domdoc-provider"],
+      "registryDependencies": ["select", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/mode-select.tsx", "target": "mode-select.tsx" }],
         "preact": [{ "path": "registry/preact/mode-select.tsx", "target": "mode-select.tsx" }],
@@ -284,7 +284,7 @@
       "type": "block",
       "description": "Switches light and dark on the page and the viewer",
       "slots": ["theme-toggle"],
-      "registryDependencies": ["button", "domdoc-provider"],
+      "registryDependencies": ["button", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/theme-toggle.tsx", "target": "theme-toggle.tsx" }],
         "preact": [{ "path": "registry/preact/theme-toggle.tsx", "target": "theme-toggle.tsx" }],
@@ -311,7 +311,7 @@
       "type": "block",
       "description": "Opens a local file in the viewer",
       "slots": ["file-button"],
-      "registryDependencies": ["button", "domdoc-provider"],
+      "registryDependencies": ["button", "filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/file-button.tsx", "target": "file-button.tsx" }],
         "preact": [{ "path": "registry/preact/file-button.tsx", "target": "file-button.tsx" }],
@@ -338,7 +338,7 @@
       "type": "block",
       "description": "Document name and page count",
       "slots": ["page-status"],
-      "registryDependencies": ["domdoc-provider"],
+      "registryDependencies": ["filedom-provider"],
       "files": {
         "react": [{ "path": "registry/react/page-status.tsx", "target": "page-status.tsx" }],
         "preact": [{ "path": "registry/preact/page-status.tsx", "target": "page-status.tsx" }],

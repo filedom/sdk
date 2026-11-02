@@ -4,13 +4,13 @@ import { themes as prismThemes } from "prism-react-renderer";
 import exampleSourcesPlugin from "./src/plugins/example-sources";
 import tailwindPlugin from "./src/plugins/tailwind";
 
-const GITHUB = "https://github.com/domdoc-io/domdoc-sdk";
+const GITHUB = "https://github.com/filedom/sdk";
 const GA_MEASUREMENT_ID = "G-8GT6Y9JSNK";
 
 const config: Config = {
-  title: "domdoc SDK",
+  title: "filedom SDK",
   tagline: "Embed the shared document editor",
-  url: "https://domdoc.io",
+  url: "https://filedom.io",
   baseUrl: "/sdk-docs/",
   // Same Google tag as the rest of the site. Docs HTML is served as-is, outside the Next layout.
   headTags: [
@@ -52,7 +52,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
   themeConfig: {
     colorMode: { respectPrefersColorScheme: true },
     navbar: {
-      title: "domdoc SDK",
+      title: "filedom SDK",
       items: [
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
         { to: "/playground/", label: "Playground", position: "left" },
@@ -61,7 +61,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         {
           type: "html",
           position: "right",
-          value: '<a class="navbar__link" href="/">domdoc Cloud</a>',
+          value: '<a class="navbar__link" href="/">filedom Cloud</a>',
         },
         { href: GITHUB, label: "GitHub", position: "right" },
       ],
@@ -87,12 +87,12 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         {
           title: "More",
           items: [
-            { html: '<a class="footer__link-item" href="/">domdoc Cloud</a>' },
+            { html: '<a class="footer__link-item" href="/">filedom Cloud</a>' },
             { label: "GitHub", href: GITHUB },
           ],
         },
       ],
-      copyright: `MIT licensed. © ${new Date().getFullYear()} domdoc.`,
+      copyright: `MIT licensed. © ${new Date().getFullYear()} filedom.`,
     },
     prism: {
       theme: prismThemes.github,

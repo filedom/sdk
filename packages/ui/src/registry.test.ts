@@ -53,7 +53,7 @@ describe("registry.json", () => {
 
   it("is checked by a validator that rejects what the schema forbids", () => {
     const bad = {
-      name: "domdoc",
+      name: "filedom",
       items: [{ name: "Bad_Name", type: "widget", files: { ember: [{ path: "src/x.ts", target: "x.ts" }] }, extra: true }],
     };
     const errors = validateJson(schema, bad).join("\n");
@@ -62,7 +62,7 @@ describe("registry.json", () => {
     expect(errors).toContain("/items/0/files/ember (name)");
     expect(errors).toContain("/items/0/files/ember/0/path");
     expect(errors).toContain("unexpected property extra");
-    expect(validateJson(schema, { name: "domdoc", items: [{ name: "x", type: "lib", files: { react: [] } }] }).join()).toContain("fewer than 1 items");
+    expect(validateJson(schema, { name: "filedom", items: [{ name: "x", type: "lib", files: { react: [] } }] }).join()).toContain("fewer than 1 items");
   });
 
   it("lists exactly the frozen primitives and blocks with their types", () => {
@@ -112,7 +112,7 @@ describe("registry.json", () => {
     expect(installed[0]).toBe("cn");
     expect(installed).toEqual(expect.arrayContaining([...REGISTRY_BLOCKS]));
     for (const block of REGISTRY_BLOCKS) {
-      if (block !== "domdoc-provider") expect(resolveItems(registry, [block]).map((i) => i.name), block).toContain("domdoc-provider");
+      if (block !== "filedom-provider") expect(resolveItems(registry, [block]).map((i) => i.name), block).toContain("filedom-provider");
     }
   });
 
@@ -135,18 +135,18 @@ describe("registry.json", () => {
     expect(all.sort()).toEqual([...PRIMITIVE_SLOTS].sort());
   });
 
-  it("uses only clsx, tailwind-merge, lucide icons, and @domdoc packages", () => {
-    const allowed = /^(clsx|tailwind-merge|lucide(-[a-z-]+)?|@domdoc\/[a-z-]+)(@.+)?$/;
+  it("uses only clsx, tailwind-merge, lucide icons, and @filedom packages", () => {
+    const allowed = /^(clsx|tailwind-merge|lucide(-[a-z-]+)?|@filedom\/[a-z-]+)(@.+)?$/;
     for (const item of registry.items) {
       for (const [set, deps] of Object.entries(item.dependencies ?? {})) {
         expect(REGISTRY_SETS as readonly string[]).toContain(set);
         for (const dep of deps) expect(dep, `${item.name}/${set}`).toMatch(allowed);
       }
     }
-    const provider = byName.get("domdoc-provider")!;
+    const provider = byName.get("filedom-provider")!;
     for (const set of REGISTRY_SETS) {
-      expect(provider.dependencies?.[set], set).toContain("@domdoc/core");
-      expect(provider.dependencies?.[set]?.some((dep) => dep.startsWith("@domdoc/") && dep !== "@domdoc/core"), set).toBe(true);
+      expect(provider.dependencies?.[set], set).toContain("@filedom/core");
+      expect(provider.dependencies?.[set]?.some((dep) => dep.startsWith("@filedom/") && dep !== "@filedom/core"), set).toBe(true);
       expect(byName.get("cn")!.dependencies?.[set]).toEqual(["clsx", "tailwind-merge"]);
     }
   });

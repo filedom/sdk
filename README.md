@@ -1,33 +1,33 @@
-# domdoc-sdk
+# sdk
 
-Public SDK for embedding the domdoc viewer. Install an adapter (or `@domdoc/core`)
+Public SDK for embedding the filedom viewer. Install an adapter (or `@filedom/core`)
 and point it at the CDN that hosts the private format bundles. This repository
 does not contain the engine.
 
 Integrator docs (install, events, files, modes, toolbars, components, frameworks)
-live in [apps/docs](apps/docs). From the repo root: `pnpm --filter @domdoc/docs start`.
+live in [apps/docs](apps/docs). From the repo root: `pnpm --filter @filedom/docs start`.
 
 What the viewer implements today, and the bar it is being built toward, is the
 feature programme in the private engine repo:
-`../domdoc-wasm/docs/Domdoc_Feature_Programme.md`. Agents execute
-`../domdoc-wasm/docs/Domdoc_Delivery_Workflow.md` and the SDK prompt in
+`../wasm/docs/Filedom_Feature_Programme.md`. Agents execute
+`../wasm/docs/Filedom_Delivery_Workflow.md` and the SDK prompt in
 [docs/SDK_PROMPT.md](docs/SDK_PROMPT.md). The viewer opens PDF, DOC, DOCX, XLS, XLSX, PPT and PPTX (select, highlight,
 tracked text edit, download, live DOM components). It is not yet the Apryse or
 Nutrient web SDK, and gates G1–G5 are not passed.
 
 | Package | Role |
 | --- | --- |
-| `@domdoc/core` | `createViewer`, `bundlesFromCdn`, `FileStore`, `ComponentRegistry` |
-| `@domdoc/react`, `preact`, `vue`, `solid`, `svelte`, `lit`, `angular` | framework wrappers around `createViewer` |
-| `@domdoc/next-host`, `nuxt-host`, `sveltekit-host`, `astro-host` | SSR-safe client boundaries |
+| `@filedom/core` | `createViewer`, `bundlesFromCdn`, `FileStore`, `ComponentRegistry` |
+| `@filedom/react`, `preact`, `vue`, `solid`, `svelte`, `lit`, `angular` | framework wrappers around `createViewer` |
+| `@filedom/next-host`, `nuxt-host`, `sveltekit-host`, `astro-host` | SSR-safe client boundaries |
 
 ## Usage
 
 ```ts
-import { bundlesFromCdn, createViewer } from "@domdoc/core";
+import { bundlesFromCdn, createViewer } from "@filedom/core";
 
 const viewer = createViewer(document.querySelector("#viewer")!, {
-  bundles: bundlesFromCdn("https://cdn.example.com/domdoc/v1"),
+  bundles: bundlesFromCdn("https://cdn.example.com/filedom/v1"),
   author: "Ana",
 });
 
@@ -35,7 +35,7 @@ await viewer.open(fileFromInput); // File | Blob | bytes | URL | FileStore id
 viewer.download();
 ```
 
-`bundlesFromCdn` loads `{base}/pdf/domdoc_pdf.js`. The PDF renderer is inside that module's wasm,
+`bundlesFromCdn` loads `{base}/pdf/filedom_pdf.js`. The PDF renderer is inside that module's wasm,
 so a PDF open does not fetch a second wasm. Office formats load their own glue module.
 Each `.wasm` file sits beside its glue module. A PDF open does not download
 the office bundle.
@@ -43,10 +43,10 @@ the office bundle.
 Framework adapters take the same options:
 
 ```tsx
-import { bundlesFromCdn } from "@domdoc/core";
-import { DomdocViewer } from "@domdoc/react";
+import { bundlesFromCdn } from "@filedom/core";
+import { FiledomViewer } from "@filedom/react";
 
-<DomdocViewer options={{ bundles: bundlesFromCdn("https://cdn.example.com/domdoc/v1") }} />
+<FiledomViewer options={{ bundles: bundlesFromCdn("https://cdn.example.com/filedom/v1") }} />
 ```
 
 The viewer handles open, selection, highlight, comments, `replace` / `format` /

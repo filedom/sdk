@@ -1,15 +1,15 @@
-import type { ViewerStoreSnapshot } from "@domdoc/core";
+import type { ViewerStoreSnapshot } from "@filedom/core";
 import { createElement, FolderOpen } from "lucide";
 import { LitElement, html } from "lit";
-import { button } from "@/components/domdoc/button";
-import { actionState, domdocProvider, watchDomdoc } from "@/components/domdoc/domdoc-provider";
-import { tooltip } from "@/components/domdoc/tooltip";
+import { button } from "@/components/filedom/button";
+import { actionState, filedomProvider, watchFiledom } from "@/components/filedom/filedom-provider";
+import { tooltip } from "@/components/filedom/tooltip";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-4", "aria-hidden": "true" });
 }
 
-export class DomdocFileButtonElement extends LitElement {
+export class FiledomFileButtonElement extends LitElement {
   private snapshot: ViewerStoreSnapshot | null = null;
   private stop = () => {};
 
@@ -20,7 +20,7 @@ export class DomdocFileButtonElement extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback();
     this.classList.add("inline-flex");
-    this.stop = watchDomdoc(this, (snapshot) => {
+    this.stop = watchFiledom(this, (snapshot) => {
       this.snapshot = snapshot;
       this.requestUpdate();
     });
@@ -39,7 +39,7 @@ export class DomdocFileButtonElement extends LitElement {
     const input = event.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
     input.value = "";
-    if (file) void domdocProvider(this)?.store?.viewer.open(file);
+    if (file) void filedomProvider(this)?.store?.viewer.open(file);
   };
 
   override render() {
@@ -64,4 +64,4 @@ export class DomdocFileButtonElement extends LitElement {
   }
 }
 
-if (!customElements.get("domdoc-file-button")) customElements.define("domdoc-file-button", DomdocFileButtonElement);
+if (!customElements.get("filedom-file-button")) customElements.define("filedom-file-button", FiledomFileButtonElement);

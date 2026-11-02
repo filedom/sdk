@@ -1,8 +1,8 @@
 {
-  "name": "@domdoc/next-host",
+  "name": "@filedom/next-host",
   "version": "0.2.0",
   "license": "MIT",
-  "description": "domdoc Next.js client boundary wrapping @domdoc/core",
+  "description": "filedom Next.js client boundary wrapping @filedom/core",
   "type": "module",
   "sideEffects": false,
   "exports": {
@@ -19,8 +19,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@domdoc/core": "workspace:*",
-    "@domdoc/react": "workspace:*"
+    "@filedom/core": "workspace:*",
+    "@filedom/react": "workspace:*"
   },
   "peerDependencies": {
     "next": ">=14.0.0",

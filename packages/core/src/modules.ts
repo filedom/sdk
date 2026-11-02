@@ -1,6 +1,6 @@
 import { bundleUrl, formatEngine, pdfEngine } from "./cdn.js";
 import type { EngineModule, EngineSession } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import { detectFormat, unwiredDetail } from "./formats.js";
 
 /**
@@ -35,7 +35,7 @@ export const ALL_ENGINES: HostEngineConfig = {
 };
 
 /** Where a revision list can be read after it is written into the original file. */
-export type RevisionVisibility = "file" | "domdoc";
+export type RevisionVisibility = "file" | "filedom";
 
 export type PlannedModule =
   | { id: "pdfium"; role: "engine" }
@@ -57,7 +57,7 @@ export interface TrackChangesBinding {
   original: Uint8Array;
   /**
    * `file` — Word reads the revision history (DOC/DOCX).
-   * `domdoc` — the history is inside the PDF, and only domdoc shows it.
+   * `filedom` — the history is inside the PDF, and only filedom shows it.
    */
   visibleIn: RevisionVisibility;
   session: EngineSession;
@@ -107,9 +107,9 @@ function isEngineFormat(format: string): format is EngineFormat {
 export function planLoad(bytes: Uint8Array, name: string, host: HostEngineConfig): LoadPlan {
   const format = detectFormat(bytes, name);
   const detail = unwiredDetail(format);
-  if (detail) throw new DomdocError("unsupported", detail);
-  if (!isEngineFormat(format)) throw new DomdocError("unsupported-format", format);
-  if (!host[format]) throw new DomdocError("format-disabled", format);
+  if (detail) throw new FiledomError("unsupported", detail);
+  if (!isEngineFormat(format)) throw new FiledomError("unsupported-format", format);
+  if (!host[format]) throw new FiledomError("format-disabled", format);
 
   const modules: PlannedModule[] =
     format === "pdf"
@@ -123,7 +123,7 @@ export function planLoad(bytes: Uint8Array, name: string, host: HostEngineConfig
     modules.push({
       id: "track-changes",
       role: "revisions",
-      visibleIn: format === "pdf" ? "domdoc" : "file",
+      visibleIn: format === "pdf" ? "filedom" : "file",
     });
   }
 
@@ -238,7 +238,7 @@ export class CoreLoader {
   private startTrack(): void {
     if (this.trackReady) return;
     if (!this.sources.trackChanges) {
-      this.trackReady = Promise.reject(new DomdocError("bundle-missing", "track-changes"));
+      this.trackReady = Promise.reject(new FiledomError("bundle-missing", "track-changes"));
       return;
     }
     const load = this.sources.trackChanges;
@@ -264,8 +264,8 @@ export function loadingLabel(format: EngineFormat): string {
 export function bundledEngines(): EngineSources {
   return {
     core: async () => ({}),
-    pdfiumRender: () => import("./engines/domdoc-pdf.js"),
-    officeOxide: () => import("./engines/domdoc-office.js"),
+    pdfiumRender: () => import("./engines/filedom-pdf.js"),
+    officeOxide: () => import("./engines/filedom-office.js"),
     trackChanges: () => import("./engines/track.js"),
   };
 }

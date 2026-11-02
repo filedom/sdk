@@ -1,7 +1,7 @@
-import type { DomdocDocument } from "./document.js";
+import type { FiledomDocument } from "./document.js";
 import type { ElementFactory } from "./dom.js";
 import type { Embed, EmbedBox, Rect } from "./engine-types.js";
-import { DomdocError } from "./errors.js";
+import { FiledomError } from "./errors.js";
 import type { FileStore } from "./file-store.js";
 import type { PageSlot } from "./pages.js";
 import { PX_PER_PT } from "./zoom.js";
@@ -30,7 +30,7 @@ interface Mounted {
 }
 
 export interface ComponentHost {
-  document(): DomdocDocument | undefined;
+  document(): FiledomDocument | undefined;
   /** The page element, sized to that page. */
   slot(page: number): PageSlot | undefined;
   h: ElementFactory;
@@ -73,9 +73,9 @@ export class ComponentLayer {
 
   mount<P>(placement: Placement<P>): string {
     const doc = this.host.document();
-    if (!doc) throw new DomdocError("no-document", "open a document before placing components");
+    if (!doc) throw new FiledomError("no-document", "open a document before placing components");
     const factory = this.host.registry.get(placement.type);
-    if (!factory) throw new DomdocError("unknown-component", placement.type);
+    if (!factory) throw new FiledomError("unknown-component", placement.type);
     const id = placement.id ?? `cmp-${++placementCounter}`;
     this.remove(id);
     const wrapper = this.host.h("div", "dd-component dd-abs");
@@ -167,7 +167,7 @@ export class ComponentLayer {
     doc.setEmbeds(embeds);
   }
 
-  private toEmbed(mounted: Mounted, doc: DomdocDocument): Embed | undefined {
+  private toEmbed(mounted: Mounted, doc: FiledomDocument): Embed | undefined {
     const position = mounted.placement.position;
     if (!isFlowPosition(position)) return undefined;
     const loc = doc.locate(position.anchor);
@@ -211,7 +211,7 @@ export class ComponentLayer {
     for (const mounted of this.mounted.values()) this.apply(mounted, this.frame(mounted, doc, boxes));
   }
 
-  private frame(mounted: Mounted, doc: DomdocDocument, boxes: EmbedBox[]): { page: number; rect: Rect } | undefined {
+  private frame(mounted: Mounted, doc: FiledomDocument, boxes: EmbedBox[]): { page: number; rect: Rect } | undefined {
     const position = mounted.placement.position;
     if (isFlowPosition(position) && doc.info().capabilities.flowEmbeds) {
       const box = boxes.find((item) => item.id === mounted.id);
@@ -226,7 +226,7 @@ export class ComponentLayer {
     return this.overlayFrame(mounted, doc);
   }
 
-  private overlayFrame(mounted: Mounted, doc: DomdocDocument): { page: number; rect: Rect } | undefined {
+  private overlayFrame(mounted: Mounted, doc: FiledomDocument): { page: number; rect: Rect } | undefined {
     const placement = mounted.placement;
     const position = placement.position;
     if (position.mode === "page") {
@@ -336,7 +336,7 @@ export class ComponentLayer {
     return changed;
   }
 
-  private pageAt(doc: DomdocDocument, index: number) {
+  private pageAt(doc: FiledomDocument, index: number) {
     const count = doc.info().pageCount;
     if (index < 0 || index >= count) return undefined;
     return doc.page(index);

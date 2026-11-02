@@ -1,6 +1,6 @@
 /** Frozen UI kit contract values. CONTRACTS.md is the prose version; contracts.test.ts keeps them in step. */
 
-/** One example app per id under `examples/<id>`, and one `domdoc.json` `framework` value. */
+/** One example app per id under `examples/<id>`, and one `filedom.json` `framework` value. */
 export const FRAMEWORKS = [
   "react",
   "next",
@@ -22,7 +22,7 @@ export const REGISTRY_SETS = ["react", "preact", "vue", "svelte", "angular", "so
 
 export type RegistrySetId = (typeof REGISTRY_SETS)[number];
 
-/** The set `domdoc add` copies for each framework. Next adds `"use client"` to the React set. */
+/** The set `filedom add` copies for each framework. Next adds `"use client"` to the React set. */
 export const FRAMEWORK_REGISTRY_SET: Readonly<Record<FrameworkId, RegistrySetId>> = {
   react: "react",
   next: "react",
@@ -38,7 +38,7 @@ export const FRAMEWORK_REGISTRY_SET: Readonly<Record<FrameworkId, RegistrySetId>
 };
 
 /**
- * `data-slot` values rendered by the domdoc blocks, identical in every framework.
+ * `data-slot` values rendered by the filedom blocks, identical in every framework.
  * Keys are slot names; values are the `TOOLBAR_CATALOG` action the control runs, or null.
  */
 export const BLOCK_SLOTS = {
@@ -79,7 +79,7 @@ export const PRIMITIVE_SLOTS = ["button", "select", "input", "separator", "toolt
 export const REGISTRY_PRIMITIVES = ["cn", "button", "select", "input", "separator", "tooltip", "toggle-group"] as const;
 
 export const REGISTRY_BLOCKS = [
-  "domdoc-provider",
+  "filedom-provider",
   "viewer-shell",
   "toolbar",
   "zoom-controls",
@@ -91,14 +91,14 @@ export const REGISTRY_BLOCKS = [
 ] as const;
 
 /** Attribute on the `viewer-shell` element. */
-export const STATE_ATTRIBUTE = "data-domdoc-state";
+export const STATE_ATTRIBUTE = "data-filedom-state";
 
 /** `blocked` is reserved for the usage blocklist. */
-export const DOMDOC_STATES = ["empty", "loading", "ready", "error", "blocked"] as const;
+export const FILEDOM_STATES = ["empty", "loading", "ready", "error", "blocked"] as const;
 
-export type DomdocState = (typeof DOMDOC_STATES)[number];
+export type FiledomState = (typeof FILEDOM_STATES)[number];
 
-export const READY_STATE: DomdocState = "ready";
+export const READY_STATE: FiledomState = "ready";
 
 /** One base path everywhere: local serve, tests, production. */
 export const SITE_BASE = "/sdk-docs/";
@@ -107,9 +107,9 @@ export const LICENSING_PATH = "/sdk-docs/licensing/";
 export const SAMPLE_PDF_PATH = "/sdk-docs/samples/hello.pdf";
 export const BUNDLES_BASE = "/api/bundles/";
 /** Overrides the bundle base when an example is built. */
-export const BUNDLES_ENV = "DOMDOC_EXAMPLES_BUNDLES";
+export const BUNDLES_ENV = "FILEDOM_EXAMPLES_BUNDLES";
 /** Upstream that `serve-examples` proxies `/api/bundles/*` to without `--bundles`. */
-export const DEFAULT_CDN = "https://domdoc.io/api/bundles";
+export const DEFAULT_CDN = "https://filedom.io/api/bundles";
 /** Nothing may load from here; it is blocked in production. */
 export const FORBIDDEN_PREFIX = "/wasm/";
 
@@ -125,5 +125,5 @@ export function bundlesPath(version: string): string {
   return `${BUNDLES_BASE}${version}/`;
 }
 
-export const EXAMPLE_MANIFEST = "domdoc-example.json";
-export const PROJECT_CONFIG = "domdoc.json";
+export const EXAMPLE_MANIFEST = "filedom-example.json";
+export const PROJECT_CONFIG = "filedom.json";

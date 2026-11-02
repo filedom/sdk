@@ -1,16 +1,16 @@
-import { createViewer, type DomdocViewer as Viewer, type ViewerOptions } from "@domdoc/core";
+import { createViewer, type FiledomViewer as Viewer, type ViewerOptions } from "@filedom/core";
 import { onCleanup, onMount } from "solid-js";
 
 export type { Viewer, ViewerOptions };
 
-export interface DomdocViewerProps {
+export interface FiledomViewerProps {
   options: ViewerOptions;
   onReady?: (viewer: Viewer) => void;
   class?: string;
 }
 
-/** Solid component returning its host element: `<DomdocViewer options={options} />` */
-export function DomdocViewer(props: DomdocViewerProps): HTMLDivElement {
+/** Solid component returning its host element: `<FiledomViewer options={options} />` */
+export function FiledomViewer(props: FiledomViewerProps): HTMLDivElement {
   const host = document.createElement("div");
   host.style.height = "100%";
   if (props.class) host.className = props.class;
