@@ -10,7 +10,7 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
 
 /** Public path for this example. The site build sets FILEDOM_BASE; local builds use the same default. */
 function publicBase(): string {
-  const value = process.env.FILEDOM_BASE || "/sdk-docs/examples/svelte/";
+  const value = process.env.FILEDOM_BASE || "/sdk/docs/examples/svelte/";
   const withLeading = value.startsWith("/") ? value : `/${value}`;
   return withLeading.endsWith("/") ? withLeading : `${withLeading}/`;
 }

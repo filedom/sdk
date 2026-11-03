@@ -6,7 +6,7 @@ import FiledomProvider from "~/components/filedom/FiledomProvider.vue";
 import Toolbar from "~/components/filedom/Toolbar.vue";
 import ViewerShell from "~/components/filedom/ViewerShell.vue";
 
-const bundles = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const bundles = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "https://cdn.filedom.io/0.2.0";
 
 const options = {
   toolbar: false,

@@ -7,7 +7,7 @@ import { FiledomProvider } from "@/components/filedom/filedom-provider";
 import { Toolbar } from "@/components/filedom/toolbar";
 import { ViewerShell } from "@/components/filedom/viewer-shell";
 
-const BUNDLE_BASE = process.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const BUNDLE_BASE = process.env.FILEDOM_EXAMPLES_BUNDLES || "https://cdn.filedom.io/0.2.0";
 
 export default function Page() {
   const options = useMemo(

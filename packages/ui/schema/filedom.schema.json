@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "$id": "https://filedom.io/sdk/docs/schema/filedom.schema.json",
   "title": "filedom project config",
   "description": "filedom.json at the consumer project root, written by filedom init and read by filedom add.",
   "type": "object",

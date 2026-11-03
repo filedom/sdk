@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Compose the /sdk-docs/ static tree in apps/docs/build.
+// Compose the /sdk/docs/ static tree in apps/docs/build.
 //
 //   node scripts/build-site.mjs [--skip-docs] [--skip-examples] [--only <fw>[,<fw>]] [--staging <dir>] [--strict]
 //

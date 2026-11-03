@@ -7,7 +7,7 @@ import { useFiledom } from "@/components/filedom/filedom-provider";
 import { cn, plainClass } from "@/lib/cn";
 import type { ViewerStore, ViewerStoreSnapshot } from "@filedom/core";
 
-const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
 type ShellState = "empty" | "loading" | "ready" | "error" | "blocked";
 

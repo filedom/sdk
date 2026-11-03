@@ -3,11 +3,11 @@
 //
 //   node scripts/serve-examples.mjs [--port 5180] [--host 127.0.0.1] [--root apps/docs/build] [--bundles <dir>] [--cdn <url>]
 //
-//   /sdk-docs/*                 the build-site tree; a path ending in / gets index.html
+//   /sdk/docs/*                 the build-site tree; a path ending in / gets index.html
 //   /api/bundles/<version>/*    files from --bundles <dir>, else proxied to --cdn / FILEDOM_CDN
 //                               (default https://filedom.io/api/bundles)
 //   /wasm/*                     always 404, as in CONTRACTS.md section 8
-//   /                           redirects to /sdk-docs/
+//   /                           redirects to /sdk/docs/
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { createServer } from "node:http";

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "$schema": "https://filedom.io/sdk/docs/schema/filedom.schema.json",
   "framework": "sveltekit",
   "componentDir": "src/lib/components/filedom",
   "css": "src/app.css",

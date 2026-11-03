@@ -9,7 +9,7 @@ const { applyWebpack } = createRequire(path.join(process.cwd(), "package.json"))
 };
 
 function publicBase(): string {
-  const raw = process.env.FILEDOM_BASE || "/sdk-docs/examples/next/";
+  const raw = process.env.FILEDOM_BASE || "/sdk/docs/examples/next/";
   return raw.endsWith("/") ? raw.slice(0, -1) : raw;
 }
 
@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
   assetPrefix: base,
   trailingSlash: true,
   env: {
-    FILEDOM_EXAMPLES_BUNDLES: process.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1",
+    FILEDOM_EXAMPLES_BUNDLES: process.env.FILEDOM_EXAMPLES_BUNDLES || "https://cdn.filedom.io/0.2.0",
   },
   webpack: (config) => {
     applyWebpack(config);

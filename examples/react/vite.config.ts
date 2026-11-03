@@ -14,7 +14,7 @@ function publicBase(fallback: string): string {
 }
 
 export default defineConfig({
-  base: publicBase("/sdk-docs/examples/react/"),
+  base: publicBase("/sdk/docs/examples/react/"),
   envPrefix: ["VITE_", "FILEDOM_"],
   plugins: [excludeEngineWasm(), react(), tailwindcss()],
   resolve: {

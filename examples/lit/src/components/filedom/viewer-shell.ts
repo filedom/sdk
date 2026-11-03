@@ -5,7 +5,7 @@ import { LitElement, html } from "lit";
 import { button } from "@/components/filedom/button";
 import { filedomProvider, shellState, watchFiledom } from "@/components/filedom/filedom-provider";
 
-const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
 function icon(node: Parameters<typeof createElement>[0]) {
   return createElement(node, { class: "size-7 text-muted-foreground", "aria-hidden": "true" });

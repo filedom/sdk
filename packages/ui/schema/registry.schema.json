@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://filedom.io/sdk-docs/schema/registry.schema.json",
+  "$id": "https://filedom.io/sdk/docs/schema/registry.schema.json",
   "title": "filedom UI registry",
   "description": "packages/ui/registry.json: every item filedom add can copy, with its files per registry set.",
   "type": "object",

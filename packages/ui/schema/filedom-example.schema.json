@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://filedom.io/sdk-docs/schema/filedom-example.schema.json",
+  "$id": "https://filedom.io/sdk/docs/schema/filedom-example.schema.json",
   "title": "filedom example manifest",
   "description": "examples/<fw>/filedom-example.json: what the docs and playground show for one framework.",
   "type": "object",

@@ -1,14 +1,14 @@
 /**
- * /sdk-docs/playground/ — framework rail, live example iframe, and the
+ * /sdk/docs/playground/ — framework rail, live example iframe, and the
  * integration source published by the example-sources plugin.
  * The selected framework is ?fw=. An unknown value uses react.
  */
-import React, { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "@docusaurus/Link";
 import { useLocation } from "@docusaurus/router";
 import { usePluginData } from "@docusaurus/useGlobalData";
+import { mountCodeEditor } from "@filedom/core/code";
 import { FRAMEWORKS, examplePath, type FrameworkId } from "@filedom/ui";
-import CodeBlock from "@theme/CodeBlock";
 import Layout from "@theme/Layout";
 import TabItem from "@theme/TabItem";
 import Tabs from "@theme/Tabs";
@@ -98,25 +98,30 @@ function FrameworkMark({ svg, label }: { svg?: string; label: string }): React.J
   );
 }
 
+function CodeFile({ name, source }: { name: string; source: string }): React.JSX.Element {
+  const host = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = host.current;
+    if (!node) return;
+    const editor = mountCodeEditor(node, { name, source });
+    return () => editor.destroy();
+  }, [name, source]);
+  return <div ref={host} />;
+}
+
 function ExampleCode({ example }: { example: ExampleSource }): React.JSX.Element {
   const page = example.files.find((file) => file.role === "page") ?? example.files[0];
   return (
     <Tabs key={example.framework} groupId={`playground-files-${example.framework}`} defaultValue={page ? `file:${page.path}` : "install"}>
       <TabItem value="install" label="Install">
-        <CodeBlock language="bash" title="Install">
-          {example.install}
-        </CodeBlock>
+        <CodeFile name="install.sh" source={example.install} />
       </TabItem>
       <TabItem value="add" label="Add">
-        <CodeBlock language="bash" title="Add">
-          {example.add}
-        </CodeBlock>
+        <CodeFile name="add.sh" source={example.add} />
       </TabItem>
       {example.files.map((file) => (
         <TabItem key={file.path} value={`file:${file.path}`} label={file.label} default={file.role === "page"}>
-          <CodeBlock language={file.language} title={file.path} showLineNumbers>
-            {file.code}
-          </CodeBlock>
+          <CodeFile name={file.path} source={file.code} />
         </TabItem>
       ))}
     </Tabs>

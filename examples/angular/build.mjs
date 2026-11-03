@@ -20,8 +20,8 @@ function rejectWasm(value, label) {
   }
 }
 
-const baseHref = withSlash(process.env.FILEDOM_BASE || "/sdk-docs/examples/angular/");
-const bundles = withSlash(process.env.FILEDOM_EXAMPLES_BUNDLES || `/api/bundles/${pkg.version}/`);
+const baseHref = withSlash(process.env.FILEDOM_BASE || "/sdk/docs/examples/angular/");
+const bundles = withSlash(process.env.FILEDOM_EXAMPLES_BUNDLES || `https://cdn.filedom.io/${pkg.version}/`);
 rejectWasm(baseHref, "FILEDOM_BASE");
 rejectWasm(bundles, "FILEDOM_EXAMPLES_BUNDLES");
 

@@ -62,8 +62,8 @@ describe("contract constants", () => {
     for (const fw of FRAMEWORKS) assert.ok(isDir(join(EXAMPLES_ROOT, fw)), fw);
   });
 
-  test("example base is /sdk-docs/examples/<fw>/", () => {
-    for (const fw of FRAMEWORKS) assert.equal(exampleBase(fw), `/sdk-docs/examples/${fw}/`);
+  test("example base is /sdk/docs/examples/<fw>/", () => {
+    for (const fw of FRAMEWORKS) assert.equal(exampleBase(fw), `/sdk/docs/examples/${fw}/`);
   });
 });
 
@@ -71,39 +71,39 @@ describe("site path mapping", () => {
   const root = "/srv/site";
 
   test("paths ending in / get index.html", () => {
-    assert.equal(sitePathToFile(root, "/sdk-docs/"), join(root, "index.html"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/playground/"), join(root, "playground", "index.html"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/examples/vue/"), join(root, "examples", "vue", "index.html"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/files/"), join(root, "files", "index.html"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/"), join(root, "index.html"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/playground/"), join(root, "playground", "index.html"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/examples/vue/"), join(root, "examples", "vue", "index.html"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/files/"), join(root, "files", "index.html"));
   });
 
   test("other paths map one to one", () => {
-    assert.equal(sitePathToFile(root, "/sdk-docs/samples/hello.pdf"), join(root, "samples", "hello.pdf"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/examples/next/_next/static/a.js"), join(root, "examples", "next", "_next", "static", "a.js"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/playground"), join(root, "playground"));
-    assert.equal(sitePathToFile(root, "/sdk-docs/a%20b.html"), join(root, "a b.html"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/samples/hello.pdf"), join(root, "samples", "hello.pdf"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/examples/next/_next/static/a.js"), join(root, "examples", "next", "_next", "static", "a.js"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/playground"), join(root, "playground"));
+    assert.equal(sitePathToFile(root, "/sdk/docs/a%20b.html"), join(root, "a b.html"));
   });
 
-  test("paths outside /sdk-docs/ or escaping the root are refused", () => {
+  test("paths outside /sdk/docs/ or escaping the root are refused", () => {
     assert.equal(sitePathToFile(root, "/"), null);
-    assert.equal(sitePathToFile(root, "/sdk-docs"), null);
+    assert.equal(sitePathToFile(root, "/sdk/docs"), null);
     assert.equal(sitePathToFile(root, "/pricing/"), null);
-    assert.equal(sitePathToFile(root, "/sdk-docs/%2e%2e/secret"), null);
-    assert.equal(sitePathToFile(root, "/sdk-docs/..%2f..%2fetc%2fpasswd"), null);
-    assert.equal(sitePathToFile(root, "/sdk-docs/%E0%A4%A"), null);
+    assert.equal(sitePathToFile(root, "/sdk/docs/%2e%2e/secret"), null);
+    assert.equal(sitePathToFile(root, "/sdk/docs/..%2f..%2fetc%2fpasswd"), null);
+    assert.equal(sitePathToFile(root, "/sdk/docs/%E0%A4%A"), null);
   });
 
-  test("routeRequest sends / to /sdk-docs/", () => {
+  test("routeRequest sends / to /sdk/docs/", () => {
     assert.deepEqual(routeRequest("/", { root }), { kind: "redirect", location: SITE_BASE });
   });
 });
 
 describe("/wasm/ is never served", () => {
   test("isForbiddenPath", () => {
-    for (const path of ["/wasm/", "/wasm", "/wasm/0.1.0/pdf/filedom_pdf_bg.wasm", "/WASM/latest.json", "/%77asm/x", "/sdk-docs/../wasm/x", "/sdk-docs/%2e%2e/wasm/x"]) {
+    for (const path of ["/wasm/", "/wasm", "/wasm/0.1.0/pdf/filedom_pdf_bg.wasm", "/WASM/latest.json", "/%77asm/x", "/sdk/docs/../../wasm/x", "/sdk/docs/%2e%2e/%2e%2e/wasm/x"]) {
       assert.ok(isForbiddenPath(path), path);
     }
-    for (const path of ["/sdk-docs/", "/sdk-docs/wasm/notes/", "/wasmish", "/api/bundles/0.1.0/pdf/filedom_pdf_bg.wasm"]) {
+    for (const path of ["/sdk/docs/", "/sdk/docs/wasm/notes/", "/wasmish", "/api/bundles/0.1.0/pdf/filedom_pdf_bg.wasm"]) {
       assert.ok(!isForbiddenPath(path), path);
     }
   });
@@ -227,23 +227,23 @@ describe("serve-examples over HTTP", () => {
   const get = (server, path, init) => fetch(`${origin(server)}${path}`, { redirect: "manual", ...init });
 
   test("site pages, index.html rule, and missing slash", async () => {
-    const docs = await get(local, "/sdk-docs/");
+    const docs = await get(local, "/sdk/docs/");
     assert.equal(docs.status, 200);
     assert.equal(docs.headers.get("content-type"), "text/html; charset=utf-8");
     assert.match(await docs.text(), /docs/);
-    assert.match(await (await get(local, "/sdk-docs/playground/")).text(), /playground/);
-    assert.match(await (await get(local, "/sdk-docs/examples/vue/")).text(), /vue/);
-    assert.equal((await get(local, "/sdk-docs/playground")).status, 404);
-    assert.equal((await get(local, "/sdk-docs/nope/")).status, 404);
+    assert.match(await (await get(local, "/sdk/docs/playground/")).text(), /playground/);
+    assert.match(await (await get(local, "/sdk/docs/examples/vue/")).text(), /vue/);
+    assert.equal((await get(local, "/sdk/docs/playground")).status, 404);
+    assert.equal((await get(local, "/sdk/docs/nope/")).status, 404);
     const redirect = await get(local, "/");
     assert.equal(redirect.status, 302);
-    assert.equal(redirect.headers.get("location"), "/sdk-docs/");
+    assert.equal(redirect.headers.get("location"), "/sdk/docs/");
   });
 
   test("content types over the wire", async () => {
-    const js = await get(local, "/sdk-docs/examples/vue/assets/index-abc.js");
+    const js = await get(local, "/sdk/docs/examples/vue/assets/index-abc.js");
     assert.equal(js.headers.get("content-type"), "text/javascript; charset=utf-8");
-    const pdf = await get(local, "/sdk-docs/samples/hello.pdf");
+    const pdf = await get(local, "/sdk/docs/samples/hello.pdf");
     assert.equal(pdf.headers.get("content-type"), "application/pdf");
     assert.ok(Buffer.from(await pdf.arrayBuffer()).equals(helloPdf()));
     const wasm = await get(local, "/api/bundles/0.1.0/pdf/filedom_pdf_bg.wasm");
@@ -268,10 +268,10 @@ describe("serve-examples over HTTP", () => {
   });
 
   test("HEAD has no body and other methods are refused", async () => {
-    const head = await get(local, "/sdk-docs/", { method: "HEAD" });
+    const head = await get(local, "/sdk/docs/", { method: "HEAD" });
     assert.equal(head.status, 200);
     assert.equal(await head.text(), "");
-    assert.equal((await get(local, "/sdk-docs/", { method: "POST" })).status, 405);
+    assert.equal((await get(local, "/sdk/docs/", { method: "POST" })).status, 405);
   });
 
   test("the proxy forwards path, query, and ticket header to FILEDOM_CDN", async () => {
@@ -317,7 +317,7 @@ describe("build-examples", () => {
       log: () => {},
     });
     assert.deepEqual(results.map((r) => [r.fw, r.status]), [["react", "built"], ["vue", NOT_BUILT], ["svelte", NOT_BUILT], ["angular", "built"]]);
-    assert.deepEqual(calls.map((c) => c.base), ["/sdk-docs/examples/react/", "/sdk-docs/examples/angular/"]);
+    assert.deepEqual(calls.map((c) => c.base), ["/sdk/docs/examples/react/", "/sdk/docs/examples/angular/"]);
     assert.ok(calls.every((c) => c.bundles === "/api/bundles/9.9.9"));
     assert.equal(readFileSync(join(staging, "react", "index.html"), "utf8"), "react");
     assert.equal(readFileSync(join(staging, "angular", "index.html"), "utf8"), "angular");
@@ -368,7 +368,7 @@ describe("build-site composition", () => {
     assert.equal(readFileSync(join(build, "examples", "react", "index.html"), "utf8"), "react");
     assert.ok(!isDir(join(build, "examples", "vue")));
     assert.deepEqual(violations, []);
-    assert.equal(sitePathToFile(build, "/sdk-docs/examples/react/"), join(build, "examples", "react", "index.html"));
+    assert.equal(sitePathToFile(build, "/sdk/docs/examples/react/"), join(build, "examples", "react", "index.html"));
     assert.equal(sitePathToFile(build, SAMPLE_PDF_PATH), sample);
   });
 

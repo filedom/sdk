@@ -10,7 +10,7 @@ function withSlash(path: string): string {
   return path.endsWith("/") ? path : `${path}/`;
 }
 
-const baseURL = withSlash(process.env.FILEDOM_BASE || "/sdk-docs/examples/nuxt/");
+const baseURL = withSlash(process.env.FILEDOM_BASE || "/sdk/docs/examples/nuxt/");
 
 export default defineNuxtConfig({
   ssr: false,

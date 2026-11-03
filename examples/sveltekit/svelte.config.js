@@ -3,7 +3,7 @@ import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 
 /** FILEDOM_BASE includes a trailing slash. SvelteKit's paths.base must not. */
 function kitBase() {
-  const raw = process.env.FILEDOM_BASE || "/sdk-docs/examples/sveltekit/";
+  const raw = process.env.FILEDOM_BASE || "/sdk/docs/examples/sveltekit/";
   const trimmed = raw.endsWith("/") ? raw.slice(0, -1) : raw;
   if (!trimmed) return "";
   return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;

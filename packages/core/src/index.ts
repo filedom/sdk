@@ -16,6 +16,21 @@ export {
 } from "./components.js";
 export { FiledomDocument, type DocumentChange, type PageRaster } from "./document.js";
 export { FiledomError } from "./errors.js";
+export {
+  codeFormat,
+  codeStyle,
+  formatCode,
+  highlightCode,
+  isCodeFile,
+  languageFromName,
+  mountCodeEditor,
+  renderCodeHtml,
+  type CodeEditor,
+  type CodeEditorOptions,
+  type CodeFormat,
+  type CodeStyle,
+  type CodeToken,
+} from "./code-editor.js";
 export { Editor, isCollapsed, normalizePaste, samePos, type Selection } from "./editor.js";
 export { FileStore, type AddFileOptions, type FileInput, type FileSource, type StoredFile } from "./file-store.js";
 export { ACCEPT, detectFormat, exportName, fileKind, unwiredDetail } from "./formats.js";

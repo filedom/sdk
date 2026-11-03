@@ -7,7 +7,7 @@ const { excludeEngineWasm } = createRequire(import.meta.url)("../exclude-engine-
   excludeEngineWasm: () => { name: string };
 };
 
-const base = process.env.FILEDOM_BASE || "/sdk-docs/examples/lit/";
+const base = process.env.FILEDOM_BASE || "/sdk/docs/examples/lit/";
 
 export default defineConfig({
   base,

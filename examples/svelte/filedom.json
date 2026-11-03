@@ -1,5 +1,5 @@
 {
-  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "$schema": "https://filedom.io/sdk/docs/schema/filedom.schema.json",
   "framework": "svelte",
   "componentDir": "src/components/filedom",
   "css": "src/index.css",

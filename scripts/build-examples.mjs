@@ -3,7 +3,7 @@
 //
 //   node scripts/build-examples.mjs [--only <fw>[,<fw>]] [--out <dir>]
 //
-// Each build runs `pnpm run build` in examples/<fw> with FILEDOM_BASE=/sdk-docs/examples/<fw>/.
+// Each build runs `pnpm run build` in examples/<fw> with FILEDOM_BASE=/sdk/docs/examples/<fw>/.
 // FILEDOM_EXAMPLES_BUNDLES is passed through unchanged when set. Output goes to
 // <out>/<fw>/ (default dist/examples/<fw>/). A W0 shell build is reported as
 // "not built yet" and is not an error.

@@ -6,7 +6,7 @@ interface Props {
   toolbar?: boolean;
 }
 
-const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
+const { bundlesBase = "https://cdn.filedom.io/0.2.0", toolbar = false } = Astro.props;
 ---
 
 <div data-filedom-provider data-bundles-base={bundlesBase} data-toolbar={toolbar ? "true" : "false"} class="contents">
@@ -113,7 +113,7 @@ const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
 
   const root = document.querySelector<HTMLElement>("[data-filedom-provider]");
   if (root) {
-    const bundlesBase = root.dataset.bundlesBase || "/api/bundles/0.0.1";
+    const bundlesBase = root.dataset.bundlesBase || "https://cdn.filedom.io/0.2.0";
     const canvas = root.querySelector<HTMLElement>("[data-slot='viewer-canvas']");
     const fileInput = document.createElement("input");
     fileInput.type = "file";

@@ -11,8 +11,8 @@ export const DOCS_BUILD = join(DOCS_ROOT, "build");
 export const DEFAULT_STAGING = join(SDK_ROOT, "dist", "examples");
 
 export const FRAMEWORKS = ["react", "next", "preact", "vue", "nuxt", "svelte", "sveltekit", "angular", "solid", "lit", "astro"];
-export const SITE_BASE = "/sdk-docs/";
-export const SAMPLE_PDF_PATH = "/sdk-docs/samples/hello.pdf";
+export const SITE_BASE = "/sdk/docs/";
+export const SAMPLE_PDF_PATH = "/sdk/docs/samples/hello.pdf";
 export const BUNDLES_BASE = "/api/bundles/";
 export const BUNDLES_ENV = "FILEDOM_EXAMPLES_BUNDLES";
 export const DEFAULT_CDN = "https://filedom.io/api/bundles";
@@ -170,9 +170,9 @@ function inside(root, file) {
 }
 
 /**
- * `/sdk-docs/<rest>` to a file under the composed build. Paths ending in `/` get
+ * `/sdk/docs/<rest>` to a file under the composed build. Paths ending in `/` get
  * `index.html`, as the production Cloudflare rewrite does. Anything else maps 1:1,
- * so `/sdk-docs/playground` without the slash is not found, as in production.
+ * so `/sdk/docs/playground` without the slash is not found, as in production.
  */
 export function sitePathToFile(siteRoot, pathname) {
   const normal = normalizeUrlPath(pathname);

@@ -101,10 +101,10 @@ export type FiledomState = (typeof FILEDOM_STATES)[number];
 export const READY_STATE: FiledomState = "ready";
 
 /** One base path everywhere: local serve, tests, production. */
-export const SITE_BASE = "/sdk-docs/";
-export const PLAYGROUND_PATH = "/sdk-docs/playground/";
-export const LICENSING_PATH = "/sdk-docs/licensing/";
-export const SAMPLE_PDF_PATH = "/sdk-docs/samples/hello.pdf";
+export const SITE_BASE = "/sdk/docs/";
+export const PLAYGROUND_PATH = "/sdk/docs/playground/";
+export const LICENSING_PATH = "/sdk/docs/licensing/";
+export const SAMPLE_PDF_PATH = "/sdk/docs/samples/hello.pdf";
 export const BUNDLES_BASE = "/api/bundles/";
 /** Overrides the bundle base when an example is built. */
 export const BUNDLES_ENV = "FILEDOM_EXAMPLES_BUNDLES";

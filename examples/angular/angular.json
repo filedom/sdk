@@ -18,10 +18,10 @@
             "index": "src/index.html",
             "tsConfig": "tsconfig.app.json",
             "server": false,
-            "baseHref": "/sdk-docs/examples/angular/",
+            "baseHref": "/sdk/docs/examples/angular/",
             "styles": ["src/styles.css"],
             "define": {
-              "FILEDOM_EXAMPLES_BUNDLES": "\"/api/bundles/0.0.1/\""
+              "FILEDOM_EXAMPLES_BUNDLES": "\"https://cdn.filedom.io/0.2.0/\""
             }
           },
           "configurations": {

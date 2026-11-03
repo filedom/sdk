@@ -14,7 +14,7 @@ function publicBase(fallback: string): string {
 }
 
 export default defineConfig({
-  base: publicBase("/sdk-docs/examples/preact/"),
+  base: publicBase("/sdk/docs/examples/preact/"),
   envPrefix: ["VITE_", "FILEDOM_"],
   plugins: [excludeEngineWasm(), preact(), tailwindcss()],
   resolve: {

@@ -11,7 +11,7 @@ const config: Config = {
   title: "filedom SDK",
   tagline: "Embed the shared document editor",
   url: "https://filedom.io",
-  baseUrl: "/sdk-docs/",
+  baseUrl: "/sdk/docs/",
   // Same Google tag as the rest of the site. Docs HTML is served as-is, outside the Next layout.
   headTags: [
     {
@@ -57,11 +57,11 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
         { to: "/playground/", label: "Playground", position: "left" },
         { to: "/licensing/", label: "Licensing", position: "left" },
-        // Raw HTML: a normal href of "/" is prefixed with /sdk-docs/.
+        // Raw HTML so this stays on the cloud site. A normal link would be prefixed with /sdk/docs/.
         {
           type: "html",
           position: "right",
-          value: '<a class="navbar__link" href="/">filedom Cloud</a>',
+          value: '<a class="navbar__link" href="/">FileDOM Cloud</a>',
         },
         { href: GITHUB, label: "GitHub", position: "right" },
       ],
@@ -87,7 +87,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         {
           title: "More",
           items: [
-            { html: '<a class="footer__link-item" href="/">filedom Cloud</a>' },
+            { html: '<a class="footer__link-item" href="/">FileDOM Cloud</a>' },
             { label: "GitHub", href: GITHUB },
           ],
         },

@@ -9,7 +9,7 @@ declare const FILEDOM_EXAMPLES_BUNDLES: string;
 /** Bundle root fixed by the Angular `define` option. */
 function bundleBase(): string {
   const configured = typeof FILEDOM_EXAMPLES_BUNDLES === "string" ? FILEDOM_EXAMPLES_BUNDLES.trim() : "";
-  return `${(configured || "/api/bundles/0.0.1/").replace(/\/+$/, "")}/`;
+  return `${(configured || "https://cdn.filedom.io/0.2.0/").replace(/\/+$/, "")}/`;
 }
 
 const bundles = bundleBase();

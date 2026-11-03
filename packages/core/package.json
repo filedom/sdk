@@ -9,6 +9,11 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./code": {
+      "types": "./dist/code-editor.d.ts",
+      "import": "./dist/code-editor.js",
+      "default": "./dist/code-editor.js"
     }
   },
   "files": [

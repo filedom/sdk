@@ -738,7 +738,7 @@ export class FiledomViewer {
     const root = base.endsWith("/") ? base : `${base}/`;
     this.fontsModule = (async () => {
       try {
-        const mod = (await import(/* @vite-ignore */ `${root}filedom_fonts.js`)) as {
+        const mod = (await import(/* webpackIgnore: true */ /* @vite-ignore */ `${root}filedom_fonts.js`)) as {
           default: () => Promise<void>;
           rasterGlyph: (face: Uint8Array, ch: string, sizePx: number) => Uint8Array | undefined;
         };
@@ -827,7 +827,7 @@ export class FiledomViewer {
     try {
       const base = new URL(root, globalThis.location?.href ?? "http://127.0.0.1/");
       const href = new URL("index.mjs", base).href;
-      const imported = (await import(/* @vite-ignore */ href)) as {
+      const imported = (await import(/* webpackIgnore: true */ /* @vite-ignore */ href)) as {
         default: (opts: { wasmBinary: Uint8Array }) => Promise<InkLibrary>;
       };
       const [wasm, regular, italic, bold] = await Promise.all([
@@ -1883,7 +1883,7 @@ export class FiledomViewer {
     if (!this.picked || !this.doc) return;
     const element = this.elementOn(this.picked.page, this.picked.id);
     if (!element) return;
-    const shown = this.shownBox(element);
+    const shown = elementOverlayFrame(this.shownBox(element), element.rotation);
     const point = this.pagePoint(event.clientX, event.clientY);
     const cx = shown.xPt + shown.widthPt / 2;
     const cy = shown.yPt + shown.heightPt / 2;
@@ -2644,13 +2644,15 @@ export class FiledomViewer {
     const line = element.kind === "text" ? textElement(view.runs, element.id)?.box ?? element.box : elementDisplayBox(element);
     const shown = element.kind === "text" ? this.shownRect(view.runs, line) : line;
     const live = this.drag ? this.gestureFromDrag(this.drag) : this.gesturePreview;
-    // After commit the engine box catches up; drop the held preview once it matches.
+    // Hold the chrome until the engine reports the same box, or the same rotation.
     if (!this.drag && this.gesturePreview) {
       const caughtUp =
-        Math.abs(shown.xPt - this.gesturePreview.xPt) < 0.5 &&
-        Math.abs(shown.yPt - this.gesturePreview.yPt) < 0.5 &&
-        Math.abs(shown.widthPt - this.gesturePreview.widthPt) < 0.5 &&
-        Math.abs(shown.heightPt - this.gesturePreview.heightPt) < 0.5;
+        this.gesturePreview.mode === "rotate"
+          ? Math.abs(angleDelta(element.rotation, this.gesturePreview.rotationDeg)) < 0.75
+          : Math.abs(shown.xPt - this.gesturePreview.xPt) < 0.5 &&
+            Math.abs(shown.yPt - this.gesturePreview.yPt) < 0.5 &&
+            Math.abs(shown.widthPt - this.gesturePreview.widthPt) < 0.5 &&
+            Math.abs(shown.heightPt - this.gesturePreview.heightPt) < 0.5;
       if (caughtUp) this.gesturePreview = undefined;
     }
     const overlay = elementOverlayFrame(shown, element.rotation, live);
@@ -3090,12 +3092,8 @@ export class FiledomViewer {
       const picked = this.picked;
       const preview = drag.moved ? this.gestureFromDrag(drag) : undefined;
       this.drag = undefined;
-      // Hold resize/move size until the engine box catches up. Rotate changes the AABB, so
-      // keeping the pre-rotate box would desync from the new raster; CSS spin ends with the drag.
-      this.gesturePreview =
-        preview && preview.mode !== "rotate"
-          ? { ...preview, originRotationDeg: preview.rotationDeg }
-          : undefined;
+      // Keep the wrapped border until the engine reports the new box or rotation.
+      this.gesturePreview = preview ? { ...preview, originRotationDeg: preview.rotationDeg } : undefined;
       const element = picked && this.elementOn(picked.page, picked.id);
       if (drag.moved && element) {
         const dx = drag.x - drag.originX;
@@ -3526,6 +3524,11 @@ export interface ClientBox {
  */
 const selectionSurface =
   ".dd-toolbar, .dd-menu, .dd-note, .dd-note-card, .dd-password, .dd-page, .dd-panel, .dd-input, .dd-element";
+
+/** Signed shortest step from `fromDeg` to `toDeg`, in degrees. */
+function angleDelta(fromDeg: number, toDeg: number): number {
+  return ((((toDeg - fromDeg) % 360) + 540) % 360) - 180;
+}
 
 /** True when the pointer landed on the document or the selected element's chrome. */
 export function pointerKeepsSelection(path: readonly EventTarget[]): boolean {

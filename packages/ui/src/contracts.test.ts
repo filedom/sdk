@@ -84,12 +84,12 @@ describe("readiness marker and URLs", () => {
     expect(contracts).toContain('data-filedom-state="ready"');
   });
 
-  it("put everything under /sdk-docs/ and bundles under /api/bundles/<version>/", () => {
-    expect(SITE_BASE).toBe("/sdk-docs/");
-    expect(examplePath("vue")).toBe("/sdk-docs/examples/vue/");
-    expect(SAMPLE_PDF_PATH).toBe("/sdk-docs/samples/hello.pdf");
+  it("put everything under /sdk/docs/ and bundles under /api/bundles/<version>/", () => {
+    expect(SITE_BASE).toBe("/sdk/docs/");
+    expect(examplePath("vue")).toBe("/sdk/docs/examples/vue/");
+    expect(SAMPLE_PDF_PATH).toBe("/sdk/docs/samples/hello.pdf");
     expect(bundlesPath("1.2.3")).toBe("/api/bundles/1.2.3/");
-    for (const path of ["/sdk-docs/playground/", "/sdk-docs/examples/<fw>/", "/sdk-docs/samples/hello.pdf", "/api/bundles/<version>/"]) {
+    for (const path of ["/sdk/docs/playground/", "/sdk/docs/examples/<fw>/", "/sdk/docs/samples/hello.pdf", "/api/bundles/<version>/"]) {
       expect(contracts).toContain(path);
     }
   });
@@ -103,7 +103,7 @@ describe("schemas", () => {
   it("are draft 2020-12 with an id", () => {
     for (const schema of [registry, project, example]) {
       expect(schema.$schema).toBe("https://json-schema.org/draft/2020-12/schema");
-      expect(schema.$id).toMatch(/^https:\/\/filedom\.io\/sdk-docs\/schema\//);
+      expect(schema.$id).toMatch(/^https:\/\/filedom\.io\/sdk\/docs\/schema\//);
     }
   });
 

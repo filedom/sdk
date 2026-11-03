@@ -14,7 +14,7 @@ function publicBase(fallback: string): string {
 }
 
 export default defineConfig({
-  base: publicBase("/sdk-docs/examples/vue/"),
+  base: publicBase("/sdk/docs/examples/vue/"),
   envPrefix: ["VITE_", "FILEDOM_"],
   plugins: [excludeEngineWasm(), vue(), tailwindcss()],
   resolve: {

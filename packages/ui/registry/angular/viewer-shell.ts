@@ -5,7 +5,7 @@ import { FileText, LucideAngularModule } from "lucide-angular";
 import { FiledomButton } from "@/components/filedom/button";
 import { FiledomContext, shellState, usageNotice } from "@/components/filedom/filedom-provider";
 
-const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
 @Component({
   selector: "filedom-viewer-shell",

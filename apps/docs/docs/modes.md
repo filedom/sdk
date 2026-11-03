@@ -5,7 +5,7 @@ title: Modes
 
 # Modes
 
-Modes are only `live`, `track`, and `view` on every format.
+The mode menu is on every file. Track mode stores the change list for PDF, Word, Excel, and PowerPoint. Other formats report track changes as unsupported. [Toolbars](/sdk/docs/toolbars) lists Restore, Revert, and the rest of that toolbar.
 
 | Mode | Behavior |
 | --- | --- |

@@ -3,7 +3,7 @@ import { FiledomProvider } from "@/components/filedom/filedom-provider";
 import { Toolbar } from "@/components/filedom/toolbar";
 import { ViewerShell } from "@/components/filedom/viewer-shell";
 
-const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1";
+const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "https://cdn.filedom.io/0.2.0";
 
 const options = {
   bundles: bundlesFromCdn(bundlesBase),

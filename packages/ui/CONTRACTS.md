@@ -140,7 +140,7 @@ Written by `filedom init` at the project root, read by `filedom add`, validated 
 
 ```json
 {
-  "$schema": "https://filedom.io/sdk-docs/schema/filedom.schema.json",
+  "$schema": "https://filedom.io/sdk/docs/schema/filedom.schema.json",
   "framework": "vue",
   "componentDir": "src/components/filedom",
   "css": "src/style.css",
@@ -179,11 +179,11 @@ One base everywhere: local serve, tests, and production.
 
 | Path | What |
 | --- | --- |
-| `/sdk-docs/` | Docs site (Docusaurus, `trailingSlash: true`) |
-| `/sdk-docs/playground/` | Playground. `?fw=<id>` selects the framework and its code. An unknown value falls back to `react` |
-| `/sdk-docs/licensing/` | Licensing page |
-| `/sdk-docs/examples/<fw>/` | Built example |
-| `/sdk-docs/samples/hello.pdf` | Sample PDF |
+| `/sdk/docs/` | Docs site (Docusaurus, `trailingSlash: true`) |
+| `/sdk/docs/playground/` | Playground. `?fw=<id>` selects the framework and its code. An unknown value falls back to `react` |
+| `/sdk/docs/licensing/` | Licensing page |
+| `/sdk/docs/examples/<fw>/` | Built example |
+| `/sdk/docs/samples/hello.pdf` | Sample PDF |
 | `/api/bundles/<version>/` | Bundles |
 
 - Examples load bundles from `bundlesFromCdn(FILEDOM_EXAMPLES_BUNDLES ?? "/api/bundles/<version>")`, fixed at build time.

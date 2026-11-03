@@ -5,10 +5,26 @@ import {
   elementDisplayBox,
   elementOverlayFrame,
   gestureMeasure,
+  tightElementBox,
   hitElement,
   pageElements,
   textElement,
 } from "./element-select.js";
+
+/** Axis-aligned bounds of `local` rotated clockwise by `deg` around its center. */
+function axisBounds(
+  local: { xPt: number; yPt: number; widthPt: number; heightPt: number },
+  deg: number,
+): { xPt: number; yPt: number; widthPt: number; heightPt: number } {
+  const rad = (deg * Math.PI) / 180;
+  const c = Math.abs(Math.cos(rad));
+  const s = Math.abs(Math.sin(rad));
+  const widthPt = local.widthPt * c + local.heightPt * s;
+  const heightPt = local.widthPt * s + local.heightPt * c;
+  const cx = local.xPt + local.widthPt / 2;
+  const cy = local.yPt + local.heightPt / 2;
+  return { xPt: cx - widthPt / 2, yPt: cy - heightPt / 2, widthPt, heightPt };
+}
 
 function run(patch: Partial<RunView> & Pick<RunView, "text" | "xPt" | "yPt" | "widthPt">): RunView {
   return {
@@ -88,16 +104,28 @@ describe("text elements", () => {
     expect(gestureMeasure({ mode: "move", widthPt: 40, heightPt: 40, rotationDeg: 0 })).toBeUndefined();
   });
 
-  it("tracks live resize size and rotate delta on the overlay frame", () => {
-    const box = { xPt: 10, yPt: 20, widthPt: 100, heightPt: 40 };
-    expect(elementOverlayFrame(box, 15)).toEqual({
-      xPt: 10,
-      yPt: 20,
-      widthPt: 100,
-      heightPt: 40,
-      rotationDeg: 15,
+  it("wraps the selection border around a rotated element", () => {
+    const local = { xPt: 10, yPt: 20, widthPt: 100, heightPt: 40 };
+    expect(elementOverlayFrame(local, 0)).toEqual({
+      ...local,
+      rotationDeg: 0,
       cssRotationDeg: 0,
     });
+    const bounds = axisBounds(local, 30);
+    const wrapped = elementOverlayFrame(bounds, 30);
+    expect(wrapped.cssRotationDeg).toBe(30);
+    expect(wrapped.rotationDeg).toBe(30);
+    expect(wrapped.widthPt).toBeCloseTo(100, 4);
+    expect(wrapped.heightPt).toBeCloseTo(40, 4);
+    expect(wrapped.xPt + wrapped.widthPt / 2).toBeCloseTo(bounds.xPt + bounds.widthPt / 2, 4);
+    expect(wrapped.yPt + wrapped.heightPt / 2).toBeCloseTo(bounds.yPt + bounds.heightPt / 2, 4);
+    const diamond = tightElementBox(axisBounds({ xPt: 0, yPt: 0, widthPt: 80, heightPt: 20 }, 45), 45);
+    expect(diamond.recovered).toBe(false);
+    expect(elementOverlayFrame(axisBounds({ xPt: 0, yPt: 0, widthPt: 80, heightPt: 20 }, 45), 45).cssRotationDeg).toBe(0);
+  });
+
+  it("keeps the live rotation on the border while a gesture is in progress", () => {
+    const box = { xPt: 10, yPt: 20, widthPt: 100, heightPt: 40 };
     const resized = elementOverlayFrame(box, 15, {
       mode: "resize",
       xPt: 10,
@@ -109,7 +137,7 @@ describe("text elements", () => {
     });
     expect(resized.widthPt).toBe(160);
     expect(resized.heightPt).toBe(72);
-    expect(resized.cssRotationDeg).toBe(0);
+    expect(resized.cssRotationDeg).toBe(15);
     expect(resized.rotationDeg).toBe(15);
     const rotated = elementOverlayFrame(box, 15, {
       mode: "rotate",
@@ -123,7 +151,7 @@ describe("text elements", () => {
     expect(rotated.widthPt).toBe(100);
     expect(rotated.heightPt).toBe(40);
     expect(rotated.rotationDeg).toBe(40);
-    expect(rotated.cssRotationDeg).toBe(25);
+    expect(rotated.cssRotationDeg).toBe(40);
     const moved = elementOverlayFrame(box, 0, {
       mode: "move",
       xPt: 30,

@@ -2,7 +2,7 @@
   import { onMount, type Component } from "svelte";
   import type { ViewerOptions } from "@filedom/core";
 
-  const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "/api/bundles/0.0.1/";
+  const bundlesBase = import.meta.env.FILEDOM_EXAMPLES_BUNDLES || "https://cdn.filedom.io/0.2.0/";
   const sampleUrl = "/sdk-docs/samples/hello.pdf";
 
   // Loaded after mount so adapter-static does not evaluate the viewer during the server build.

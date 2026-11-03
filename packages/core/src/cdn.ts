@@ -17,7 +17,7 @@ export type GlueLoader = (url: string) => Promise<GlueModule>;
 
 const defaultGlueLoad: GlueLoader = async (url) => {
   try {
-    return await import(/* @vite-ignore */ url);
+    return await import(/* webpackIgnore: true */ /* @vite-ignore */ url);
   } catch {
     throw new FiledomError("bundle-missing", "The engine bundle could not be loaded. Try opening the file again.");
   }

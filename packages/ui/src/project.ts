@@ -11,7 +11,7 @@ export interface ProjectConfig {
   aliases: { components: string; lib: string };
 }
 
-export const PROJECT_SCHEMA_URL = "https://filedom.io/sdk-docs/schema/filedom.schema.json";
+export const PROJECT_SCHEMA_URL = "https://filedom.io/sdk/docs/schema/filedom.schema.json";
 
 export const THEME_IMPORT = '@import "@filedom/ui/theme.css";';
 

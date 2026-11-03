@@ -120,7 +120,7 @@ export interface ElementGesture {
   originRotationDeg: number;
 }
 
-/** Axis-aligned overlay rect plus the CSS spin applied on top of the page box. */
+/** Axis-aligned overlay rect plus the CSS spin that wraps the rotated element. */
 export interface ElementOverlayFrame {
   xPt: number;
   yPt: number;
@@ -129,17 +129,45 @@ export interface ElementOverlayFrame {
   /** Absolute clockwise rotation of the element (committed or live). */
   rotationDeg: number;
   /**
-   * Extra CSS rotation for the selection chrome. Page object boxes are already the
-   * axis-aligned bounds of rotated ink, so idle frames use 0; a rotate gesture adds
-   * only the delta so the border tracks the pointer before commit.
+   * CSS rotation of the selection chrome. The engine box is the axis-aligned
+   * bounds of the rotated ink, so the chrome uses the unrotated size and this
+   * spin to stay wrapped around the element.
    */
   cssRotationDeg: number;
 }
 
 /**
- * Selection / edit-frame geometry from the element's display box and an optional
- * live gesture. Resize and move replace the box; rotate keeps size and spins the
- * chrome by the gesture delta.
+ * Unrotated rectangle centered on `box`. `box` is the axis-aligned bounds of an
+ * element rotated by `rotationDeg`. `recovered` is false near 45°, where the
+ * original size cannot be told apart from those bounds.
+ */
+export function tightElementBox(box: Rect, rotationDeg: number): Rect & { recovered: boolean } {
+  const rad = ((rotationDeg % 360) * Math.PI) / 180;
+  const c = Math.abs(Math.cos(rad));
+  const s = Math.abs(Math.sin(rad));
+  const det = c * c - s * s;
+  let widthPt = box.widthPt;
+  let heightPt = box.heightPt;
+  let recovered = Math.abs((rotationDeg % 180) + 180) % 180 < 0.01;
+  if (Math.abs(det) > 1e-3 && box.widthPt > 0.5 && box.heightPt > 0.5) {
+    const w = (box.widthPt * c - box.heightPt * s) / det;
+    const h = (box.heightPt * c - box.widthPt * s) / det;
+    if (w > 0.5 && h > 0.5) {
+      widthPt = w;
+      heightPt = h;
+      recovered = true;
+    }
+  }
+  const cx = box.xPt + box.widthPt / 2;
+  const cy = box.yPt + box.heightPt / 2;
+  return { xPt: cx - widthPt / 2, yPt: cy - heightPt / 2, widthPt, heightPt, recovered };
+}
+
+/**
+ * Selection chrome. An idle frame unwraps the engine's axis-aligned bounds and
+ * spins that rectangle by the element's rotation. A gesture already carries the
+ * unrotated size, and the chrome keeps the live rotation so the border does not
+ * snap back when the pointer lifts.
  */
 export function elementOverlayFrame(
   box: Rect,
@@ -147,13 +175,14 @@ export function elementOverlayFrame(
   gesture?: ElementGesture | undefined,
 ): ElementOverlayFrame {
   if (!gesture) {
+    const tight = tightElementBox(box, rotationDeg);
     return {
-      xPt: box.xPt,
-      yPt: box.yPt,
-      widthPt: box.widthPt,
-      heightPt: box.heightPt,
+      xPt: tight.xPt,
+      yPt: tight.yPt,
+      widthPt: tight.widthPt,
+      heightPt: tight.heightPt,
       rotationDeg,
-      cssRotationDeg: 0,
+      cssRotationDeg: tight.recovered ? rotationDeg : 0,
     };
   }
   return {
@@ -162,7 +191,7 @@ export function elementOverlayFrame(
     widthPt: gesture.widthPt,
     heightPt: gesture.heightPt,
     rotationDeg: gesture.rotationDeg,
-    cssRotationDeg: gesture.mode === "rotate" ? gesture.rotationDeg - gesture.originRotationDeg : 0,
+    cssRotationDeg: gesture.rotationDeg,
   };
 }
 

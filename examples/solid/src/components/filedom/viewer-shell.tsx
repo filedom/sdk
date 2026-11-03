@@ -5,7 +5,7 @@ import { Upload } from "lucide-solid";
 import { Button } from "@/components/filedom/button";
 import { shellState, useFiledom } from "@/components/filedom/filedom-provider";
 
-const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
 export function ViewerShell() {
   const api = useFiledom();
