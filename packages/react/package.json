@@ -1,6 +1,6 @@
 {
   "name": "@filedom/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "filedom React component wrapping @filedom/core",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@filedom/angular",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "filedom Angular directive and mount helper wrapping @filedom/core",
   "type": "module",

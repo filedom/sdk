@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.0 — 3 Nov 2026
+
+A rotated PDF keeps its selection border on the element.
+
+- Source files open in a configurable code view
+- Docs and the playground are at /sdk/docs
+
 ## 0.2.0 — 1 Nov 2026
 
 You can trim and join audio and video, and the editor uses a paper and ink theme.

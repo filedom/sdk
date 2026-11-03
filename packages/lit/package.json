@@ -1,6 +1,6 @@
 {
   "name": "@filedom/lit",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "filedom <filedom-viewer> Lit element wrapping @filedom/core",
   "type": "module",
