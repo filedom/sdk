@@ -125,7 +125,7 @@ const RUNNERS: Record<string, (viewer: FiledomViewer, snapshot: ViewerStoreSnaps
   fitWidth: (viewer) => viewer.fit("width"),
   fitPage: (viewer) => viewer.fit("page"),
   theme: (viewer, snapshot) =>
-    viewer.setTheme(snapshot.theme === "dark" || snapshot.theme === "high-contrast-dark" ? "light" : "dark"),
+    viewer.setTheme(snapshot.theme === "dark" ? "light" : "dark"),
   deselect: (viewer) => viewer.deselect(),
   deselectElement: (viewer) => viewer.deselect(),
   bold: (viewer) => void viewer.toggle("bold"),

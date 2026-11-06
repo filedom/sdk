@@ -210,7 +210,11 @@ describe("serve-examples over HTTP", () => {
   write(join(bundles, "pdf", "pdfium.wasm"), "\0asm");
   const proxied = [];
   const fakeFetch = async (url, init) => {
-    proxied.push({ url, ticket: init.headers["x-filedom-ticket"] });
+    proxied.push({
+      url,
+      ticket: init.headers["x-filedom-ticket"],
+      device: init.headers["x-filedom-device"],
+    });
     return new Response("glue", { status: 200, headers: { "content-type": "text/javascript; charset=utf-8" } });
   };
   let local;
@@ -275,10 +279,16 @@ describe("serve-examples over HTTP", () => {
   });
 
   test("the proxy forwards path, query, and ticket header to FILEDOM_CDN", async () => {
-    const res = await get(proxy, "/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q", { headers: { "x-filedom-ticket": "h" } });
+    const res = await get(proxy, "/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q", {
+      headers: { "x-filedom-ticket": "h", "x-filedom-device": "11111111-1111-4111-8111-111111111111" },
+    });
     assert.equal(res.status, 200);
     assert.equal(await res.text(), "glue");
-    assert.deepEqual(proxied.at(-1), { url: "http://cdn.test/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q", ticket: "h" });
+    assert.deepEqual(proxied.at(-1), {
+      url: "http://cdn.test/api/bundles/0.2.0/pdf/filedom_pdf.js?ticket=q",
+      ticket: "h",
+      device: "11111111-1111-4111-8111-111111111111",
+    });
   });
 });
 

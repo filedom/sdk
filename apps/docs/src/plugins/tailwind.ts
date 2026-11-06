@@ -11,7 +11,9 @@ const THEME_IMPORT = "@filedom/ui/theme.css";
 
 // Keeps <html class="dark"> equal to Docusaurus' data-theme so `.dark` tokens and the
 // Tailwind `dark:` variant follow the navbar toggle, including before hydration.
-const DARK_CLASS_SYNC = `(function(){var d=document.documentElement;function s(){d.classList.toggle("dark",d.getAttribute("data-theme")==="dark")}s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:["data-theme","class"]})})();`;
+const THEME_BOOT = `(function(){try{var s=localStorage.getItem("filedom-theme");var p=s==="light"||s==="dark"||s==="system"?s:"system";var dark=p==="dark"||(p==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);var mode=dark?"dark":"light";var d=document.documentElement;d.setAttribute("data-theme",mode);d.classList.toggle("dark",dark);d.style.colorScheme=mode;localStorage.setItem("theme",mode);}catch(e){}})();`;
+
+const DARK_CLASS_SYNC = `(function(){var d=document.documentElement;var current=d.getAttribute("data-theme");function s(){var mode=d.getAttribute("data-theme");d.classList.toggle("dark",mode==="dark");if((mode==="light"||mode==="dark")&&mode!==current){current=mode;try{localStorage.setItem("filedom-theme",mode);localStorage.setItem("theme",mode);}catch(e){}}}s();new MutationObserver(s).observe(d,{attributes:true,attributeFilter:["data-theme","class"]})})();`;
 
 function themeAvailable(siteDir: string): boolean {
   try {
@@ -45,7 +47,12 @@ export default function tailwindPlugin(context: LoadContext): Plugin {
       return postcssOptions;
     },
     injectHtmlTags() {
-      return { headTags: [{ tagName: "script", innerHTML: DARK_CLASS_SYNC }] };
+      return {
+        headTags: [
+          { tagName: "script", innerHTML: THEME_BOOT },
+          { tagName: "script", innerHTML: DARK_CLASS_SYNC },
+        ],
+      };
     },
   };
 }

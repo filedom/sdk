@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from "vitest";
-import { CONTENT_ELEMENTS, mountContentElement } from "./content-elements.js";
+import { CONTENT_ELEMENTS, contentSize, mountContentElement } from "./content-elements.js";
 
 describe("content elements", () => {
   it("draws each insertable element and skips text", () => {
@@ -30,5 +30,19 @@ describe("content elements", () => {
     expect(input?.type).toBe("file");
     expect(input?.accept).toBe("image/*");
     expect(input?.getAttribute("aria-label")).toBe("Choose image");
+  });
+
+  it("draws source as a full-width element with line numbers on the left", () => {
+    const host = document.createElement("div");
+    mountContentElement(host, { kind: "code", source: "alpha\nbeta" });
+    expect(host.querySelector("[data-kind]")?.dataset.kind).toBe("code");
+    expect(host.querySelector(".dd-page")).toBeNull();
+    expect(host.querySelector(".dd-code-gutter")?.textContent).toBe("1\n2");
+    expect(host.querySelector(".dd-code-text")?.textContent).toBe("alpha\nbeta");
+    expect(contentSize("code", 480)).toEqual({ width: 480, height: "auto" });
+    const pre = host.querySelector(".dd-code-text") as HTMLElement;
+    pre.textContent = "one\ntwo\nthree";
+    pre.dispatchEvent(new Event("input"));
+    expect(host.querySelector(".dd-code-gutter")?.textContent).toBe("1\n2\n3");
   });
 });

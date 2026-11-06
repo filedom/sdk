@@ -41,7 +41,7 @@ export function FiledomProvider(props: { options: ViewerOptions; children: JSX.E
   createEffect(() => {
     const theme = snapshot()?.theme;
     if (!theme) return;
-    document.documentElement.classList.toggle("dark", theme === "dark" || theme === "high-contrast-dark");
+    document.documentElement.classList.toggle("dark", theme === "dark");
   });
 
   onCleanup(() => {

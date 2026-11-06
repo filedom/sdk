@@ -195,9 +195,9 @@ export class Editor {
     const selected = doc.getSelection();
     const node = selected?.anchorNode;
     const host = node instanceof Element ? node : node?.parentElement;
-    const box = host?.closest<HTMLElement>(".dd-error, .dd-status");
+    const box = host?.closest<HTMLElement>(".dd-error-list, .dd-status");
     if (box && e.clipboardData && selected && !selected.isCollapsed) {
-      const text = selected.toString() || box.dataset.message || box.querySelector("pre")?.textContent || box.textContent || "";
+      const text = selected.toString() || box.textContent || "";
       if (text) {
         e.preventDefault();
         e.clipboardData.setData("text/plain", text);

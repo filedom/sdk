@@ -142,6 +142,7 @@ export class LayersPanel {
   private readonly visible = new Set<string>();
   private readonly painted = new Set<string>();
   private selectedId: string | undefined;
+  private elementsEl?: HTMLElement;
 
   constructor(
     private readonly h: ElementFactory,
@@ -149,6 +150,11 @@ export class LayersPanel {
   ) {
     this.el = h("aside", "dd-panel dd-layers");
     this.el.setAttribute("aria-label", "Layers");
+  }
+
+  /** Element rows render here when the review tray is separate from the layer list. */
+  attachElements(host: HTMLElement): void {
+    this.elementsEl = host;
   }
 
   /** Drops rows and observer state so the next open can defer population. */
@@ -163,6 +169,7 @@ export class LayersPanel {
     this.painted.clear();
     this.teardownObserver();
     this.el.replaceChildren();
+    this.elementsEl?.replaceChildren();
   }
 
   /**
@@ -207,6 +214,12 @@ export class LayersPanel {
     this.painted.clear();
     this.teardownObserver();
 
+    const elementRows: HTMLElement[] = [];
+    const placeElement = (item: LayerElementItem) => {
+      const row = this.elementRow(item, selectedId);
+      if (this.elementsEl) elementRows.push(row);
+      return row;
+    };
     const groups: HTMLElement[] = [this.heading()];
     for (const layer of listed) {
       const group = this.h("section", "dd-layer-group");
@@ -214,11 +227,16 @@ export class LayersPanel {
       group.append(this.layerHeader(layer));
       const mine = elements.filter((item) => (item.layerId || fallback) === layer.id);
       if (!mine.length) {
-        const empty = this.h("p", "dd-muted");
-        empty.textContent = "No elements";
-        group.append(empty);
+        if (!this.elementsEl) {
+          const empty = this.h("p", "dd-muted");
+          empty.textContent = "No elements";
+          group.append(empty);
+        }
       } else {
-        for (const item of mine) group.append(this.elementRow(item, selectedId));
+        for (const item of mine) {
+          const row = placeElement(item);
+          if (!this.elementsEl) group.append(row);
+        }
       }
       groups.push(group);
     }
@@ -229,10 +247,20 @@ export class LayersPanel {
       const title = this.h("h4", "dd-layer-heading");
       title.textContent = listed[0]?.name || "Layer 1";
       group.append(title);
-      for (const item of orphaned) group.append(this.elementRow(item, selectedId));
+      for (const item of orphaned) {
+        const row = placeElement(item);
+        if (!this.elementsEl) group.append(row);
+      }
       groups.push(group);
     }
     this.el.replaceChildren(...groups);
+    if (this.elementsEl) {
+      if (!elementRows.length) {
+        const empty = this.h("p", "dd-muted");
+        empty.textContent = "No elements";
+        this.elementsEl.replaceChildren(empty);
+      } else this.elementsEl.replaceChildren(...elementRows);
+    }
     this.observeRows();
   }
 
@@ -314,10 +342,14 @@ export class LayersPanel {
     return row;
   }
 
+  private rowsRoot(): HTMLElement {
+    return this.elementsEl ?? this.el;
+  }
+
   private syncSelection(selectedId: string | undefined): void {
     if (selectedId === this.selectedId) return;
     this.selectedId = selectedId;
-    for (const row of this.el.querySelectorAll<HTMLElement>(".dd-layer-element")) {
+    for (const row of this.rowsRoot().querySelectorAll<HTMLElement>(".dd-layer-element")) {
       if (row.dataset.elementId === selectedId) row.dataset.selected = "";
       else delete row.dataset.selected;
     }
@@ -326,7 +358,7 @@ export class LayersPanel {
   private observeRows(): void {
     this.ensureObserver();
     if (!this.observer) return;
-    for (const row of this.el.querySelectorAll<HTMLElement>(".dd-layer-element")) {
+    for (const row of this.rowsRoot().querySelectorAll<HTMLElement>(".dd-layer-element")) {
       this.observer.observe(row);
     }
   }
@@ -348,7 +380,7 @@ export class LayersPanel {
           }
         }
       },
-      { root: this.el, rootMargin: "80px 0px", threshold: 0 },
+      { root: this.rowsRoot(), rootMargin: "80px 0px", threshold: 0 },
     );
   }
 
@@ -373,9 +405,9 @@ export class LayersPanel {
   }
 
   private paintIntersectingGeometry(pages?: Set<number>): void {
-    const root = this.el.getBoundingClientRect();
+    const root = this.rowsRoot().getBoundingClientRect();
     if (root.width < 1 && root.height < 1) return;
-    for (const row of this.el.querySelectorAll<HTMLElement>(".dd-layer-element")) {
+    for (const row of this.rowsRoot().querySelectorAll<HTMLElement>(".dd-layer-element")) {
       const id = row.dataset.elementId;
       if (!id) continue;
       const item = this.byId.get(id);

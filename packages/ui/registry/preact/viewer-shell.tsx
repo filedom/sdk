@@ -67,8 +67,8 @@ export function ViewerShell({ children, className }: { children?: ComponentChild
               data-slot="dropzone"
               className="flex w-full max-w-md flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-card px-8 py-10 text-center shadow-sm"
             >
-              <p className="text-sm font-medium">Drop a document here</p>
-              <p className="text-sm text-muted-foreground">PDF and Office files open in the viewer.</p>
+              <p className="text-sm font-medium">Drop any file here</p>
+              <p className="text-sm text-muted-foreground">Such as a document or a media file.</p>
               {detail ? <p className="text-sm text-destructive">{detail}</p> : null}
               <Button
                 data-slot="open-sample"

@@ -102,7 +102,7 @@ export const READY_STATE: FiledomState = "ready";
 
 /** One base path everywhere: local serve, tests, production. */
 export const SITE_BASE = "/sdk/docs/";
-export const PLAYGROUND_PATH = "/sdk/docs/playground/";
+export const PLAYGROUND_PATH = "/sdk/integrations";
 export const LICENSING_PATH = "/sdk/docs/licensing/";
 export const SAMPLE_PDF_PATH = "/sdk/docs/samples/hello.pdf";
 export const BUNDLES_BASE = "/api/bundles/";

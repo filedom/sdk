@@ -11,7 +11,7 @@
 
   let {
     options = {},
-    sampleUrl = "/sdk-docs/samples/hello.pdf",
+    sampleUrl = "/sdk/docs/samples/hello.pdf",
     children,
   }: {
     options?: ViewerOptions;

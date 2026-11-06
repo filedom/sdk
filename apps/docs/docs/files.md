@@ -1,6 +1,7 @@
 ---
 sidebar_position: 3
 title: Files
+description: Open a file by its extension. One session, the same toolbars, and the same capabilities describe every format.
 ---
 
 # Files
@@ -22,11 +23,11 @@ title: Files
 | Archive | `.zip`, `.gz`, `.tgz`, `.tar`, `.7z` |
 | Mail | `.eml`, `.msg` |
 
-The menu bar (File, History, Mode, Find, View, Help) is on every file. The tables below are the toolbars and features that change with the format. [Toolbars](/sdk/docs/toolbars) lists every action.
+The menu bar (File, Edit, Insert, View, Help) is on every file. Open files stay as tabs under that bar. The tables below are the toolbars and features that change with the format. [Toolbars](/sdk/docs/toolbars) lists every action.
 
 ## Source files
 
-TypeScript, JavaScript, JSON, CSS, HTML, Markdown, Rust, Python, Go, TOML, YAML, and shell open in the code view from `@filedom/core/code`. That module is part of the open-source SDK.
+TypeScript, JavaScript, JSON, CSS, HTML, Markdown, Rust, Python, Go, TOML, YAML, and shell open as full-width elements. Line numbers sit on the left. Paginated layout draws that source on pages. A long file continues in the next element. The caret stays in the hidden field. That view comes from `@filedom/core/code`, part of the open-source SDK.
 
 `codeStyle` sets the font and the colors for keywords, strings, numbers, functions, types, and punctuation. `codeFormat` sets the indent, semicolons, quote style, and trailing commas. Pass `style` and `format` to `mountCodeEditor` for one view, or change `codeStyle` and `codeFormat` before mount. A host that does not pass its own values uses those objects.
 
@@ -67,7 +68,7 @@ Layout: paged and layered. A `.doc` saves as `.docx`.
 | Text editing, including across paragraphs | Stored in the document. |
 | Highlight | Stored in the document. |
 | Comment | Kept for the open session. |
-| Insert image, text box, shape | Stored in the document. |
+| Insert image, text box, code, shape | Placed on the page. Code is a full-width element with line numbers, among the text and images. |
 | Layers: show, hide, lock | Stored in the document. |
 | Track changes | Stored in the document. |
 | Find | Search and replace. |

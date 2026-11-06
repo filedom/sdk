@@ -59,7 +59,7 @@ export function shellState(snapshot: { status: string } | null | undefined): str
 }
 
 export function syncThemeClass(snapshot: ViewerStoreSnapshot): void {
-  const dark = snapshot.theme === "dark" || snapshot.theme === "high-contrast-dark";
+  const dark = snapshot.theme === "dark";
   document.documentElement.classList.toggle("dark", dark);
 }
 

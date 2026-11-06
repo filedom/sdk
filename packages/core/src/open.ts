@@ -1,3 +1,5 @@
+import { adaptForEngine } from "./adapters/index.js";
+import { rememberAdapter } from "./adapters/session.js";
 import type { BundleLoader } from "./bundles.js";
 import { FiledomDocument } from "./document.js";
 import type { DocInfo, EngineModule, Format } from "./engine-types.js";
@@ -81,11 +83,13 @@ function openSession(format: Format, engine: Awaited<ReturnType<BundleLoader["lo
 export async function openDocument(loader: BundleLoader, source: OpenSource, options: OpenOptions = {}) {
   const file = await resolve(source, options);
   const name = options.name ?? file.name;
-  const detected = detectFormat(file.bytes, name);
+  const adapted = await adaptForEngine(file.bytes, name);
+  const openBytes = adapted?.bytes ?? file.bytes;
+  const detected = detectFormat(openBytes, adapted?.displayName ?? name);
   const detail = unwiredDetail(detected);
   if (detail) throw new FiledomError("unsupported", detail);
   let prepared: Awaited<ReturnType<NonNullable<OpenOptions["core"]>["prepare"]>> | undefined;
-  if (options.core) {
+  if (options.core && !adapted) {
     try {
       prepared = await options.core.prepare(file.bytes, name);
     } catch (error) {
@@ -95,14 +99,14 @@ export async function openDocument(loader: BundleLoader, source: OpenSource, opt
       if (failure.code !== "unsupported-format" || !loader.supports(detected)) throw failure;
     }
   }
-  const sniffed = prepared?.plan.format ?? detectFormat(file.bytes, name);
+  const sniffed = prepared?.plan.format ?? detectFormat(openBytes, adapted?.displayName ?? name);
   const engine: EngineModule = prepared?.engine ?? (await loader.load(sniffed));
   let password = options.password;
   let attempt = 0;
 
   for (;;) {
     try {
-      const session = openSession(sniffed, engine, prepared?.original ?? file.bytes, password);
+      const session = openSession(sniffed, engine, prepared?.original ?? openBytes, password);
       if (prepared?.trackChanges) {
         const revisions = prepared.plan.modules.find((module) => module.id === "track-changes");
         if (revisions && revisions.id === "track-changes") {
@@ -115,7 +119,9 @@ export async function openDocument(loader: BundleLoader, source: OpenSource, opt
         }
       }
       const format = (JSON.parse(session.info()) as DocInfo).format;
-      return new FiledomDocument(session, name, format, file.id || undefined);
+      const doc = new FiledomDocument(session, name, format, file.id || undefined);
+      if (adapted) rememberAdapter(doc, adapted.opened);
+      return doc;
     } catch (error) {
       const failure = FiledomError.from(error);
       if (!needsPassword(failure.code, sniffed)) throw failure;

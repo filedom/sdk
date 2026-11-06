@@ -51,6 +51,7 @@ const APP: ToolbarGroup[] = [
       { id: "new", label: "New", hint: "Create a new .filedom file" },
       { id: "open", label: "Open", hint: "Open a document" },
       { id: "save", label: "Save", hint: "Save in the open format" },
+      { id: "close", label: "Close", hint: "Close the open file" },
       { id: "storeFiledom", label: "Store as filedom", hint: "Write this session as a .filedom file" },
       { id: "export", label: "Export", hint: "Export to another format" },
     ],
@@ -93,11 +94,11 @@ const APP: ToolbarGroup[] = [
     row: "app",
     actions: [
       { id: "zoomOut", label: "Zoom out", hint: "Zoom out" },
-      { id: "zoomReset", label: "Actual size", hint: "Zoom to 100%" },
+      { id: "zoomReset", label: "Actual size", hint: "Type a zoom from 10% to 500%" },
       { id: "zoomIn", label: "Zoom in", hint: "Zoom in" },
       { id: "fitWidth", label: "Fit width", hint: "Fit the page to the window width" },
       { id: "fitPage", label: "Fit page", hint: "Fit the whole page in the window" },
-      { id: "theme", label: "Theme", hint: "Switch light and dark chrome" },
+      { id: "theme", label: "Theme", hint: "Choose a theme" },
       { id: "deselect", label: "Deselect", hint: "Clear the current selection" },
       { id: "toolbarVisibility", label: "Panels", hint: "Show or hide toolbars and side trays" },
       { id: "lockToolbars", label: "Lock toolbars", hint: "Freeze or unlock toolbar positions" },
@@ -116,6 +117,7 @@ const APP: ToolbarGroup[] = [
     actions: [
       { id: "insertImage", label: "Image", hint: "Insert an image" },
       { id: "insertTextBox", label: "Text box", hint: "Insert a text box" },
+      { id: "insertCode", label: "Code", hint: "Insert source code" },
       { id: "insertShape", label: "Shape", hint: "Insert a shape" },
     ],
   },
@@ -247,8 +249,10 @@ export interface TraySpec {
 }
 
 export const TRAY_CATALOG: TraySpec[] = [
+  { id: "comments", label: "Comments" },
   { id: "history", label: "Track changes" },
   { id: "layers", label: "Layers" },
+  { id: "elements", label: "Elements" },
 ];
 
 export function catalogGroup(id: string): ToolbarGroup | undefined {
@@ -387,7 +391,15 @@ export function actionAvailability(groupId: string, actionId: string, ctx: Catal
   }
   if (groupId === "insert") {
     const kind =
-      actionId === "insertImage" ? "image" : actionId === "insertTextBox" ? "text-box" : actionId === "insertShape" ? "shape" : "";
+      actionId === "insertImage"
+        ? "image"
+        : actionId === "insertTextBox"
+          ? "text-box"
+          : actionId === "insertCode"
+            ? "code"
+            : actionId === "insertShape"
+              ? "shape"
+              : "";
     if (kind && ctx.insertKinds && !ctx.insertKinds.includes(kind)) return "hidden";
   }
   return "shown";

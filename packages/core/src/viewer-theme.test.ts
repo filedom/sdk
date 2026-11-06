@@ -31,44 +31,62 @@ describe("viewer theme", () => {
     expect(capture.contains(shell)).toBe(true);
     expect(shell.dataset.theme).toBe("light");
     expect(shell.querySelector("style")?.textContent).toBe("");
-    const themeButton = root.querySelector<HTMLButtonElement>("[data-action=theme]")!;
-    expect(themeButton.getAttribute("aria-label")).toBe("Dark theme");
-    expect(themeButton.querySelector("svg")?.getAttribute("data-icon")).toBe("moon");
-    expect(themeButton.getAttribute("aria-pressed")).toBe("false");
-    themeButton.click();
+    const themeMenu = root.querySelector<HTMLSelectElement>("[data-action=theme]")!;
+    expect(themeMenu.value).toBe("filedom");
+    expect(themeMenu.options).toHaveLength(4);
+    themeMenu.value = "filedom-dark";
+    themeMenu.dispatchEvent(new Event("change"));
     expect(shell.dataset.theme).toBe("dark");
-    expect(themeButton.getAttribute("aria-label")).toBe("Light theme");
-    expect(themeButton.querySelector("svg")?.getAttribute("data-icon")).toBe("sun");
     expect(themes).toEqual(["dark"]);
-    expect(themeButton.getAttribute("aria-pressed")).toBe("true");
-    themeButton.click();
+    themeMenu.value = "filedom";
+    themeMenu.dispatchEvent(new Event("change"));
     expect(shell.dataset.theme).toBe("light");
-    expect(themeButton.getAttribute("aria-pressed")).toBe("false");
 
-    viewer.setTheme({ preference: "dark", accent: "#0f6e56", dark: { surface: "#16201c" } });
+    themeMenu.value = "paper";
+    themeMenu.dispatchEvent(new Event("change"));
+    expect(shell.dataset.theme).toBe("light");
+    expect(shell.querySelector("style")?.textContent).toContain("--dd-accent-config:#1a5f4a");
+    expect(themeMenu.value).toBe("paper");
+
+    viewer.setTheme({ preference: "dark", ui: { accent: "#0f6e56", surface: "#16201c" } });
     expect(shell.dataset.theme).toBe("dark");
     expect(shell.dataset.scheme).toBeUndefined();
     const sheet = shell.querySelector("style")?.textContent ?? "";
     expect(sheet).toContain("--dd-accent-config:#0f6e56");
-    expect(sheet).toContain('[data-theme="dark"]');
-    expect(sheet).toContain("--dd-panel-dark:#16201c");
+    expect(sheet).toContain("--dd-panel-config:#16201c");
+    expect(sheet).not.toContain("-dark:");
+    expect(themeMenu.value).toBe("custom");
 
-    viewer.setTheme("high-contrast-dark");
-    expect(shell.dataset.theme).toBe("high-contrast-dark");
-    expect(themeButton.getAttribute("aria-pressed")).toBe("true");
-
-    viewer.setTheme({ preference: "light", accent: "#7c3aed" });
-    themeButton.click();
+    expect([...root.querySelectorAll(".dd-theme-panel h3")].map((heading) => heading.textContent)).toEqual([
+      "Interface",
+      "Document",
+    ]);
+    const page = root.querySelector<HTMLInputElement>("[data-theme-slot=document][data-theme-token=page]")!;
+    expect(page.value).toBe("#ffffff");
+    page.value = "#112233";
+    page.dispatchEvent(new Event("input"));
+    const accent = root.querySelector<HTMLInputElement>("[data-theme-slot=ui][data-theme-token=accent]")!;
+    accent.value = "#445566";
+    accent.dispatchEvent(new Event("input"));
+    const colored = shell.querySelector("style")?.textContent ?? "";
+    expect(colored).toContain("--dd-page-config:#112233");
+    expect(colored).toContain("--dd-accent-config:#445566");
+    expect(colored).toContain("--dd-panel-config:#16201c");
     expect(shell.dataset.theme).toBe("dark");
-    expect(shell.querySelector("style")?.textContent).toContain("--dd-accent-config:#7c3aed");
+
+    viewer.setTheme("ink");
+    expect(shell.dataset.theme).toBe("dark");
+    expect(shell.querySelector("style")?.textContent).toContain("--dd-accent-config:#7dbaa4");
+    expect(themeMenu.value).toBe("ink");
 
     viewer.setTheme("system");
     expect(shell.dataset.scheme).toBe("system");
     expect(shell.dataset.theme).toBe("light");
+    expect(themeMenu.value).toBe("filedom");
     dark = true;
     for (const listener of listeners) listener();
     expect(shell.dataset.theme).toBe("dark");
-    expect(themeButton.getAttribute("aria-pressed")).toBe("true");
+    expect(themeMenu.value).toBe("filedom-dark");
 
     viewer.destroy();
     expect(root.querySelector(".dd-viewer")).toBeNull();

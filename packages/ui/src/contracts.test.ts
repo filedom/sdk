@@ -12,6 +12,7 @@ import {
   REGISTRY_BLOCKS,
   REGISTRY_PRIMITIVES,
   REGISTRY_SETS,
+  PLAYGROUND_PATH,
   SAMPLE_PDF_PATH,
   SITE_BASE,
   STATE_ATTRIBUTE,
@@ -87,10 +88,34 @@ describe("readiness marker and URLs", () => {
   it("put everything under /sdk/docs/ and bundles under /api/bundles/<version>/", () => {
     expect(SITE_BASE).toBe("/sdk/docs/");
     expect(examplePath("vue")).toBe("/sdk/docs/examples/vue/");
+    expect(PLAYGROUND_PATH).toBe("/sdk/integrations");
     expect(SAMPLE_PDF_PATH).toBe("/sdk/docs/samples/hello.pdf");
     expect(bundlesPath("1.2.3")).toBe("/api/bundles/1.2.3/");
-    for (const path of ["/sdk/docs/playground/", "/sdk/docs/examples/<fw>/", "/sdk/docs/samples/hello.pdf", "/api/bundles/<version>/"]) {
+    for (const path of ["/sdk/integrations", "/sdk/docs/examples/<fw>/", "/sdk/docs/samples/hello.pdf", "/api/bundles/<version>/"]) {
       expect(contracts).toContain(path);
+    }
+  });
+
+  it("open the sample from /sdk/docs/samples/hello.pdf", () => {
+    const files: string[] = [];
+    const walk = (dir: string) => {
+      if (!existsSync(dir)) return;
+      for (const name of readdirSync(dir, { withFileTypes: true })) {
+        if (name.name.startsWith(".") || name.name === "node_modules" || name.name === "dist" || name.name === "build") continue;
+        const full = `${dir}/${name.name}`;
+        if (name.isDirectory()) walk(full);
+        else if (/\.(?:astro|css|html|js|mjs|svelte|ts|tsx|vue)$/.test(name.name)) files.push(full);
+      }
+    };
+    walk(ui("registry"));
+    walk(sdk("examples"));
+    const bad = files.filter((file) => readFileSync(file, "utf8").includes("/sdk-docs/samples/"));
+    expect(bad).toEqual([]);
+  });
+
+  it("registers the Lit viewer element from the shell", () => {
+    for (const file of [ui("registry/lit/viewer-shell.ts"), sdk("examples/lit/src/components/filedom/viewer-shell.ts")]) {
+      expect(readFileSync(file, "utf8")).toContain('customElements.define("filedom-viewer"');
     }
   });
 });

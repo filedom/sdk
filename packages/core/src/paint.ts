@@ -2,7 +2,6 @@ import type { PageView, RunView } from "./engine-types.js";
 import { runBox } from "./geometry.js";
 import { inkGeneration, paintInkCluster } from "./ink.js";
 
-const REVISION_COLORS = { insert: "#1565c0", replace: "#1565c0", delete: "#c62828" } as const;
 const FALLBACK_FONTS = "Helvetica, Arial, sans-serif";
 
 function isTimes(name: string): boolean {
@@ -64,6 +63,14 @@ function line(ctx: CanvasRenderingContext2D, run: RunView, y: number, color: str
   ctx.moveTo(run.xPt, y);
   ctx.lineTo(run.xPt + run.widthPt, y);
   ctx.stroke();
+}
+
+/**
+ * Identity of the PDF bitmap. Typed text, formatting, and highlights are drawn over it,
+ * so a keystroke does not need a new raster.
+ */
+export function baseRasterKey(index: number, scale: number, view: PageView): string {
+  return `${index}@${scale.toFixed(3)}@${view.widthPt.toFixed(2)}x${view.heightPt.toFixed(2)}@${objectPaintKey(view)}`;
 }
 
 /** Identity of PDF page objects, so a move, resize, or rotation repaints the raster. */
@@ -160,9 +167,7 @@ function paintRuns(
   (ctx as CanvasRenderingContext2D & { textRendering: string }).textRendering = "geometricPrecision";
   for (const run of presentedRuns(runs, markup)) {
     if (include && !include(run)) continue;
-    const marked = markup === "track" && run.revision;
-    const revision = marked ? REVISION_COLORS[run.revision!.kind] : undefined;
-    const color = revision ?? run.color ?? "#000";
+    const color = run.color ?? "#000";
     ctx.fillStyle = color;
     ctx.font = fontFor(run);
     const chars = Array.from(run.text);
@@ -184,9 +189,8 @@ function paintRuns(
       x += slot;
       i = j;
     }
-    const deleted = marked && run.revision?.kind === "delete";
-    if (run.underline || (revision && !deleted)) line(ctx, run, run.yPt + run.fontSizePt * 0.12, color);
-    if (run.strike || deleted) line(ctx, run, run.yPt - run.fontSizePt * 0.3, color);
+    if (run.underline) line(ctx, run, run.yPt + run.fontSizePt * 0.12, color);
+    if (run.strike) line(ctx, run, run.yPt - run.fontSizePt * 0.3, color);
   }
 }
 
@@ -194,8 +198,20 @@ function paintRuns(
  * Draws `text` so its ink width is `slot` points. The caret and the selection use that
  * same slot, which is how a canvas editor keeps the beam on the glyph edge.
  */
+const measuredWidths = new Map<string, number>();
+
+function measuredWidth(ctx: CanvasRenderingContext2D, text: string): number {
+  const key = `${ctx.font}\0${text}`;
+  const found = measuredWidths.get(key);
+  if (found !== undefined) return found;
+  const width = ctx.measureText(text).width;
+  if (measuredWidths.size > 4000) measuredWidths.clear();
+  measuredWidths.set(key, width);
+  return width;
+}
+
 function fillFitted(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, slot: number): void {
-  const measured = ctx.measureText(text).width;
+  const measured = measuredWidth(ctx, text);
   if (measured <= 0 || slot <= 0) {
     ctx.fillText(text, x, y);
     return;
@@ -207,12 +223,11 @@ function fillFitted(ctx: CanvasRenderingContext2D, text: string, x: number, y: n
   ctx.restore();
 }
 
-/** Covers edited raster ink, then draws the replacement glyphs in the same boxes. */
+/** Clears edited raster ink, then draws the replacement glyphs in the same boxes. */
 export function paintEditedRuns(ctx: CanvasRenderingContext2D, runs: RunView[], scale: number, markup: Markup): void {
   if (!runs.some((run) => run.redraw)) return;
   ctx.save();
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
-  ctx.fillStyle = "#fff";
   const shown = presentedRuns(runs, markup).filter((run) => run.redraw);
   for (const run of shown) {
     const box = runBox(run);
@@ -223,16 +238,106 @@ export function paintEditedRuns(ctx: CanvasRenderingContext2D, runs: RunView[], 
       return Math.max(end, other.xPt + other.widthPt);
     }, run.xPt + run.widthPt);
     const width = Math.min(Math.max(run.clearPt ?? 0, run.widthPt, 1), Math.max(lineEnd - run.xPt, run.widthPt));
-    ctx.fillRect(box.xPt - 1, box.yPt - 1, width + 2, box.heightPt + 2);
+    ctx.clearRect(box.xPt - 1, box.yPt - 1, width + 2, box.heightPt + 2);
   }
   paintRuns(ctx, runs, markup, scale, (run) => !!run.redraw);
   ctx.restore();
 }
 
+function uniqueRunIds(runs: RunView[]): boolean {
+  const seen = new Set<string>();
+  for (const run of runs) {
+    if (seen.has(run.id)) return false;
+    seen.add(run.id);
+  }
+  return true;
+}
+
+function highlightPaintKey(view: PageView): string {
+  let key = "";
+  for (const mark of view.highlights) {
+    key += `${mark.xPt.toFixed(2)},${mark.yPt.toFixed(2)},${mark.widthPt.toFixed(2)},${mark.heightPt.toFixed(2)},${mark.color};`;
+  }
+  return key;
+}
+
+interface Band {
+  y: number;
+  height: number;
+}
+
+function runBand(run: RunView): Band {
+  const box = runBox(run);
+  return { y: box.yPt - 1, height: box.heightPt + 2 };
+}
+
+function mergeBands(bands: Band[]): Band[] {
+  const sorted = [...bands].sort((a, b) => a.y - b.y);
+  const merged: Band[] = [];
+  for (const band of sorted) {
+    const last = merged.at(-1);
+    if (last && band.y <= last.y + last.height + 0.5) {
+      const bottom = Math.max(last.y + last.height, band.y + band.height);
+      last.height = bottom - last.y;
+    } else merged.push({ y: band.y, height: band.height });
+  }
+  return merged;
+}
+
+function overlaps(a: Band, b: Band): boolean {
+  return a.y < b.y + b.height && b.y < a.y + a.height;
+}
+
 /**
- * Paints a flow (DOCX/DOC) page glyph by glyph at the engine's advances, so painting,
- * hit-testing and selection agree. `scale` is device pixels per point. The canvas stays
- * transparent outside text; the page element provides the paper background.
+ * Repaints only the lines a text edit changed. Returns false when the page should be
+ * painted from scratch (scale, markup, highlights, or most of the page moved).
+ */
+export function paintFlowChanges(
+  ctx: CanvasRenderingContext2D,
+  previous: PageView,
+  next: PageView,
+  previousScale: number,
+  scale: number,
+  previousMarkup: Markup,
+  markup: Markup,
+): boolean {
+  if (previousMarkup !== markup || Math.abs(previousScale - scale) > 0.001) return false;
+  if (previous.widthPt !== next.widthPt || previous.heightPt !== next.heightPt) return false;
+  if (highlightPaintKey(previous) !== highlightPaintKey(next)) return false;
+  if (!uniqueRunIds(previous.runs) || !uniqueRunIds(next.runs)) return false;
+  const before = new Map(previous.runs.map((run) => [run.id, run]));
+  const after = new Map(next.runs.map((run) => [run.id, run]));
+  const dirty: RunView[] = [];
+  for (const run of previous.runs) {
+    const now = after.get(run.id);
+    if (!now || runPaintKey(run) !== runPaintKey(now)) dirty.push(run);
+  }
+  for (const run of next.runs) {
+    const was = before.get(run.id);
+    if (!was || runPaintKey(was) !== runPaintKey(run)) dirty.push(run);
+  }
+  if (!dirty.length) return true;
+  const bands = mergeBands(dirty.map(runBand));
+  const span = bands.reduce((total, band) => total + band.height, 0);
+  if (span > next.heightPt * 0.6) return false;
+  ctx.save();
+  ctx.setTransform(scale, 0, 0, scale, 0, 0);
+  for (const band of bands) ctx.clearRect(-1, band.y, next.widthPt + 2, band.height);
+  for (const mark of next.highlights) {
+    const band = { y: mark.yPt, height: mark.heightPt };
+    if (!bands.some((item) => overlaps(item, band))) continue;
+    ctx.fillStyle = mark.color;
+    ctx.fillRect(mark.xPt, mark.yPt, mark.widthPt, mark.heightPt);
+  }
+  const shown = next.runs.filter((run) => bands.some((band) => overlaps(band, runBand(run))));
+  paintRuns(ctx, shown, markup, scale);
+  ctx.restore();
+  return true;
+}
+
+/**
+ * Paints a flow page glyph by glyph. The canvas is left transparent outside the glyphs
+ * and the file's own highlights. Track-change marks are HTML, not paint.
  */
 export function paintFlowPage(
   ctx: CanvasRenderingContext2D,
@@ -249,9 +354,58 @@ export function paintFlowPage(
   paintRuns(ctx, view.runs, markup, scale);
 }
 
-/** Copies an RGBA raster into the canvas. */
+/** Sets the bitmap size only when it changed. Assigning either side clears the canvas. */
+export function assignCanvasSize(canvas: { width: number; height: number }, width: number, height: number): void {
+  if (canvas.width !== width) canvas.width = width;
+  if (canvas.height !== height) canvas.height = height;
+}
+
+export interface CachedRaster {
+  width: number;
+  height: number;
+  rgba: Uint8ClampedArray<ArrayBuffer>;
+}
+
+/**
+ * Keeps the last PDF bitmaps. A text edit reuses the bitmap; a new scale or a moved
+ * object loads again. Entries are dropped oldest-first.
+ */
+export class RasterCache {
+  private readonly entries = new Map<string, CachedRaster>();
+
+  constructor(private readonly limit = 8) {}
+
+  get(key: string, load: () => { width: number; height: number; rgba: Uint8ClampedArray } | undefined): CachedRaster | undefined {
+    const hit = this.entries.get(key);
+    if (hit) {
+      this.entries.delete(key);
+      this.entries.set(key, hit);
+      return hit;
+    }
+    const loaded = load();
+    if (!loaded) return undefined;
+    const stored: CachedRaster = {
+      width: loaded.width,
+      height: loaded.height,
+      rgba: new Uint8ClampedArray(loaded.rgba),
+    };
+    this.entries.set(key, stored);
+    while (this.entries.size > this.limit) {
+      const oldest = this.entries.keys().next().value;
+      if (oldest === undefined) break;
+      this.entries.delete(oldest);
+    }
+    return stored;
+  }
+
+  clear(): void {
+    this.entries.clear();
+  }
+}
+
+/** Copies an RGBA raster into the canvas. The source buffer stays reusable. */
 export function paintRaster(canvas: HTMLCanvasElement, raster: { width: number; height: number; rgba: Uint8ClampedArray<ArrayBuffer> }): void {
-  canvas.width = raster.width;
-  canvas.height = raster.height;
-  canvas.getContext("2d")?.putImageData(new ImageData(raster.rgba, raster.width, raster.height), 0, 0);
+  assignCanvasSize(canvas, raster.width, raster.height);
+  const pixels = new Uint8ClampedArray(raster.rgba);
+  canvas.getContext("2d")?.putImageData(new ImageData(pixels, raster.width, raster.height), 0, 0);
 }

@@ -1,15 +1,16 @@
 ---
 sidebar_position: 5
 title: Toolbars
+description: File, Edit, Insert, View, and Help sit on every file. A second toolbar follows the selection, layers, track changes, or timeline.
 ---
 
 # Toolbars
 
-The menu bar is on every file: File, History, Mode, Find, View, and Help. Insert is added when the file can place an element. A second toolbar appears for the current selection, the layers tray, the track-changes list, or a timeline clip. With nothing selected, only the menu bar is shown.
+The menu bar is on every file: File, Edit, Insert, View, and Help. Open files are tabs under that bar. A new file opens as the first tab. Drag a tab to reorder it. Insert is added when the file can place an element. A second toolbar appears for the current selection, the layers tray, the track-changes list, or a timeline clip. With nothing selected, only the menu bar is shown.
 
 A group the format cannot support is hidden. A group that applies, but the mode or the selection blocks it, stays visible and disabled. View only disables editing. Play, Pause, Mute, search, and the View menu stay available.
 
-The View menu lists every toolbar and tray. It cannot be hidden. Lock freezes positions. Unlocked, a toolbar can be dragged. Help shows a short description on hover.
+The View menu lists every toolbar. It cannot be hidden. Lock freezes positions. Unlocked, a toolbar can be dragged. Help shows a short description on hover. Settings groups the theme, colors, toolbars, mode, help, and layout in a dialog at the center of the window.
 
 Toolbars are DOM nodes in the chrome. They do not scroll with the page. A host can replace a group through `ComponentRegistry`.
 
@@ -20,6 +21,7 @@ Toolbars are DOM nodes in the chrome. They do not scroll with the page. A host c
 | New | Creates a FileDOM package. Text starts on an A4 page. An image starts from a pixel width and height. |
 | Open | Opens a file into the session. |
 | Save | Writes the format that was opened. |
+| Close | Closes the open file. If the file has unsaved changes, the editor asks before discarding them. |
 | Store as filedom | Writes this session as a `.filedom` package. |
 | Export | Writes another format. Enabled when the open file is a `.filedom` package. |
 
@@ -35,7 +37,7 @@ Undo and Redo. Both are disabled in View only, and when there is nothing to undo
 | Track changes | Edit and list each change. The track-changes toolbar adds Restore and Revert. |
 | View only | Read the file. Editing controls stay visible and disabled when the format supports them. |
 
-The mode menu is on every file. Restore and Revert are stored for PDF, Word, Excel, and PowerPoint. Images, SVG, Illustrator, audio, video, archives, and email report track changes as unsupported.
+The mode menu is on every file, and in Settings under Editing. Restore and Revert are stored for PDF, Word, Excel, and PowerPoint. Images, SVG, Illustrator, audio, video, archives, and email report track changes as unsupported.
 
 ## Find
 
@@ -43,7 +45,7 @@ Search, Previous, Next, Replace with, Replace, and Replace all. Search runs on e
 
 ## View
 
-Zoom out, Actual size, Zoom in, Fit width, Fit page, Theme, Deselect, Panels, and Lock toolbars. On every file.
+Zoom out, the percentage, Zoom in, Fit width, and Fit page stay on the window. The percentage opens a field for a zoom from 10% to 500%. Theme, toolbar lock, which toolbars are visible, the editing mode, help descriptions, and the layout are in Settings. FileDOM matches the website. The other palettes are FileDOM Dark, Paper, and Ink. See [Theming](/sdk/docs/theming).
 
 ## Help
 
@@ -51,11 +53,11 @@ Shows the hover descriptions. On every file.
 
 ## Insert
 
-Image, Text box, and Shape. The menu is hidden unless the file can place an element, and disabled in View only.
+Image, Text box, Code, and Shape. The menu is hidden unless the file can place an element, and disabled in View only.
 
 | File | What can be inserted |
 | --- | --- |
-| Word (`.doc`, `.docx`) | Image, text box, and shape, stored in the document. |
+| Word (`.doc`, `.docx`) | Image, text box, code, and shape, placed on the page. Code is full width, with line numbers on the left. |
 | PNG, JPEG, GIF, WebP, BMP, TIFF, SVG | Text box and shape, stored in the file. |
 | PDF, Excel, PowerPoint, CSV, Illustrator, audio, video, archives, email | Insert is hidden. |
 

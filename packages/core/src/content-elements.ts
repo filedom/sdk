@@ -1,4 +1,5 @@
 import type { ComponentHandle } from "./components.js";
+import { mountCodeElement } from "./code-element.js";
 
 /**
  * Block elements a Word document can hold besides a paragraph of text.
@@ -52,7 +53,7 @@ export function mountContentElement(container: HTMLElement, props: Record<string
   const kind = typeof props.kind === "string" ? contentElement(props.kind)?.kind : undefined;
   if (!kind) return;
   const doc = container.ownerDocument;
-  const root = render(doc, kind);
+  const root = render(doc, kind, props);
   root.dataset.kind = kind;
   container.append(root);
   if (kind !== "image") return;
@@ -65,7 +66,7 @@ export function mountContentElement(container: HTMLElement, props: Record<string
   };
 }
 
-function render(doc: Document, kind: ContentKind): HTMLElement {
+function render(doc: Document, kind: ContentKind, props: Record<string, unknown>): HTMLElement {
   switch (kind) {
     case "image":
       return image(doc);
@@ -76,7 +77,7 @@ function render(doc: Document, kind: ContentKind): HTMLElement {
     case "text-box":
       return editable(doc, "div", "dd-content dd-content-box", "Text box");
     case "code":
-      return editable(doc, "pre", "dd-content dd-content-code", "Code");
+      return codeBlock(doc, props);
     case "rule":
       return line(doc, "hr", "dd-content dd-content-rule");
     case "page-break":
@@ -142,6 +143,11 @@ function list(doc: Document): HTMLElement {
     ul.append(item);
   }
   return ul;
+}
+
+function codeBlock(doc: Document, props: Record<string, unknown>): HTMLElement {
+  const source = typeof props.source === "string" ? props.source : "Code";
+  return mountCodeElement(doc, { startLine: 1, startOffset: 0, text: source }, { editable: true });
 }
 
 function editable(doc: Document, tag: "div" | "pre", className: string, text: string): HTMLElement {

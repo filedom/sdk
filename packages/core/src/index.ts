@@ -16,11 +16,21 @@ export {
 } from "./components.js";
 export { FiledomDocument, type DocumentChange, type PageRaster } from "./document.js";
 export { FiledomError } from "./errors.js";
+export { DEVICE_HEADER, DEVICE_ID_KEY, applyDeviceHeader, deviceId } from "./device-id.js";
+export {
+  errorBundle,
+  errorEntry,
+  errorMail,
+  type ErrorEntry,
+  type ErrorMail,
+  type ErrorMailContext,
+} from "./error-report.js";
 export {
   codeFormat,
   codeStyle,
   formatCode,
   highlightCode,
+  canOpenAsCode,
   isCodeFile,
   languageFromName,
   mountCodeEditor,
@@ -56,10 +66,19 @@ export {
   type TrackChangesModule,
 } from "./modules.js";
 export { openDocument, type OpenOptions, type OpenSource } from "./open.js";
+export {
+  adapterExtensions,
+  convertWithAdapter,
+  engineFormatFor,
+  hasOpenAdapter,
+  presentAdapter,
+  registerLoader,
+  writeAdapter,
+} from "./adapters/index.js";
 export { promptForPassword, type PasswordHint } from "./password-prompt.js";
 export { paintFlowPage, paintRaster } from "./paint.js";
 export { VIEWER_CSS } from "./styles.js";
-export { FiledomViewer, type Annotation, type ChromeDir, type HighlightEvent, type SelectionState, type ThemeConfig, type ThemeName, type ThemePreference, type ThemeToken, type ThemeTokens, type ViewerEvents, type ViewerOptions, type ViewMode } from "./viewer.js";
+export { DROP_TEXT, FiledomViewer, type Annotation, type ChromeDir, type DocumentTheme, type HighlightEvent, type SelectionState, type ThemeConfig, type ThemeName, type ThemePreference, type ThemeToken, type ThemeTokens, type UiTheme, type ViewerEvents, type ViewerOptions, type ViewMode } from "./viewer.js";
 export * as zoom from "./zoom.js";
 export { shouldMount, type RenderDecision, type RenderMode, type RenderPolicyInput } from "./render-policy.js";
 export {
@@ -91,7 +110,7 @@ export {
   type ViewerStoreSnapshot,
   type ViewerStoreStatus,
 } from "./headless.js";
-export { Toolbar, type ToolbarActions, type ToolbarState } from "./toolbar.js";
+export { Toolbar, DEFAULT_TOOLBAR_LAYOUT, type ToolbarActions, type ToolbarLayout, type ToolbarState } from "./toolbar.js";
 // ViewMode stays exported from ./viewer.js.
 
 import { FiledomViewer, type ViewerOptions } from "./viewer.js";

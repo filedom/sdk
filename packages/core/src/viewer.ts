@@ -1,3 +1,4 @@
+import { adapterForDocument, writeAdapter } from "./adapters/index.js";
 import { AnnotationCard, SelectionMenu, passageEnds, quoteFromRanges, type Annotation, type HighlightEvent } from "./annotate.js";
 import { BundleLoader, type BundleImporters } from "./bundles.js";
 import { ComponentLayer } from "./component-layer.js";
@@ -29,13 +30,20 @@ import { replacementOrder } from "./replace-text.js";
 import { elementFactory, placeAt, type ElementFactory } from "./dom.js";
 import {
   boxContains,
+  clientToPagePoint,
   elementDisplayBox,
   elementLabel,
   elementOverlayFrame,
+  gestureCursor,
   gestureMeasure,
   hitElement,
+  hitPadPt,
   pageElements,
+  pageHoverCursor,
+  pageScale,
   textElement,
+  textUnderHandle,
+  zoomSlackPt,
   type ElementGesture,
   type PdfElement,
 } from "./element-select.js";
@@ -58,6 +66,7 @@ import {
   type UnitRange,
 } from "./engine-types.js";
 import { upgradeLazyEdit } from "./edit-lazy.js";
+import { applyDeviceHeader } from "./device-id.js";
 import { FiledomError } from "./errors.js";
 import { FileStore, type StoredFile } from "./file-store.js";
 import { ACCEPT, detectFormat, fileKind } from "./formats.js";
@@ -71,7 +80,7 @@ import { openDocument, type OpenSource } from "./open.js";
 import { promptForPassword } from "./password-prompt.js";
 import { PageStack, type PageSlot } from "./pages.js";
 import { bindInk, type InkLibrary } from "./ink.js";
-import { flowPaintKey, objectPaintKey, paintEditedRuns, paintFlowPage, paintRaster, presentedRuns, trackX, visualX, type Markup } from "./paint.js";
+import { assignCanvasSize, baseRasterKey, flowPaintKey, objectPaintKey, paintEditedRuns, paintFlowChanges, paintFlowPage, paintRaster, RasterCache, presentedRuns, trackX, visualX, type Markup } from "./paint.js";
 import { HistoryPanel } from "./history.js";
 import {
   LayerElementsCache,
@@ -87,16 +96,34 @@ import {
   nextThemeKey,
   themeConfigOf,
   themeTokenCss,
+  themeConfigForPreset,
+  themePresetById,
+  themePresetId,
+  themeValues,
   type ThemeConfig,
   type ThemeName,
   type ThemePreference,
 } from "./theme.js";
-import { shownTextFormat, Toolbar, type ToolbarActions, type ViewMode } from "./toolbar.js";
+import { defaultDisplayLayout, type DisplayLayout } from "./display-layout.js";
+import { shownTextFormat, Toolbar, type ToolbarActions, type ToolbarLayout, type ViewMode } from "./toolbar.js";
 import type { SelectionKind } from "./toolbar-catalog.js";
 import { PX_PER_PT, clampZoom, rasterScale, stepZoom, wheelZoom, type FitMode } from "./zoom.js";
 
 export type { Annotation, HighlightEvent } from "./annotate.js";
-export type { ThemeConfig, ThemeName, ThemePreference, ThemeToken, ThemeTokens } from "./theme.js";
+export {
+  THEME_PRESETS,
+  themeConfigForPreset,
+  themePresetById,
+  themePresetId,
+  type ThemeConfig,
+  type ThemeName,
+  type ThemePreference,
+  type ThemePreset,
+  type ThemeToken,
+  type ThemeTokens,
+  type UiTheme,
+  type DocumentTheme,
+} from "./theme.js";
 
 export type ChromeDir = "ltr" | "rtl";
 
@@ -151,7 +178,19 @@ export interface ViewerOptions {
   theme?: ThemePreference | ThemeConfig;
   /** Mirrors the toolbar when `rtl`. Defaults to ltr. */
   dir?: ChromeDir;
+  /** Runs when the toolbar closes the file, before the session is disposed. */
+  beforeClose?: () => void | Promise<void>;
+  /** Side rails. Omitted fields use the default split. */
+  toolbarLayout?: Partial<ToolbarLayout>;
+  /**
+   * Lead line in the empty drop zone.
+   * Omitted: "Drop any file here, such as a document or a media file."
+   */
+  dropText?: string;
 }
+
+/** Shown in the empty drop zone when the host does not set `dropText`. */
+export const DROP_TEXT = "Drop any file here, such as a document or a media file.";
 
 export type { ViewMode };
 
@@ -180,6 +219,8 @@ export interface ViewerEvents {
   /** `open` started. `open` or `error` follows. */
   loading: { name?: string };
   viewMode: { mode: ViewMode };
+  /** The side rails were expanded, collapsed, or rearranged. */
+  toolbarLayout: ToolbarLayout;
   /** After `search` and `nextHit`. `hitIndex` is zero-based, or -1 with no hits. */
   search: { query: string; hitCount: number; hitIndex: number };
 }
@@ -190,6 +231,15 @@ type Handler<K extends keyof ViewerEvents> = (event: ViewerEvents[K]) => void;
  * The viewer shell: page stack, caret editor, toolbar and component layer.
  * Document state stays in the Rust session; this class paints it and sends commands.
  */
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = "";
+  const step = 0x8000;
+  for (let index = 0; index < bytes.length; index += step) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + step));
+  }
+  return btoa(binary);
+}
+
 function openedName(source: OpenSource, name?: string): string {
   if (name?.trim()) return name.trim();
   if (typeof File !== "undefined" && source instanceof File) return source.name;
@@ -199,6 +249,19 @@ function openedName(source: OpenSource, name?: string): string {
 function fileExtension(name: string): string {
   const match = /\.([a-z0-9]{1,16})$/i.exec(name.trim());
   return match?.[1]?.toLowerCase() ?? "";
+}
+
+/** A file kept open beside the one on screen. The engine session stays alive. */
+interface SessionTab {
+  id: string;
+  doc: FiledomDocument;
+  zoom: number;
+  displayLayout: DisplayLayout;
+  viewMode: ViewMode;
+  modePinned: boolean;
+  scrollTop: number;
+  notes: Annotation[];
+  noteSeq: number;
 }
 
 export class FiledomViewer {
@@ -243,10 +306,14 @@ export class FiledomViewer {
   /** True until `open` has swapped in the new document, so a rejected file is not described as the one on screen. */
   private hideOpenDocument = false;
   private doc?: FiledomDocument;
+  private readonly tabs: SessionTab[] = [];
+  private activeTabId?: string;
+  private tabSeq = 0;
   private zoomValue: number;
   private author: string;
   private highlightColor: string;
   private viewModeValue: ViewMode;
+  private displayLayout: DisplayLayout = "paginated";
   /** The user or the host chose a mode; later files keep it. */
   private modePinned: boolean;
   private sel: Selection | null = null;
@@ -275,8 +342,14 @@ export class FiledomViewer {
   private hiddenTrays: string[] = [];
   /** User asked to keep the layers tray open even before page elements exist. */
   private layersPinned = false;
+  /** User asked to keep the elements tray open. */
+  private elementsPinned = false;
+  /** The review tray asked to show track changes outside track mode. */
+  private historyOpened = false;
   private newFileDialog?: { destroy(): void };
   private picked?: { id: string; page: number; kind: string };
+  /** The image chosen before the file picker opens. The picker can clear the selection. */
+  private pendingImageReplace?: { id: string; page: number };
   private drag?: {
     mode: "move" | "resize" | "rotate";
     corner?: string;
@@ -305,6 +378,10 @@ export class FiledomViewer {
   /** Set when the engine just returned caret geometry, so refresh does not locate again. */
   private caretFromEngine = false;
   private chromeTimer?: ReturnType<typeof setTimeout>;
+  /** PDF bitmaps already rendered. Text edits paint over these instead of rendering the page again. */
+  private readonly rasters = new RasterCache();
+  /** Last flow page painted, so the next keystroke redraws only the lines that moved. */
+  private readonly flowPainted = new Map<number, { view: ReturnType<FiledomDocument["page"]>; scale: number; markup: Markup }>();
   /** Coalesces layer thumb re-crops after a batch of full page paints. */
   private layerThumbTimer?: ReturnType<typeof setTimeout>;
   /** Page indices whose canvases painted since the last thumb refresh. */
@@ -353,6 +430,7 @@ export class FiledomViewer {
 
     this.capture = this.h("div", "dd-capture");
     this.el = this.h("div", "dd-viewer");
+    this.el.dataset.display = this.displayLayout;
     this.el.dataset.dd = this.themeKey;
     this.el.dataset.mode = this.viewModeValue;
     this.themeStyle = this.h("style");
@@ -410,7 +488,7 @@ export class FiledomViewer {
     });
     this.noteCard = new AnnotationCard(this.h);
     this.el.append(this.menu.el, this.noteCard.el);
-    this.toolbar = new Toolbar(this.h, this.actions(), this.highlightColor);
+    this.toolbar = new Toolbar(this.h, this.actions(), this.highlightColor, options.toolbarLayout);
     this.syncThemeButton();
     if (options.toolbar !== false) this.el.append(this.toolbar.el);
     const body = this.h("div", "dd-body");
@@ -422,7 +500,8 @@ export class FiledomViewer {
     this.empty.setAttribute("role", "button");
     this.empty.setAttribute("aria-label", "Open a file");
     const lead = this.h("p");
-    lead.textContent = "Drop a PDF or Office file here";
+    lead.dataset.dropText = "";
+    lead.textContent = this.options.dropText?.trim() || DROP_TEXT;
     const hint = this.h("p");
     hint.textContent = "or click to choose a file";
     this.empty.append(lead, hint);
@@ -478,8 +557,19 @@ export class FiledomViewer {
     });
     this.panel.el.hidden = !this.showHistory();
     this.layersPanel.el.hidden = true;
-    body.append(pagesEl, this.panel.el, this.layersPanel.el);
-    this.el.append(body, this.fileInput, this.imageInput, this.clipInput);
+    const historyHost = this.toolbar?.reviewHost("history");
+    const layersHost = this.toolbar?.reviewHost("layers");
+    const elementsHost = this.toolbar?.reviewHost("elements");
+    if (historyHost) historyHost.replaceChildren(this.panel.el);
+    if (layersHost) layersHost.replaceChildren(this.layersPanel.el);
+    if (elementsHost) this.layersPanel.attachElements(elementsHost);
+    body.append(pagesEl);
+    if (!historyHost) body.append(this.panel.el);
+    if (!layersHost) body.append(this.layersPanel.el);
+    const workspace = this.h("div", "dd-workspace");
+    if (options.toolbar !== false && this.toolbar) workspace.append(this.toolbar.leftRail, body, this.toolbar.rightRail);
+    else workspace.append(body);
+    this.el.append(workspace, this.fileInput, this.imageInput, this.clipInput);
     this.capture.append(this.el);
     root.append(this.capture);
 
@@ -511,7 +601,8 @@ export class FiledomViewer {
    * and `system` tracks `prefers-color-scheme` for the life of the viewer.
    */
   private applyTheme(theme: ThemePreference | ThemeConfig | undefined): void {
-    const config = themeConfigOf(theme);
+    const named = typeof theme === "string" ? themePresetById(theme) : undefined;
+    const config = named ? themeConfigForPreset(named) : themeConfigOf(theme);
     this.themeConfig = config;
     this.preference = config.preference ?? "light";
     this.bindScheme();
@@ -520,26 +611,16 @@ export class FiledomViewer {
     else delete this.el.dataset.scheme;
     const css = themeTokenCss(config, `.dd-viewer[data-dd="${this.themeKey}"]`);
     if (this.themeStyle.textContent !== css) this.themeStyle.textContent = css;
-    this.syncThemeButton();
+    this.syncThemeButton(named?.id);
   }
 
-  /** The toolbar control flips light and dark and keeps any token overrides. */
-  private toggleColorScheme(): void {
-    const preference = this.shownDark() ? "light" : "dark";
-    this.applyTheme({ ...this.themeConfig, preference });
-  }
-
-  private shownDark(): boolean {
-    const theme = this.el.dataset.theme;
-    return theme === "dark" || theme === "high-contrast-dark";
-  }
-
-  private syncThemeButton(): void {
-    this.toolbar?.setColorScheme(this.shownDark());
-    const theme = this.el.dataset.theme as ThemeName | undefined;
-    if (!theme || theme === this.publishedTheme) return;
-    this.publishedTheme = theme;
-    this.emit("theme", { theme });
+  private syncThemeButton(presetId?: string): void {
+    const shown = (this.el.dataset.theme as ThemeName | undefined) ?? "light";
+    this.toolbar?.setThemePreset(presetId ?? themePresetId(this.themeConfig, shown));
+    this.toolbar?.showThemeValues(themeValues(shown, this.themeConfig));
+    if (!shown || shown === this.publishedTheme) return;
+    this.publishedTheme = shown;
+    this.emit("theme", { theme: shown });
   }
 
   private systemMode(): "light" | "dark" {
@@ -611,13 +692,13 @@ export class FiledomViewer {
 
   /** Opens a picked/dropped file, bytes, URL, FileStore id or StoredFile. */
   async open(source: OpenSource, options: { name?: string } = {}): Promise<FiledomDocument> {
-    this.toolbar?.clearError();
     this.recentEdits.length = 0;
     const previous = this.inflight;
-    this.inflight = { type: "open", name: options.name };
+    this.inflight = { type: "open", name: openedName(source, options.name) || undefined };
     this.hideOpenDocument = true;
     this.emit("loading", { name: options.name });
     this.showLoading(await this.loadingCopy(source, options.name));
+    let adopted = false;
     try {
       const doc = await openDocument(this.loader, source, {
         files: this.files,
@@ -625,12 +706,15 @@ export class FiledomViewer {
         core: this.options.core,
         getPassword: (hint) => promptForPassword(this.h, this.el, hint),
       });
-      this.close();
-      this.doc = doc;
+      this.parkActive();
+      this.adopt(doc);
+      adopted = true;
       this.hideOpenDocument = false;
       doc.handle({ type: "zoom", op: "set", zoom: this.zoomValue });
       this.cleanup.push(doc.onChange((change) => this.onDocumentChange(change)));
       if (!this.modePinned) this.viewModeValue = doc.info().trackChanges ? "track" : "live";
+      this.displayLayout = defaultDisplayLayout(doc.name, doc.info().format);
+      this.el.dataset.display = this.displayLayout;
       await this.ensureFonts(doc);
       if (this.options.core || this.options.lazyEdit === false) {
         doc.attach("edit");
@@ -641,10 +725,30 @@ export class FiledomViewer {
       void this.drive({ type: "scan" });
       this.requestRefresh();
       this.pages.container.scrollTop = 0;
+      const kind = fileKind(doc.info().format);
+      if (kind === "image" || kind === "vector") {
+        const fitOpened = () => {
+          if (this.doc === doc && this.pages.container.clientWidth > 0) this.fit("page");
+        };
+        requestAnimationFrame(() => requestAnimationFrame(fitOpened));
+      }
       this.emit("open", { document: doc });
       this.editor.focus();
       return doc;
     } catch (error) {
+      if (adopted && this.doc) {
+        const failed = this.doc;
+        const index = this.tabs.findIndex((tab) => tab.doc === failed);
+        if (index >= 0) this.tabs.splice(index, 1);
+        this.clearSurface();
+        this.doc = undefined;
+        this.activeTabId = undefined;
+        this.notes = [];
+        this.noteSeq = 1;
+        failed.dispose();
+        const previous = this.tabs.at(-1);
+        if (previous) this.reveal(previous);
+      }
       throw this.fail(error);
     } finally {
       this.hideLoading();
@@ -653,35 +757,51 @@ export class FiledomViewer {
     }
   }
 
-  /** Asks the API whether this page is licensed. A failed call shows the banner and still opens the file. */
+  /** Asks the API whether this page is licensed. A failed call still opens the file. */
   private async notifyOpen(name: string): Promise<void> {
-    const extension = fileExtension(name);
-    const base = (this.options.apiBase ?? "/api").replace(/\/$/, "");
     try {
-      const headers = new Headers({ "content-type": "application/json" });
-      const key = this.options.licenseKey?.trim();
-      if (key) headers.set("x-filedom-license-key", key);
-      const response = await fetch(`${base}/open`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ extension }),
-        credentials: "omit",
-      });
-      if (!response.ok) {
-        this.trial = true;
-        return;
-      }
-      const body = (await response.json()) as { trial?: unknown };
-      this.trial = body.trial === true;
+      const body = await this.postActivity(fileExtension(name), "open");
+      this.trial = !body || body.trial === true;
     } catch {
       this.trial = true;
     }
   }
 
-  /** Paints the trial banner from the last open ping. Nothing is stored. */
+  /** Records a conversion. The written extension is the only file detail sent. */
+  private notifyConvert(name: string): void {
+    void this.postActivity(fileExtension(name), "convert").catch(() => {});
+  }
+
+  /**
+   * Stores an open or a conversion. The body is the extension and, for a conversion, the operation.
+   * The device id header identifies this browser. No file bytes and no filename.
+   */
+  private async postActivity(
+    extension: string,
+    operation: "open" | "convert",
+  ): Promise<{ trial?: unknown } | undefined> {
+    if (!extension) return undefined;
+    const base = (this.options.apiBase ?? "/api").replace(/\/$/, "");
+    const headers = new Headers({ "content-type": "application/json" });
+    applyDeviceHeader(headers);
+    const key = this.options.licenseKey?.trim();
+    if (key) headers.set("x-filedom-license-key", key);
+    const payload = operation === "open" ? { extension } : { extension, operation };
+    const response = await fetch(`${base}/open`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      credentials: "omit",
+    });
+    if (!response.ok) return undefined;
+    return (await response.json()) as { trial?: unknown };
+  }
+
+  /** The beta build does not show a trial banner. The open ping still runs. */
   private syncTrialBanner(): void {
-    this.trialEl.hidden = !this.trial;
-    this.trialEl.textContent = this.trial ? "Trial: unlicensed filedom" : "";
+    this.trial = false;
+    this.trialEl.hidden = true;
+    this.trialEl.textContent = "";
   }
 
   /** Blank page and spinner. Stays up until the engines for this file finish. */
@@ -848,12 +968,126 @@ export class FiledomViewer {
     this.fileInput.click();
   }
 
-  close(): void {
-    this.releaseMedia();
+  private async closeFromToolbar(): Promise<void> {
+    try {
+      await this.options.beforeClose?.();
+    } catch {
+      // The host reports a failed save. The file still closes.
+    }
+    this.close();
+  }
+
+  close(options: { notify?: boolean } = {}): void {
+    const active = this.tabs.find((tab) => tab.id === this.activeTabId);
+    this.tabs.splice(0, this.tabs.length, ...this.tabs.filter((tab) => tab !== active));
+    this.activeTabId = undefined;
+    this.clearSurface();
+    this.notes = [];
+    this.noteSeq = 1;
     const doc = this.doc;
     this.doc = undefined;
+    if (doc) doc.dispose();
+    const next = this.tabs.at(-1);
+    if (next) {
+      this.reveal(next);
+      return;
+    }
+    this.toolbar?.clearError();
+    this.empty.hidden = this.loading;
+    this.syncChrome();
+    if (doc && options.notify !== false) this.emit("close", {});
+  }
+
+  /** Remembers `doc` as the file on screen. The caller attaches its change listener. */
+  private adopt(doc: FiledomDocument): void {
+    const tab: SessionTab = {
+      id: `file-${++this.tabSeq}`,
+      doc,
+      zoom: this.zoomValue,
+      displayLayout: this.displayLayout,
+      viewMode: this.viewModeValue,
+      modePinned: this.modePinned,
+      scrollTop: 0,
+      notes: [],
+      noteSeq: 1,
+    };
+    this.tabs.unshift(tab);
+    this.activeTabId = tab.id;
+    this.doc = doc;
+    this.notes = tab.notes;
+    this.noteSeq = tab.noteSeq;
+  }
+
+  /** Stores the file on screen and clears the page stack. The session stays open. */
+  private parkActive(): void {
+    const active = this.tabs.find((tab) => tab.id === this.activeTabId);
+    if (!active || !this.doc) return;
+    active.zoom = this.zoomValue;
+    active.displayLayout = this.displayLayout;
+    active.viewMode = this.viewModeValue;
+    active.modePinned = this.modePinned;
+    active.scrollTop = this.pages.container.scrollTop;
+    active.notes = this.notes;
+    active.noteSeq = this.noteSeq;
+    this.clearSurface();
+    this.notes = [];
+    this.noteSeq = 1;
+    this.doc = undefined;
+    this.activeTabId = undefined;
+  }
+
+  /** Puts a parked file back on screen. */
+  private reveal(tab: SessionTab): void {
+    this.activeTabId = tab.id;
+    this.doc = tab.doc;
+    this.zoomValue = tab.zoom;
+    this.displayLayout = tab.displayLayout;
+    this.viewModeValue = tab.viewMode;
+    this.modePinned = tab.modePinned;
+    this.notes = tab.notes;
+    this.noteSeq = tab.noteSeq;
+    this.el.dataset.display = tab.displayLayout;
+    this.el.dataset.mode = tab.viewMode;
+    tab.doc.setReadOnly(tab.viewMode === "view");
+    tab.doc.handle({ type: "zoom", op: "set", zoom: tab.zoom });
+    this.applyScale();
+    this.cleanup.push(tab.doc.onChange((change) => this.onDocumentChange(change)));
+    this.empty.hidden = true;
+    this.requestRefresh();
+    this.pages.container.scrollTop = tab.scrollTop;
+    this.syncChrome();
+  }
+
+  private selectTab(id: string): void {
+    if (id === this.activeTabId) return;
+    const tab = this.tabs.find((item) => item.id === id);
+    if (!tab) return;
+    this.parkActive();
+    this.reveal(tab);
+  }
+
+  /** Applies a drag-and-drop order. Unknown ids are left where they were. */
+  private reorderTabs(ids: readonly string[]): void {
+    if (ids.length !== this.tabs.length) return;
+    const byId = new Map(this.tabs.map((tab) => [tab.id, tab]));
+    const next: SessionTab[] = [];
+    for (const id of ids) {
+      const tab = byId.get(id);
+      if (!tab) return;
+      next.push(tab);
+    }
+    if (next.every((tab, index) => tab === this.tabs[index])) return;
+    this.tabs.splice(0, this.tabs.length, ...next);
+    this.syncChrome();
+  }
+
+  /** Drops the painted page, the caret, and the change listener. The document stays. */
+  private clearSurface(): void {
+    this.releaseMedia();
     while (this.cleanup.length) this.cleanup.pop()!();
     this.layer.clear();
+    this.rasters.clear();
+    this.flowPainted.clear();
     this.pages.clear();
     this.sel = null;
     this.marks = [];
@@ -862,8 +1096,6 @@ export class FiledomViewer {
     this.drag = undefined;
     this.gesturePreview = undefined;
     delete this.el.dataset.layout;
-    this.notes = [];
-    this.noteSeq = 1;
     this.openNote = undefined;
     this.menu.setOpen(false);
     this.noteCard.show(undefined);
@@ -889,16 +1121,10 @@ export class FiledomViewer {
     this.cancelLayersRender();
     this.layerElementsCache.clear();
     this.layersPanel.clear();
-    this.empty.hidden = this.loading;
+    this.empty.hidden = this.loading || this.tabs.length > 0;
     this.recentEdits.length = 0;
     this.lastReport = undefined;
     this.reportedError = undefined;
-    this.toolbar?.clearError();
-    this.syncChrome();
-    if (doc) {
-      doc.dispose();
-      this.emit("close", {});
-    }
   }
 
   destroy(): void {
@@ -906,7 +1132,17 @@ export class FiledomViewer {
     this.schemeOff = undefined;
     this.motionOff?.();
     this.motionOff = undefined;
-    this.close();
+    const tabs = this.tabs.splice(0);
+    this.activeTabId = undefined;
+    this.clearSurface();
+    this.notes = [];
+    this.noteSeq = 1;
+    const docs = new Set<FiledomDocument>();
+    for (const tab of tabs) docs.add(tab.doc);
+    if (this.doc) docs.add(this.doc);
+    this.doc = undefined;
+    for (const doc of docs) doc.dispose();
+    if (docs.size) this.emit("close", {});
     this.pages.destroy();
     this.layer.destroy();
     this.handlers.clear();
@@ -1084,6 +1320,32 @@ export class FiledomViewer {
     return note;
   }
 
+  private renderComments(): void {
+    const host = this.toolbar?.reviewHost("comments");
+    if (!host) return;
+    if (!this.notes.length) {
+      const empty = this.h("p", "dd-muted");
+      empty.textContent = "No comments";
+      host.replaceChildren(empty);
+      return;
+    }
+    host.replaceChildren(
+      ...this.notes.map((note) => {
+        const row = this.h("button", "dd-review-row");
+        row.type = "button";
+        const quote = note.quote.replace(/\s+/g, " ").trim();
+        row.textContent = note.text || quote || "Comment";
+        if (quote) row.title = quote;
+        row.addEventListener("click", () => {
+          this.openNote = note;
+          this.placeAnnotationCard();
+          this.paintNow("overlay");
+        });
+        return row;
+      }),
+    );
+  }
+
   /** Comments added since the file was opened. */
   annotations(): Annotation[] {
     return this.notes.map((note) => ({
@@ -1118,6 +1380,7 @@ export class FiledomViewer {
       this.textEditing = false;
       this.drag = undefined;
       this.gesturePreview = undefined;
+      this.clearHoverCursor();
     }
     this.applyViewMode();
     this.paintNow("full");
@@ -1128,14 +1391,19 @@ export class FiledomViewer {
   private showHistory(): boolean {
     return (
       this.options.revisionsPanel !== false &&
-      this.viewModeValue === "track" &&
-      !this.hiddenTrays.includes("history")
+      !this.hiddenTrays.includes("history") &&
+      (this.viewModeValue === "track" || this.historyOpened)
     );
   }
 
   private showLayersTray(hasContent: boolean): boolean {
     if (!this.doc || this.viewModeValue === "view" || this.hiddenTrays.includes("layers")) return false;
     return hasContent || this.layersPinned;
+  }
+
+  private showElementsTray(): boolean {
+    if (!this.doc || this.viewModeValue === "view" || this.hiddenTrays.includes("elements")) return false;
+    return this.elementsPinned;
   }
 
   /** True when the layers tray can appear in this mode (ignores content). */
@@ -1159,8 +1427,9 @@ export class FiledomViewer {
   /** Trays the open document can show in the current mode. */
   private availableTrays(): string[] {
     const trays: string[] = [];
+    if (this.doc) trays.push("comments");
     if (this.options.revisionsPanel !== false && this.viewModeValue === "track") trays.push("history");
-    if (this.viewModeValue !== "view" && this.doc) trays.push("layers");
+    if (this.viewModeValue !== "view" && this.doc) trays.push("layers", "elements");
     return trays;
   }
 
@@ -1168,6 +1437,8 @@ export class FiledomViewer {
     const trays: string[] = [];
     if (this.showHistory()) trays.push("history");
     if (!this.layersPanel.el.hidden) trays.push("layers");
+    if (this.showElementsTray()) trays.push("elements");
+    if (this.toolbar?.reviewHost("comments") && !this.hiddenTrays.includes("comments") && this.notes.length) trays.push("comments");
     return trays;
   }
 
@@ -1175,7 +1446,9 @@ export class FiledomViewer {
     this.hiddenTrays = visible
       ? this.hiddenTrays.filter((id) => id !== trayId)
       : [...new Set([...this.hiddenTrays, trayId])];
+    if (trayId === "history") this.historyOpened = visible;
     if (trayId === "layers") this.layersPinned = visible;
+    if (trayId === "elements") this.elementsPinned = visible;
     this.syncChrome();
   }
 
@@ -1191,7 +1464,13 @@ export class FiledomViewer {
   private applyViewMode(): void {
     this.el.dataset.mode = this.viewModeValue;
     this.panel.el.hidden = !this.showHistory();
-    if (this.viewModeValue === "view") this.layersPanel.el.hidden = true;
+    if (this.viewModeValue === "view") {
+      this.layersPanel.el.hidden = true;
+      this.elementsPinned = false;
+    }
+    if (this.viewModeValue === "track" && !this.hiddenGroups.includes("trackHistory")) {
+      this.toolbar?.showActivity("right", "history");
+    }
     const doc = this.doc;
     if (!doc) return;
     doc.setReadOnly(this.viewModeValue === "view");
@@ -1391,7 +1670,24 @@ export class FiledomViewer {
     if (!this.doc) return undefined;
     try {
       await this.ensureEditReady();
+      const adapted = adapterForDocument(this.doc);
+      if (adapted) {
+        try {
+          const bytes = await writeAdapter(adapted, adapted.extension);
+          if (bytes) {
+            const blob = new Blob([bytes as BlobPart]);
+            this.emit("export", { name: adapted.name, blob });
+            return { name: adapted.name, blob, bytes };
+          }
+        } catch (error) {
+          const failure = FiledomError.from(error);
+          if (failure.code !== "unsupported") throw failure;
+        }
+      }
       const exported = this.doc.export();
+      const written = fileExtension(exported.name);
+      const opened = fileExtension(this.doc.name);
+      if (written && written !== opened) this.notifyConvert(exported.name);
       this.emit("export", { name: exported.name, blob: exported.blob });
       return exported;
     } catch (error) {
@@ -1444,6 +1740,9 @@ export class FiledomViewer {
       pick: () => this.pick(),
       newFile: () => this.openNewFile(),
       download: () => this.download(),
+      closeFile: () => {
+        void this.closeFromToolbar();
+      },
       storeFiledom: () => this.apply({ type: "storeFiledom" }),
       exportFile: () => this.download(),
       undo: () => this.undo(),
@@ -1470,6 +1769,13 @@ export class FiledomViewer {
       indent: (byPt) => this.setParagraph({ indentByPt: byPt }),
       setLineSpacing: (lineSpacing) => this.setParagraph({ lineSpacing }),
       setViewMode: (mode) => this.setViewMode(mode),
+      selectTab: (id) => this.selectTab(id),
+      reorderTabs: (ids) => this.reorderTabs(ids),
+      setDisplayLayout: (layout) => {
+        this.displayLayout = layout;
+        this.el.dataset.display = layout;
+        this.syncChrome(false);
+      },
       search: (query) => this.search(query),
       nextHit: (step) => this.nextHit(step),
       replaceMatch: (text) => void this.replaceMatch(text),
@@ -1479,7 +1785,17 @@ export class FiledomViewer {
       setZoom: (zoom) => this.setZoom(zoom),
       fit: (mode) => this.fit(mode),
       insertElement: (kind) => this.insertContentElement(kind),
-      toggleTheme: () => this.toggleColorScheme(),
+      setThemePreset: (id) => {
+        const preset = themePresetById(id);
+        if (preset) this.applyTheme(themeConfigForPreset(preset));
+      },
+      setThemeColors: (patch) => {
+        this.applyTheme({
+          ...this.themeConfig,
+          ui: { ...this.themeConfig.ui, ...patch.ui },
+          document: { ...this.themeConfig.document, ...patch.document },
+        });
+      },
       setHelp: (on) => {
         this.helpOn = on;
         this.syncChrome(false);
@@ -1518,6 +1834,7 @@ export class FiledomViewer {
       setClipSpeed: (speed) => this.setClipSpeed(speed),
       appendClip: () => this.appendClip(),
       copyListing: () => this.copyListing(),
+      layoutChanged: (layout) => this.emit("toolbarLayout", layout),
     };
   }
 
@@ -1830,6 +2147,7 @@ export class FiledomViewer {
   /** Opens a file picker to replace the selected image. */
   replaceImage(): void {
     if (!this.picked || this.picked.kind !== "image" || this.viewModeValue === "view") return;
+    this.pendingImageReplace = { id: this.picked.id, page: this.picked.page };
     const placed = this.el.querySelector<HTMLInputElement>(
       `[data-component-id] input[type="file"][accept*="image"]`,
     );
@@ -1841,10 +2159,29 @@ export class FiledomViewer {
   }
 
   private applyImageReplace(file: File): void {
-    const picked = this.picked;
-    if (!picked || picked.kind !== "image") return;
+    const pending = this.pendingImageReplace;
+    const picked = pending ?? (this.picked?.kind === "image" ? { id: this.picked.id, page: this.picked.page } : undefined);
+    this.pendingImageReplace = undefined;
+    if (!picked || !this.doc) return;
     this.emit("replaceImage", { id: picked.id, page: picked.page, file });
-    this.setStatus(`Replace image · ${file.name}`);
+    void file.arrayBuffer().then((buffer) => {
+      if (!this.doc) return;
+      const bytes = new Uint8Array(buffer);
+      const mime = file.type || "application/octet-stream";
+      void this.apply({
+        type: "replace",
+        from: { unit: picked.id, offset: 0 },
+        to: { unit: picked.id, offset: 0 },
+        text: `data:${mime};base64,${bytesToBase64(bytes)}`,
+      }).then(() => {
+        if (!this.doc) return;
+        this.rasters.clear();
+        for (const slot of this.pages.slots) slot.painted = undefined;
+        this.requestRefresh();
+        const kind = fileKind(this.doc.info().format);
+        if (kind === "image" || kind === "vector") this.fit("page");
+      });
+    });
   }
 
   /** Removes the selected element from the page. Typing still deletes characters. */
@@ -1875,7 +2212,15 @@ export class FiledomViewer {
     const element = this.elementOn(this.picked.page, this.picked.id);
     if (!element) return false;
     // Engine hit-testing uses the uncorrected box; the chrome uses shownBox for text.
-    return boxContains(element.kind === "text" ? element.box : elementDisplayBox(element), point.xPt, point.yPt);
+    const box = element.kind === "text" ? element.box : elementDisplayBox(element);
+    return boxContains(box, point.xPt, point.yPt, Math.max(8, hitPadPt(element.kind, this.zoomValue)));
+  }
+
+  /** True when the point is on the text line itself, not its click padding. */
+  private onTextGlyphs(point: { index: number; xPt: number; yPt: number }): boolean {
+    if (!this.picked || this.picked.kind !== "text" || this.picked.page !== point.index) return false;
+    const element = this.elementOn(this.picked.page, this.picked.id);
+    return element ? boxContains(element.box, point.xPt, point.yPt, 0) : false;
   }
 
   /** A drag from a handle. Typing stays on clicks inside a text line. */
@@ -1959,7 +2304,7 @@ export class FiledomViewer {
   private async pickElement(point: { index: number; xPt: number; yPt: number }): Promise<void> {
     const doc = this.doc;
     if (!doc) return;
-    const element = hitElement(pageElements(doc.page(point.index)), point.xPt, point.yPt);
+    const element = hitElement(pageElements(doc.page(point.index)), point.xPt, point.yPt, this.zoomValue);
     if (!element) {
       this.deselect();
       return;
@@ -1993,6 +2338,7 @@ export class FiledomViewer {
   private beginTextEdit(): void {
     if (!this.picked || this.picked.kind !== "text" || !this.doc || !this.objectEdit()) return;
     this.textEditing = true;
+    if (this.hoverPage) this.hoverPage.style.cursor = "text";
     const offset = this.sel && this.sel.focus.unit === this.picked.id ? this.sel.focus.offset : 0;
     this.setSelection({
       anchor: { unit: this.picked.id, offset },
@@ -2115,10 +2461,11 @@ export class FiledomViewer {
     const fallbackLayer = layers[0]?.id ?? "layer0";
     const trayAllowed = this.layersTrayAllowed();
     const layersContent = trayAllowed && info ? this.layersContentHint(info) : false;
+    const showElements = this.showElementsTray();
     this.panel.el.hidden = !this.showHistory();
     this.layersPanel.el.hidden = !this.showLayersTray(layersContent);
 
-    if (!trayAllowed) this.cancelLayersRender();
+    if (!trayAllowed && !showElements) this.cancelLayersRender();
 
     this.styleSample = this.collectStyleRuns();
     const format = shownTextFormat(this.styleSample, this.sel && isCollapsed(this.sel) ? this.pending : undefined);
@@ -2138,7 +2485,7 @@ export class FiledomViewer {
         hasSelection: this.activeRanges().length > 0 || this.picked?.kind === "text",
         selectionKind: this.selectionKind(),
         insertKinds: this.offersContentInsert()
-          ? ["image", "text-box", "shape"]
+          ? ["image", "text-box", "code", "shape"]
           : this.doc?.info().capabilities.insert
             ? ["text-box", "shape"]
             : [],
@@ -2149,6 +2496,17 @@ export class FiledomViewer {
         availableTrays: this.availableTrays(),
         shownTrays: this.shownTrays(),
         clipSpeed: this.activeClip()?.speed,
+        fileName: this.doc?.name,
+        tabs: this.tabs.map((tab) => ({
+          id: tab.id,
+          name: tab.doc.name,
+          format: tab.doc.format,
+          active: tab.id === this.activeTabId,
+        })),
+        displayLayout: this.displayLayout,
+        searchQuery: this.searchQuery,
+        searchHitCount: this.hits.length,
+        searchHitIndex: this.hitIndex,
       });
       delete this.el.dataset.layout;
       this.el.toggleAttribute("data-toolbars-locked", this.toolbarsLocked);
@@ -2159,7 +2517,9 @@ export class FiledomViewer {
     if (panel && !this.panel.el.hidden) {
       this.panel.render(info?.history ?? [], info?.history?.at(-1)?.id ?? null);
     }
-    if (!this.layersPanel.el.hidden && info) {
+    this.renderComments();
+    this.placeElementOptions();
+    if ((!this.layersPanel.el.hidden || showElements) && info) {
       // First population defers the O(pages×objects) walk + DOM until after paint.
       // Later syncs reuse the cache and update selection immediately.
       if (this.layersPanel.el.childElementCount) {
@@ -2170,11 +2530,12 @@ export class FiledomViewer {
       }
     }
     if (this.doc && info) {
-      const warnings = info.warnings.length ? ` · ${info.warnings.join(" · ")}` : "";
-      this.setStatus(
-        `${this.doc.name} · ${info.format.toUpperCase()} · ${info.pageCount} page${info.pageCount === 1 ? "" : "s"}${warnings}`,
-      );
-    } else if (!this.doc && !this.loading) this.setStatus("");
+      this.setStatus(`${info.format.toUpperCase()} · ${info.pageCount} page${info.pageCount === 1 ? "" : "s"}`);
+      this.toolbar?.setDocumentNotes(info.warnings, this.doc.name);
+    } else if (!this.doc && !this.loading) {
+      this.setStatus("");
+      this.toolbar?.setDocumentNotes([]);
+    }
   }
 
   private setStatus(message: string, tone: "info" | "error" = "info"): void {
@@ -2185,8 +2546,9 @@ export class FiledomViewer {
     const failure = FiledomError.from(error);
     if (failure === this.reportedError) return failure;
     this.reportedError = failure;
-    this.lastReport = this.captureReport(failure, action ?? this.inflight);
-    this.setStatus(failure.message, "error");
+    const failed = action ?? this.inflight;
+    this.lastReport = this.captureReport(failure, failed);
+    this.toolbar?.showError(failure.message, this.doc?.name ?? openActionName(failed));
     this.emit("error", { error: failure });
     return failure;
   }
@@ -2403,7 +2765,7 @@ export class FiledomViewer {
       this.revealCaret();
       this.paintNow("full");
       this.placeInput();
-      this.syncChrome();
+      this.scheduleChrome();
     } finally {
       this.inRefresh = false;
     }
@@ -2536,11 +2898,20 @@ export class FiledomViewer {
     try {
       if (slot.el.dataset.oxide) return true;
       if (view.rasterized) return this.drawRaster(slot, view, scale);
-      slot.canvas.width = Math.max(1, Math.ceil(view.widthPt * scale));
-      slot.canvas.height = Math.max(1, Math.ceil(view.heightPt * scale));
+      const width = Math.max(1, Math.ceil(view.widthPt * scale));
+      const height = Math.max(1, Math.ceil(view.heightPt * scale));
+      const resized = slot.canvas.width !== width || slot.canvas.height !== height;
+      assignCanvasSize(slot.canvas, width, height);
       const ctx = slot.canvas.getContext("2d");
       if (!ctx) return false;
-      paintFlowPage(ctx, view, scale, this.markup());
+      const markup = this.markup();
+      const previous = this.flowPainted.get(slot.index);
+      const patched =
+        !resized &&
+        previous !== undefined &&
+        paintFlowChanges(ctx, previous.view, view, previous.scale, scale, previous.markup, markup);
+      if (!patched) paintFlowPage(ctx, view, scale, markup);
+      this.flowPainted.set(slot.index, { view, scale, markup });
       return true;
     } catch (error) {
       this.fail(error, { type: "paint", page: slot.index });
@@ -2552,7 +2923,12 @@ export class FiledomViewer {
   private drawRaster(slot: PageSlot, view: ReturnType<FiledomDocument["page"]>, scale: number): boolean {
     const doc = this.doc;
     if (!doc) return false;
-    const raster = doc.raster(slot.index, scale);
+    // While a run is marked redraw, the PDF bytes still show the previous glyphs and
+    // the new ones are painted on top. Once the file is rewritten, the bitmap has to match the text.
+    const identity = view.runs.some((run) => run.redraw)
+      ? baseRasterKey(slot.index, scale, view)
+      : `${baseRasterKey(slot.index, scale, view)}@${flowPaintKey(view, 1)}`;
+    const raster = this.rasters.get(identity, () => doc.raster(slot.index, scale));
     if (!raster) return false;
     paintRaster(slot.canvas, raster);
     const ctx = slot.canvas.getContext("2d");
@@ -2629,7 +3005,7 @@ export class FiledomViewer {
     if (this.objectEdit() || (this.mediaPick() && (this.picked?.kind === "audio" || this.picked?.kind === "video"))) {
       this.drawElement(slot, view, marks);
     }
-    slot.overlay.replaceChildren(...marks);
+    if (marks.length > 0 || slot.overlay.childElementCount > 0) slot.overlay.replaceChildren(...marks);
   }
 
   /** Frame, move grip, resize corners, and rotate handle for the selected element. */
@@ -2658,6 +3034,7 @@ export class FiledomViewer {
     const overlay = elementOverlayFrame(shown, element.rotation, live);
     const frame = this.h("div", "dd-abs dd-mark dd-element");
     frame.dataset.kind = element.kind;
+    if (element.kind === "text" && this.textEditing) frame.dataset.editing = "";
     frame.setAttribute("role", "group");
     frame.setAttribute("aria-label", elementLabel(element));
     if (element.kind === "audio" || element.kind === "video") {
@@ -2863,7 +3240,7 @@ export class FiledomViewer {
   private flushLayersRender(): void {
     const pending = this.pendingLayersRender;
     this.pendingLayersRender = undefined;
-    if (!pending || this.layersPanel.el.hidden || !this.doc) return;
+    if (!pending || !this.doc || (this.layersPanel.el.hidden && !this.elementsPinned)) return;
     const info = this.doc.info();
     const elements = this.cachedLayerElements(info, pending.fallbackLayer);
     this.layersPanel.render(pending.layers, elements, this.picked?.id, (page) => this.slot(page)?.canvas);
@@ -2935,6 +3312,7 @@ export class FiledomViewer {
       true,
     );
     pages.addEventListener("pointermove", (event) => this.onPointerMove(event));
+    pages.addEventListener("pointerleave", () => this.clearHoverCursor());
     pages.addEventListener("pointerup", () => this.onPointerUp());
     pages.addEventListener("pointercancel", () => this.onPointerUp());
     pages.addEventListener("click", (event) => this.onClick(event));
@@ -2975,6 +3353,11 @@ export class FiledomViewer {
     }
     if (action === "move-element" || action === "resize-element" || action === "rotate-element") {
       event.preventDefault();
+      const point = this.enginePoint(this.pagePoint(event.clientX, event.clientY));
+      if (point && textUnderHandle(action, this.picked?.kind, this.onTextGlyphs(point))) {
+        this.beginTextEdit();
+        return;
+      }
       const mode = action === "move-element" ? "move" : action === "rotate-element" ? "rotate" : "resize";
       this.beginGesture(event, mode, control?.dataset.corner);
       return;
@@ -3027,12 +3410,55 @@ export class FiledomViewer {
     }
   }
 
+  private hoverPage?: HTMLElement;
+
+  private clearHoverCursor(): void {
+    if (!this.hoverPage) return;
+    this.hoverPage.style.cursor = "";
+    this.hoverPage = undefined;
+  }
+
+  /** I-beam on the text being edited, pointer on another element, otherwise the default arrow. */
+  private hoverCursor(event: PointerEvent): void {
+    const pageEl = (event.target as Element | null)?.closest<HTMLElement>(".dd-page");
+    if (this.hoverPage && this.hoverPage !== pageEl) this.hoverPage.style.cursor = "";
+    this.hoverPage = pageEl ?? undefined;
+    if (!pageEl) return;
+    if (this.drag) {
+      pageEl.style.cursor = gestureCursor(this.drag.mode, this.drag.corner);
+      return;
+    }
+    const point = this.pagePoint(event.clientX, event.clientY);
+    const doc = this.doc;
+    const view = point && doc && point.index < doc.info().pageCount ? doc.page(point.index) : undefined;
+    const hit = point && view && this.objectEdit() ? hitElement(pageElements(view), point.xPt, point.yPt, this.zoomValue) : undefined;
+    const editing =
+      this.textEditing && this.picked?.kind === "text" && this.picked.page === point?.index ? this.picked.id : undefined;
+    const overText = Boolean(
+      point &&
+        view &&
+        !this.objectEdit() &&
+        view.runs.some((run) => run.unit && boxContains(runBox(run), point.xPt, point.yPt, zoomSlackPt(this.zoomValue))),
+    );
+    pageEl.style.cursor = pageHoverCursor({
+      viewing: this.viewModeValue === "view" || Boolean(this.options.readOnly),
+      objectEdit: this.objectEdit(),
+      editingTextId: editing,
+      hit,
+      overText,
+    });
+  }
+
   private onPointerMove(event: PointerEvent): void {
+    this.hoverCursor(event);
     if (this.drag && this.picked && this.doc) {
       const drag = this.drag;
-      const scale = this.scale || 1;
-      const dx = (event.clientX - drag.startX) / scale;
-      const dy = (event.clientY - drag.startY) / scale;
+      const slot = this.pages.slots[this.picked.page];
+      const rect = slot?.el.getBoundingClientRect();
+      const page = this.doc.page(this.picked.page);
+      const scale = rect && page ? pageScale(rect, page, this.scale || 1) : { x: this.scale || 1, y: this.scale || 1 };
+      const dx = (event.clientX - drag.startX) / scale.x;
+      const dy = (event.clientY - drag.startY) / scale.y;
       drag.moved = Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 3;
       if (drag.mode === "resize") {
         const min = 8;
@@ -3195,9 +3621,9 @@ export class FiledomViewer {
         const selected = this.el.ownerDocument.getSelection();
         const node = selected?.anchorNode;
         const host = node instanceof Element ? node : node?.parentElement;
-        const box = host?.closest<HTMLElement>(".dd-error, .dd-status");
+        const box = host?.closest<HTMLElement>(".dd-error-list, .dd-status");
         if (!selected || !box || !event.clipboardData || selected.isCollapsed) return;
-        const text = selected.toString() || box.dataset.message || box.querySelector("pre")?.textContent || box.textContent || "";
+        const text = selected.toString() || box.textContent || "";
         if (!text) return;
         event.preventDefault();
         event.stopPropagation();
@@ -3266,6 +3692,27 @@ export class FiledomViewer {
         const pages = this.pages.container;
         pages.scrollBy({ top: (event.key === "PageDown" ? 1 : -1) * Math.max(pages.clientHeight, 1) * 0.9 });
       }
+    });
+  }
+
+  /** Floats the selected element's tools above it. A text caret keeps them on the top bar. */
+  private placeElementOptions(): void {
+    const bar = this.toolbar?.selectionBar;
+    if (!bar || bar.hidden || !this.picked) {
+      this.toolbar?.dockSelection();
+      return;
+    }
+    const element = this.elementOn(this.picked.page, this.picked.id);
+    const slot = this.pages.slots[this.picked.page];
+    if (!element || !slot) {
+      this.toolbar?.dockSelection();
+      return;
+    }
+    const shown = this.shownBox(element);
+    const above = shown.yPt - 36;
+    this.toolbar?.floatSelection(slot.el, {
+      xPt: shown.xPt,
+      yPt: above >= 4 ? above : shown.yPt + shown.heightPt + 4,
     });
   }
 
@@ -3363,8 +3810,12 @@ export class FiledomViewer {
     }
     if (!best) return undefined;
     const rect = best.el.getBoundingClientRect();
-    const scale = this.scale || 1;
-    return { index: best.index, xPt: (clientX - rect.left) / scale, yPt: (clientY - rect.top) / scale };
+    const page = this.doc?.page(best.index);
+    const fallback = this.scale || 1;
+    const point = page
+      ? clientToPagePoint(clientX, clientY, rect, page, fallback)
+      : { xPt: (clientX - rect.left) / fallback, yPt: (clientY - rect.top) / fallback };
+    return { index: best.index, ...point };
   }
 
   /** Sends one event to the core, attaches a feature it asks for, and applies the result. */
@@ -3518,12 +3969,20 @@ export interface ClientBox {
   height: number;
 }
 
+function openActionName(action: unknown): string | undefined {
+  if (!action || typeof action !== "object") return undefined;
+  const record = action as { type?: string; name?: string };
+  if (record.type !== "open") return undefined;
+  const name = record.name?.trim();
+  return name || undefined;
+}
+
 /**
  * A click on the page, the toolbar, or the selected element's frame and handles.
  * The frame can be detached before this runs, so the check uses the event path.
  */
 const selectionSurface =
-  ".dd-toolbar, .dd-menu, .dd-note, .dd-note-card, .dd-password, .dd-page, .dd-panel, .dd-input, .dd-element";
+  ".dd-toolbar, .dd-rail, .dd-menu, .dd-note, .dd-note-card, .dd-password, .dd-page, .dd-panel, .dd-input, .dd-element, .dd-close-dialog, input[type=file]";
 
 /** Signed shortest step from `fromDeg` to `toDeg`, in degrees. */
 function angleDelta(fromDeg: number, toDeg: number): number {

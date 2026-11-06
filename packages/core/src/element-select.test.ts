@@ -2,14 +2,21 @@ import { describe, expect, it } from "vitest";
 import type { PageObjectView, RunView } from "./engine-types.js";
 import {
   boxContains,
+  clientToPagePoint,
   elementDisplayBox,
   elementOverlayFrame,
+  gestureCursor,
   gestureMeasure,
-  tightElementBox,
   hitElement,
+  hitPadPt,
   pageElements,
+  pageHoverCursor,
   textElement,
+  textUnderHandle,
+  tightElementBox,
+  zoomSlackPt,
 } from "./element-select.js";
+import { PX_PER_PT } from "./zoom.js";
 
 /** Axis-aligned bounds of `local` rotated clockwise by `deg` around its center. */
 function axisBounds(
@@ -95,6 +102,85 @@ describe("text elements", () => {
     };
     expect(hitElement(pageElements(page), 76, 96)?.id).toBe("p0o2");
     expect(hitElement(pageElements(page), 94, 96)?.kind).toBe("text");
+  });
+
+  it("keeps a zoomed-out click on the words, using the page's on-screen size", () => {
+    const page = { widthPt: 612, heightPt: 792 };
+    const zoom = 0.25;
+    const rect = { left: 40, top: 80, width: page.widthPt * zoom * PX_PER_PT, height: page.heightPt * zoom * PX_PER_PT };
+    const center = clientToPagePoint(rect.left + rect.width / 2, rect.top + rect.height / 2, rect, page, PX_PER_PT);
+    expect(center.xPt).toBeCloseTo(page.widthPt / 2, 4);
+    expect(center.yPt).toBeCloseTo(page.heightPt / 2, 4);
+    const word = clientToPagePoint(rect.left + 72 * zoom * PX_PER_PT, rect.top + 100 * zoom * PX_PER_PT, rect, page, PX_PER_PT);
+    expect(word.xPt).toBeCloseTo(72, 4);
+    expect(word.yPt).toBeCloseTo(100, 4);
+  });
+
+  it("grows the text hit pad when zoomed out and leaves it unchanged at 100%", () => {
+    expect(zoomSlackPt(1)).toBe(0);
+    expect(hitPadPt("text", 1)).toBe(6);
+    expect(hitPadPt("text", 0.25)).toBeGreaterThan(20);
+    const text: PageObjectView = {
+      id: "p0u0",
+      kind: "text",
+      xPt: 72,
+      yPt: 88,
+      widthPt: 80,
+      heightPt: 16,
+      rotation: 0,
+      z: 1,
+    };
+    const page = {
+      index: 0,
+      widthPt: 200,
+      heightPt: 200,
+      content: { xPt: 0, yPt: 0, widthPt: 200, heightPt: 200 },
+      rasterized: true,
+      runs: [run({ text: "Hi", xPt: 72, yPt: 100, widthPt: 20 })],
+      highlights: [],
+      embeds: [],
+      objects: [text],
+    };
+    const elements = pageElements(page);
+    const above = elements[0]!.box.yPt - 10;
+    expect(hitElement(elements, 80, above, 1)?.kind).toBeUndefined();
+    expect(hitElement(elements, 80, above, 0.25)?.kind).toBe("text");
+  });
+
+  it("edits text when a handle sits on the glyphs and still drags a handle in the margin", () => {
+    expect(textUnderHandle("resize-element", "text", true)).toBe(true);
+    expect(textUnderHandle("move-element", "text", true)).toBe(true);
+    expect(textUnderHandle("resize-element", "text", false)).toBe(false);
+    expect(textUnderHandle("resize-element", "image", true)).toBe(false);
+    expect(textUnderHandle("delete-element", "text", true)).toBe(false);
+    expect(gestureCursor("resize", "ne")).toBe("nesw-resize");
+    expect(gestureCursor("move")).toBe("grabbing");
+  });
+
+  it("uses the text cursor only on the text being edited", () => {
+    expect(pageHoverCursor({ viewing: true, objectEdit: true, overText: true, hit: { id: "t", kind: "text" } })).toBe("default");
+    expect(pageHoverCursor({ viewing: false, objectEdit: true, overText: false })).toBe("default");
+    expect(pageHoverCursor({ viewing: false, objectEdit: true, overText: false, hit: { id: "img", kind: "image" } })).toBe("pointer");
+    expect(
+      pageHoverCursor({
+        viewing: false,
+        objectEdit: true,
+        overText: false,
+        hit: { id: "t", kind: "text" },
+        editingTextId: "other",
+      }),
+    ).toBe("pointer");
+    expect(
+      pageHoverCursor({
+        viewing: false,
+        objectEdit: true,
+        overText: true,
+        hit: { id: "t", kind: "text" },
+        editingTextId: "t",
+      }),
+    ).toBe("text");
+    expect(pageHoverCursor({ viewing: false, objectEdit: false, overText: false })).toBe("default");
+    expect(pageHoverCursor({ viewing: false, objectEdit: false, overText: true })).toBe("text");
   });
 
   it("shows width × height while resizing and degrees while rotating", () => {

@@ -5,7 +5,7 @@ import { useAction, useFiledom } from "@/components/filedom/filedom-provider";
 import { Tooltip } from "@/components/filedom/tooltip";
 
 function isDark(theme: string | undefined): boolean {
-  return theme === "dark" || theme === "high-contrast-dark";
+  return theme === "dark";
 }
 
 export function ThemeToggle() {

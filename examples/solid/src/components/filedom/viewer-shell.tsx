@@ -62,8 +62,8 @@ export function ViewerShell() {
             onDrop={onDrop}
           >
             <Upload size={28} class="text-muted-foreground" />
-            <p class="text-sm font-medium">Drop a document here</p>
-            <p class="text-xs text-muted-foreground">PDF or Office file</p>
+            <p class="text-sm font-medium">Drop any file here</p>
+            <p class="text-xs text-muted-foreground">Such as a document or a media file.</p>
             <Show when={errorDetail()}>
               <p class="text-sm text-destructive">{errorDetail()}</p>
             </Show>

@@ -20,7 +20,29 @@ export type IconName =
   | "moon"
   | "sun"
   | "check"
-  | "x";
+  | "x"
+  | "file"
+  | "image"
+  | "audio"
+  | "video"
+  | "archive"
+  | "mail"
+  | "code"
+  | "search"
+  | "zoom"
+  | "chevron-left"
+  | "chevron-right"
+  | "type"
+  | "pen"
+  | "layers"
+  | "elements"
+  | "shapes"
+  | "alert"
+  | "fullscreen"
+  | "fullscreen-exit"
+  | "numbered"
+  | "pages"
+  | "frame";
 
 type Mark = string | { readonly d: string; readonly fill: true };
 
@@ -56,6 +78,28 @@ const PATHS: Record<IconName, readonly Mark[]> = {
   ],
   check: ["M5 12.5 10 17.5 19 7"],
   x: ["M7 7l10 10", "M17 7 7 17"],
+  file: ["M6 3.5h8L19 8.5V20.5H6Z", "M14 3.5V8.5H19"],
+  image: ["M4 4.5h16v15H4Z", "M4 15.5 8.5 11.2l3.2 2.6 3.5-4.3L20 15.2", "M8.2 8h.1"],
+  audio: ["M4 10h3l5-4v12l-5-4H4Z", "M15 9.5a3.2 3.2 0 0 1 0 5"],
+  video: ["M4 6.5h12v11H4Z", "M16 10.5 20 8.5v7L16 13.5Z"],
+  archive: ["M3.5 5.5h17V8.5h-17Z", "M4.5 8.5h15V20h-15Z", "M10 12.5h4"],
+  mail: ["M4 6.5h16v11H4Z", "M4 7l8 6 8-6"],
+  code: ["M9 8 4.5 12 9 16", "M15 8l4.5 4L15 16"],
+  search: ["M10.5 17a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13", "M15.2 15.2 20 20"],
+  zoom: ["M11 17a6 6 0 1 1 0-12 6 6 0 0 1 0 12", "M15.5 15.5 20 20", "M11 8v6", "M8 11h6"],
+  "chevron-left": ["M14 6 8 12l6 6"],
+  "chevron-right": ["M10 6l6 6-6 6"],
+  type: ["M4 4h16", "M12 4v16"],
+  pen: ["M13.2 3.2 20.8 10.8 8.2 20.8H3.2v-5.6Z", "M10.8 5.6 18.2 13"],
+  layers: ["M12 4 20 8 12 12 4 8Z", "M4 12l8 4 8-4", "M4 16l8 4 8-4"],
+  elements: ["M4 4h6v6H4Z", "M14 4h6v6h-6Z", "M4 14h6v6H4Z", "M14 14h6v6h-6Z"],
+  shapes: ["M4 4h8.5v8.5H4Z", "M16 12.25a3.75 3.75 0 1 1 0 7.5 3.75 3.75 0 0 1 0-7.5"],
+  alert: ["M12 3.5 21.5 20H2.5Z", "M12 9.5v4.5", "M12 17.2h.01"],
+  fullscreen: ["M4 9V4h5", "M15 4h5v5", "M20 15v5h-5", "M9 20H4v-5"],
+  "fullscreen-exit": ["M9 4v5H4", "M15 4v5h5", "M20 15h-5v5", "M4 15h5v5"],
+  numbered: ["M4 7h2.2", "M4 12h2.2", "M4 17h2.2", "M8.5 7H20", "M8.5 12H20", "M8.5 17H20"],
+  pages: ["M8 3.5h12v15H8Z", "M4 6.5h12v15H4Z"],
+  frame: ["M4 4h16v16H4Z", "M8 8h8v8H8Z"],
 };
 
 const NS = "http://www.w3.org/2000/svg";

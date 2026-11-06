@@ -4,7 +4,8 @@
  *   @import "tailwindcss";
  *   @import "@filedom/ui/theme.css";
  *
- * Paper and ink, one forest accent, 2px radius, hairline borders.
+ * Cool paper and ink, the logo blue, and an amber accent, shared with the website.
+ * Body type is Saira. Headings on the docs use Russo One.
  * Put `.dark` on <html> (or any ancestor) for dark mode. The bridge at the end
  * hands the same palette to the viewer through its --dd-* variables, which win
  * over the viewer's own defaults, so the page canvas matches the chrome.
@@ -13,55 +14,57 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --radius: 2px;
-  --font-ui: "Source Sans 3", "Avenir Next", "Segoe UI", sans-serif;
+  --radius: 0.45rem;
+  --font-ui: "Saira", "Segoe UI", sans-serif;
   --toolbar-height: 2.5rem;
 
-  --background: #f4f0e8;
-  --foreground: #1a1916;
+  --background: #f4f5fb;
+  --foreground: #07131c;
   --card: #ffffff;
-  --card-foreground: #1a1916;
+  --card-foreground: #07131c;
   --popover: #ffffff;
-  --popover-foreground: #1a1916;
-  --primary: #1a5f4a;
-  --primary-foreground: #f4f0e8;
-  --secondary: #ebe4d6;
-  --secondary-foreground: #1a1916;
-  --muted: #ebe4d6;
-  --muted-foreground: #5e584e;
-  --accent: #ebe4d6;
-  --accent-foreground: #1a1916;
+  --popover-foreground: #07131c;
+  --primary: #3564d9;
+  --primary-foreground: #f4f8fb;
+  --secondary: #e8eaf8;
+  --secondary-foreground: #07131c;
+  --muted: #e8eaf8;
+  --muted-foreground: #4c6072;
+  --accent: #e8eaf8;
+  --accent-foreground: #07131c;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: rgba(26, 25, 22, 0.14);
-  --input: rgba(26, 25, 22, 0.14);
-  --ring: #1a5f4a;
-  --canvas: #ebe4d6;
+  --border: rgba(7, 19, 28, 0.12);
+  --input: rgba(7, 19, 28, 0.12);
+  --ring: #3564d9;
+  --amber: #c7862b;
+  --canvas: #e8eaf8;
 
   color-scheme: light;
 }
 
 .dark {
-  --background: #141311;
-  --foreground: #f3efe6;
-  --card: #1c1b18;
-  --card-foreground: #f3efe6;
-  --popover: #242220;
-  --popover-foreground: #f3efe6;
-  --primary: #7dbaa4;
-  --primary-foreground: #141311;
-  --secondary: #2a2825;
-  --secondary-foreground: #f3efe6;
-  --muted: #2a2825;
-  --muted-foreground: #a39c90;
-  --accent: #2a2825;
-  --accent-foreground: #f3efe6;
+  --background: #05080c;
+  --foreground: #f4f8fb;
+  --card: #101820;
+  --card-foreground: #f4f8fb;
+  --popover: #16202a;
+  --popover-foreground: #f4f8fb;
+  --primary: #7c9ae6;
+  --primary-foreground: #041018;
+  --secondary: #101820;
+  --secondary-foreground: #f4f8fb;
+  --muted: #101820;
+  --muted-foreground: #a3b4c4;
+  --accent: #101820;
+  --accent-foreground: #f4f8fb;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(243, 239, 230, 0.14);
-  --input: rgba(243, 239, 230, 0.14);
-  --ring: #7dbaa4;
-  --canvas: #1a1916;
+  --border: rgba(244, 248, 251, 0.14);
+  --input: rgba(244, 248, 251, 0.14);
+  --ring: #7c9ae6;
+  --amber: #c7862b;
+  --canvas: #101820;
 
   color-scheme: dark;
 }

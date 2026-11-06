@@ -12,6 +12,18 @@ export function clampZoom(zoom: number): number {
   return Math.min(Math.max(zoom, MIN_ZOOM), MAX_ZOOM);
 }
 
+/**
+ * A typed percentage, such as `125` or `125%`.
+ * Empty or non-numeric text is undefined. A number is clamped to {@link MIN_ZOOM}–{@link MAX_ZOOM}.
+ */
+export function zoomFromPercent(text: string): number | undefined {
+  const raw = text.trim().replace(/%$/, "").replace(",", ".");
+  if (!raw) return undefined;
+  const percent = Number(raw);
+  if (!Number.isFinite(percent)) return undefined;
+  return clampZoom(percent / 100);
+}
+
 /** The next preset step above (`1`) or below (`-1`) `zoom`. */
 export function stepZoom(zoom: number, direction: 1 | -1): number {
   const eps = 1e-3;

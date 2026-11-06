@@ -30,7 +30,7 @@ import {
 } from "./site-lib.mjs";
 
 export const DEFAULT_PORT = 5180;
-const FORWARDED_HEADERS = ["x-filedom-ticket", "accept", "if-none-match", "if-modified-since"];
+const FORWARDED_HEADERS = ["x-filedom-ticket", "x-filedom-device", "accept", "if-none-match", "if-modified-since"];
 
 /**
  * Where a request goes, without touching the network. `file` targets may not exist yet;

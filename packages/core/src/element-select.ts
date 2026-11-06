@@ -1,5 +1,6 @@
 import type { PageView, Rect, RunView } from "./engine-types.js";
 import { runBox } from "./geometry.js";
+import { PX_PER_PT } from "./zoom.js";
 
 /** One selectable PDF element: a text line, image, path, or other page object. */
 export interface PdfElement {
@@ -208,12 +209,78 @@ export function elementDisplayBox(element: PdfElement): Rect {
   };
 }
 
+/** The cursor for a point on the page. The I-beam is only for the text being edited. */
+export function pageHoverCursor(input: {
+  viewing: boolean;
+  objectEdit: boolean;
+  editingTextId?: string;
+  hit?: { id: string; kind: string };
+  overText: boolean;
+}): "default" | "text" | "pointer" {
+  if (input.viewing) return "default";
+  if (input.objectEdit) {
+    if (!input.hit) return "default";
+    if (input.hit.kind === "text" && input.editingTextId === input.hit.id) return "text";
+    return "pointer";
+  }
+  return input.overText ? "text" : "default";
+}
+
+/**
+ * Extra points so a few screen pixels still count once the page is scaled down.
+ * At 100% and above the boxes keep their own pad.
+ */
+export function zoomSlackPt(zoom: number, minPx = 8): number {
+  if (!(zoom > 0) || zoom >= 1) return 0;
+  return minPx / (Math.max(zoom, 0.1) * PX_PER_PT);
+}
+
+/** Click pad for one element. Text keeps a wider pad, and both grow when zoomed out. */
+export function hitPadPt(kind: string, zoom = 1): number {
+  return (kind === "text" ? 6 : 2) + zoomSlackPt(zoom, kind === "text" ? 8 : 4);
+}
+
+/** CSS pixels per point from the page's on-screen box, so a zoomed page hits where it looks. */
+export function pageScale(
+  rect: { width: number; height: number },
+  page: { widthPt: number; heightPt: number },
+  fallback = 1,
+): { x: number; y: number } {
+  const safe = fallback > 0 ? fallback : 1;
+  return {
+    x: rect.width > 0.5 && page.widthPt > 0 ? rect.width / page.widthPt : safe,
+    y: rect.height > 0.5 && page.heightPt > 0 ? rect.height / page.heightPt : safe,
+  };
+}
+
+/** Page point under a viewport pixel. `rect` is the page element's border box. */
+export function clientToPagePoint(
+  clientX: number,
+  clientY: number,
+  rect: { left: number; top: number; width: number; height: number },
+  page: { widthPt: number; heightPt: number },
+  fallbackScale = 1,
+): { xPt: number; yPt: number } {
+  const scale = pageScale(rect, page, fallbackScale);
+  return { xPt: (clientX - rect.left) / scale.x, yPt: (clientY - rect.top) / scale.y };
+}
+
+/** A handle that sits on the glyphs places the caret. A handle out in the margin still drags. */
+export function textUnderHandle(action: string | undefined, kind: string | undefined, onGlyphs: boolean): boolean {
+  return kind === "text" && onGlyphs && (action === "move-element" || action === "resize-element" || action === "rotate-element");
+}
+
+/** Cursor while a move, resize, or rotate gesture is in progress. */
+export function gestureCursor(mode: "move" | "resize" | "rotate", corner?: string): string {
+  if (mode === "resize") return corner === "ne" || corner === "sw" ? "nesw-resize" : "nwse-resize";
+  return "grabbing";
+}
+
 /** The topmost element under the point. A smaller element wins a tie. */
-export function hitElement(elements: PdfElement[], xPt: number, yPt: number): PdfElement | undefined {
+export function hitElement(elements: PdfElement[], xPt: number, yPt: number, zoom = 1): PdfElement | undefined {
   let best: PdfElement | undefined;
   for (const element of elements) {
-    const pad = element.kind === "text" ? 6 : 2;
-    if (!boxContains(element.box, xPt, yPt, pad)) continue;
+    if (!boxContains(element.box, xPt, yPt, hitPadPt(element.kind, zoom))) continue;
     if (!best || element.z > best.z || (element.z === best.z && area(element.box) < area(best.box))) best = element;
   }
   return best;

@@ -34,7 +34,7 @@ describe("toolbar catalog", () => {
   it("lists app and contextual groups with hints", () => {
     expect(TOOLBAR_CATALOG.some((g) => g.id === "file" && g.row === "app")).toBe(true);
     expect(TOOLBAR_CATALOG.some((g) => g.id === "text" && g.row === "contextual")).toBe(true);
-    expect(TRAY_CATALOG.map((tray) => tray.id)).toEqual(["history", "layers"]);
+    expect(TRAY_CATALOG.map((tray) => tray.id)).toEqual(["comments", "history", "layers", "elements"]);
     expect(actionHint("file", "open", true)).toMatch(/Open/);
     expect(actionHint("file", "open", false)).toBe("");
     expect(actionHint("view", "toolbarVisibility", true)).toMatch(/tray/i);
@@ -137,6 +137,7 @@ describe("toolbar catalog", () => {
       selection: "none",
     });
     expect(actionAvailability("insert", "insertImage", insert)).toBe("shown");
+    expect(actionAvailability("insert", "insertCode", insert)).toBe("hidden");
     expect(actionAvailability("insert", "insertShape", insert)).toBe("hidden");
   });
 });

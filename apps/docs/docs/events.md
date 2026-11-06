@@ -1,6 +1,7 @@
 ---
 sidebar_position: 2
 title: Events
+description: Subscribe with viewer.on. Each event sends one payload, and the return value removes that listener.
 ---
 
 # Events

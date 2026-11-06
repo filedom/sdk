@@ -4,9 +4,12 @@ import Layout from "@theme/Layout";
 
 export default function Home(): React.JSX.Element {
   return (
-    <Layout title="filedom SDK" description="Embed the shared document editor in any framework">
+    <Layout
+      title="Embed the shared document editor"
+      description="Embed the shared document editor in React, Vue, Svelte, Angular, and seven more frameworks."
+    >
       <main className="container margin-vert--xl">
-        <h1>filedom SDK</h1>
+        <h1>FileDOM SDK</h1>
         <p className="text-muted-foreground max-w-xl">
           Embed the shared document editor in React, Vue, Svelte, Angular, and seven more frameworks.
         </p>
@@ -14,9 +17,9 @@ export default function Home(): React.JSX.Element {
           <Link className="button button--primary" to="/install/">
             Get started
           </Link>
-          <Link className="button button--secondary" to="/playground/">
-            Open the playground
-          </Link>
+          <a className="button button--secondary" href="/sdk/integrations">
+            Open the integrations
+          </a>
         </div>
       </main>
     </Layout>

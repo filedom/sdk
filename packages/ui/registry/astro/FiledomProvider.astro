@@ -17,7 +17,7 @@ const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
   import { bundlesFromCdn, createViewerStore, type ViewerStore, type ViewerStoreSnapshot, type ViewMode } from "@filedom/core";
   import { mountFiledomIsland } from "@filedom/astro-host";
 
-  const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+  const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
   function shellState(snapshot: { status: string }): string {
     const notice = (snapshot as { usageNotice?: string | null }).usageNotice;
@@ -122,6 +122,7 @@ const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
     root.append(fileInput);
 
     let store: ViewerStore | undefined;
+    let pendingSample = false;
 
     fileInput.addEventListener("change", () => {
       const file = fileInput.files?.[0];
@@ -138,9 +139,16 @@ const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
     });
 
     async function openSample(): Promise<void> {
-      if (!store) return;
+      if (!store) {
+        pendingSample = true;
+        return;
+      }
+      pendingSample = false;
       const response = await fetch(SAMPLE_PDF);
-      if (!response.ok) return;
+      if (!response.ok) {
+        fail(root, `Could not fetch the sample (${response.status}).`);
+        return;
+      }
       await store.viewer.open(new Uint8Array(await response.arrayBuffer()), { name: "hello.pdf" });
     }
 
@@ -212,6 +220,7 @@ const { bundlesBase = "/api/bundles/0.0.1", toolbar = false } = Astro.props;
         };
         draw();
         store.subscribe(draw);
+        if (pendingSample) void openSample();
       } catch (error) {
         fail(root, error instanceof Error ? error.message : "Could not start the viewer");
       }

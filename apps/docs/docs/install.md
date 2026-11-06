@@ -1,6 +1,7 @@
 ---
 sidebar_position: 1
 title: Install
+description: Install @filedom/core, point the viewer at the format bundles, and mount the editor.
 ---
 
 # Install
@@ -24,4 +25,4 @@ await viewer.open(fileFromInput);
 
 `bundlesFromCdn` loads `{base}/{format}/filedom_{format}.js` when a file of that kind opens. The empty editor mounts only the chrome until a file opens.
 
-Framework packages take the same options and only mount the viewer. The playground has the source for each one. The UI itself lives in `@filedom/core`.
+Framework packages take the same options and only mount the viewer. Each framework example has the source. The UI itself lives in `@filedom/core`.

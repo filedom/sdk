@@ -41,6 +41,21 @@ describe("pointerKeepsSelection", () => {
     page.remove();
   });
 
+  it("keeps the selection when the click is a side-rail tool", () => {
+    const rail = document.createElement("div");
+    rail.className = "dd-rail dd-rail-left";
+    const button = document.createElement("button");
+    rail.append(button);
+    document.body.append(rail);
+    let kept = false;
+    rail.addEventListener("pointerdown", (event) => {
+      kept = pointerKeepsSelection(event.composedPath());
+    });
+    button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    expect(kept).toBe(true);
+    rail.remove();
+  });
+
   it("clears the selection when the click is on the margin around the page", () => {
     const pages = document.createElement("div");
     pages.className = "dd-pages";

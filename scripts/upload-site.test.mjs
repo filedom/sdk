@@ -186,7 +186,7 @@ describe("docs upload", () => {
     });
     assert.equal(calls.length, 1);
     assert.equal(calls[0].method, "PUT");
-    assert.equal(calls[0].url, "https://3d28ddc0579eb80dd173c75d55be3768.r2.cloudflarestorage.com/filedom/sdk-docs/a%20b.html");
+    assert.equal(calls[0].url, "https://3d28ddc0579eb80dd173c75d55be3768.r2.cloudflarestorage.com/filedom/sdk/docs/a%20b.html");
     assert.equal(calls[0].body.toString(), "<html>a</html>");
     assert.equal(calls[0].headers["content-type"], "text/html; charset=utf-8");
     assert.equal(calls[0].headers["cache-control"], SHORT);

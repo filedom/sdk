@@ -1,11 +1,12 @@
 ---
 sidebar_position: 4
 title: Modes
+description: Live, track, and view. Track mode stores the change list for PDF, Word, Excel, and PowerPoint.
 ---
 
 # Modes
 
-The mode menu is on every file. Track mode stores the change list for PDF, Word, Excel, and PowerPoint. Other formats report track changes as unsupported. [Toolbars](/sdk/docs/toolbars) lists Restore, Revert, and the rest of that toolbar.
+The mode menu is on every file, and the same choice is in Settings under Editing. Track mode stores the change list for PDF, Word, Excel, and PowerPoint. Other formats report track changes as unsupported. [Toolbars](/sdk/docs/toolbars) lists Restore, Revert, and the rest of that toolbar.
 
 | Mode | Behavior |
 | --- | --- |

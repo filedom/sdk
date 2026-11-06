@@ -1,11 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { codeFormat, formatCode, highlightCode, isCodeFile, languageFromName, renderCodeHtml } from "./code-editor.js";
+import { canOpenAsCode, codeFormat, formatCode, highlightCode, isCodeFile, languageFromName, renderCodeHtml } from "./code-editor.js";
 
 describe("code editor", () => {
   it("recognises source files and leaves documents alone", () => {
     expect(languageFromName("src/App.tsx")).toBe("tsx");
     expect(isCodeFile("notes.ts")).toBe(true);
+    expect(languageFromName("App.vue")).toBeUndefined();
+    expect(languageFromName("App.svelte")).toBeUndefined();
+    expect(languageFromName("index.astro")).toBeUndefined();
+    expect(isCodeFile("App.vue")).toBe(false);
+    expect(isCodeFile("App.svelte")).toBe(false);
+    expect(isCodeFile("index.astro")).toBe(false);
+    expect(isCodeFile("Main.java")).toBe(true);
+    expect(isCodeFile("Dockerfile")).toBe(true);
     expect(isCodeFile("report.pdf")).toBe(false);
+    expect(isCodeFile("photo.png")).toBe(false);
+    expect(canOpenAsCode("readme", new TextEncoder().encode("hello\n"))).toBe(true);
+    expect(canOpenAsCode("app.bin", Uint8Array.from([0, 1, 2, 3, 4]))).toBe(false);
   });
 
   it("formats JSON with the configured indent", () => {

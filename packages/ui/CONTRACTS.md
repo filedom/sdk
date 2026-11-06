@@ -180,7 +180,7 @@ One base everywhere: local serve, tests, and production.
 | Path | What |
 | --- | --- |
 | `/sdk/docs/` | Docs site (Docusaurus, `trailingSlash: true`) |
-| `/sdk/docs/playground/` | Playground. `?fw=<id>` selects the framework and its code. An unknown value falls back to `react` |
+| `/sdk/integrations` | Integrations. `?fw=<id>` selects the framework, its source, and its preview. An unknown value falls back to `react` |
 | `/sdk/docs/licensing/` | Licensing page |
 | `/sdk/docs/examples/<fw>/` | Built example |
 | `/sdk/docs/samples/hello.pdf` | Sample PDF |

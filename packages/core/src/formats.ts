@@ -1,8 +1,10 @@
+import { isCodeFile } from "./code-editor.js";
 import type { FileKind, Format } from "./engine-types.js";
 import { FiledomError } from "./errors.js";
+import type { IconName } from "./icons.js";
 
 export const ACCEPT =
-  ".pdf,.docx,.doc,.docm,.dot,.dotx,.dotm,.xlsx,.xls,.xlsm,.xlt,.xltx,.xltm,.xlam,.xlsb,.xla,.pptx,.ppt,.pptm,.pot,.potx,.potm,.pps,.ppsx,.ppsm,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tif,.tiff,.svg,.ai,.csv,.mp3,.wav,.m4a,.mp4,.mpeg,.mpg,.webm,.zip,.gz,.tgz,.tar,.7z,.eml,.msg,application/pdf,application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml,text/csv,audio/mpeg,audio/wav,audio/mp4,video/mp4,video/mpeg,video/webm,application/zip,application/gzip,application/x-tar,application/x-7z-compressed,message/rfc822,application/vnd.ms-outlook";
+  ".pdf,.docx,.doc,.docm,.dot,.dotx,.dotm,.xlsx,.xls,.xlsm,.xlt,.xltx,.xltm,.xlam,.xlsb,.xla,.pptx,.ppt,.pptm,.pot,.potx,.potm,.pps,.ppsx,.ppsm,.png,.jpg,.jpeg,.gif,.webp,.bmp,.tif,.tiff,.svg,.ai,.csv,.mp3,.wav,.m4a,.mp4,.mpeg,.mpg,.webm,.zip,.gz,.tgz,.tar,.7z,.eml,.msg,.rtf,.odt,.ods,.odp,.hwp,.hwpx,.pages,.numbers,.key,.epub,.mobi,.azw3,.fb2,.cbz,.djvu,.djv,.ico,.tga,.pbm,.pgm,.ppm,.pnm,.pam,.hdr,.qoi,.dds,.ff,.exr,.avif,.jxl,.jp2,.j2k,.j2c,.psd,.psb,.flac,.opus,.ogg,.oga,.wv,.mpc,.aiff,.aif,.aifc,.caf,.mp1,.mp2,.mkv,.mov,.bz2,.xz,.zst,.mbox,application/pdf,application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.presentationml.presentation,image/png,image/jpeg,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml,text/csv,audio/mpeg,audio/wav,audio/mp4,video/mp4,video/mpeg,video/webm,application/zip,application/gzip,application/x-tar,application/x-7z-compressed,message/rfc822,application/vnd.ms-outlook";
 
 /**
  * Kind of each concrete format. Image and OCR still have no session.
@@ -112,6 +114,22 @@ const BY_EXTENSION: Record<string, Format> = {
 
 export function fileKind(format: Format): FileKind {
   return KIND[format];
+}
+
+const FILE_ICONS: Partial<Record<FileKind, IconName>> = {
+  image: "image",
+  vector: "image",
+  audio: "audio",
+  video: "video",
+  archive: "archive",
+  email: "mail",
+};
+
+/** A drawn icon for this file. Kinds without one use the plain file mark. */
+export function fileIconName(name: string, format?: Format): IconName {
+  if (isCodeFile(name)) return "code";
+  const kind = format ? fileKind(format) : undefined;
+  return (kind && FILE_ICONS[kind]) || "file";
 }
 
 /** Detail when this format has no session yet. Open formats return `undefined`. */

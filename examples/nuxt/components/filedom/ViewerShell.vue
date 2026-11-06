@@ -5,7 +5,7 @@ import { FileUp } from "lucide-vue-next";
 import Button from "~/components/filedom/Button.vue";
 import { useFiledom } from "~/components/filedom/FiledomProvider.vue";
 
-const SAMPLE_PDF = "/sdk-docs/samples/hello.pdf";
+const SAMPLE_PDF = "/sdk/docs/samples/hello.pdf";
 
 const { store, snapshot } = useFiledom();
 const dragging = ref(false);

@@ -68,7 +68,7 @@ export class FiledomViewerShell implements AfterViewInit {
   readonly heading = computed(() => (this.state() === "error" ? "Could not open the document" : "Open a document"));
   readonly message = computed(() => {
     if (this.state() === "error") return this.ctx.snapshot()?.error?.detail ?? this.failure() ?? "Could not open the document";
-    return this.failure() ?? "Drop a PDF or Office file, or open the sample.";
+    return this.failure() ?? "Drop any file, such as a document or a media file, or open the sample.";
   });
 
   ngAfterViewInit(): void {

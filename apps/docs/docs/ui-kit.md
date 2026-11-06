@@ -1,5 +1,6 @@
 ---
 title: UI kit
+description: Copy in a toolbar, zoom controls, search, mode select, theme toggle, file button, and page status.
 ---
 
 # UI kit

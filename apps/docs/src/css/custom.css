@@ -1,4 +1,6 @@
 /* Tailwind without preflight, so Infima keeps its typography and resets. */
+@import url("https://fonts.googleapis.com/css2?family=Russo+One&family=Saira:wght@400;500&display=swap");
+
 @layer theme;
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/utilities.css" source(none);
@@ -39,8 +41,10 @@
   --ifm-hover-overlay: var(--accent);
 
   --ifm-font-family-base: var(--font-ui);
+  --ifm-heading-font-family: "Russo One", "Saira", sans-serif;
   --ifm-font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  --ifm-heading-font-weight: 600;
+  --ifm-heading-font-weight: 400;
+  --ifm-navbar-height: 4.1rem;
   --ifm-global-radius: var(--radius);
   --ifm-button-border-radius: var(--radius);
   --ifm-global-shadow-lw: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -57,8 +61,6 @@
   --ifm-navbar-link-hover-color: var(--foreground);
   --ifm-navbar-link-active-color: var(--foreground);
   --ifm-navbar-shadow: none;
-  --ifm-navbar-height: 3.5rem;
-
   --ifm-menu-color: var(--muted-foreground);
   --ifm-menu-color-active: var(--primary);
   --ifm-menu-color-background-active: color-mix(in srgb, var(--primary) 10%, transparent);
@@ -71,9 +73,63 @@
   --ifm-footer-title-color: var(--foreground);
 }
 
+html {
+  background: var(--background);
+}
+
+body {
+  background:
+    radial-gradient(1100px 460px at 8% -12%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 58%),
+    var(--background);
+}
+
+::selection {
+  background: #c7862b;
+  color: #07131c;
+}
+
 .navbar {
   border-bottom: 1px solid var(--border);
-  backdrop-filter: saturate(180%) blur(8px);
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.navbar__brand {
+  align-items: center;
+  gap: 0.55rem;
+}
+
+a.navbar__brand:not(:has(img)) {
+  display: none;
+}
+
+.navbar__title {
+  font-family: "Russo One", "Saira", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: var(--foreground);
+}
+
+.navbar__product {
+  font-family: "Saira", "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.navbar__logo {
+  height: 1.45rem;
+  width: 1.45rem;
+}
+
+.github-mark {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .button {
@@ -81,7 +137,14 @@
 }
 
 .button--primary {
-  --ifm-button-color: var(--primary-foreground);
+  --ifm-button-color: #f4f8fb;
+  background: #3564d9;
+  border-color: transparent;
+  color: #f4f8fb;
+}
+
+.button--primary:hover {
+  color: #f4f8fb;
 }
 
 .button--secondary,

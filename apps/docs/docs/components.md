@@ -1,6 +1,7 @@
 ---
 sidebar_position: 6
 title: Components
+description: Register a component, then place it on the open document. The factory receives the container and props.
 ---
 
 # Components

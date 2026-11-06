@@ -37,7 +37,7 @@ export class FiledomThemeToggle {
   readonly moonIcon = Moon;
   readonly dark = computed(() => {
     const theme = this.ctx.snapshot()?.theme;
-    return theme === "dark" || theme === "high-contrast-dark";
+    return theme === "dark";
   });
   readonly theme = computed(() => this.ctx.control("theme", this.dark() ? "Switch to light theme" : "Switch to dark theme"));
 

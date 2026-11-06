@@ -32,7 +32,7 @@ export class FiledomThemeToggleElement extends LitElement {
 
   private dark(): boolean {
     const theme = this.snapshot?.theme;
-    return theme === "dark" || theme === "high-contrast-dark";
+    return theme === "dark";
   }
 
   private toggle = () => {

@@ -9,7 +9,7 @@ export function ThemeToggle() {
   const theme = useAction("theme", "Theme");
   const dark = () => {
     const value = api.snapshot()?.theme;
-    return value === "dark" || value === "high-contrast-dark";
+    return value === "dark";
   };
 
   function toggle() {

@@ -1,5 +1,5 @@
 import type { FiledomViewer, ViewerOptions } from "@filedom/core";
-import "@filedom/lit";
+import { FiledomViewerElement } from "@filedom/lit";
 import { createElement, Upload } from "lucide";
 import { LitElement, html } from "lit";
 import { button } from "@/components/filedom/button";
@@ -15,6 +15,7 @@ export class FiledomViewerShellElement extends LitElement {
   private viewerOptions: ViewerOptions = { toolbar: false };
   private stop = () => {};
   private attached = false;
+  private pendingSample = false;
 
   protected override createRenderRoot(): HTMLElement {
     return this;
@@ -43,6 +44,7 @@ export class FiledomViewerShellElement extends LitElement {
     if (this.attached) return;
     this.attached = true;
     filedomProvider(this)?.attach(viewer);
+    if (this.pendingSample) void this.openSample();
   }
 
   private onReady = (event: Event) => {
@@ -79,7 +81,11 @@ export class FiledomViewerShellElement extends LitElement {
 
   private openSample = async () => {
     const store = filedomProvider(this)?.store;
-    if (!store) return;
+    if (!store) {
+      this.pendingSample = true;
+      return;
+    }
+    this.pendingSample = false;
     const response = await fetch(SAMPLE_PDF);
     if (!response.ok) return;
     await store.viewer.open(new Uint8Array(await response.arrayBuffer()), { name: "hello.pdf" });
@@ -105,8 +111,8 @@ export class FiledomViewerShellElement extends LitElement {
           @drop=${this.onDrop}
         >
           ${icon(Upload)}
-          <p class="text-sm font-medium">Drop a document here</p>
-          <p class="text-xs text-muted-foreground">PDF or Office file</p>
+          <p class="text-sm font-medium">Drop any file here</p>
+          <p class="text-xs text-muted-foreground">Such as a document or a media file.</p>
           <p data-filedom-error hidden class="text-sm text-destructive"></p>
           ${button({ slot: "open-sample", label: "Open sample", onClick: () => void this.openSample() })}
         </div>
@@ -115,4 +121,5 @@ export class FiledomViewerShellElement extends LitElement {
   }
 }
 
+if (!customElements.get("filedom-viewer")) customElements.define("filedom-viewer", FiledomViewerElement);
 if (!customElements.get("filedom-viewer-shell")) customElements.define("filedom-viewer-shell", FiledomViewerShellElement);
