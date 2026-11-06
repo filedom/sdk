@@ -1,6 +1,6 @@
 {
   "name": "@filedom/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "filedom web SDK. The viewer talks to the filedom WebAssembly bundles. The pdf renderer is inside the pdf wasm; Office is linked inside the office bundle.",
   "type": "module",

@@ -1,6 +1,6 @@
 {
   "name": "@filedom/sveltekit-host",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "filedom SvelteKit browser-only action wrapping @filedom/core",
   "type": "module",

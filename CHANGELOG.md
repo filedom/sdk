@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1 — 6 Nov 2026
+
+You can open and convert many more file types in the browser.
+
+- Books, mail, pictures, audio, and source open in the editor
+- A device id is sent with opens and error reports
+
 ## 0.3.0 — 3 Nov 2026
 
 A rotated PDF keeps its selection border on the element.

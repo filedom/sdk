@@ -1,6 +1,6 @@
 {
   "name": "@filedom/astro-host",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "description": "filedom Astro island mount wrapping @filedom/core",
   "type": "module",
