@@ -3,7 +3,6 @@ import type { BundleImporters } from "./bundles.js";
 import type { EngineModule, EngineSession, Format } from "./engine-types.js";
 import { bindPdfiumRender } from "./engines/bind-pdfium.js";
 import { pdfiumBytes, wasmArrayBuffer } from "./engines/pdfium-section.js";
-import { applyDeviceHeader } from "./device-id.js";
 import { FiledomError } from "./errors.js";
 
 interface GlueModule {
@@ -203,9 +202,7 @@ function hasWasmMagic(bytes: Uint8Array): boolean {
 
 /** Plaintext wasm from the CDN. A buffer that does not start with `\0asm` is refused. */
 async function fetchWasm(url: string): Promise<Uint8Array> {
-  const headers = new Headers();
-  applyDeviceHeader(headers);
-  const response = await fetch(url, { cache: "no-store", headers });
+  const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new FiledomError("bundle-missing", `wasm: ${response.status}`);
   const bytes = new Uint8Array(await response.arrayBuffer());
   if (!hasWasmMagic(bytes)) throw new FiledomError("bundle-missing", "The engine bundle is not a wasm module.");

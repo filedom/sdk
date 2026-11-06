@@ -1,6 +1,5 @@
 import type { BundleImporters } from "../bundles.js";
 import type { EngineModule, Format } from "../engine-types.js";
-import { applyDeviceHeader } from "../device-id.js";
 import { FiledomError } from "../errors.js";
 
 const MEDIA: Format[] = ["wav", "mp3", "m4a", "mp4", "webm", "mpeg"];
@@ -48,9 +47,7 @@ async function wasmBytes(wasmUrl: URL): Promise<Uint8Array> {
     const { readFile } = await import(/* webpackIgnore: true */ "node:fs/promises");
     return new Uint8Array(await readFile(wasmUrl));
   }
-  const headers = new Headers();
-  applyDeviceHeader(headers);
-  const response = await fetch(wasmUrl, { headers });
+  const response = await fetch(wasmUrl);
   if (!response.ok) throw new FiledomError("bundle-missing", `wasm: ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());
 }

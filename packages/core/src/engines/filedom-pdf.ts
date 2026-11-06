@@ -1,7 +1,6 @@
 import { init as initPdfium } from "@embedpdf/pdfium";
 import init, { initSync, initialize_pdfium_render, open as openPdf } from "../../../../../wasm/pkg/pdf/filedom_pdf.js";
 import type { EngineSession } from "../engine-types.js";
-import { applyDeviceHeader } from "../device-id.js";
 import { FiledomError } from "../errors.js";
 import { bindPdfiumRender } from "./bind-pdfium.js";
 import { pdfiumBytes, wasmArrayBuffer } from "./pdfium-section.js";
@@ -54,9 +53,7 @@ async function rustWasmBytes(): Promise<Uint8Array> {
     const { readFile } = await import("node:fs/promises");
     return new Uint8Array(await readFile(wasmUrl));
   }
-  const headers = new Headers();
-  applyDeviceHeader(headers);
-  const response = await fetch(wasmUrl, { headers });
+  const response = await fetch(wasmUrl);
   if (!response.ok) throw new FiledomError("bundle-missing", `wasm: ${response.status}`);
   return new Uint8Array(await response.arrayBuffer());
 }
