@@ -60,7 +60,7 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
           type: "html",
           position: "left",
           value:
-            `<a class="navbar__brand" href="${SITE}/"><img class="navbar__logo" src="/mark.png" alt="" width="23" height="23"><b class="navbar__title">FileDOM</b><span class="navbar__product">SDK</span></a>`,
+            '<a class="navbar__brand" href="/"><img class="navbar__logo" src="/mark.png" alt="" width="23" height="23"><b class="navbar__title">FileDOM</b><span class="navbar__product">SDK</span></a>',
         },
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
         {
