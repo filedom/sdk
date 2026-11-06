@@ -5,6 +5,7 @@ import exampleSourcesPlugin from "./src/plugins/example-sources";
 import tailwindPlugin from "./src/plugins/tailwind";
 
 const GITHUB = "https://github.com/filedom/sdk";
+const SITE = "https://filedom.io";
 const GA_MEASUREMENT_ID = "G-8GT6Y9JSNK";
 
 const config: Config = {
@@ -59,20 +60,20 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
           type: "html",
           position: "left",
           value:
-            '<a class="navbar__brand" href="/"><img class="navbar__logo" src="/mark.png" alt="" width="23" height="23"><b class="navbar__title">FileDOM</b><span class="navbar__product">SDK</span></a>',
+            `<a class="navbar__brand" href="${SITE}/"><img class="navbar__logo" src="/mark.png" alt="" width="23" height="23"><b class="navbar__title">FileDOM</b><span class="navbar__product">SDK</span></a>`,
         },
         { type: "docSidebar", sidebarId: "docs", position: "left", label: "Docs" },
         {
           type: "html",
           position: "left",
-          value: '<a class="navbar__link" href="/sdk/integrations">Integrations</a>',
+          value: `<a class="navbar__link" href="${SITE}/sdk/integrations">Integrations</a>`,
         },
         { to: "/licensing/", label: "Licensing", position: "left" },
         // Raw HTML so this stays on the cloud site. A normal link would be prefixed with /sdk/docs/.
         {
           type: "html",
           position: "right",
-          value: '<a class="navbar__link" href="/cloud">FileDOM Cloud</a>',
+          value: `<a class="navbar__link" href="${SITE}/cloud">FileDOM Cloud</a>`,
         },
         {
           type: "html",
@@ -87,28 +88,28 @@ gtag('config', '${GA_MEASUREMENT_ID}');`,
         {
           title: "Product",
           items: [
-            { label: "FileDOM", href: "/" },
-            { label: "Cloud", href: "/cloud" },
-            { label: "Pricing", href: "/pricing" },
-            { label: "Library", href: "/library" },
+            { label: "FileDOM", href: `${SITE}/` },
+            { label: "Cloud", href: `${SITE}/cloud` },
+            { label: "Pricing", href: `${SITE}/pricing` },
+            { label: "Library", href: `${SITE}/library` },
           ],
         },
         {
           title: "SDK",
           items: [
-            { label: "SDK", href: "/sdk" },
+            { label: "SDK", href: `${SITE}/sdk` },
             { label: "Docs", to: "/" },
-            { label: "Integrations", href: "/sdk/integrations" },
-            { label: "Licence", href: "/sdk/licence" },
+            { label: "Integrations", href: `${SITE}/sdk/integrations` },
+            { label: "Licence", href: `${SITE}/sdk/licence` },
             { label: "GitHub", href: GITHUB },
           ],
         },
         {
           title: "Legal",
           items: [
-            { label: "Terms", href: "/legal/terms" },
-            { label: "Privacy", href: "/legal/privacy" },
-            { label: "Cookies", href: "/legal/cookies" },
+            { label: "Terms", href: `${SITE}/legal/terms` },
+            { label: "Privacy", href: `${SITE}/legal/privacy` },
+            { label: "Cookies", href: `${SITE}/legal/cookies` },
           ],
         },
       ],
